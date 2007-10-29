@@ -166,6 +166,23 @@ $wgNamespacesToBeSearchedDefault +=
 			100 => false, 100 => false); //Old namespace
 $wgContentNamespaces += array(NS_PATHWAY, NS_PATHWAY_TALK);
 
+//AP20071027 
+# Reject user creation from specific domains
+function abortOnBadDomain($user, $message) {
+
+  global $wgRequest;
+  $email = $wgRequest->getText( 'wpEmail' );
+  $emailSplitList = split("@", $email, 2);
+  if ( $emailSplitList[1] == "mail.ru" ||
+       $emailSplitList[1] == "list.ru" ) {
+    $message = "Your e-mail domain has been blocked";
+    return false;
+  }
+  return true;
+}
+
+$wgHooks['AbortNewAccount'][] = 'abortOnBadDomain';
+
 ##Debug
 $wgDebugLogFile = '/var/www/wikipathways/wpi/tmp/wikipathwaysdebug.txt';
 //$wgProfiling = true; //Set to true for debugging info
@@ -234,4 +251,5 @@ require_once('extensions/PPP/PageProtectionPlus.php');
 $wgShowExceptionDetails = true;
 $wgShowSQLErrors = true;
 
+$wgReadOnlyFile = "readonly.enable";
 ?>
