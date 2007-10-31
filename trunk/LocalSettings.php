@@ -157,10 +157,14 @@ define("NS_PATHWAY", 102); //NS_PATHWAY is same as NS_GPML since refactoring
 define("NS_PATHWAY_TALK", 103);
 define("NS_GPML", 102);
 define("NS_GPML_TALK", 103);
+define("NS_WISHLIST", 104);
+define("NS_WISHLIST_TALK", 105);
 
 $wgExtraNamespaces =
 	array(	NS_PATHWAY => "Pathway", NS_PATHWAY_TALK => "Pathway_Talk",
-			100 => "Pw_Old", 101 => "Pw_Old_Talk"); //Old namespace
+			100 => "Pw_Old", 101 => "Pw_Old_Talk", //Old namespace
+			NS_WISHLIST => "Wishlist", NS_WISHLIST_TALK => "Wishlist_Talk"
+		);
 $wgNamespacesToBeSearchedDefault += 
 	array( 	NS_PATHWAY => true, NS_PATHWAY_TALK => true,
 			100 => false, 100 => false); //Old namespace
@@ -215,6 +219,7 @@ require_once('wpi/extensions/listPathways.php');
 require_once('wpi/extensions/movePathway.php');
 require_once('wpi/batchDownload.php');
 require_once('wpi/PathwayPage.php');
+require_once('wpi/extensions/SpecialWishList/SpecialWishList.php');
 
 /* Biblio extension
 Isbndb account: thomas.kelder@bigcat.unimaas.nl / BigC0w~wiki
