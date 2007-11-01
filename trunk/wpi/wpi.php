@@ -63,31 +63,21 @@ function revert($pwTitle, $oldId) {
 
 function launchPathVisio($pathway, $ignore = null, $new = false) {
 	global $wgUser;
-	
-	if(!$new) {
-		$gpml = $pathway->getGpml();
-		if(!$gpml) {
-			throw new Exception("GPML does not exist");
-		}
-	}
-	
-	$webstart = file_get_contents("bin/pathvisio_wikipathways.jnlp");
-	$arg .= createJnlpArg("-rpcUrl", "http://" . $_SERVER['HTTP_HOST'] . "/wpi/wpi_rpc.php");
-	$arg .= createJnlpArg("-pwName", $pathway->name());
-	$arg .= createJnlpArg("-pwSpecies", $pathway->species());
+		
+	$webstart = file_get_contents(WPI_SCRIPT_PATH . "/applet/wikipathways.jnlp");
+	$arg .= createJnlpArg("-RPC_URL", "http://" . $_SERVER['HTTP_HOST'] . "/wpi/wpi_rpc.php");
+	$arg .= createJnlpArg("-PW_NAME", $pathway->name());
+	$arg .= createJnlpArg("-PW_SPECIES", $pathway->species());
 	if($new) {
-		$arg .= createJnlpArg("-pwUrl", $pathway->getTitleObject()->getFullURL());
+		$arg .= createJnlpArg("-PW_URL", $pathway->getTitleObject()->getFullURL());
 	} else {
-		$arg .= createJnlpArg("-pwUrl", $pathway->getFileURL(FILETYPE_GPML));
+		$arg .= createJnlpArg("-PW_URL", $pathway->getFileURL(FILETYPE_GPML));
 	}
-	foreach (array_keys($_COOKIE) as $key) {
-		$arg .= createJnlpArg("-c", $key . "=" . $_COOKIE[$key]);
-	} 
 	if($wgUser && $wgUser->isLoggedIn()) {
-		$arg .= createJnlpArg("-user", $wgUser->getRealName());
+		$arg .= createJnlpArg("-USER", $wgUser->getRealName());
 	}
 	if($new) {
-		$arg .= createJnlpArg("-new", "1");
+		$arg .= createJnlpArg("-PW_NEW", "1");
 	}
 	$webstart = str_replace("<!--ARG-->", $arg, $webstart);
 
@@ -129,19 +119,10 @@ JS;
 function sendWebstart($webstart, $tmpname) {
 	ob_start();
 	ob_clean();
-	$os = getClientOs();
-	if($os == 'linux') { //return shell script that sets MOZILLA_FIVE_HOME and opens webstart
-		header("Content-type: application/x-shellscript");
-		header("Content-Disposition: attachment; filename=\"PathVisio.sh\"");
-		echo "#!/bin/sh\n";
-		echo "export MOZILLA_FIVE_HOME=/usr/lib/firefox\n";
-		echo "LD_LIBRARY_PATH=/usr/lib/firefox:$LD_LIBRARY_PATH\n";
-		echo 'javaws "'. getJnlpURL($webstart, $tmpname) . '"';
-	} else { //return webstart file directly
-		header("Content-type: application/x-java-jnlp-file");
-		header("Content-Disposition: attachment; filename=\"PathVisio.jnlp\"");
-		echo $webstart;
-	}
+	//return webstart file directly
+	header("Content-type: application/x-java-jnlp-file");
+	header("Content-Disposition: attachment; filename=\"WikiPathways.jnlp\"");
+	echo $webstart;
 	exit;
 }
 

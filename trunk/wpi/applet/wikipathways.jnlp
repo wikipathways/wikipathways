@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp codebase="http://wikipathways.org/wpi/applet" href="wikipathways.jnlp">
+	<information>
+		 <title>PathVisio - WikiPathways</title>
+		 <vendor>BiGCaT Bioinformatics, Maastricht University</vendor>
+		 <homepage href="index.html"/>
+		 <icon href="../../skins/common/images/earth_or_pathway.png"/>
+	</information>
+	<resources>
+		 <j2se version="1.5+"/>
+		 <jar href="wikipathways.jar"/>
+		 <jar href="lib/derbyclient.jar"/>
+		 <jar href="lib/swing-worker-1.1.jar"/>
+		 <jar href="lib/resources.jar"/>
+		 <jar href="lib/jdom.jar"/>
+		 <jar href="lib/apache/commons-codec-1.3.jar"/>
+		 <jar href="lib/apache/commons-httpclient-3.0.1.jar"/>
+		 <jar href="lib/apache/commons-logging-1.1.jar"/>
+		 <jar href="lib/apache/ws-commons-util-1.0.1.jar"/>
+		 <jar href="lib/apache/xmlrpc-client-3.0.jar"/>
+		 <jar href="lib/apache/xmlrpc-common-3.0.jar"/>
+	</resources>
+	<application-desc main-class="org.pathvisio.gui.wikipathways.WebstartMain">
+		<!--ARG-->
+	</application-desc>
+	<security>
+		 <all-permissions/>
+	</security>
+</jnlp>
