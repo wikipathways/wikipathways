@@ -16,6 +16,7 @@ class Pathway {
 	
 	private $pwData; //The PathwayData for this pathway
 	private $pwCategories; //The CategoryHandler for this pathway
+	private $firstRevision; //The first revision of the pathway article
 
 	/**
 	 Constructor for this class.
@@ -67,6 +68,28 @@ class Pathway {
 			}
 		}
 		return Pathway::$spCode2Name[$code];
+	}
+	
+	public static function getAllPathways() {
+		$allPathways = array();
+		$dbr =& wfGetDB(DB_SLAVE);
+		$ns = NS_PATHWAY;
+		$query = "SELECT page_title FROM page
+				WHERE page_namespace = $ns AND page_is_redirect = 0";
+		$res = $dbr->query($query, __METHOD__);
+		while( $row = $dbr->fetchRow( $res )) {
+			try {
+				$pathway = Pathway::newFromTitle($row[0]);
+				$allPathways[
+					strtolower($pathway->name()) . ':' . 
+					strtolower($pathway->species())] = $pathway;
+			} catch(Exception $e) {
+				wfDebug(__METHOD__ . ": Unable to add pathway to list: $e");			
+			}
+		}
+		$dbr->freeResult($res);
+		ksort($allPathways);
+		return $allPathways;
 	}
 	
 	/**
@@ -296,6 +319,16 @@ class Pathway {
 		return $title->getDBKey();
 	}
 
+	public function getFirstRevision() {
+		if(!$this->firstRevision) {
+			$revs = Revision::fetchAllRevisions($this->getTitleObject());
+			$revs->seek($revs->numRows() - 1);
+			$row = $revs->fetchRow();
+			$this->firstRevision = Revision::newFromId($row['rev_id']);
+		}
+		return $this->firstRevision;
+	}
+	
 	/**
 	 * Update the pathway with the given GPML code
 	 * \param gpmlData The GPML code that contains the updated pathway data

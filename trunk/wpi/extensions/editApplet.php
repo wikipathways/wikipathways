@@ -30,7 +30,7 @@ function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $n
 	global $wgUser, $wgScriptPath, $loaderAdded;
 	
 	//Check user rights
-	if( !$wgUser->isLoggedIn()) {
+	if( !$wgUser->isLoggedIn() || wfReadOnly()) {
 		return ""; //Don't return any applet code
 	}
 	
@@ -38,17 +38,21 @@ function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $n
 	
 	$param = array(); //Extra parameters
 	$main = 'org.pathvisio.gui.wikipathways.';
+	$noresize = 'false';
 	switch($type) {
 		case 'bibliography': 
 		$main .= 'BibliographyApplet';
+		$noresize = 'true';
 		break;
 		case 'description':
 		$main .= 'DescriptionApplet';
+		$noresize = 'true';
 		break;
 		case 'categories':
 		$main .= 'CategoryApplet';
 		$cats = implode(',', Pathway::getAvailableCategories());
 		$param = array('categories' => $cats);
+		$noresize = 'true';
 		break;
 		default: $main .= 'AppletMain';
 	}
@@ -59,7 +63,7 @@ function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $n
 		} else {
 			$pathway = Pathway::newFromTitle($pwTitle);
 		}
-		$editApplet = new EditApplet($pathway, $main, $idReplace, $idClick, $new, $width, $height, $param);
+		$editApplet = new EditApplet($pathway, $main, $idReplace, $idClick, $new, $width, $height, $noresize, $param);
 		$appletCode = $editApplet->makeAppletFunctionCall();
 		$jardir = $wgScriptPath . '/wpi/applet';
 		
@@ -115,8 +119,9 @@ class EditApplet {
 	private $isNew;
 	private $width, $height;
 	private $param;
+	private $noresize;
 
-	function __construct($pathway, $mainClass, $idReplace, $idClick, $isNew, $width, $height, $param = array()) {
+	function __construct($pathway, $mainClass, $idReplace, $idClick, $isNew, $width, $height, $noresize, $param = array()) {
 		$this->pathway = $pathway;
 		$this->mainClass = $mainClass;
 		$this->idReplace = $idReplace;
@@ -125,6 +130,7 @@ class EditApplet {
 		$this->width = $width;
 		$this->height = $height;
 		$this->param = $param;
+		$this->noresize = $noresize;
 	}
 
 	private $version_string = false;
@@ -208,7 +214,7 @@ class EditApplet {
 		$keys = createJsArray(array_keys($args));
 		$values = createJsArray(array_values($args));
 
-		return "doApplet('{$this->idReplace}', 'applet', '$wgScriptPath/wpi/applet', '{$this->mainClass}', '{$this->width}', '{$this->height}', {$keys}, {$values});";
+		return "doApplet('{$this->idReplace}', 'applet', '$wgScriptPath/wpi/applet', '{$this->mainClass}', '{$this->width}', '{$this->height}', {$keys}, {$values}, {$this->noresize});";
 	}
 
 	function makeAppletFunctionCall() {

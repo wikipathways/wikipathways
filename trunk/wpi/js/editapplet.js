@@ -2,7 +2,7 @@ var label_maximize = '<img src="/skins/common/images/magnify-clip.png" id="maxim
 var label_minimize = '<img src="/skins/common/images/magnify-clip.png" id="minimize"/>';
 
 //Uses appletobject.js
-function doApplet(idImg, idApplet, basePath, main, width, height, keys, values) {
+function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, noresize) {
 	var image = document.getElementById(idImg);
 	
 	if(!width || width <= 0) {
@@ -51,8 +51,10 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values) 
 		}
 	}
 	
-	new Resizeable(idImg, {bottom: 10, right: 10, left: 0, top: 0});
-
+	if(!noresize) {
+		new Resizeable(idImg, {bottom: 10, right: 10, left: 0, top: 0});
+	}
+	
 	ao.load( idApplet );
 }
 

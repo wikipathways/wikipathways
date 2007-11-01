@@ -12,6 +12,10 @@ class CreatePathwayPage extends SpecialPage
                 global $wgRequest, $wgOut, $wpiScriptURL, $wgUser;
                 $this->setHeaders();
 
+		if(wfReadOnly()) {
+			$wgOut->readOnlyPage( "" );
+		}
+		
 		if(!$wgUser || !$wgUser->isLoggedIn()) {
 			$wgOut->addWikiText(
 			"== Not logged in ==\n

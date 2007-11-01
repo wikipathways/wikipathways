@@ -40,8 +40,13 @@ function renderPathwayImage( &$parser, $pwTitle, $width = 0, $align = '', $capti
 				$hrefbtn = SITE_URL . "/index.php?title=Special:Userlogin&returnto=$pathwayURL";
 				$label = "Log in to edit pathway";
 			} else {
-				$hrefbtn = "javascript:;";
-				$label = "Edit pathway";
+				if(wfReadOnly()) {
+					$hrefbtn = "";
+					$label = "Database locked";				
+				} else {
+					$hrefbtn = "javascript:;";
+					$label = "Edit pathway";
+				}
 			}
 			$caption = "<a href='$hrefbtn' title='$label' id='edit' ". 
 				"class='button'><span>$label</span></a>";
