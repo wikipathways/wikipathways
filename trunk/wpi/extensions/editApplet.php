@@ -67,6 +67,7 @@ function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $n
 		$appletCode = $editApplet->makeAppletFunctionCall();
 		$jardir = $wgScriptPath . '/wpi/applet';
 		
+		/** Don't use jar preloading for now
 		if(!$loaderAdded) {
 			$cache = $editApplet->getCacheParameters();
 			$archive_string = $cache["archive"];
@@ -80,6 +81,7 @@ function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $n
 PRELOAD;
 			$loaderAdded = true;
 		}
+		**/
 		$output = scriptTag('', JS_SRC_APPLETOBJECT) . scriptTag('', JS_SRC_PROTOTYPE) . scriptTag('', JS_SRC_RESIZE) . scriptTag('', JS_SRC_EDITAPPLET) . $appletCode;
 	} catch(Exception $e) {
 		return "Error: $e";
@@ -142,6 +144,9 @@ class EditApplet {
 		}
 		//Read cache jars and update version
 		$jardir = WPI_SCRIPT_PATH . '/applet';
+		if(!file_exists("$jardir/cache_version")) {
+			touch("$jardir/cache_version");
+		}
 		$cache_archive = explode(' ', file_get_contents("$jardir/cache_archive"));
 		$version_file = explode("\n", file_get_contents("$jardir/cache_version"));
 		$cache_version = array();

@@ -1,7 +1,7 @@
 <?php
 
 $wgHooks['ParserBeforeStrip'][] = array('renderPathwayPage'); 	
-
+$wgHooks['BeforePageDisplay'][] = array('addPreloaderScript');
 function renderPathwayPage(&$parser, &$text, &$strip_state) {
 	$title = $parser->getTitle();	
 	if(	$title->getNamespace() == NS_PATHWAY &&
@@ -13,6 +13,13 @@ function renderPathwayPage(&$parser, &$text, &$strip_state) {
 		$page = new PathwayPage($pathway);
 		$text = $page->getContent();
 	}
+	return true;
+}
+
+function addPreloaderScript($out) {
+	$base = WPI_SCRIPT_PATH . "/applet/org/pathvisio/wikipathways/";
+	$out->addHTML("<applet code='Preloader.class' codebase='$base'
+			width='1' height='1' name='preloader'></applet>");
 	return true;
 }
 
