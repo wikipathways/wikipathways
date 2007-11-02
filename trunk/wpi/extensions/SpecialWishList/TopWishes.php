@@ -14,27 +14,28 @@ function renderWishlist( $input, $argv, &$parser ) {
 	$wishlist = new PathwayWishList();
 	
 	$type = $argv['type'];
+	$tableAttr = $argv['tableattr'];
 	switch($type) {
 		case 'newest':
 			$limit = $argv['limit'];
-			return createNewest($wishlist, $limit);
+			return createNewest($wishlist, $limit, $tableAttr);
 		case 'topVoted':
 		default:
 			$limit = $argv['limit'];
 			$threshold = $argv['threshold'];
-			$tableAttr = $argv['tableAttr'];
 			return createTopVoted($wishlist, $limit, $threshold, $tableAttr);
 			
 	}
 }
 
-function createNewest($wishlist, $limit = 5) {
+function createNewest($wishlist, $limit = 5, $tableAttr = '') {
 	global $wgUser, $wgLang;
 	$limit = (int)$limit;
 	$top = $wishlist->getWishlist('date');
 	if(count($top) == 0) {
 		return "<i>There are currently no wishlist items</i>";
 	}
+	/* List version
 	$i = 0;
 	foreach($top as $wish) {
 		if($i >= $limit) break;
@@ -47,8 +48,9 @@ function createNewest($wishlist, $limit = 5) {
 		$i++;
 	}
 	$out = substr($out, 0, -2);
-	/* table version
-	$out = "<table class='prettytable'><tbody>";
+	*/
+	// table version
+	$out = "<table $tableAttr><tbody>";
 	$out .= "<th>Pathway<th>Requested by<th>Date";
 	if(count($top) == 0) {
 		return "<i>There are currently no wishlist items</i>";
@@ -65,7 +67,6 @@ function createNewest($wishlist, $limit = 5) {
 		$i++;
 	}
 	$out .= "</tbody></table>";
-	*/
 	
 	return $out;
 }
@@ -90,7 +91,7 @@ function createTopVoted($wishlist, $limit = 5, $threshold = 1, $tableAttr = '') 
 		//$user = $wish->getRequestUser();
 		//$by = $wgUser->getSkin()->userLink( $user, $user->getName());
 		
-		$out .= "<tr><td>$name<td>$votes";
+		$out .= "<tr><td>$name<td align='center'>$votes";
 		$i++;
 	}
 	$out .= "</tbody></table>";
