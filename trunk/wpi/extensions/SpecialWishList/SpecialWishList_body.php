@@ -141,21 +141,26 @@ HTML;
 	 	$html = <<<HTML
 <form action='{$this->this_url}' method='post'>
 <table class="prettytable"><tbody>
-<th>Requested pathway</th><th>Requested by</th><th>Date</th><th>Comments</th><th>Votes<th>Watch</th><th>Resolve
+<th>Requested pathway</th><th>Requested by</th><th>Date</th><th>Comments</th><th>Votes
 HTML;
+		if($wgUser->isLoggedIn()) {
+			$html .= "<th>Watch</th><th>Resolve";
+		}
 	 	$wgOut->addHTML($html);
 		foreach($wishes as $wish) {
 			if(!$wish->isResolved()) {
 				$this->createUnresolvedRow($wish);
 			}
 		}
-		$html = <<<HTML
+		$html = "";
+		if($wgUser->isLoggedIn()) {
+			$html = <<<HTML
 <tr><td colspan="5"><td align="center">
 	<input type="hidden" name="wishaction" value="watch">
 	<input type="submit" value="Apply">
-</tbody></table>
-</form>
 HTML;
+		}
+		$html .= "</tbody></table></form>";
 		$wgOut->addHTML($html);
 		
 		$this->showHelp();
@@ -250,6 +255,8 @@ HELP;
 	function createUnresolvedRow($wish) {
 		global $wgOut, $wgLang, $wgScriptPath, $wgUser;
 		
+		$login = $wgUser->isLoggedIn();
+		
 		$id = $wish->getId();
 		$url = $wish->getTitle()->getFullURL();
 		$title = $wish->getTitle()->getText();
@@ -259,23 +266,29 @@ HELP;
 		$watching = $wish->userIsWatching() ? "CHECKED" : "";
 		$votes = (int)$wish->countVotes();
 		if($wish->userCan('vote')) {
-			$voteButton = '<td style="border:0px">' . $this->createButton('plus.png', 'vote', 'Vote for this pathway', $id);
+			$voteButton = '<td style="border:0px">' . 
+				$this->createButton('plus.png', 'vote', 'Vote for this pathway', $id);
 		} else if ($wish->userCan('unvote')) {
-			$voteButton = '<td style="border:0px">' . $this->createButton('minus.png', 'unvote', 'Remove your vote', $id);
+			$voteButton = '<td style="border:0px">' . 
+				$this->createButton('minus.png', 'unvote', 'Remove your vote', $id);
 		}
 		$wgOut->addHTML("<tr><td><a href='$url'>$title</a><td>$user
 				<td>$date<td>");
 		$wgOut->addWikiText("{{:WishList:$title}}");
 		$wgOut->addHTML("<td><table><tr><td style='border:0px'>$votes" . $voteButton . '</table>');
-		$wgOut->addHTML("<td align='center'><input type=checkbox value='1' name='check_$id' $watching>");
-		$wgOut->addHTML("<td><table><tr>");
-		if($wish->userCan('resolve')) {
-			$wgOut->addHTML('<td style="border:0px">' . $this->createButton("apply.gif", "resolved", "Resolve this item", $id));
+		if($login) { //Following columns only when user is logged in
+			$wgOut->addHTML("<td align='center'><input type=checkbox value='1' name='check_$id' $watching>");
+			$wgOut->addHTML("<td><table><tr>");
+			if($wish->userCan('resolve')) {
+				$wgOut->addHTML('<td style="border:0px">' . 
+					$this->createButton("apply.gif", "resolved", "Resolve this item", $id));
+			}
+			if($wish->userCan('delete') && $wgUser->getId() == $wish->getRequestUser()->getId()) {
+				$wgOut->addHTML('<td style="border:0px">' . 
+					$this->createButton("cancel.gif", "remove", "Remove this item", $id));
+			}
+			$wgOut->addHTML("</table>");
 		}
-		if($wish->userCan('delete') && $wgUser->getId() == $wish->getRequestUser()->getId()) {
-			$wgOut->addHTML('<td style="border:0px">' . $this->createButton("cancel.gif", "remove", "Remove this item", $id));
-		}
-		$wgOut->addHTML("</table>");
 	}
 	
 	function createButton($image, $action, $title, $id) {
@@ -294,7 +307,7 @@ HELP;
 		global $wgUser, $wgOut;
 		if(wfReadOnly() || !$wgUser->isAllowed('edit')) {
 			$href = SITE_URL . "/index.php?title=Special:Userlogin&returnto=Special:SpecialWishList";
-			$wgOut->addHTML("<a href=$href>Log in</a> to add pathways to the wishlist");
+			$wgOut->addHTML("<p><a href=$href>Log in</a> to add pathways to the wishlist");
 		} else {
 			$html = <<<ADD
 <p><a href="javascript:showhide('new', this, 'Add new wishlist item', '');">Add new wishlist item</a>

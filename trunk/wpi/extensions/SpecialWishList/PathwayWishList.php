@@ -5,6 +5,8 @@ class PathwayWishList {
 	private $subscribe_table = "wishlist_subscribe";
 	
 	private $wishlist; //List of titles in domain wishlist
+	private $byVotes;
+	private $byDate;
 	
 	function __construct() {
 		$this->loadWishlist();
@@ -13,16 +15,44 @@ class PathwayWishList {
 	/**
 	 * Get the array containing all page_ids of the whishlist pages
 	 */
-	function getWishlist() {
-		if(!$this->wishlist) {
-			$this->loadWishlist();
+	function getWishlist($sortKey = 'date') {
+		switch($sortKey) {
+			case 'votes':
+				return $this->sortByVotes();
+			case 'date':
+				return $this->sortByDate();
+			default:
+				return $this->wishlist;
 		}
-		return $this->wishlist;
+	}
+		
+	private function sortByDate() {
+		if(!$this->byDate) {
+			$this->byDate = array_values($this->wishlist);
+			usort($this->byDate, __CLASS__ . "::cmpDate");
+		}
+		return $this->byDate;
+	}
+	
+	private function sortByVotes() {
+		if(!$this->byVotes) {
+			$this->byVotes = array_values($this->wishlist);
+			usort($this->byVotes, __CLASS__ . "::cmpVotes");
+		}
+		return $this->byVotes;
+	}
+		
+	static function cmpVotes($a, $b) {
+		return $b->countVotes() - $a->countVotes();
+	}
+	
+	static function cmpDate($a, $b) {
+		return $b->getRequestDate() - $a->getRequestDate();
 	}
 	
 	function addWish($name, $comments) {
 		$wish = Wish::createNewWish($name, $comments);
-		$this->wishlist[] = $wish;
+		$this->wishlist[$wish->getRequestDate()] = $wish;
 	}
 	
 	/**
@@ -38,7 +68,7 @@ class PathwayWishList {
 		while ( $row = $dbr->fetchRow( $res ) ) {
 			$wish =  new Wish($row[0]);
 			if($wish->exists()) {
-	        		$this->wishlist[] = $wish;
+	        		$this->wishlist[$wish->getRequestDate()] = $wish;
 	        	}
 		}
 		$dbr->freeResult( $res );
@@ -51,6 +81,7 @@ class Wish {
 	private $article;
 	private $firstRevision;
 	private $voteArticle;
+	private $votes;
 	
 	function __construct($id) {
 		$this->id = $id;
@@ -120,6 +151,7 @@ class Wish {
 			throw new Exception("Unable to update votes for $name");
 		}
 		$wgLoadBalancer->commitAll();
+		$this->votes = ''; //clear vote cache
 	}
 	
 	function countVotes() {
@@ -127,16 +159,18 @@ class Wish {
 	}
 	
 	function getVotes() {
-		$content = $this->voteArticle->getContent();
-		//Find the <!--VOTES\s(.*)\s--> part
-		$match = preg_match('/<!--VOTES\s(.*)\s-->/s', $content, $matches);
-		if($match) {
-			$votes = $matches[1];
-		} else {
-			$votes = "";
+		if(!$this->votes) {
+			$content = $this->voteArticle->getContent();
+			//Find the <!--VOTES\s(.*)\s--> part
+			$match = preg_match('/<!--VOTES\s(.*)\s-->/s', $content, $matches);
+			if($match) {
+				$votes = $matches[1];
+			} else {
+				$votes = "";
+			}
+			$this->votes = $votes ? explode("\n", $votes) : array();
 		}
-		$votes = $votes ? explode("\n", $votes) : array();
-		return $votes;
+		return $this->votes;
 	}
 		
 	function exists() {

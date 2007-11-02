@@ -5,6 +5,7 @@ $wgExtensionFunctions[] = 'wfEditApplet';
 $wgHooks['LanguageGetMagic'][]  = 'wfEditApplet_Magic';
 
 $loaderAdded = false; //Set to true if loader is added in a previous call
+$scriptsAdded = false; //Set to true if script dependencies are added
 
 function wfEditApplet() {
 	global $wgParser;
@@ -27,7 +28,7 @@ function wfEditApplet_Magic( &$magicWords, $langCode ) {
  * @parameter $pwTitle The title of the pathway to be edited (Species:Pathwayname)
 */
 function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $new = false, $pwTitle = '', $type = 'editor', $width = 0, $height = '500px' ) {
-	global $wgUser, $wgScriptPath, $loaderAdded;
+	global $wgUser, $wgScriptPath, $loaderAdded, $scriptsAdded;
 	
 	//Check user rights
 	if( !$wgUser->isLoggedIn() || wfReadOnly()) {
@@ -82,7 +83,11 @@ PRELOAD;
 			$loaderAdded = true;
 		}
 		**/
-		$output = scriptTag('', JS_SRC_APPLETOBJECT) . scriptTag('', JS_SRC_PROTOTYPE) . scriptTag('', JS_SRC_RESIZE) . scriptTag('', JS_SRC_EDITAPPLET) . $appletCode;
+		if(!$scriptsAdded) {
+			$scripts = scriptTag('', JS_SRC_APPLETOBJECT) . scriptTag('', JS_SRC_PROTOTYPE) . scriptTag('', JS_SRC_RESIZE) . scriptTag('', JS_SRC_EDITAPPLET);
+			$scriptsAdded = true;
+		}
+		$output = $scripts . $appletCode;
 	} catch(Exception $e) {
 		return "Error: $e";
 	}
@@ -231,7 +236,8 @@ class EditApplet {
 				"var elm = document.getElementById('{$this->idClick}');" . 
 				"var listener = function() { $function };" .
 				"if(elm.attachEvent) { elm.attachEvent('onclick',listener); }" .
-				"else { elm.addEventListener('click',listener, false); }"
+				"else { elm.addEventListener('click',listener, false); }" .
+				"registerAppletButton('{$this->idClick}')"
 			);
 		}
 	}

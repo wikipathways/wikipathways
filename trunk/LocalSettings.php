@@ -220,6 +220,7 @@ require_once('wpi/extensions/movePathway.php');
 require_once('wpi/batchDownload.php');
 require_once('wpi/PathwayPage.php');
 require_once('wpi/extensions/SpecialWishList/SpecialWishList.php');
+require_once('wpi/extensions/SpecialWishList/TopWishes.php');
 
 /* Biblio extension
 Isbndb account: thomas.kelder@bigcat.unimaas.nl / BigC0w~wiki

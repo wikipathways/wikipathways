@@ -1,9 +1,27 @@
 var label_maximize = '<img src="/skins/common/images/magnify-clip.png" id="maximize"/>';
 var label_minimize = '<img src="/skins/common/images/magnify-clip.png" id="minimize"/>';
 
+var appletButtons = [];
+
+//Register an applet button. This button
+//will be disabled when an edit applet is activated
+function registerAppletButton(id) {
+	var test = appletButtons.size();
+	appletButtons[id] = id;
+}
+
 //Uses appletobject.js
 function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, noresize) {
 	var image = document.getElementById(idImg);
+	
+	//Disable all edit buttons
+	for(var idButton in appletButtons) {
+		var button = document.getElementById(idButton);
+		if(button) {
+			button.style.display = "none";
+			
+		}
+	}
 	
 	if(!width || width <= 0) {
 		width = getParentWidth(image);
