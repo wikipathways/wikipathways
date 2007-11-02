@@ -17,9 +17,16 @@ function renderPathwayPage(&$parser, &$text, &$strip_state) {
 }
 
 function addPreloaderScript($out) {
-	$base = WPI_SCRIPT_PATH . "/applet/org/pathvisio/wikipathways/";
-	$out->addHTML("<applet code='Preloader.class' codebase='$base'
+	global $wgTitle, $wgUser, $wgScriptPath;
+
+	if($wgTitle->getNamespace() == NS_PATHWAY && $wgUser->isLoggedIn()) {
+		$base = $wgScriptPath . "/wpi/applet/";
+		$class = "org.pathvisio.wikipathways.Preloader.class";
+		
+		$out->addHTML("<applet code='$class' codebase='$base'
 			width='1' height='1' name='preloader'></applet>");
+		
+	}
 	return true;
 }
 
