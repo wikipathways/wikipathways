@@ -113,11 +113,12 @@ TEXT;
 		} else {
 			$out = "''No bibliography''\n";
 		}
-		$button = $this->editButton('javascript:;', 'Edit bibliography', 'bibEdit');
+		//$button = $this->editButton('javascript:;', 'Edit bibliography', 'bibEdit');
 		#&$parser, $idClick = 'direct', $idReplace = 'pwThumb', $new = '', $pwTitle = '', $type = 'editor'
 		return "== Bibliography ==\n" .
-			"<div id='bibliography'><div style='float:right'>$button</div>\n" .
-			"$out</div>\n{{#editApplet:bibEdit|bibliography|0||bibliography|0|250px}}";		
+			"$out\n{{Template:Help:LiteratureReferences}}";
+			//"<div id='bibliography'><div style='float:right'>$button</div>\n" .
+			//"$out</div>\n{{#editApplet:bibEdit|bibliography|0||bibliography|0|250px}}";		
 	}
 	
 	function categoryText() {
