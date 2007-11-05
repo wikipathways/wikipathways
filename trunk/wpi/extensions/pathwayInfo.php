@@ -96,7 +96,9 @@ TABLE;
 			}
 		}
 		if($table) {
-			$table = "{|class='wikitable'\n" . $table . "\n|}";
+			$table = "=== Interactions ===\n{|class='wikitable'\n" . $table . "\n|}";
+		} else {
+			$table = "";
 		}
 		return $table;
 	}
