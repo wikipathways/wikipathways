@@ -82,6 +82,8 @@ TEXT;
 	}
 	
 	function bibliographyText() {
+		global $wgUser;
+		
 		$gpml = $this->data->getGpml();
 		
 		//Format literature references
@@ -113,10 +115,13 @@ TEXT;
 		} else {
 			$out = "''No bibliography''\n";
 		}
+		//No edit button for now, show help on how to add bibliography instead
 		//$button = $this->editButton('javascript:;', 'Edit bibliography', 'bibEdit');
 		#&$parser, $idClick = 'direct', $idReplace = 'pwThumb', $new = '', $pwTitle = '', $type = 'editor'
-		return "== Bibliography ==\n" .
-			"$out\n{{Template:Help:LiteratureReferences}}";
+		if($wgUser->isLoggedIn()) {
+			$help = "{{Template:Help:LiteratureReferences}}";
+		}
+		return "== Bibliography ==\n$out\n$help";
 			//"<div id='bibliography'><div style='float:right'>$button</div>\n" .
 			//"$out</div>\n{{#editApplet:bibEdit|bibliography|0||bibliography|0|250px}}";		
 	}

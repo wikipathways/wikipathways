@@ -81,6 +81,25 @@ TABLE;
 			$table .= '|}';
 			return $table;
 	}
+	
+	function interactions() {
+		$interactions = $this->getInteractions();
+		foreach($interactions as $ia) {
+			$table .= "\n|-\n";
+			$table .= "| {$ia->getName()}\n";
+			$table .= "|";
+			$xrefs = $ia->getPublicationXRefs($this);
+			if(!$xrefs) $xrefs = array();
+			foreach($xrefs as $ref) {
+				$attr = $ref->attributes('rdf', true);
+				$table .= "<cite>" . $attr['id'] . "</cite>";
+			}
+		}
+		if($table) {
+			$table = "{|class='wikitable'\n" . $table . "\n|}";
+		}
+		return $table;
+	}
 }
 
 function getXrefLink($xref) {

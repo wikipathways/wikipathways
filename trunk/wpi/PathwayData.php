@@ -9,6 +9,8 @@ define('COMMENT_WP_DESCRIPTION', 'WikiPathways-description');
 class PathwayData {
 	private $pathway;
 	private $gpml;
+	private $interactions;
+	private $byGraphId;
 	
 	function __construct($pathway) {
 		$this->pathway = $pathway;
@@ -22,6 +24,29 @@ class PathwayData {
 		return $this->gpml;
 	}
 	
+	/**
+	 * Gets the interactions
+	 * \return an array of instances of the Interaction class
+	 */
+	function getInteractions() {
+		if(!$this->interactions) {
+			$this->interactions = array();
+			foreach($this->gpml->Line as $line) {
+				$startRef = (string)$line->Graphics->Point[0]['GraphRef'];
+				$endRef = (string)$line->Graphics->Point[1]['GraphRef'];
+				if($startRef && $endRef) {
+					$source = $this->byGraphId[$startRef];
+					$target = $this->byGraphId[$endRef];
+					if($source && $target) {
+						$interaction =  new Interaction($source, $target, $line);
+						$this->interactions[] = $interaction;
+					}
+				}
+			}
+		}
+		return $this->interactions;
+	}
+	 
 	/**
 	 * Gets the WikiPathways categories that are stored in GPML
 	 * Categories are stored as Comments with Source attribute COMMENT_WP_CATEGORY
@@ -118,7 +143,47 @@ class PathwayData {
 			
 			//Pre-parse some data
 			$this->findPublicationXRefs();
+			//Fill byGraphId array
+			foreach($this->gpml->children() as $elm) {
+				$id = (string)$elm['GraphId'];
+				if($id) {
+					$this->byGraphId[$id] = $elm;
+				}
+			}
 		}
+	}
+}
+
+class Interaction {
+	//The interaction elements (all SimpleXML elements)
+	private $source;
+	private $target;
+	private $edge;
+	
+	function __construct($source, $target, $edge) {
+		$this->source = $source;
+		$this->target = $target;
+		$this->edge = $edge;
+	}
+	
+	function getSource() { return $this->source; }
+	function getTarget() { return $this->target; }
+	function getEdge() { return $this->edge; }
+	
+	function getName() {
+		$source = $this->source['TextLabel'];
+		if(!$source) $source = $this->source->getName() . $this->source['GraphId'];
+		$target = $this->target['TextLabel'];
+		if(!$target) $target = $this->target->getName() . $this->target['GraphId'];
+		return $source . " -> " . $target;
+	}
+	
+	function getPublicationXRefs($pathwayData) {
+		$xrefs = $pathwayData->getPublicationXRefs();
+		foreach($this->edge->BiopaxRef as $bpref) {
+			$myrefs[] = $xrefs[(string)$bpref];
+		}
+		return $myrefs;
 	}
 }
 
