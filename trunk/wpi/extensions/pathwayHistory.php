@@ -74,13 +74,24 @@ function getHistory($pathway) {
 }
 
 function historyRow($h, $style) {
-	return "<TR $style><TD>$h[rev]$h[view]<TD>$h[date]<TD>$h[user]<TD>$h[descr]";
+	if($h) {
+		return "<TR $style><TD>$h[rev]$h[view]<TD>$h[date]<TD>$h[user]<TD>$h[descr]";
+	} else {
+		return "";
+	}
 }
 
 function historyLine($pathway, $row, $cur = false) {
 	global $wpiScript, $wgLang, $wgUser, $wgTitle;
 	
 	$rev = new Revision( $row );
+	
+	$user = User::newFromId($rev->getUser());
+	if($user->isBot()) {
+		//Ignore bots
+		return "";
+	}
+	
 	$rev->setTitle( $pathway->getFileTitle(FILETYPE_GPML) );
 
 	$revUrl = 'http://'.$_SERVER['HTTP_HOST'] . '/' .$wpiScript . '?action=revert&pwTitle=' .

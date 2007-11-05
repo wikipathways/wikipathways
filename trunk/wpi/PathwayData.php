@@ -99,6 +99,14 @@ class PathwayData {
 			$attr = $xref->attributes("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 			//$attr = $xref->attributes('rdf', true); //only for version >=5.2
 			$id = $attr['id'] ? $attr['id'] : $i++;
+			//QUICK HACK for preventing duplicate articles
+			foreach($this->pubXRefs as $r) {
+				if((string)$r->ID == (string)$xref->ID) {
+					$found = true;
+				}
+			}
+			if($found) continue;
+			//END QUICK HACK
 			$this->pubXRefs[(string)$id] = $xref;
 		}
 	}

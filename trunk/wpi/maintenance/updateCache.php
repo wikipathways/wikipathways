@@ -7,7 +7,10 @@ $res = $dbr->select("page", array("page_title"), array("page_namespace"=> NS_PAT
 while($row = $dbr->fetchRow($res)) {
 	try {
 		$pathway = Pathway::newFromTitle($row[0]);
-		$pathway->updateCache();
+		echo($pathway->getTitleObject()->getFullText() . "\n<BR>");
+		if($doit) {
+					$pathway->updateCache();
+		}
 	} catch(Exception $e) {
 		echo "Exception: {$e->getMessage()}<BR>\n";
 	}
