@@ -1,0 +1,6 @@
+Pathways need a stable, unmodified identifier that is determined at creation time.
+-> based on current mediawiki identifier
+
+e.g.
+
+WP00001

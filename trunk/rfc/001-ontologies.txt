@@ -1,0 +1,12 @@
+Categorization of Pathways
+
+GO vs GO-SLIM
+
+Species: binary name system
+
+We need to be able to specify pathways at levels lower than just species
+(i.e. tissue type, maybe disease state)
+
+Totally open attribute <-> value pairs?
+Preselected attribute <-> values?
+Predefined onthologies? Which ones?
