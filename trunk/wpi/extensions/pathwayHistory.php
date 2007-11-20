@@ -104,7 +104,7 @@ function historyLine($pathway, $row, $cur = false) {
 	}
 	
 	$dt = $wgLang->timeanddate( wfTimestamp(TS_MW, $rev->getTimestamp()), true );
-	$view = $wgUser->getSkin()->makeKnownLinkObj($pathway->getFileTitle(FILETYPE_GPML), 'view', "oldid=" . $rev->getId() );
+	$view = $wgUser->getSkin()->makeKnownLinkObj($pathway->getTitleObject(), 'view', "oldid=" . $rev->getId() );
 
 	$date = $wgLang->timeanddate( $rev->getTimestamp(), true );
 	$user = $wgUser->getSkin()->userLink( $rev->getUser(), $rev->getUserText() );

@@ -141,6 +141,9 @@ function createJnlpArg($flag, $value) {
 function downloadFile($fileType, $pwTitle) {
 	ob_start();
 	$pathway = Pathway::newFromTitle($pwTitle);
+	if($oldid = $_REQUEST['oldid']) {
+		$pathway->setActiveRevision($oldid);
+	}
 	$file = $pathway->getFileLocation($fileType);
 	$fn = $pathway->getFileName($fileType);
 	
