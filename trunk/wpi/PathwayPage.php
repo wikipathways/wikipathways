@@ -59,7 +59,8 @@ TEXT;
 		}
 		$description = "== Description ==\n<div id='descr'>" .
 			"<div style='float:right'>$button</div>\n" . $description . "</div>\n";
-		$description .= "{{#editApplet:descEdit|descr|0||description|0|250px}}\n";
+		$title = $this->pathway->getTitleObject()->getText();
+		$description .= "{{#editApplet:descEdit|descr|0|$title|description|0|250px}}\n";
 		
 		//Get additional comments
 		foreach($this->data->getGpml()->Comment as $comment) {
@@ -136,9 +137,10 @@ TEXT;
 			$catlist .= "* [[:$link|$name]]\n";
 		}
 		$button = $this->editButton('javascript:;', 'Edit categories', 'catEdit');
+		$title = $this->pathway->getTitleObject()->getText();
 		return "== Categories ==\n<div id='categories'>\n" .
 			"<div style='float:right'>$button</div>\n" . 
-			"$catlist</div>\n{{#editApplet:catEdit|categories|0||categories|0|250px}}";
+			"$catlist</div>\n{{#editApplet:catEdit|categories|0|$title|categories|0|250px}}";
 	}
 	
 	function editButton($href, $title, $id = '') {

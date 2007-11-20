@@ -17,6 +17,7 @@ class Pathway {
 	private $pwData; //The PathwayData for this pathway
 	private $pwCategories; //The CategoryHandler for this pathway
 	private $firstRevision; //The first revision of the pathway article
+	private $revision; //The active revision for this instance (0 = current by default)
 
 	/**
 	 Constructor for this class.
@@ -33,6 +34,30 @@ class Pathway {
 		$this->pwSpecies = $species;
 		
 		if($updateCache) $this->updateCache();
+	}
+	
+	/**
+	 * Get the active revision in the modification
+	 * history for this instance. The active revision
+	 * is '0' by default, pointing to the most recent
+	 * revision.
+	 * \see Pathway::setActiveRevision(revision)
+	 */
+	public function getActiveRevision() {
+		return $this->revision;
+	}
+	
+	/**
+	 * Set the active revision for this instance. The active
+	 * revision is '0' by default, pointing to the most recent
+	 * revision. Set another revision number to retrieve older
+	 * versions of this pathway.
+	 */
+	public function setActiveRevision($revision) {
+		if($this->revision != $revision) {
+			$this->revision = $revision;
+			$this->updateCache(); //Make sure the cache for this revision is up to date	
+		}
 	}
 	
 	/**
@@ -225,25 +250,22 @@ class Pathway {
 	}
 
 	/**
-	 * Get the GPML code for this pathway
+	 * Get the GPML code for this pathway (the active revision will be
+	 * used, see Pathway::getActiveRevision)
 	 */	 
 	public function getGpml() {
-		$gpmlTitle = $this->getFileTitle(FILETYPE_GPML);
-		$gpmlRef = Revision::newFromTitle($gpmlTitle);
+		$gpmlTitle = $this->getTitleObject();
+		$gpmlRef = Revision::newFromTitle($gpmlTitle, $this->revision);
 		
 		return $gpmlRef == NULL ? "no gpml" : $gpmlRef->getText();
 	}
 
 	/**
-	 * Get the filename following the naming conventions
+	 * Get the filename of a cached file following the naming conventions
 	 * \param the file type to get the name for (one of the FILETYPE_* constants)
 	 */
 	public function getFileName($fileType) {
-		if($fileType == FILETYPE_GPML) {
-			return $this->getFilePrefix() . '.' . $this->file_ext[$fileType];
-		} else {
-			return $this->getFileTitle($fileType)->getDBKey();
-		}
+		return $this->getFileTitle($fileType)->getDBKey();
 	}
 	
 	/**
@@ -272,23 +294,20 @@ class Pathway {
 	}
 	
 	/**
-	 * Creates a MediaWiki title object for the given file type. There is no guarantee that the article the title
-	 * points to exists for every filetype. 
-	 * Currently articles exist for FILETYPE_GPML (equivalent to the pathway article) and
-	 * FILETYPE_SVG (.svg articles in the NS_IMAGE namespace)
+	 * Creates a MediaWiki title object that represents the article in the 
+	 * NS_IMAGE namespace for cached file of given file type. 
+	 * There is no guarantee that an article exists for each filetype.
+	 * Currently articles exist for FILETYPE_IMG (.svg articles in the NS_IMAGE namespace)
 	 */
 	public function getFileTitle($fileType) {
-		switch($fileType) {
-			case FILETYPE_GPML:
-				$title = Title::newFromText($this->getTitleObject()->getText(), NS_GPML);			
-				break;
-			default:
-				$prefix = $this->getFilePrefix();
-				$title = Title::newFromText( "$prefix." . $this->file_ext[$fileType], NS_IMAGE );
-				if(!$title) {
-					throw new Exception("Invalid file title for pathway " + $fileName);
-				}
-				break;
+		$prefix = $this->getFilePrefix();
+		//Append revision number if it's not the most recent
+		if($this->revision) {
+			$rev_stuffix = "_" . $this->revision;
+		}
+		$title = Title::newFromText( "{$prefix}{$rev_stuffix}." . $this->file_ext[$fileType], NS_IMAGE );
+		if(!$title) {
+			throw new Exception("Invalid file title for pathway " + $fileName);
 		}
 		return $title;
 	}
@@ -336,7 +355,7 @@ class Pathway {
 	 */
 	public function updatePathway($gpmlData, $description) {
 		global $wgLoadBalancer;
-		$gpmlTitle = $this->getFileTitle(FILETYPE_GPML);
+		$gpmlTitle = $this->getTitleObject();
 		$gpmlArticle = new Article($gpmlTitle);		
 
 		$succ = true;
@@ -476,7 +495,7 @@ class Pathway {
 			if(!$article->exists()) return true;	
 		}
 			
-		$gpmlTitle = $this->getFileTitle(FILETYPE_GPML);
+		$gpmlTitle = $this->getTitleObject();
 		$gpmlRev = Revision::newFromTitle($gpmlTitle);
 		if($gpmlRev) {
 			$gpmlDate = $gpmlRev->getTimestamp();
@@ -497,7 +516,7 @@ class Pathway {
 	}
 	
 	public function getGpmlModificationTime() {
-		$gpmlTitle = $this->getFileTitle(FILETYPE_GPML);
+		$gpmlTitle = $this->getTitleObject();
 		$gpmlRev = Revision::newFromTitle($gpmlTitle);
 		if($gpmlRev) {
 			$gpmlDate = $gpmlRev->getTimestamp();
@@ -564,6 +583,7 @@ class Pathway {
 			$err = wfShellExec( $cmd, $retval );
 			if($retval != 0 || !file_exists($output)) {
 				throw new Exception("Unable to convert to png: $err\nCommand: $cmd");
+				
 			}
 		} else {
 			throw new Exception("Unable to convert to png, no SVG rasterizer found");
@@ -576,11 +596,13 @@ class Pathway {
 	## Assumes $saveName is already checked to be a valid Title
 	//TODO: run hooks
 	static function saveFileToWiki( $fileName, $saveName, $description ) {
-		global $wgLoadBalancer, $wgUser;
-				
+		global $wgLoadBalancer, $wgUser, $wgParser;
+		
 		wfDebug("========= UPLOADING FILE FOR WIKIPATHWAYS ==========\n");
 		wfDebug("=== IN: $fileName\n=== OUT: $saveName\n");
 
+		$oldTitle = $wgParser->mTitle;
+		
 		# Check blocks
 		if( $wgUser->isBlocked() ) {
 			throw new Exception( "User is blocked" );
@@ -627,6 +649,10 @@ class Pathway {
 
 		$wgLoadBalancer->commitAll();
 
+		//Dirty hack: set wgParser title back to original after uploading image,
+		//because mediawiki sets it to the image page
+		$wgParser->mTitle = $oldTitle;
+		
 		return $toFile; # return the saved file
 	}
 	

@@ -23,7 +23,7 @@ function history( $input, $argv, &$parser ) {
 function getHistory($pathway) {
 		global $wgUser, $wpiScriptURL;
 		
-		$gpmlTitle = $pathway->getFileTitle(FILETYPE_GPML);
+		$gpmlTitle = $pathway->getTitleObject();
 		$gpmlArticle = new Article($gpmlTitle);
 		$hist = new PageHistory($gpmlArticle);
 
@@ -40,7 +40,7 @@ function getHistory($pathway) {
 		/*global $wgUser, $wpiScriptURL;
 		$sk = $wgUser->getSkin();
 		
-		$imgTitle = $pathway->getFileTitle(FILETYPE_GPML);
+		$imgTitle = $pathway->getTitleObject();
 		$img = new Image($imgTitle);
 		$line = $img->nextHistoryLine();
 		$nrShow = 4;

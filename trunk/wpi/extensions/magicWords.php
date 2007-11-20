@@ -63,7 +63,7 @@ function getPathwayVariable($pathway, $index) {
 		case MAG_PATHWAYIMAGEPAGE:
 			return $pathway->getFileTitle(FILETYPE_IMG)->getFullText();
 		case MAG_PATHWAYGPMLPAGE:
-			return $pathway->getFileTitle(FILETYPE_GPML)->getFullText();					
+			return $pathway->getTitleObject()->getFullText();					
 	}
 }
 

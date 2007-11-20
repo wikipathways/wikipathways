@@ -55,31 +55,41 @@ class PathwayInfo extends PathwayData {
 	 */
 	function datanodes() {
 					$table = <<<TABLE
-{|class="wikitable"
-|-
-!Name
-!Type
-!Backpage Header
-!Database reference
+<table class="wikitable" id="dnTable">
+<tbody>
+<th>Name
+<th>Type
+<th>Backpage Header
+<th>Database reference
 
 TABLE;
 //style="border:1px #AAA solid;margin:1em 1em 0;background:#F9F9F9"
-			$nodes = $this->getUniqueElements('DataNode', 'TextLabel');
-			sort($nodes);
-			foreach($nodes as $datanode) {
-				$table .= "|-\n";
-				$table .= '|' . $datanode['TextLabel'] . "\n";
-				$table .= '|' . $datanode['Type'] . "\n";
-				$table .= '|' . $datanode['BackpageHead'] . "\n";
-				$xref = $datanode->Xref;
-				if(!$xref['ID']) {
-					$table .= '|-\n';
-				} else {
-					$table .= '|[' . getXrefLink($xref) . " $xref[ID] ($xref[Database])]\n";
-				}
+		$nodes = $this->getUniqueElements('DataNode', 'TextLabel');
+			
+		//Create collapse button
+		$nrShow = 6;
+		$nrNodes = count($nodes);
+		if(count($nodes) > $nrShow) {
+			$expand = "<B>View all $nrNodes DataNodes</B>";
+			$collapse = "<B>View last " . ($nrShow - 1) . " DataNodes</B>";
+			$button = "<p onClick='toggleRows(\"dnTable\", this, \"$expand\", 
+				\"$collapse\", {$nrShow}, true)' style='cursor:pointer;color:#0000FF'>$expand</p>";
+		}
+		//Sort and iterate over all elements
+		sort($nodes);
+		foreach($nodes as $datanode) {
+			$doShow = $i++ < $nrShow - 1 ? "" : "style='display:none'";
+			$table .= "<tr $doShow>";
+			$table .= '<td>' . $datanode['TextLabel'];
+			$table .= '<td>' . $datanode['Type'];
+			$table .= '<td>' . $datanode['BackpageHead'];
+			$xref = $datanode->Xref;
+			if($xref['ID']) {
+				$table .= '<td><a href="' . getXrefLink($xref) . '">' . " $xref[ID] ($xref[Database])</a>";
 			}
-			$table .= '|}';
-			return $table;
+		}
+		$table .= '</tbody></table>';
+		return array($button . $table, 'isHTML'=>1, 'noparse'=>1);
 	}
 	
 	function interactions() {

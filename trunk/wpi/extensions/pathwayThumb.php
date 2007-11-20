@@ -20,6 +20,10 @@ function renderPathwayImage( &$parser, $pwTitle, $width = 0, $align = '', $capti
 	$parser->disableCache();
       try {
                 $pathway = Pathway::newFromTitle($pwTitle);
+                $revision = $_REQUEST['oldid'];
+                if($revision) {
+                	$pathway->setActiveRevision($revision);
+                }
                 $img = new Image($pathway->getFileTitle(FILETYPE_IMG));
                 switch($href) {
                         case 'svg':
