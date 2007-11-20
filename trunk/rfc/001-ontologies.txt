@@ -10,3 +10,8 @@ We need to be able to specify pathways at levels lower than just species
 Totally open attribute <-> value pairs?
 Preselected attribute <-> values?
 Predefined onthologies? Which ones?
+
+There is a centralized, open source repository of biological ontologies at OLS
+http://www.ebi.ac.uk/ontology-lookup/browse.do?ontName=PW
+The link above goes to a Pathway Ontology we may consider (not sure of the source or the info).  
+But, in addition, OLS has ontologies cell and tissue types, diseases, etc.
