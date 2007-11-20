@@ -59,11 +59,11 @@ class WikiPathwaysTemplate extends QuickTemplate {
  *			$this->data['content_actions'] = $actions;
  *		}
  */
-              //Remove edit tab on all pages except User(2), User_talk(3), and Pathway_talk(101)
+              //Remove edit tab on pathway pages
 //AP20070423 Don't remove edit buttons for sysops (sysops can protect)
 		$ns = $wgTitle->getNameSpace();
 		if(!array_search('sysop', $wgUser->getGroups())) {
-			if($ns != NS_USER && $ns != NS_USER_TALK &&  $ns != NS_PATHWAY_TALK) {
+			if($ns == NS_PATHWAY) {
 	                        $actions = $this->data['content_actions'];
 	                        unset($actions['edit']);
 	                        $this->data['content_actions'] = $actions;
