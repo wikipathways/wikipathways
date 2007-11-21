@@ -1,0 +1,31 @@
+Today and yesterday Thomas and I were working on installing the new server.
+We've got most components up and running (apache, mysql, inkscape, 
+subversion) and we expect to finish up tomorrow. This new server, 
+combined with the applet pre-loading really should solve most of our 
+speed problems in the short term.
+
+For more long-term, I totally agree with Bruce's suggestion of mirroring 
+the server. This has the additional advantages of having an extra 
+backup, load-balancing and high availability.
+
+I found some interesting articles about how wikipedia does it:
+http://highscalability.com/wikimedia-architecture
+http://davidsmalley.com/2005/10/11/wikimedia-server-setups
+
+I think the most intersting bit in those articles is this fragment:
+
+# One master, many replicated slaves
+# Read operations are load balanced over the slaves, write operations go 
+to the master
+# The master is used for some read operations in case the slaves are not 
+yet up to date (lagged)
+
+I like this architecture. So what we need is a "master" database (MySQL 
+is fine, wikipedia uses that too) and one or more "slave" databases. 
+Read operations go to the slave, unless the slave isn't up-to-date. 
+Write operations go to the master, which then forwards it to the slaves. 
+Although I have no idea about the details, I think this overall 
+architecture is the way to go. At this point I don't think this is very 
+urgent so let's brainstorm a bit more about this for a while until we 
+are clear on all the details, before we actually start implementing it. 
+If you have more information or articles to share, please do so!
