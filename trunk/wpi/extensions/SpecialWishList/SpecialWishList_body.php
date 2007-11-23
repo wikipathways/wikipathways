@@ -136,12 +136,26 @@ HTML;
 	function showlist() {
 	 	global $wgRequest, $wgOut, $wgUser, $wgLang, $wgScriptPath;
 	 	$this->addJavaScript();
-	 	
-	 	$wishes = $this->wishlist->getWishlist();	 		
+		
+		//Create a small toolbar with 'new' and 'help' actions
+		//TODO: pretty style	 	
+	 	$wgOut->addHTML("<table><tbody><tr><td>");
+	 	$elm = $this->getNewFormElements();
+	 	$newdiv = $elm['div'];
+	 	$newbutton = $elm['button'];
+	 	$wgOut->addHTML("$newbutton<td>");
+	 	$elm = $this->getHelpElements();
+	 	$helpbutton = $elm['button'];
+	 	$helpdiv = $elm['div'];
+		$wgOut->addHTML("$helpbutton</tbody></table>");
+		$wgOut->addHTML($newdiv . $helpdiv);
+		
+		//Create the actual wishlist
+	 	$wishes = $this->wishlist->getWishlist();
 	 	$html = <<<HTML
 <form action='{$this->this_url}' method='post'>
 <table class="prettytable"><tbody>
-<th>Requested pathway</th><th>Requested by</th><th>Date</th><th>Comments</th><th>Votes
+<th>Pathway name</th><th>Requested by</th><th>Date</th><th>Comments</th><th>Votes
 HTML;
 		if($wgUser->isLoggedIn()) {
 			$html .= "<th>Watch</th><th>Resolve";
@@ -162,10 +176,7 @@ HTML;
 		}
 		$html .= "</tbody></table></form>";
 		$wgOut->addHTML($html);
-		
-		$this->showHelp();
-		$this->showNewForm();
-		
+				
 		$wgOut->addWikiText("== Resolved items ==");
 		$wgOut->addHTML("<table class='prettytable'><tbody>
 				<th>Item name<th>Date resolved<th>Pathway<th>Created on<th>Created by");
@@ -196,11 +207,39 @@ JS;
 		$wgOut->addScript($js);
 	}
 	
-	function showHelp() {
-		global $wgOut, $wgScriptPath;
+	function getNewFormElements() {
+		global $wgUser;
 		
-		$html = <<<HELP
-<a href="javascript:showhide('help', this, 'Help', 'Hide help');">Help</a>
+		$div = <<<DIV
+<div id="new" style="display:none">
+Fill in the form below to add a new item to the wishlist.
+<FORM action="{$this->this_url}" method="post">
+    <P>
+    <LABEL for="name">Name of pathway: </LABEL>
+              <INPUT type="text" id="name" name="name"><BR>
+    <LABEL for="comments">Description, example urls or comments: </LABEL>
+              <TEXTAREA id="comments" name="comments" rows="10" cols="30"></TEXTAREA><BR>
+    <INPUT type="hidden" name="wishaction" value="add">
+    <INPUT type="submit" value="Add">
+    </P>
+</FORM>
+</div>	
+DIV;
+		
+		if(wfReadOnly() || !$wgUser->isAllowed('edit')) {
+			$href = SITE_URL . "/index.php?title=Special:Userlogin&returnto=Special:SpecialWishList";
+			$button = "<a href=$href>Log in</a> to add pathways to the wishlist";
+		} else {
+			$button = "<a href=\"javascript:showhide('new', this, 'Add new wishlist item', '');\">Add new wishlist item</a>";
+		}
+		return array('button' => $button, 'div' => $div);
+	}
+	
+	function getHelpElements() {
+		global $wgScriptPath;
+		
+		$button = "<a href=\"javascript:showhide('help', this, 'Help', 'Hide help');\">Help</a>";
+		$div = <<<HELP
 <div id="help" style="display:none">
 <p>This page shows a list of pathways that users would like to see added to WikiPahtways. You can add a pathway request to the list,
 by clicking 'Add new wishlist item'.
@@ -231,9 +270,9 @@ items that you created yourself.
 <td>Remove your vote</td>
 </tbody></table></div>
 HELP;
-		$wgOut->addHTML($html);
+		return array('button' => $button, 'div' => $div);
 	}
-	
+		
 	function createResolvedRow($wish) {
 		global $wgOut, $wgLang, $wgUser, $wgScriptPath;
 		$title = $wish->getTitle()->getText();
@@ -265,6 +304,8 @@ HELP;
 		$date = $wgLang->timeanddate( $wish->getRequestDate(), true );
 		$watching = $wish->userIsWatching() ? "CHECKED" : "";
 		$votes = (int)$wish->countVotes();
+		$fullComment = str_replace('"', "'", $wish->getComments());
+		$comment = $this->truncateComment($wish, 75); //Cutoff comment at 20 chars
 		if($wish->userCan('vote')) {
 			$voteButton = '<td style="border:0px">' . 
 				$this->createButton('plus.png', 'vote', 'Vote for this pathway', $id);
@@ -272,13 +313,13 @@ HELP;
 			$voteButton = '<td style="border:0px">' . 
 				$this->createButton('minus.png', 'unvote', 'Remove your vote', $id);
 		}
-		$wgOut->addHTML("<tr><td><a href='$url'>$title</a><td>$user
-				<td>$date<td>");
-		$wgOut->addWikiText("{{:WishList:$title}}");
-		$wgOut->addHTML("<td><table><tr><td style='border:0px'>$votes" . $voteButton . '</table>');
+		$wgOut->addHTML("<tr><td><b><a href='$url'>$title</a></b><td>$user
+				<td>$date<td title=\"$fullComment\">");
+		$wgOut->addWikiText($comment);
+		$wgOut->addHTML("<td><table class='prettytable' style='border:0px'><tr><td style='border:0px'>$votes" . $voteButton . '</table>');
 		if($login) { //Following columns only when user is logged in
 			$wgOut->addHTML("<td align='center'><input type=checkbox value='1' name='check_$id' $watching>");
-			$wgOut->addHTML("<td><table><tr>");
+			$wgOut->addHTML("<td><table class='prettytable' style='border:0px'><tr>");
 			if($wish->userCan('resolve')) {
 				$wgOut->addHTML('<td style="border:0px">' . 
 					$this->createButton("apply.gif", "resolved", "Resolve this item", $id));
@@ -289,6 +330,18 @@ HELP;
 			}
 			$wgOut->addHTML("</table>");
 		}
+	}
+	
+	function truncateComment($wish, $cutoff = 0) {
+		$pagename = $wish->getTitle()->getFullText();
+		$comment = $wish->getComments();
+		if($cutoff && strlen($comment) > $cutoff) {
+			//Truncate comment to cutoff length
+			$comment = substr($comment, 0, $cutoff);
+			//Append with 'more' link
+			$comment .= "...'''[[$pagename |more]]'''";
+		}
+		return $comment;
 	}
 	
 	function createButton($image, $action, $title, $id) {
@@ -303,42 +356,17 @@ HELP;
 		return "<a href='{$this->this_url}&wishaction=$action&id=$id' title='$title'>$label</a>";
 	}
 	
-	function showNewForm() {
-		global $wgUser, $wgOut;
-		if(wfReadOnly() || !$wgUser->isAllowed('edit')) {
-			$href = SITE_URL . "/index.php?title=Special:Userlogin&returnto=Special:SpecialWishList";
-			$wgOut->addHTML("<p><a href=$href>Log in</a> to add pathways to the wishlist");
-		} else {
-			$html = <<<ADD
-<p><a href="javascript:showhide('new', this, 'Add new wishlist item', '');">Add new wishlist item</a>
-<div id="new" style="display:none">
-Fill in the form below to add a new item to the wishlist.
-<FORM action="{$this->this_url}" method="post">
-    <P>
-    <LABEL for="name">Name of pathway: </LABEL>
-              <INPUT type="text" id="name" name="name"><BR>
-    <LABEL for="comments">Description, example urls or comments: </LABEL>
-              <TEXTAREA id="comments" name="comments" rows="10" cols="30"></TEXTAREA><BR>
-    <INPUT type="hidden" name="wishaction" value="add">
-    <INPUT type="submit" value="Add">
-    </P>
-</FORM>
-</div>			
-ADD;
-			$wgOut->addHTML($html);
-		}
-	}
-	
-        function loadMessages() {
-                static $messagesLoaded = false;
-                global $wgMessageCache;
-                if ( $messagesLoaded ) return;
-                $messagesLoaded = true;
+		
+    function loadMessages() {
+        static $messagesLoaded = false;
+        global $wgMessageCache;
+        if ( $messagesLoaded ) return;
+        $messagesLoaded = true;
 
-                require( dirname( __FILE__ ) . '/SpecialWishList.i18n.php' );
-                foreach ( $allMessages as $lang => $langMessages ) {
-                        $wgMessageCache->addMessages( $langMessages, $lang );
-                }
-        }
+        require( dirname( __FILE__ ) . '/SpecialWishList.i18n.php' );
+        foreach ( $allMessages as $lang => $langMessages ) {
+                $wgMessageCache->addMessages( $langMessages, $lang );
+            }
+    }
 }
 ?>
