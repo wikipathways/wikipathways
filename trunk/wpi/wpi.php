@@ -9,6 +9,7 @@ require_once( 'Wiki.php' );
 chdir($dir);
 
 require_once( 'Pathway.php' );
+require_once( 'MimeTypes.php' );
 
 //Parse HTTP request (only if script is directly called!)
 if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
@@ -144,24 +145,20 @@ function downloadFile($fileType, $pwTitle) {
 	if($oldid = $_REQUEST['oldid']) {
 		$pathway->setActiveRevision($oldid);
 	}
+	//Register file type for caching
+	$pathway->registerFileType($fileType);
+	
 	$file = $pathway->getFileLocation($fileType);
 	$fn = $pathway->getFileName($fileType);
 	
+	$mime = MimeTypes::getMimeType($fileType);
+	if(!$mime) $mime = "text/plain";
+	
 	ob_clean();
-	switch($fileType) {
-		case FILETYPE_GPML:
-			header("Content-type: text/xml");
-			break;
-		case FILETYPE_IMG:
-			header("Content-type: image/svg+xml");
-			break;
-		case FILETYPE_PNG:
-			header("Content-type: image/png");
-			break;
-	}
+	header("Content-type: $mime");
 	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 	header("Content-Disposition: attachment; filename=\"$fn\"");
-	header("Content-Length: " . filesize($file));
+	//header("Content-Length: " . filesize($file));
 	set_time_limit(0);
 	@readfile($file);
 	exit();

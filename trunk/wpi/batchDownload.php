@@ -32,12 +32,14 @@ function createDownloadLinks($input, $argv, &$parser) {
 }
 
 function batchDownload($species, $fileType) {
+/*
 	if(!(
 		$fileType == FILETYPE_GPML ||
 		$fileType == FILETYPE_IMG ||
 		$fileType == FILETYPE_PNG)) {
 		throw new Exception("Invalid file type: $fileType");
 	}
+*/
 	$pathways = getPathways(array(
 		"page_title LIKE '$species%'"		
 	));
@@ -63,6 +65,7 @@ function getPathways($conditions = array()) {
 			$t = Title::makeTitle( $s->page_namespace, $s->page_title );
 			try {
 				$pw = Pathway::newFromTitle($t);
+				$pw->registerFileType($fileType);
 				array_unshift($pathways, $pw);
 			} catch(Exception $e) {
 				wfDebug("Unable to create pathway object", $e);

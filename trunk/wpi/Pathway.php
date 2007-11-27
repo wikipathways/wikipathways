@@ -9,8 +9,12 @@ class Pathway {
 	private static $spName2Code = array('Human' => 'Hs', 'Rat' => 'Rn', 'Mouse' => 'Mm');
 	private static $spCode2Name; //TODO: complete species
 	
-	private $file_ext = array(FILETYPE_IMG => 'svg', FILETYPE_GPML => 'gpml', FILETYPE_PNG => 'png');
-	
+	private $fileTypes = array(
+				FILETYPE_IMG => FILETYPE_IMG, 
+				FILETYPE_GPML => FILETYPE_GPML,
+				FILETYPE_PNG => FILETYPE_IMG
+	);
+
 	private $pwName;
 	private $pwSpecies;
 	
@@ -35,7 +39,7 @@ class Pathway {
 		
 		if($updateCache) $this->updateCache();
 	}
-	
+		
 	/**
 	 * Get the active revision in the modification
 	 * history for this instance. The active revision
@@ -294,6 +298,14 @@ class Pathway {
 	}
 	
 	/**
+	 * Register a file type that can be exported to
+	 * (needs to be supported by the GPML exporter
+	 */
+	public function registerFileType($fileType) {
+		$this->fileTypes[$fileType] = $fileType;
+	}
+	
+	/**
 	 * Creates a MediaWiki title object that represents the article in the 
 	 * NS_IMAGE namespace for cached file of given file type. 
 	 * There is no guarantee that an article exists for each filetype.
@@ -305,7 +317,7 @@ class Pathway {
 		if($this->revision) {
 			$rev_stuffix = "_" . $this->revision;
 		}
-		$title = Title::newFromText( "{$prefix}{$rev_stuffix}." . $this->file_ext[$fileType], NS_IMAGE );
+		$title = Title::newFromText( "{$prefix}{$rev_stuffix}." . $fileType, NS_IMAGE );
 		if(!$title) {
 			throw new Exception("Invalid file title for pathway " + $fileName);
 		}
@@ -442,9 +454,9 @@ class Pathway {
 	public function updateCache($fileType = null) {
 		wfDebug("updateCache called for filetype $fileType\n");
 		if(!$fileType) { //Update all
-			$this->updateCache(FILETYPE_GPML);
-			$this->updateCache(FILETYPE_IMG);
-			$this->updateCache(FILETYPE_PNG);
+			foreach($this->fileTypes as $type) {
+				$this->updateCache($type);
+			}
 			return;
 		}
 		if($this->isOutOfDate($fileType)) {
@@ -458,6 +470,9 @@ class Pathway {
 				break;
 			case FILETYPE_IMG:
 				$this->saveImageCache();
+				break;
+			default:
+				$this->saveConvertedCache($fileType);
 				break;
 			}
 		}
@@ -526,6 +541,41 @@ class Pathway {
 		return $gpmlDate;
 	}
 
+	/**
+	 * Save a cached version of a filetype to be converted
+	 * from GPML
+	 */
+	private function saveConvertedCache($fileType) {
+		# Convert gpml to fileType
+		$gpmlFile = realpath($this->getFileLocation(FILETYPE_GPML));
+		$conFile = $this->getFileLocation($fileType, false);
+		$dir = dirname($conFile);
+		if ( !is_dir( $dir ) ) wfMkdirParents( $dir );
+		self::convert($gpmlFile, $conFile);
+		return $conFile;
+	}
+		
+	/**
+	 * Convert the given GPML file to another
+	 * file format. The file format will be determined by the
+	 * output file extension.
+	 */
+	public static function convert($gpmlFile, $outFile) {
+		$gpmlFile = realpath($gpmlFile);
+		
+		$basePath = WPI_SCRIPT_PATH;
+		$cmd = "java -jar $basePath/bin/pathvisio_core.jar $gpmlFile $outFile 2>&1";
+		exec($cmd, $output, $status);
+		
+		foreach ($output as $line) {
+			$msg .= $line . "\n";
+		}
+		if($status != 0 ) {
+			throw new Exception("Unable to convert to $outFile:\nStatus:$status\nMessage:$msg");
+		}
+		return true;
+	} 
+	
 	private function saveImageCache() {
 		$file = $this->getFileLocation(FILETYPE_GPML);
 		$this->saveImage($file, "Updated SVG cache");
@@ -541,19 +591,9 @@ class Pathway {
 		# Convert gpml to svg
 		$gpmlFile = realpath($gpmlFile);
 
-		$basePath = dirname(realpath(__FILE__));
-		$imgFile = $basePath . '/tmp/' . $imgName;
-		$cmd = "java -jar $basePath/bin/pathvisio_core.jar $gpmlFile $imgFile 2>&1";
-		wfDebug($cmd);
-		exec($cmd, $output, $status);
+		$imgFile =  WPI_TMP_PATH . "/" . $imgName;
 		
-		foreach ($output as $line) {
-			$msg .= $line . "\n";
-		}
-		wfDebug("Converting to SVG:\nStatus:$status\nMessage:$msg");
-		if($status != 0 ) {
-			throw new Exception("Unable to convert to SVG:\nStatus:$status\nMessage:$msg");
-		}
+		self::convert($gpmlFile, $imgFile);
 		# Upload svg file to wiki
 		return Pathway::saveFileToWiki($imgFile, $imgName, $description);
 	}
