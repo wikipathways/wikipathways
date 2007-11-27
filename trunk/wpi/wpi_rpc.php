@@ -5,6 +5,7 @@ error_reporting(E_ERROR); //Supress warnings etc...will disrupt the rpc response
 //Load XML-RCP libraries
 require("includes/xmlrpc.inc");
 require("includes/xmlrpcs.inc");
+require("includes/docxmlrpcs.inc");
 
 //Load WikiPathways Interface
 require("wpi.php");
@@ -15,14 +16,68 @@ $updatePathway_sig=array(array(
 							$xmlrpcString, $xmlrpcString, $xmlrpcString, $xmlrpcBase64
 						));
 
-$updatePathway_doc='updatePathway';
+$updatePathway_doc=<<<DOC
+Update a pathway on wikipathways.
+<dl>
+<lh>Arguments
+<dt>String
+	<dd>The pathway name (e.g. Apoptosis)
+<dt>String
+	<dd>The pathway species (e.g. Human)
+<dt>String
+	<dd>Description of the modifications
+<dt>Base64
+	<dd>The updated GPML data (base64 encoded)
+</dl>
+<dl>
+<lh>Returns
+<dt>Boolean
+	<dd>True when the update was successful, false when not
+</dl>
+DOC;
 
 $convertPathway_sig= array(array(
 	$xmlrpcBase64,
 	$xmlrpcBase64, $xmlrpcString
 ));
 
-$convertPathway_sig='convertPathway';
+$convertPathway_doc= <<<DOC
+Convert GPML code to the given file format
+<dl>
+<lh>Arguments
+<dt>Base64
+	<dd>The GPML code to convert (base64 encoded)
+<dt>String
+	<dd>The file extension to convert to (e.g. svg)
+</dl>
+<dl>
+<lh>Returns
+<dt>Base64
+	<dd>The converted file data (base64 encoded) 
+DOC;
+
+$getGPML_sig = array(array(
+	$xmlrpcBase64,
+	$xmlrpcString, $xmlrpcString, $xmlrpcInt
+));
+
+$getGPML_doc = <<<DOC
+Get the GPML code for a pathway
+<dl>
+<lh>Arguments
+<dt>String
+	<dd>The pathway name (e.g. Apoptosis)
+<dt>String
+	<dd>The pathway species (e.g. Human)
+<dt>Integer
+	<dd>The revision id (use '0' for current revision)
+</dl>
+<dl>
+<lh>Returns
+<dt>Base64
+	<dd>The GPML code (base64 encoded)
+</dl>
+DOC;
 
 //Definition of dispatch map
 $disp_map=array("WikiPathways.updatePathway" => 
@@ -31,17 +86,21 @@ $disp_map=array("WikiPathways.updatePathway" =>
 			"docstring" => $updatePathway_doc),
 		"WikiPathways.convertPathway" =>
 			array("function" => "convertPathway",
-			"signature" => $exportPathway_sig,
-			"docstring" => $exportPathway_doc),
+			"signature" => $convertPathway_sig,
+			"docstring" => $convertPathway_doc),
+		"WikiPathways.getGPML" =>
+			array("function" => "getGPML",
+			"signature" => $getGPML_sig,
+			"docstring" => $getGPML_doc),
 );
 
 //Setup the XML-RPC server
-$s=new xmlrpc_server($disp_map,0);
+$s=new documenting_xmlrpc_server($disp_map,0);
 $s->functions_parameters_type = 'phpvals';
 //$s->setDebug(3);
 $s->service();
 
-//Functions
+//Function implementations
 function updatePathway($pwName, $pwSpecies, $description, $gpmlData64) {
 	global $xmlrpcerruser;
 	
@@ -58,10 +117,6 @@ function updatePathway($pwName, $pwSpecies, $description, $gpmlData64) {
 	return $resp;
 }
 
-/**
- * Convert the given GPML data to a file of the given filetype
- * Returns bas64 encoded result of the conversion
- */
 function convertPathway($gpmlData64, $fileType) {
 	global $xmlrpcerruser;
 	
@@ -86,5 +141,19 @@ function convertPathway($gpmlData64, $fileType) {
 	unlink($imgFile);
 	ob_clean(); //Clean the output buffer, so nothing is printed before the xml response
 	return $imgData64;
+}
+
+function getGPML($pwName, $pwSpecies, $revision = 0) {
+	global $xmlrpcerruser;
+	
+	try {
+		$pathway = new Pathway($pwName, $pwSpecies);
+		$gpmlData64 = base64_encode($pathway->getGPML());
+		ob_clean();
+		return $gpmlData64;
+	} catch(Exception $e) {
+		wfDebug("XML-RPC ERROR: $e");
+		$resp = new xmlrpcresp(0, $xmlrpcerruser, $e);
+	}
 }
 ?>
