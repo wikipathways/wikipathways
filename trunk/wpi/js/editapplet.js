@@ -1,25 +1,70 @@
 var label_maximize = '<img src="/skins/common/images/magnify-clip.png" id="maximize"/>';
 var label_minimize = '<img src="/skins/common/images/magnify-clip.png" id="minimize"/>';
 
+var masterApplet = false;
+var masterActivated = false;
+
 var appletButtons = [];
+
+/*Array with objects that contain applet information
+ - id: the id of the applet 
+ - div: the div in which the applet resides
+ - resizeable: the resizeable object (see resize.js)
+*/
+var applets = [];
 
 //Register an applet button. This button
 //will be disabled when an edit applet is activated
-function registerAppletButton(id) {
-	var test = appletButtons.size();
+function registerAppletButton(id, base, keys, values) {
 	appletButtons[id] = id;
+	if(!masterApplet) {
+		masterApplet = new AppletObject( "org.pathvisio.gui.wikipathways.PathwayPageApplet",
+				[base + '/wikipathways.jar'],
+				'1', '1', '1.5.0', 'false',
+				base,
+				[],
+				AppletObjects.TAG_OBJECT );
+		if(keys != null && values != null) {
+			for(i=0; i < keys.length; i++) {
+						masterApplet.addParam(keys[i], values[i]);
+			}
+		}
+	}
+}
+
+function getAppletObject(id) {
+	for(i=0;i<applets.length;i++) {
+		var obj = applets[i];
+		if(obj.id == id) {
+			return obj;
+		}
+	}
+}
+
+function activateMasterApplet() {
+	if(masterApplet && !masterActivated) {
+		var div = document.createElement("div");
+		div.id = "masterapplet";
+		document.body.appendChild(div);
+		masterApplet.load("masterapplet");
+		masterActivated = true;
+		window.status = "Activated master applet";
+	}
 }
 
 //Uses appletobject.js
 function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, noresize) {
 	var image = document.getElementById(idImg);
+		
+	appletObject = new Object();
+	applets[applets.length] = appletObject;
+	appletObject.id = idApplet;	
 	
 	//Disable all edit buttons
 	for(var idButton in appletButtons) {
 		var button = document.getElementById(idButton);
 		if(button) {
 			button.style.display = "none";
-			
 		}
 	}
 	
@@ -35,6 +80,7 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 
 	//First create a new div for the applet and add it to the idImg
 	appletDiv = document.createElement('div');
+	appletObject.div = appletDiv;
 	appletDiv.id = idApplet;
 	setClass(appletDiv, 'internal');
 	appletDiv.style.width = '100%';
@@ -44,7 +90,7 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 		
 	//Create maximize div
 	maximize = document.createElement('div');
-	maximize.innerHTML = createMaximizeButton(idImg);
+	maximize.innerHTML = createMaximizeButton(idApplet);
 	maximize.style.cssFloat = 'center';
 	maximize.style.marginBottom = '10px';
 
@@ -70,10 +116,13 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 	}
 	
 	if(!noresize) {
-		new Resizeable(idImg, {bottom: 10, right: 10, left: 0, top: 0});
+		var resizeable = new Resizeable(idImg, {bottom: 10, right: 10, left: 0, top: 0});
+		appletObject.resizeable = resizeable;
 	}
 	
 	ao.load( idApplet );
+	
+	activateMasterApplet();
 }
 
 function setClass(elm, cname) {
@@ -99,7 +148,9 @@ function replaceWithApplet(idImg, idApplet, keys, values) {
 
 function getParentWidth(elm) {
 	var p = findEnclosingTable(elm);
-	return p.offsetWidth;	
+	var w = p.offsetWidth;	
+		p.align="";
+		return w;
 }
 
 function findEnclosingTable(elm) {
@@ -131,58 +182,73 @@ var maxImg = '/skins/common/images/magnify-clip.png';
  * TODO: create maximizable class with prototype
  */
 function createMaximizeButton(id) {
-	return('<img href="javascript:;" src="' + maxImg + "\" onclick=\"toggleMaximize(this, '" + id + "', 'maximize', '', '');\" />");
+	return("<a href=\"javascript:toggleMaximize(this, '" + id + "');\"><img src='" + maxImg + "'>Maximize</img></a>");
 }
 
-function toggleMaximize(button, id, action, oldWidth, oldHeight) {
-	var element = document.getElementById(id);
-	if(action == 'maximize') {
-		var oldWidth = element.offsetWidth;
-		var oldHeight = element.offsetHeight;
-		var parent = element.parentNode;
-		var left = parent.offsetLeft;
-		var top = parent.offsetTop;
-		while((parent = parent.parentNode) != document) { left += parent.offsetLeft; top += parent.offsetTop; }
-		var newWidth = getViewportWidth() - left;
-		var newHeight = getViewportHeight() - top;
-		element.style.width = newWidth + 'px';
-		element.style.height = newHeight + 'px';
-		button.setAttribute('onclick', 'toggleMaximize(this, "' + id + '", "restore", "' + oldWidth + 'px", "' + oldHeight + 'px");');
-	} else {
-		element.style.width = oldWidth;
-		element.style.height = oldHeight;
-		button.setAttribute('onclick', 'toggleMaximize(this, "' + id + '", "maximize", "", "");');
+function toggleMaximize(button, id) {
+	var obj = getAppletObject(id);
+	if(obj) {
+		var elm = obj.div.parentNode;
+		var globalWrapper = document.getElementById('globalWrapper');
+		if(obj.clone) {
+			//Remove the clone
+			document.body.removeChild(obj.clone);
+			obj.clone = false;
+			
+			//Set the globalwrapper visible
+			globalWrapper.style.display = "";
+
+			//Reset the style parameters
+			elm.style.position = "relative";
+			elm.style.offsetLeft = obj.oldpos[0];
+			elm.style.offsetTop = obj.oldpos[1];
+			elm.style.width = obj.oldsize[0];
+			elm.style.height = obj.oldsize[1];
+		} else {		
+			//Clone the div
+			var clone = elm.cloneNode(true);	
+			obj.clone = clone;			
+			//Add the div to the root
+			obj.oldParent = elm.parentNode;
+			document.body.appendChild(clone);
+			//Make the globalwrapper invisible
+			globalWrapper.style.display = "none";
+			
+			//Modify the style parameters			
+			obj.oldsize = Array(elm.style.width, elm.style.height);
+			obj.oldpos = Array(elm.style.offsetLeft, elm.style.offsetTop);
+			clone.style.position = "absolute";
+			clone.style.width = "99%";
+			clone.style.height = "99%";
+		}
 	}
 }
 
-/** COPIED FROM Util v1.06:
- * Copyright (c)2005-2007 Matt Kruse (javascripttoolbox.com)
- * 
- * Dual licensed under the MIT and GPL licenses. 
- * This basically means you can use this code however you want for
- * free, but don't claim to have written it yourself!
- * Donations always accepted: http://www.JavascriptToolbox.com/donate/
- * 
- * Please do not link to the .js files on javascripttoolbox.com from
- * your site. Copy the files locally to your server instead.
- * 
- */
-function getViewportWidth() {
-		if (document.documentElement && (!document.compatMode || document.compatMode=="CSS1Compat")) {
-			return document.documentElement.clientWidth;
-		}
-		else if (document.compatMode && document.body) {
-			return document.body.clientWidth;
-		}
-		return self.innerWidth;
-};
-function getViewportHeight() {
-		if (!window.opera && document.documentElement && (!document.compatMode || document.compatMode=="CSS1Compat")) {
-			return document.documentElement.clientHeight;
-		}
-		else if (document.compatMode && !window.opera && document.body) {
-			return document.body.clientHeight;
-		}
-		return self.innerHeight;
-};
-/** END COPIED **/
+function getViewportSize() {
+	var viewportwidth;
+	var viewportheight;
+
+	// the more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
+	if (typeof window.innerWidth != 'undefined')
+	{
+	     viewportwidth = window.innerWidth,
+	     viewportheight = window.innerHeight
+	}
+	// IE6 in standards compliant mode (i.e. with a valid doctype as the first line in the document
+	else if (typeof document.documentElement != 'undefined'
+	    && typeof document.documentElement.clientWidth !=
+	    'undefined' && document.documentElement.clientWidth != 0)
+	{
+	      viewportwidth = document.documentElement.clientWidth,
+	      viewportheight = document.documentElement.clientHeight
+	}
+	// older versions of IE
+	else
+	{
+	      viewportwidth = document.getElementsByTagName('body')[0].clientWidth,
+	      viewportheight = document.getElementsByTagName('body')[0].clientHeight
+	}
+	
+	return Array(viewportwidth, viewportheight);
+}
+ 

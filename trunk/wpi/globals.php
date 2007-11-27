@@ -1,4 +1,5 @@
 <?php
+global $wgScriptPath;
 
 //File types
 define("FILETYPE_IMG", "svg");

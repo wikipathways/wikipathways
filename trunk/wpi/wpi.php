@@ -1,5 +1,4 @@
 <?php
-require_once('globals.php');
 //Initialize MediaWiki
 set_include_path(get_include_path().PATH_SEPARATOR.realpath('../includes').PATH_SEPARATOR.realpath('../').PATH_SEPARATOR);
 $dir = getcwd();
@@ -8,8 +7,8 @@ require_once ( 'WebStart.php');
 require_once( 'Wiki.php' );
 chdir($dir);
 
+require_once('globals.php');
 require_once( 'Pathway.php' );
-require_once( 'MimeTypes.php' );
 
 //Parse HTTP request (only if script is directly called!)
 if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
@@ -20,6 +19,9 @@ switch($action) {
 		$ignore = $_GET['ignoreWarning'];
 		launchPathVisio($pathway, $ignore);
 		break;
+	case 'launchCytoscape':
+		$pathway = Pathway::newFromTitle($_GET['pwTitle']);
+		launchCytoscape($pathway);
 	case 'downloadFile':
 		downloadFile($_GET['type'], $_GET['pwTitle']);
 		break;
@@ -60,6 +62,16 @@ function revert($pwTitle, $oldId) {
 	$url = $pathway->getTitleObject()->getFullURL();
 	header("Location: $url");
 	exit;
+}
+
+function launchCytoscape($pathway) {
+	global $wgUser;
+		
+	$webstart = file_get_contents(WPI_SCRIPT_PATH . "/bin/cytoscape/cy1.jnlp");
+	$arg = createJnlpArg("-N", $pathway->getFileURL(FILETYPE_GPML));
+	$webstart = str_replace(" <!--ARG-->", $arg, $webstart);
+	$webstart = str_replace("CODE_BASE", WPI_URL . "/bin/cytoscape/", $webstart);
+	sendWebstart($webstart, $pathway->name(), "cytoscape.jnlp");//This exits script
 }
 
 function launchPathVisio($pathway, $ignore = null, $new = false) {
@@ -117,12 +129,12 @@ JS;
 	sendWebstart($webstart, $pathway->name());//This exits script
 }
 
-function sendWebstart($webstart, $tmpname) {
+function sendWebstart($webstart, $tmpname, $filename = "wikipathways.jnlp") {
 	ob_start();
 	ob_clean();
 	//return webstart file directly
 	header("Content-type: application/x-java-jnlp-file");
-	header("Content-Disposition: attachment; filename=\"WikiPathways.jnlp\"");
+	header("Content-Disposition: attachment; filename=\"{$filename}\"");
 	echo $webstart;
 	exit;
 }

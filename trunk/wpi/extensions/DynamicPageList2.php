@@ -363,8 +363,6 @@ function wfDynamicPageList2() {
 
 // The callback function for converting the input text to HTML output
 function DynamicPageList2( $input, $params, &$parser ) {
-
-	error_reporting(E_ALL);
 	
 	global $wgUser, $wgContLang, $wgDPL2AllowedNamespaces, $wgDPL2Options, $wgDPL2MaxCategoryCount, $wgDPL2MinCategoryCount, $wgDPL2MaxResultCount, $wgDPL2AllowUnlimitedCategories, $wgDPL2AllowUnlimitedResults;
 	

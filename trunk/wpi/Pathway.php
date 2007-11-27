@@ -564,7 +564,8 @@ class Pathway {
 		$gpmlFile = realpath($gpmlFile);
 		
 		$basePath = WPI_SCRIPT_PATH;
-		$cmd = "java -jar $basePath/bin/pathvisio_core.jar $gpmlFile $outFile 2>&1";
+		$cmd = "java -jar $basePath/bin/pathvisio_core.jar '$gpmlFile' '$outFile' 2>&1";
+		wfDebug("CONVERTER: $cmd\n");
 		exec($cmd, $output, $status);
 		
 		foreach ($output as $line) {

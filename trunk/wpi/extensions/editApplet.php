@@ -192,8 +192,8 @@ class EditApplet {
 		return array("archive"=>$this->archive_string, "version"=>$this->version_string);
 	}
 	
-	function makeAppletObjectCall() {
-		global $wgUser, $wgScriptPath;
+	function getAppletParameters() {
+		global $wgUser;
 		if($this->isNew) {
 			$pwUrl = $this->pathway->getTitleObject()->getFullURL();
 		} else {
@@ -223,11 +223,28 @@ class EditApplet {
 		$args = array_merge($args, $this->param);
 		$keys = createJsArray(array_keys($args));
 		$values = createJsArray(array_values($args));
-
-		return "doApplet('{$this->idReplace}', 'applet', '$wgScriptPath/wpi/applet', '{$this->mainClass}', '{$this->width}', '{$this->height}', {$keys}, {$values}, {$this->noresize});";
+		return array('keys' => $keys, 'values' => $values); 
+	}
+	
+	function makeAppletObjectCall() {
+		$param = $this->getAppletParameters();
+		$base = self::getAppletBase();
+		$keys = $param['keys'];
+		$values = $param['values'];
+		return "doApplet('{$this->idReplace}', 'applet', '$base', '{$this->mainClass}', '{$this->width}', '{$this->height}', {$keys}, {$values}, {$this->noresize});";
 	}
 
+	static function getAppletBase() {
+		global $wgScriptPath;
+		return "$wgScriptPath/wpi/applet";
+	}
+	
 	function makeAppletFunctionCall() {
+		$base = self::getAppletBase();
+		$param = $this->getAppletParameters();
+		$keys = $param['keys'];
+		$values = $param['values'];
+		
 		$function = $this->makeAppletObjectCall();
 		if($this->idClick == 'direct') {
 			return scriptTag($function);
@@ -237,7 +254,7 @@ class EditApplet {
 				"var listener = function() { $function };" .
 				"if(elm.attachEvent) { elm.attachEvent('onclick',listener); }" .
 				"else { elm.addEventListener('click',listener, false); }" .
-				"registerAppletButton('{$this->idClick}')"
+				"registerAppletButton('{$this->idClick}', '$base', $keys, $values);"
 			);
 		}
 	}
