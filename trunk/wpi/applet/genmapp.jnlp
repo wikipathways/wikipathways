@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp codebase="CODE_BASE" href="genmapp.jnlp">
+	<information>
+		 <title>WikiPathways-Genmapp Converter</title>
+		 <vendor>BiGCaT Bioinformatics, Maastricht University</vendor>
+		 <homepage href="index.html"/>
+		 <icon href="../../skins/common/images/earth_or_pathway.png"/>
+	</information>
+	<resources>
+		 <j2se version="1.5+"/>
+		 <jar href="wikipathways.jar"/>
+		 <jar href="lib/jdom.jar"/>
+		 <jar href="lib/resources.jar"/>
+	</resources>
+	<application-desc main-class="org.pathvisio.gui.wikipathways.GenMappExporter">
+		<!--ARG-->
+	</application-desc>
+	<security>
+		 <all-permissions/>
+	</security>
+</jnlp>
