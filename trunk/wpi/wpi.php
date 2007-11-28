@@ -22,6 +22,11 @@ switch($action) {
 	case 'launchCytoscape':
 		$pathway = Pathway::newFromTitle($_GET['pwTitle']);
 		launchCytoscape($pathway);
+		break;
+	case 'launchGenMappConverter':
+		$pathway = Pathway::newFromTitle($_GET['pwTitle']);
+		launchGenMappConverter($pathway);
+		break;
 	case 'downloadFile':
 		downloadFile($_GET['type'], $_GET['pwTitle']);
 		break;
@@ -62,6 +67,19 @@ function revert($pwTitle, $oldId) {
 	$url = $pathway->getTitleObject()->getFullURL();
 	header("Location: $url");
 	exit;
+}
+
+function launchGenMappConverter($pathway) {
+	global $wgUser;
+		
+	$webstart = file_get_contents(WPI_SCRIPT_PATH . "/applet/genmapp.jnlp");
+	$pwUrl = $pathway->getFileURL(FILETYPE_GPML);
+	$pwName = substr($pathway->getFileName(''), 0, -1);
+	$arg = "<argument>" . htmlspecialchars($pwUrl) . "</argument>";
+	$arg .= "<argument>" . htmlspecialchars($pwName) . "</argument>";
+	$webstart = str_replace("<!--ARG-->", $arg, $webstart);
+	$webstart = str_replace("CODE_BASE", WPI_URL . "/applet/", $webstart);
+	sendWebstart($webstart, $pathway->name(), "genmapp.jnlp");//This exits script
 }
 
 function launchCytoscape($pathway) {

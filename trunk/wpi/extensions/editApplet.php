@@ -140,12 +140,12 @@ class EditApplet {
 		$this->noresize = $noresize;
 	}
 
-	private $version_string = false;
-	private	$archive_string = false;
+	private static $version_string = false;
+	private	static $archive_string = false;
 	
-	function getCacheParameters() {
-		if($this->version_string && $this->archive_string) {
-			return array("version"=>$this->version_string, "archive"=>$this->archive_string);
+	static function getCacheParameters() {
+		if(self::$version_string && self::$archive_string) {
+			return array("version"=>self::$version_string, "archive"=>self::$archive_string);
 		}
 		//Read cache jars and update version
 		$jardir = WPI_SCRIPT_PATH . '/applet';
@@ -163,8 +163,8 @@ class EditApplet {
 				}
 			}
 		}
-		$this->archive_string = "";
-		$this->version_string = "";
+		self::$archive_string = "";
+		self::$version_string = "";
 		foreach($cache_archive as $jar) {
 			$mod = filemtime("$jardir/$jar");
 			if($ver = $cache_version[$jar]) {
@@ -177,11 +177,11 @@ class EditApplet {
 				$realversion = '0.0.0.0';
 			}
 			$cache_version[$jar] = array('ver'=>$realversion, 'mod'=>$mod);
-			$this->archive_string .= $jar . ', ';
-			$this->version_string .= $realversion . ', ';
+			self::$archive_string .= $jar . ', ';
+			self::$version_string .= $realversion . ', ';
 		}
-		$this->version_string = substr($this->version_string, 0, -2);
-		$this->archive_string = substr($this->archive_string, 0, -2);
+		self::$version_string = substr(self::$version_string, 0, -2);
+		self::$archive_string = substr(self::$archive_string, 0, -2);
 
 		//Write new cache version file
 		$out = "";
@@ -189,25 +189,25 @@ class EditApplet {
 			$out .= $jar . '|' . $cache_version[$jar]['ver'] . '|' . $cache_version[$jar]['mod'] . "\n";
 		}
 		writefile("$jardir/cache_version", $out);
-		return array("archive"=>$this->archive_string, "version"=>$this->version_string);
+		return array("archive"=>self::$archive_string, "version"=>self::$version_string);
 	}
 	
-	function getAppletParameters() {
+	static function getParameterArray($pathway, $new = 0, $param = array()) {
 		global $wgUser;
-		if($this->isNew) {
-			$pwUrl = $this->pathway->getTitleObject()->getFullURL();
+		if($new) {
+			$pwUrl = $pathway->getTitleObject()->getFullURL();
 		} else {
-			$pwUrl = $this->pathway->getFileURL(FILETYPE_GPML);
+			$pwUrl = $pathway->getFileURL(FILETYPE_GPML);
 		}
 
-		$cache = $this->getCacheParameters();
+		$cache = self::getCacheParameters();
 		$archive_string = $cache["archive"];
 		$version_string = $cache["version"];
 		
 		$args = array(
 			'rpcUrl' => WPI_URL . "/wpi_rpc.php",
-			'pwName' =>     $this->pathway->name(),
-			'pwSpecies' => $this->pathway->species(),
+			'pwName' =>     $pathway->name(),
+			'pwSpecies' => $pathway->species(),
 			'pwUrl' => $pwUrl,
 			'cache_archive' => $archive_string,
 			'cache_version' => $version_string
@@ -217,17 +217,21 @@ class EditApplet {
 		if($wgUser && $wgUser->isLoggedIn()) {
 			$args = array_merge($args, array('user' => $wgUser->getRealName()));
 		}
-		if($this->isNew) {
+		if($new) {
 			$args = array_merge($args, array('new' => true));
 		}
-		$args = array_merge($args, $this->param);
+		return $args;
+	}
+	
+	function getJsParameters() {
+		$args = self::getParameterArray($this->pathway, $this->isNew, $this->param);
 		$keys = createJsArray(array_keys($args));
 		$values = createJsArray(array_values($args));
 		return array('keys' => $keys, 'values' => $values); 
 	}
 	
 	function makeAppletObjectCall() {
-		$param = $this->getAppletParameters();
+		$param = $this->getJsParameters();
 		$base = self::getAppletBase();
 		$keys = $param['keys'];
 		$values = $param['values'];
@@ -241,7 +245,7 @@ class EditApplet {
 	
 	function makeAppletFunctionCall() {
 		$base = self::getAppletBase();
-		$param = $this->getAppletParameters();
+		$param = $this->getJsParameters();
 		$keys = $param['keys'];
 		$values = $param['values'];
 		

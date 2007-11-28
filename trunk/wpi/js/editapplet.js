@@ -54,8 +54,11 @@ function activateMasterApplet() {
 
 //Uses appletobject.js
 function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, noresize) {
+	
+	activateMasterApplet();
+	
 	var image = document.getElementById(idImg);
-		
+	
 	appletObject = new Object();
 	applets[applets.length] = appletObject;
 	appletObject.id = idApplet;	
@@ -121,8 +124,6 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 	}
 	
 	ao.load( idApplet );
-	
-	activateMasterApplet();
 }
 
 function setClass(elm, cname) {
