@@ -1,0 +1,148 @@
+= Factoid Capture Database =
+This RFC describes the plan for a factoid capturing database. In this RFC, I will assume that we are going
+to use BioPAX to store the factoids. By describing all required features and data types, we can decide whether 
+this would be a good choice, or if we should look for other options (e.g. a custom SQL database schema).
+
+== What is a factoid ==
+Within the context of this RFC, a factoid is a simple biological fact, that can be expressed as:
+
+C(A-B)
+
+Where:
+	A, B 	biological entities (gene, protein, metabolite, ...)
+	-		relationship (e.g. interacts, activates, phosphorylates)
+	C		context (e.g. disease state, cellular compartment, species, tissue, ...)
+
+So a textual representation of a factoid could be:
+"Protein X phosphorylates protein Y under oxidative stress in human"
+    A          -              B                 C1             C2
+
+== Factoid capturing ==
+Factoid information is typically the result of experimental studies that are usually described as textual representation within a 
+publication. This is an inefficient way to store this information, since the process of extracting such single facts from the 
+publication is not trivial and error prone. The idea of factoid capture is to store the single facts in the form of the structured 
+expression C(A-B) into a dedicated database along with publication of the finding. This would greatly enhance our ability to 
+computationally derive or extend pathways directly from knowledge derived from experimental studies. It is also useful as an aid 
+for researchers to keep up-to-date on a certain topic, since nowadays it's hard to keep up with the massive amounts of publications.
+
+Similar to GenBank (for sequence) or GEO/ArrayExpress (for microarray data) a factoid database would have most power if journals 
+would force/stimulate authors to store their findings as factoids upon publication. This way the database will contain a structured, 
+manually curated (indirectly, by reviewers of the article), high quality representation of the current biological knowledge at systems level.
+
+WikiPathways would have a connection to the factoid database and make use of it. For example, you can right-click a gene and query all 
+factoids for a given context. The editor than automatically shows possible interactions that could extend the pathway. This way you 
+could easily 'grow' a pathway directly from evidence from literature. You could also imagine that we could build a pathway from scratch, 
+given a user query (e.g. a set of proteins and a context).
+
+The initial content of the factoid databse could be derived from existing literature using textmining techniques, or existing 
+databases, such as Reactome.
+
+== Implementation ==
+=== Annotation ===
+All components of the factoid need to be annotated to biological databases. So if you want A to be the protein 'P53', 
+it needs to point to the corresponding UniProt entry. This also holds for contexts, e.g. cellular locations must point 
+to an ontology that defines all cellular locations. We should make a list of all possible entities 
+that can be covered by A, B and C and find a database to annotate them to.
+
+Table 1: Biological entities
+-----------------------------------------------------------------------
+Type						Database					BioPAX element
+-----------------------------------------------------------------------
+Gene						Ensembl, Entrez Gene		-**
+Protein						UniProt						protein
+DNA							EMBL (?)					dna
+Metabolite/compound			ChEBI, PubChem, HMDB		chemicalStructure
+-----------------------------------------------------------------------
+TODO: complete table
+** 'dna' is not a valid element for gene, as written in the BioPAX specification:
+"This is not a 'gene', since gene is a genetic concept, not a physical entity. 
+The concept of a gene may be added later in BioPAX."
+TODO: Find out in which level 'gene' will be introduced
+
+Table 2: Context
+-----------------------------------------------------------------------
+Type						Database					BioPAX element
+-----------------------------------------------------------------------
+Species						NCBI Taxonomy				bioSource (ORGANISM property)
+Cellular location			Gene Ontology				openControlledVocabulary (CELLULAR-LOCATION property)
+Drugs						EBIMed, MedLine druginfo	chemicalStructure?
+Disease						Healthcentral				?
+Cell line					?							?
+Tissue						?							bioSource (TISSUE property)
+-----------------------------------------------------------------------
+TODO: complete table
+
+For interactions, we need an ontology to define the types of interactions. BioPAX is a good
+canidate for this. We should list all interaction types and find out if BioPAX supports them
+
+Table 3: Interactions
+------------------------------------------------------
+Interaction					BioPAX element
+------------------------------------------------------
+Phosphorylation				biochemicalReaction
+Chemical reaction			biochemicalReaction
+Catalysis					catalysis
+Complex assembly			complexAssembly
+Transport					transport
+Activation					physicalInteraction
+Inhibition					physicalInteraction
+TODO: complete the table
+
+=== Storage and database ===
+Only when BioPAX contains all semantics we want to capture in factoids, we should use it to store the factoids.
+Each factoid could then be a BioPAX snippet that we will store in a database.
+
+A good way to assess whether this is possible would be to create some examples of BioPAX snippets that 
+represent certain factoids. Below are some factoids with their BioPAX code:
+
+* "Protein X, Y, Z form a complex when in the nucleus"
+See: 004-factoid_capture_snippet01.txt
+
+* "Protein X is transported to the nucleus by protein Y"
+TODO
+
+* "Protein X phosphorylates protein Y under oxidative stress in human"
+TODO
+
+TODO: think of more factoids, try to cover all types.
+
+As you can see from the BioPAX examples, the snippets tend to become very large. Therefore we should
+have some common pools of BioPAX elements that can be referred to. For exapmle, all unificationXRefs to UniProt,
+the openControlledVocabulary to GO, and the proteins can be shared among factoids and should not be stored
+in duplicate. This problem is very similar to what Reactome does, it would be useful to see how they handle this.
+
+TODO: some open questions:
+- can we easily query the factoids when they're stored in BioPAX (e.g. give me all factoids with Gene X)?
+There should be XML/OWL query languages that are optimalized for these types of queries.
+- Maybe there are even off the shell solutions for storing XML code as a queryable database?
+You could think of a script that creates a relational database schema from the OWL specification.
+- if storing XML would prove to be too slow and inefficient, maybe we should just design our own 
+database schema and convert to BioPAX on the fly when needed.
+
+=== User interface ===
+==== Add and edit factoids ====
+TODO
+
+Entering factoids could be computationally guided: the user provides a text (e.g. article excerpt), we try
+to guess the entities and context by using Whatizit. User can choose from these entities and edit or
+add manually.
+
+==== Query factoids ====
+"Give me all factoids that contain Protein X in context Y"
+"Give me all factoids that describe a phosphorylation of Protein Y in human"
+
+TODO: think of some other queries we would like to perform
+
+=== Programmers interface ===
+It would be useful to hava a programmers interface to the factoid database. This would be needed
+if we are going to query the database from WikiPathways, or programatically fill the database with
+initial content. We could define a SOAP interface
+that should be able to handle the following actions:
+- retrieve factoids by ID
+- retrieve factoids by query
+- add new factoids
+
+== Other discussion points ==
+* Factoids should support dependencies:
+For example, factoid A can only happen after factoid B. In BioPAX this is possible by defining
+pathway steps, but I'm not sure this is the way to go.

@@ -1,0 +1,64 @@
+<bp:complexAssembly rdf:ID="factoid_n">
+	TODO: ??
+</bp:complexAssembly>
+
+<bp:complex rdf:ID="X_Y_Z_nucleus">
+	<bp:COMPONENTS rdf:resource="#X_nucleus" />
+	<bp:COMPONENTS rdf:resource="#Y_nucleus" />
+	<bp:COMPONENTS rdf:resource="#Z_nucleus" />
+	<bp:NAME rdf:datatype="http://www.w3.org/2001/XMLSchema#string">X,Y,Z complex</bp:NAME>
+</bp:complex>
+
+<bp:sequenceParticipant rdf:ID="X_nucleus">
+	<bp:CELLULAR-LOCATION rdf:resource="#Nucleus" />
+	<bp:PHYSICAL-ENTITY rdf:resource="#X" />
+	<bp:STOICHIOMETRIC-COEFFICIENT rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1</bp:STOICHIOMETRIC-COEFFICIENT>
+</bp:sequenceParticipant>
+
+<bp:sequenceParticipant rdf:ID="Y_nucleus">
+	<bp:CELLULAR-LOCATION rdf:resource="#Nucleus" />
+	<bp:PHYSICAL-ENTITY rdf:resource="#X" />
+	<bp:STOICHIOMETRIC-COEFFICIENT rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1</bp:STOICHIOMETRIC-COEFFICIENT>
+</bp:sequenceParticipant>
+
+<bp:sequenceParticipant rdf:ID="Z_nucleus">
+	<bp:CELLULAR-LOCATION rdf:resource="#Nucleus" />
+	<bp:PHYSICAL-ENTITY rdf:resource="#X" />
+	<bp:STOICHIOMETRIC-COEFFICIENT rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1</bp:STOICHIOMETRIC-COEFFICIENT>
+</bp:sequenceParticipant>
+
+<bp:protein rdf:ID="X">
+	<bp:NAME rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Protein X</bp:NAME>
+	<bp:XREF rdf:resource="#Uniprot_XXX"/>
+</bp:protein>
+
+<bp:unificationXRef rdf:ID="Uniprot_XXX">
+	<bp:ID>XXX</bp:ID>
+	<bp:DB>Uniprot</bp:DB>
+</bp:unificationXRef>
+
+<bp:protein rdf:ID="Y">
+	<bp:NAME rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Protein Y</bp:NAME>
+	<bp:XREF rdf:resource="#Uniprot_YYY"/>
+</bp:protein>
+
+<bp:unificationXRef rdf:ID="Uniprot_YYY">
+	<bp:ID>YYY</bp:ID>
+	<bp:DB>Uniprot</bp:DB>
+</bp:unificationXRef>
+
+<bp:protein rdf:ID="Z">
+	<bp:NAME rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Protein Z</bp:NAME>
+	<bp:XREF rdf:resource="#Uniprot_ZZZ"/>
+</bp:protein>
+
+<bp:unificationXRef rdf:ID="Uniprot_ZZZ">
+	<bp:ID>ZZZ</bp:ID>
+	<bp:DB>Uniprot</bp:DB>
+</bp:unificationXRef>
+
+<bp:openControlledVocabulary rdf:ID="plasma_membrane">
+	<bp:TERM rdf:datatype="http://www.w3.org/2001/XMLSchema#string">nucleus</bp:TERM>
+	<bp:XREF rdf:resource="#GO_XXXXXX" />
+</bp:openControlledVocabulary>
+
