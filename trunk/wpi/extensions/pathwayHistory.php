@@ -74,8 +74,16 @@ function getHistory($pathway) {
 }
 
 function historyRow($h, $style) {
+
 	if($h) {
-		return "<TR $style><TD>$h[rev]$h[view]<TD>$h[date]<TD>$h[user]<TD>$h[descr]";
+		$row = "<TR $style>";
+		$row .= '<TD><input type="radio" name="old" value="' . $h[id] . '"/>';
+		$row .= '<TD><input type="radio" name="new" value="' . $h[id] . '"/>';
+		$row .= "<TD>$h[rev]$h[view]";
+		$row .= "<TD>$h[date]";
+		$row .= "<TD>$h[user]";
+		$row .= "<TD>$h[descr]";
+		return $row;
 	} else {
 		return "";
 	}
@@ -109,7 +117,8 @@ function historyLine($pathway, $row, $cur = false) {
 	$date = $wgLang->timeanddate( $rev->getTimestamp(), true );
 	$user = $wgUser->getSkin()->userLink( $rev->getUser(), $rev->getUserText() );
 	$descr = $rev->getComment();
-	return array('rev'=>$revert, 'view'=>$view, 'date'=>$date, 'user'=>$user, 'descr'=>$descr);
+	
+	return array('rev'=>$revert, 'view'=>$view, 'date'=>$date, 'user'=>$user, 'descr'=>$descr, 'id'=>$rev->getId());
 }
 
 class GpmlHistoryPager extends PageHistoryPager {
@@ -141,7 +150,11 @@ class GpmlHistoryPager extends PageHistoryPager {
 		if($nr < 1) {
 			$table = '';
 		} else {
-			$table = "<TABLE  id='historyTable' class='wikitable'><TR><TH><TH>Time<TH>User<TH>Comment";
+			$table = '<form action="' . SITE_URL . '/index.php" method="get">';
+			$table .= '<input type="hidden" name="title" value="Special:DiffAppletPage"/>';
+			$table .= '<input type="hidden" name="pwTitle" value="' . $this->pathway->getTitleObject()->getFullText() . '"/>';
+			$table .= "<TABLE  id='historyTable' class='wikitable'><TR><TH><TH><TH><TH>Time<TH>User<TH>Comment";
+
 		}
 
 		if($nr >= $this->nrShow) {
@@ -156,7 +169,9 @@ class GpmlHistoryPager extends PageHistoryPager {
 	}
 
 	function getEndBody() {
-		return "</TABLE>";
+		$end = "</TABLE>";
+		$end .= '<input type="submit" value="Compare"></form>';
+		return $end;
 	}
 }
 

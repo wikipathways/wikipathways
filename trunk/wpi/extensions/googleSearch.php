@@ -1,4 +1,45 @@
 <?php
+/*
+Extension to add a google search box
+Usage:
+{{#googleCoop:}}
+*/$wgExtensionFunctions[] = 'wfGoogleCoop';
+$wgHooks['LanguageGetMagic'][]  = 'wfGoogleCoop_Magic';
+
+function wfGoogleCoop() {
+    global $wgParser;
+    $wgParser->setFunctionHook( "googleCoop", "renderSearchBox" );
+}
+
+function wfGoogleCoop_Magic( &$magicWords, $langCode ) {
+        $magicWords['googleCoop'] = array( 0, 'googleCoop' );
+        return true;
+}
+
+# The callback function for converting the input text to HTML output
+function renderSearchBox(&$parser) {
+        $parser->disableCache();
+        $output= <<<SEARCH
+<div id="googleSearch">
+<form id="searchbox_011541552088579423722:rset6ep3k64" action="http://www.wikipathways.org/index.php/WikiPathways:GoogleSearch">
+<table width="100%">
+<tr>
+<td width="80%">
+<input type="hidden" name="cx" value="011541552088579423722:rset6ep3k64" />
+<input type="hidden" name="cof" value="FORID:11" />
+<input type="hidden" name="filter" value="0" /> <!--set filter=0 to disable omitting similiar hits-->
+<input name="q" type="text" size="30%" />
+<td halign="left">
+<input type="submit" name="sa" value="Search" />
+</table>
+</form>
+<script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=searchbox_011541552088579423722:rset6ep3k64"></script>
+SEARCH;
+
+        return array($output, 'isHTML'=>1, 'noparse'=>1);
+}
+
+
 # Google Custom Search Engine Extension
 # 
 # Tag :
@@ -54,4 +95,5 @@ Google Search Result Snippet Ends -->
 
         return $output;
 }
+
 ?>
