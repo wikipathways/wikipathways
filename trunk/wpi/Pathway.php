@@ -588,11 +588,9 @@ class Pathway {
 	 */
 	private function saveImage($gpmlFile, $description) {
 		$imgName = $this->getFileName(FILETYPE_IMG);
-
 		# Convert gpml to svg
 		$gpmlFile = realpath($gpmlFile);
-
-		$imgFile =  WPI_TMP_PATH . "/" . $imgName;
+		$imgFile = WPI_TMP_PATH . "/" . $imgName;
 		
 		self::convert($gpmlFile, $imgFile);
 		# Upload svg file to wiki

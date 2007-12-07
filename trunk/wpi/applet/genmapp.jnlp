@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jnlp codebase="CODE_BASE" href="genmapp.jnlp">
+<jnlp codebase="CODE_BASE">
 	<information>
 		 <title>WikiPathways-Genmapp Converter</title>
 		 <vendor>BiGCaT Bioinformatics, Maastricht University</vendor>
