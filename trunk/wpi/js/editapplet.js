@@ -18,17 +18,7 @@ var applets = [];
 function registerAppletButton(id, base, keys, values) {
 	appletButtons[id] = id;
 	if(!masterApplet) {
-		masterApplet = new AppletObject( "org.pathvisio.gui.wikipathways.PathwayPageApplet",
-				[base + '/wikipathways.jar'],
-				'1', '1', '1.5.0', 'false',
-				base,
-				[],
-				AppletObjects.TAG_OBJECT );
-		if(keys != null && values != null) {
-			for(i=0; i < keys.length; i++) {
-						masterApplet.addParam(keys[i], values[i]);
-			}
-		}
+		masterApplet = getAppletHTML('master', '0', '0', "org.pathvisio.gui.wikipathways.PathwayPageApplet", base, 'wikipathways.jar', keys, values);	
 	}
 }
 
@@ -46,17 +36,14 @@ function activateMasterApplet() {
 		var div = document.createElement("div");
 		div.id = "masterapplet";
 		document.body.appendChild(div);
-		masterApplet.load("masterapplet");
+		div.innerHTML = masterApplet;
 		masterActivated = true;
 		window.status = "Activated master applet";
 	}
 }
 
 //Uses appletobject.js
-function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, noresize) {
-	
-	activateMasterApplet();
-	
+function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, noresize) {	
 	var image = document.getElementById(idImg);
 	
 	appletObject = new Object();
@@ -77,8 +64,8 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 
 	image.style.width = width + 'px';
 	image.style.height = height;
-	//Clear all existing content
-	image.innerHTML = '';
+	//Replace existing content with loading message
+	image.innerHTML = '<div style="position:absolute;z-index:0">Loading...</div>';
 	setClass(image, 'thumbinner');
 
 	//First create a new div for the applet and add it to the idImg
@@ -106,24 +93,28 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 	image.appendChild(resize);
 	image.appendChild(maximize);
 
-	var ao = new AppletObject(	main,
-				[basePath + '/wikipathways.jar'],
-				'100%', '100%', '1.5.0', 'false',
-				basePath,
-				[],
-				AppletObjects.TAG_OBJECT );
-	if(keys != null && values != null) {
-		for(i=0; i < keys.length; i++) {
-					ao.addParam(keys[i], values[i]);
-		}
-	}
+	var appletHTML = getAppletHTML(idApplet, '100%', '100%', main, basePath, 'wikipathways.jar', keys, values);	
+	appletObject.appletHTML = appletHTML;
 	
 	if(!noresize) {
 		var resizeable = new Resizeable(idImg, {bottom: 10, right: 10, left: 0, top: 0});
 		appletObject.resizeable = resizeable;
 	}
 	
-	ao.load( idApplet );
+	//ao.load( idApplet );
+	setTimeout('addApplet("' + idApplet + '", "' + appletDiv.id + '")', 500);
+}
+
+function javaError() {
+	window.alert('Java error! To edit the pathway, please install' +
+			' or update Java at http://java.sun.com/javase/downloads');
+}
+
+function addApplet(idApplet, idDiv) {
+	activateMasterApplet();
+	var appletObject = getAppletObject(idApplet);
+	var div = appletObject.div;
+	div.innerHTML += appletObject.appletHTML;
 }
 
 function setClass(elm, cname) {
@@ -131,20 +122,17 @@ function setClass(elm, cname) {
 	elm.setAttribute('className', cname);
 }
 
-//Manually (doesn't work well, applet is started twice on firefox
-function replaceWithApplet(idImg, idApplet, keys, values) {
-	var image = document.getElementById(idImg);
-	var applet = createObjectElement(idApplet, keys, values);
-
-	image.setAttribute('class', 'thumbinner');
-
-	var w = getParentWidth(image);
-
-	image.style.width = w + 'px';
-	image.style.height = '500px';
-
-	new Resizeable(idImg, {bottom: 10, right: 10, left: 0, top: 0});
-	image.innerHTML = applet;
+function getAppletHTML(id, width, height, main, base, archive, keys, values) {
+    var params = '';
+    if(keys != null && values != null) {
+		for(i=0; i < keys.length; i++) {
+			params += '<param name="' + keys[i] + '" value="' + values[i] + '"/>';	
+		}
+	}
+	var html = '<APPLET code="' + main + '" codebase="' + base + '" width="100%" height="100%">' +
+		params + '<BR><B>To edit the pathway, please download and install Java from: ' +
+		'<a href="http://java.sun.com/javase/downloads">http://java.sun.com/javase/downloads</a></b></APPLET>';
+	return html;
 }
 
 function getParentWidth(elm) {

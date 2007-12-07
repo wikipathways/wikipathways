@@ -84,7 +84,7 @@ PRELOAD;
 		}
 		**/
 		if(!$scriptsAdded) {
-			$scripts = scriptTag('', JS_SRC_APPLETOBJECT) . scriptTag('', JS_SRC_PROTOTYPE) . scriptTag('', JS_SRC_RESIZE) . scriptTag('', JS_SRC_EDITAPPLET);
+			$scripts = scriptTag('', JS_SRC_PROTOTYPE) . scriptTag('', JS_SRC_RESIZE) . scriptTag('', JS_SRC_EDITAPPLET);
 			$scriptsAdded = true;
 		}
 		$output = $scripts . $appletCode;
