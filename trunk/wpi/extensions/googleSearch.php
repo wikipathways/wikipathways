@@ -22,19 +22,19 @@ function renderSearchBox(&$parser) {
         $output= <<<SEARCH
 <div id="googleSearch">
 <form id="searchbox_011541552088579423722:rset6ep3k64" action="http://www.wikipathways.org/index.php/WikiPathways:GoogleSearch">
-<table width="100%">
+<table width="190" frame="void" border="1">
 <tr>
-<td width="80%">
+<td align="center" bgcolor="#eeeeee">
 <input type="hidden" name="cx" value="011541552088579423722:rset6ep3k64" />
 <input type="hidden" name="cof" value="FORID:11" />
 <input type="hidden" name="filter" value="0" /> <!--set filter=0 to disable omitting similiar hits-->
 <input name="q" type="text" size="20%" />
-<!-- <td halign="left">
-<input type="submit" name="sa" value="Search" />
---> <tr align="left">
-    <td><input type=radio name=as_occt value="title" checked>titles only
-    <input type=radio name=as_occt value="">all text</td>
-    </tr>
+<!-- <tr align="center">
+     <td><input type="submit" name="sa" value="Search" />
+     <input type=radio name=as_occt value="title" checked>titles only     
+     <input type=radio name=as_occt value="">all text
+--> </td>
+</tr>
 </table>
 </form>
 <script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=searchbox_011541552088579423722:rset6ep3k64"></script>
