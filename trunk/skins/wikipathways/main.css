@@ -26,8 +26,8 @@
 		padding: 0;
 	}
 	#content {
-		margin: 2.8em 0 0 12.3em;
-		padding: 0 1em 1.5em 1em;
+		margin: 2.8em 0 0 11.8em;
+		padding: 0 0.5em 0 0.5em;
 		position: relative;
 		z-index: 2;
 	}
@@ -683,7 +683,7 @@ special external link styling */
 	margin: 0 0 .5em;
 	padding: 0;
 	float: none;
-	width: 11.7em;
+	width: 11.3em;
 	overflow: hidden;
 }
 .portlet h4 {
