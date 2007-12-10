@@ -220,6 +220,7 @@ class EditApplet {
 		if($new) {
 			$args = array_merge($args, array('new' => true));
 		}
+		$args = array_merge($args, $param);
 		return $args;
 	}
 	
