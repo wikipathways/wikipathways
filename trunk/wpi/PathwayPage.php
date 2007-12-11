@@ -160,6 +160,47 @@ TEXT;
 		return "<fancyButton title='$title' href='$href' id='$id'>$label</fancyButton>";
 	}
 	
+	static function editDropDown($pathway, $items, $title, $id = 'editDropDown') {
+		$list = "";
+		foreach(array_keys($items) as $key) {
+			$list .= "<li><a href='{$items[$key]}'>$key</a></li>";
+		}
+		
+			$drop = '<div style="float:right;">' . $drop . '</div>';
+	$drop = "<a href='\#' class='button'><span>$drop</span></a>";
+	
+	
+		$dropdown = <<<DROPDOWN
+<script language="JavaScript">
+	sfHover = function() {
+		var sfEls = document.getElementById("{$id}").getElementsByTagName("LI");
+		for (var i=0; i<sfEls.length; i++) {
+			sfEls[i].onmouseover=function() {
+				this.className+=" ie_does_hover";
+			}
+			sfEls[i].onmouseout=function() {
+				this.className=this.className.replace(new RegExp(" ie_does_hover\\b"), "");
+			}
+		}
+	}
+	if (window.attachEvent) window.attachEvent("onload", sfHover);
+</script>
+
+<ul id="nav">
+
+<li><a class="button" href="#"><span>$title</span></a>
+
+<ul>
+$list
+</ul>
+
+</li>
+
+</ul>
+
+DROPDOWN;
+		return $dropdown;
+	}
 	static function formatPubMed($text) {
 	$link = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=pubmed&cmd=Retrieve&dopt=AbstractPlus&list_uids=";
 	if(preg_match_all("/PMID: ([0-9]+)/", $text, $ids)) {

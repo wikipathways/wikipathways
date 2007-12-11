@@ -36,24 +36,9 @@ function renderPathwayImage( &$parser, $pwTitle, $width = 0, $align = '', $capti
                                 if(!$href) $href = $pathway->getFullURL();
                 }
 		
-		$pathwayURL = $pathway->getTitleObject()->getPrefixedURL();
 		switch($caption) {
 			case 'edit':
-			//AP20070918
-			if (!$wgUser->isLoggedIn()){
-				$hrefbtn = SITE_URL . "/index.php?title=Special:Userlogin&returnto=$pathwayURL";
-				$label = "Log in to edit pathway";
-			} else {
-				if(wfReadOnly()) {
-					$hrefbtn = "";
-					$label = "Database locked";				
-				} else {
-					$hrefbtn = "javascript:;";
-					$label = "Edit pathway";
-				}
-			}
-			$caption = "<a href='$hrefbtn' title='$label' id='edit' ". 
-				"class='button'><span>$label</span></a>";
+				$caption = createEditCaption($pathway);
 			break;
 			case 'view':
 				$caption = $pathway->name() . " (" . $pathway->species() . ")";
@@ -70,6 +55,47 @@ function renderPathwayImage( &$parser, $pwTitle, $width = 0, $align = '', $capti
                 return "invalid pathway title: $e";
         }
         return array($output, 'isHTML'=>1, 'noparse'=>1);
+}
+
+function createEditCaption($pathway) {
+	global $wgUser;
+	
+	//Create edit button
+	$pathwayURL = $pathway->getTitleObject()->getPrefixedURL();
+	//AP20070918
+	if (!$wgUser->isLoggedIn()){
+		$hrefbtn = SITE_URL . "/index.php?title=Special:Userlogin&returnto=$pathwayURL";
+		$label = "Log in to edit pathway";
+	} else {
+		if(wfReadOnly()) {
+			$hrefbtn = "";
+			$label = "Database locked";				
+		} else {
+			$hrefbtn = "javascript:;";
+			$label = "Edit pathway";
+		}
+	}
+	$caption = "<a href='$hrefbtn' title='$label' id='edit' ". 
+				"class='button'><span>$label</span></a>";
+				
+	//Create dropdown action menu
+	$pwTitle = $pathway->getTitleObject()->getFullText();
+	$items = array(
+		'Download as gpml' => getDownloadURL($pathway, 'gpml'),
+		'Download as mapp' => getDownloadURL($pathway, 'mapp'),
+		'Download as pwf' => getDownloadURL($pathway, 'pwf'),
+		'Download as png (image)' => getDownloadURL($pathway, 'png'),
+		'Download as pdf' => getDownloadURL($pathway, 'pdf'),
+		'Open in Cytoscape' => WPI_SCRIPT_URL . "?launchCytoscape&pwTitle=$pwTitle"
+	);
+	//disable dropdown for now
+	//$drop = PathwayPage::editDropDown($pathway, $items, "Actions");
+	//$drop = '<div style="float:right;">' . $drop . '</div>';
+	return $caption . $drop;
+}
+
+function getDownloadURL($pathway, $type) {
+	return WPI_SCRIPT_URL . "?action=downloadFile&type=$type&pwTitle={$pathway->getTitleObject()->getFullText()}";
 }
 
     /** MODIFIED FROM Linker.php

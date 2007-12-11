@@ -1,6 +1,37 @@
+= RFC 002: Identifiers =
 Pathways need a stable, unmodified identifier that is determined at creation time.
--> based on current mediawiki identifier
+We cannot use the internal mediawiki identifier from the current pathway pages, since this will change when we rename the page. Therefore we need to make sure that there is no information in the title that may be changed (name, species). So we need to change the pagename in a meaningless, stable identifier. This identifier is fixed and will not be removed. When we delete or merge a pathway, we can mark the identifier deprecated and redirect to another page.
 
-e.g.
+So in summary:
+- The pathway names will be changed to stable identifiers (e.g. WP00001)
+- The pathway name, species and other metadata (e.g. tissue type) will be stored in GPML
+- The pathway page renderer will be responsible to display these metadata to the user
 
-WP00001
+The identifier will never be removed and change only when:
+- the pathway is deleted -> mark deprecated
+- the pathway is merged -> mark deprecated, redirect
+
+== Implementation ==
+MediaWiki changes:
+* Modifications to the scripts (other modifications may follow due to dependencies):
+	* wpi.php:
+		Probably not a lot of changes, pathway constructor will still accept title object
+	* wpi_rpc.php:
+		Modify XML-RPC API to work with identifier
+	* Pathway.php:
+		* Add constructor using identifier
+			__construct($id)
+		* Modify internals to work with id instead of name
+		* Modify updatePathway, to update species category when changing species
+	* PathwayPage.php:
+		Modify rendering so that title/species is obtained from GPML
+
+* Create maintenance script to rename all pathway pages to the identifier
+	* MediaWiki will redirect all old pages automatically
+
+Applet changes:
+* Adapt parameters to work with identifier instead of name/species.
+* Make it more easy to change the pathway name/species. Maybe a seperate applet (like the description applet), so users don't have to start the editor and look for the mappinfo object / property editor.
+
+GPML changes:
+GPML already contains the information that is currently in the name.
