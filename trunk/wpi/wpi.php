@@ -9,29 +9,35 @@ chdir($dir);
 
 require_once('globals.php');
 require_once( 'Pathway.php' );
+require_once('MimeTypes.php' );
 
 //Parse HTTP request (only if script is directly called!)
 if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
 $action = $_GET['action'];
+$pwTitle = $_GET['pwTitle'];
+$oldId = $_GET['oldid'];
+if($pwTitle) {
+	$pathway = Pathway::newFromTitle($pwTitle);
+	if($oldId) {
+		$pathway->setActiveRevision($oldId);
+	}
+}
 switch($action) {
 	case 'launchPathVisio':
-		$pathway = Pathway::newFromTitle($_GET['pwTitle']);
 		$ignore = $_GET['ignoreWarning'];
 		launchPathVisio($pathway, $ignore);
 		break;
 	case 'launchCytoscape':
-		$pathway = Pathway::newFromTitle($_GET['pwTitle']);
 		launchCytoscape($pathway);
 		break;
 	case 'launchGenMappConverter':
-		$pathway = Pathway::newFromTitle($_GET['pwTitle']);
 		launchGenMappConverter($pathway);
 		break;
 	case 'downloadFile':
-		downloadFile($_GET['type'], $_GET['pwTitle']);
+		downloadFile($_GET['type'], $pwTitle);
 		break;
 	case 'revert':
-		revert($_GET['pwTitle'], $_GET['oldId']);
+		revert($pwTitle, $oldId);
 		break;
 	case 'new':
 		$pathway = new Pathway($_GET['pwName'], $_GET['pwSpecies'], false);
@@ -39,7 +45,7 @@ switch($action) {
 		launchPathVisio($pathway, $ignore, true);
 		break;
 	case 'delete':
-		delete($_GET['pwTitle']);
+		delete($pwTitle);
 		break;
 	}
 }
@@ -152,6 +158,7 @@ function sendWebstart($webstart, $tmpname, $filename = "wikipathways.jnlp") {
 	ob_clean();
 	//return webstart file directly
 	header("Content-type: application/x-java-jnlp-file");
+	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 	header("Content-Disposition: attachment; filename=\"{$filename}\"");
 	echo $webstart;
 	exit;

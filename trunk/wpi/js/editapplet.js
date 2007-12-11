@@ -1,9 +1,3 @@
-var label_maximize = '<img src="/skins/common/images/magnify-clip.png" id="maximize"/>';
-var label_minimize = '<img src="/skins/common/images/magnify-clip.png" id="minimize"/>';
-
-var masterApplet = false;
-var masterActivated = false;
-
 var appletButtons = [];
 
 /*Array with objects that contain applet information
@@ -17,9 +11,6 @@ var applets = [];
 //will be disabled when an edit applet is activated
 function registerAppletButton(id, base, keys, values) {
 	appletButtons[id] = id;
-	if(!masterApplet) {
-		masterApplet = getAppletHTML('master', '0', '0', "org.pathvisio.gui.wikipathways.PathwayPageApplet", base, 'wikipathways.jar', keys, values);	
-	}
 }
 
 function getAppletObject(id) {
@@ -28,17 +19,6 @@ function getAppletObject(id) {
 		if(obj.id == id) {
 			return obj;
 		}
-	}
-}
-
-function activateMasterApplet() {
-	if(masterApplet && !masterActivated) {
-		var div = document.createElement("div");
-		div.id = "masterapplet";
-		document.body.appendChild(div);
-		div.innerHTML = masterApplet;
-		masterActivated = true;
-		window.status = "Activated master applet";
 	}
 }
 
@@ -78,12 +58,6 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 	appletDiv.style.clear = 'both';
 	image.appendChild(appletDiv);
 		
-	//Create maximize div
-	maximize = document.createElement('div');
-	maximize.innerHTML = createMaximizeButton(idApplet);
-	maximize.style.cssFloat = 'center';
-	maximize.style.marginBottom = '10px';
-
 	//Create resize hint
 	resize = document.createElement('div');
 	resize.innerHTML = '<img src="/skins/common/images/resize.png"/>';
@@ -91,7 +65,6 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 	resize.style.bottom = '0';
 	resize.style.right = '0';
 	image.appendChild(resize);
-	image.appendChild(maximize);
 
 	var appletHTML = getAppletHTML(idApplet, '100%', '100%', main, basePath, 'wikipathways.jar', keys, values);	
 	appletObject.appletHTML = appletHTML;
@@ -111,7 +84,6 @@ function javaError() {
 }
 
 function addApplet(idApplet, idDiv) {
-	activateMasterApplet();
 	var appletObject = getAppletObject(idApplet);
 	var div = appletObject.div;
 	div.innerHTML += appletObject.appletHTML;
@@ -163,54 +135,6 @@ function replaceElement(elmOld, elmNew) {
 	var p = elmOld.parentNode;
 	p.insertBefore(elmNew, elmOld);
 	p.removeChild(elmOld);
-}
-
-var maxImg = '/skins/common/images/magnify-clip.png';
-
-/* Maximize functions
- * TODO: create maximizable class with prototype
- */
-function createMaximizeButton(id) {
-	return("<a href=\"javascript:toggleMaximize(this, '" + id + "');\"><img src='" + maxImg + "'>Maximize</img></a>");
-}
-
-function toggleMaximize(button, id) {
-	var obj = getAppletObject(id);
-	if(obj) {
-		var elm = obj.div.parentNode;
-		var globalWrapper = document.getElementById('globalWrapper');
-		if(obj.clone) {
-			//Remove the clone
-			document.body.removeChild(obj.clone);
-			obj.clone = false;
-			
-			//Set the globalwrapper visible
-			globalWrapper.style.display = "";
-
-			//Reset the style parameters
-			elm.style.position = "relative";
-			elm.style.offsetLeft = obj.oldpos[0];
-			elm.style.offsetTop = obj.oldpos[1];
-			elm.style.width = obj.oldsize[0];
-			elm.style.height = obj.oldsize[1];
-		} else {		
-			//Clone the div
-			var clone = elm.cloneNode(true);	
-			obj.clone = clone;			
-			//Add the div to the root
-			obj.oldParent = elm.parentNode;
-			document.body.appendChild(clone);
-			//Make the globalwrapper invisible
-			globalWrapper.style.display = "none";
-			
-			//Modify the style parameters			
-			obj.oldsize = Array(elm.style.width, elm.style.height);
-			obj.oldpos = Array(elm.style.offsetLeft, elm.style.offsetTop);
-			clone.style.position = "absolute";
-			clone.style.width = "99%";
-			clone.style.height = "99%";
-		}
-	}
 }
 
 function getViewportSize() {
