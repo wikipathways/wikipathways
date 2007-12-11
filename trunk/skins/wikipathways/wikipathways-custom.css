@@ -162,7 +162,7 @@ color: #FF7200;
 }
 
 a.button {
-    background: transparent url('button_a.png') no-repeat scroll top right;
+    background: #EEEEFF url('button_a.png') no-repeat scroll top right;
     display: block;
     float: left;
     font: normal 12px arial, sans-serif;
@@ -170,7 +170,10 @@ a.button {
     margin-right: 6px;
     padding-right: 18px; /* sliding doors padding */
     text-decoration: none;
-    background-color: #EEEEFF;
+}
+
+a.buttondown {
+    background: #EEEEFF url('button_a_down.png') no-repeat scroll top right;
 }
 
 a.button span {
@@ -204,7 +207,6 @@ a.button:active span {
         margin-left:1em;
         margin-right:1em;
 }
-
 
 .frontPagePanel {
 	font: inherit;
@@ -267,31 +269,51 @@ h2.frontPagePanel {
 /*****
 ** Drop down menu
 ******/
-#nav, #nav ul {
-padding: 0;
-margin: 0;
-list-style: none;
-}
+/* ================================================================ 
+This copyright notice must be kept untouched in the stylesheet at 
+all times.
 
-#nav li {
-float: left;
-width: 120px;
-}
+The original version of this stylesheet and the associated (x)html
+is available at http://www.cssplay.co.uk/menus/pro_drop6.html
+Copyright (c) 2005-2007 Stu Nicholls. All rights reserved.
+This stylesheet and the associated (x)html may be modified in any 
+way to fit your requirements.
+=================================================================== */
 
-#nav ul {
-position: absolute;
-width: 120px;
-left: -1000px;
-}
+#nav {padding:0; margin:0; list-style:none; position:relative; white-space:nowrap; z-index:200;}
+#nav li.top {display:block; float:left;}
 
-#nav li:hover ul, #nav li.ie_does_hover ul {
-left: auto;
-background-position: 0 0;
-}
+#nav table {border-collapse:collapse; padding:0; margin:0; position:absolute; left:0; top:0;}
+#nav li:hover {position:relative; z-index:200; background-color:#e4d479; width:100%;}
+#nav a:hover {position:relative; z-index:200;}
 
-#nav a {
-display: block;
-}
+/* The dropdown menu, set top to the size of the triggering button */
+#nav :hover ul.sub
+{left:0px; top:20px; padding:3px; border:1px solid #6e6e76;  background-color:#dadaea; width:auto; height:auto; z-index:300;}
+#nav :hover ul.sub li
+{display:block; height:1.8em; position:relative; float:left; width:100%; font-weight:normal;}
+#nav :hover ul.sub li a
+{display:block; height:auto; width:100%; text-decoration:none;}#nav li b {display:block; height:auto; width:100%; margin-bottom:3px;}
+#nav a.fly {background-image: url(right.png); background-position: 100% 50%; background-repeat: no-repeat; }
+
+#nav a:hover a:hover ul,
+#nav a:hover a:hover a:hover ul,
+#nav a:hover a:hover a:hover a:hover ul,
+#nav a:hover a:hover a:hover a:hover a:hover ul
+{position: relative; left:100%; top:-100%; padding:3px; width:auto; z-index:400; height:auto;}
+
+#nav ul, 
+#nav a:hover ul ul,
+#nav a:hover a:hover ul ul,
+#nav a:hover a:hover a:hover ul ul,
+#nav a:hover a:hover a:hover a:hover ul ul
+{position:absolute; left:-9999px; top:-9999px; width:0; height:0; margin:0; padding:0; list-style:none;}
+
+/* The sub-sub menu items */
+#nav li:hover li:hover > ul
+{position: relative; left:100%; top:-100%; padding:3px; z-index:400; height:auto; width:100%; overflow:hidden; border:1px solid #6e6e76;  background-color:#dadaea;}
+#nav li:hover > ul ul 
+{position:absolute; left:-9999px; top:-9999px; width:0; height:0; margin:0; padding:0; list-style:none;}
 
 /*****
 ** Table formatting

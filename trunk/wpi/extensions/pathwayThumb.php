@@ -80,23 +80,12 @@ function createEditCaption($pathway) {
 				
 	//Create dropdown action menu
 	$pwTitle = $pathway->getTitleObject()->getFullText();
-	$items = array(
-		'Download as gpml' => getDownloadURL($pathway, 'gpml'),
-		'Download as mapp' => getDownloadURL($pathway, 'mapp'),
-		'Download as pwf' => getDownloadURL($pathway, 'pwf'),
-		'Download as png (image)' => getDownloadURL($pathway, 'png'),
-		'Download as pdf' => getDownloadURL($pathway, 'pdf'),
-		'Open in Cytoscape' => WPI_SCRIPT_URL . "?launchCytoscape&pwTitle=$pwTitle"
-	);
 	//disable dropdown for now
-	//$drop = PathwayPage::editDropDown($pathway, $items, "Actions");
-	//$drop = '<div style="float:right;">' . $drop . '</div>';
+	$drop = PathwayPage::editDropDown($pathway);
+	$drop = '<div style="float:right;">' . $drop . '</div>';
 	return $caption . $drop;
 }
 
-function getDownloadURL($pathway, $type) {
-	return WPI_SCRIPT_URL . "?action=downloadFile&type=$type&pwTitle={$pathway->getTitleObject()->getFullText()}";
-}
 
     /** MODIFIED FROM Linker.php
         * Make HTML for a thumbnail including image, border and caption
@@ -144,7 +133,7 @@ function getDownloadURL($pathway, $type) {
             $magnifyalign = $wgContLang->isRTL() ? 'left' : 'right';
             $textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
 
-            $s = "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">";
+            $s = "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;overflow:visible;\">";
             if( $thumbUrl == '' ) {
                     // Couldn't generate thumbnail? Scale the image client-side.
                     $thumbUrl = $img->getViewURL();
@@ -164,16 +153,8 @@ function getDownloadURL($pathway, $type) {
                             '<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
                             'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
                             'longdesc="'.$href.'" class="thumbimage" /></a>';
-                    if ( $framed ) {
-                            $zoomicon="";
-                    } else {
-                            $zoomicon =  '<div class="magnify" style="float:'.$magnifyalign.'">'.
-                                    '<a href="'.$imgURL.'" class="internal" title="'.$more.'">'.
-                                    '<img src="'.$wgStylePath.'/common/images/magnify-clip.png" ' .
-                                    'width="15" height="11" alt="" /></a></div>';
-                    }
             }
-            $s .= '  <div class="thumbcaption"'.$textalign.'>'.$zoomicon.$label."</div></div></div>";
+            $s .= '  <div class="thumbcaption" style="height:20px"'.$textalign.'>'.$zoomicon.$label."</div></div></div>";
             return str_replace("\n", ' ', $s);
             //return $s;
     }

@@ -160,44 +160,40 @@ TEXT;
 		return "<fancyButton title='$title' href='$href' id='$id'>$label</fancyButton>";
 	}
 	
-	static function editDropDown($pathway, $items, $title, $id = 'editDropDown') {
-		$list = "";
-		foreach(array_keys($items) as $key) {
-			$list .= "<li><a href='{$items[$key]}'>$key</a></li>";
+	static function getDownloadURL($pathway, $type) {
+		return WPI_SCRIPT_URL . "?action=downloadFile&type=$type&pwTitle={$pathway->getTitleObject()->getFullText()}";
+	}
+	
+	static function editDropDown($pathway) {
+		$download = array(
+			'PathVisio (.gpml)' => self::getDownloadURL($pathway, 'gpml'),
+			'GenMAPP (.mapp)' => self::getDownloadURL($pathway, 'mapp'),
+			'Eu.Gene (.pwf)' => self::getDownloadURL($pathway, 'pwf'),
+			'Png image (.png)' => self::getDownloadURL($pathway, 'png'),
+			'Acrobat (.pdf)' => self::getDownloadURL($pathway, 'pdf'),
+		);
+		$pwTitle = $pathway->getTitleObject()->getFullText();
+		$cytoscape = "<li><a href='" . WPI_SCRIPT_URL . "?launchCytoscape&pwTitle=$pwTitle'>Open in Cytoscape</a></li>";
+		
+		foreach(array_keys($download) as $key) {
+			$downloadlist .= "<li><a href='{$download[$key]}'>$key</a></li>";
 		}
 		
-			$drop = '<div style="float:right;">' . $drop . '</div>';
-	$drop = "<a href='\#' class='button'><span>$drop</span></a>";
-	
-	
+		$drop = '<div style="float:right;">' . $drop . '</div>';
+		$drop = "<a href='\#' class='button'><span>$drop</span></a>";
 		$dropdown = <<<DROPDOWN
-<script language="JavaScript">
-	sfHover = function() {
-		var sfEls = document.getElementById("{$id}").getElementsByTagName("LI");
-		for (var i=0; i<sfEls.length; i++) {
-			sfEls[i].onmouseover=function() {
-				this.className+=" ie_does_hover";
-			}
-			sfEls[i].onmouseout=function() {
-				this.className=this.className.replace(new RegExp(" ie_does_hover\\b"), "");
-			}
-		}
-	}
-	if (window.attachEvent) window.attachEvent("onload", sfHover);
-</script>
-
-<ul id="nav">
-
-<li><a class="button" href="#"><span>$title</span></a>
-
-<ul>
-$list
-</ul>
-
+<ul id="nav">		
+<li class="top"><a href="#nogo2" class="button buttondown"><span>Download</span><!--[if gte IE 7]><!--></a><!--<![endif]-->
+		<!--[if lte IE 6]><table><tr><td><![endif]--><ul class="sub">
+			<li><a class="fly" href="#nogo3">Download for<!--[if gte IE 7]><!--></a><!--<![endif]-->
+					<!--[if lte IE 6]><table><tr><td><![endif]--><ul>
+						$downloadlist
+					</ul><!--[if lte IE 6]></td></tr></table></a><![endif]-->
+			</li>
+			$cytoscape
+		</ul><!--[if lte IE 6]></td></tr></table></a><![endif]-->
 </li>
-
 </ul>
-
 DROPDOWN;
 		return $dropdown;
 	}
