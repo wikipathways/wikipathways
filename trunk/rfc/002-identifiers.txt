@@ -35,3 +35,16 @@ Applet changes:
 
 GPML changes:
 GPML already contains the information that is currently in the name.
+
+== Comments ==
+AP: To summarize some of the main points:
+	1. We want pathways to be organized according to structured terms (when possible) to identify species, tissue, condition, biological process (GO), and version.    These can all be stored as attributes in the GPML and displayed/edited on the wiki.
+    2. We want the pathway to have an intuitive name that may not be unique. This name may change over time.  This should be the displayed name, also stored in the GPML.
+    3. We want an immutable id for each pathway (e.g., WP00001). This is ideal for pathway identifiers and urls that are guaranteed to be unique and unchanging, but is not human readable.
+    4. We want to minimize redirects stored processed by the wiki. This argues for using immutable ids.
+
+AP: Some issues I'm not you've addressed in the implementation have to do with Search and Browse.  
+Titles will no longer be a targetable field to search, correct?  And all the browse pages 
+(including most_edited, most_viewed, etc) will have to dig into GPML to get pathway names?  
+And some of those won't be unique?  Perhaps these could be made unique using Kristina's trick of 
+having the ID appended to the end of the pathway name?
