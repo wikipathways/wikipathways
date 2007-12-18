@@ -15,14 +15,7 @@ while( $row = $dbr->fetchRow( $res )) {
 		$pathway = Pathway::newFromTitle($row[0]);
 		echo("PROCESSING: {$pathway->getTitleObject()->getFullText()}<BR>\n");
 				
-		if($doit) {
-			//Remove categories for image file
-			$dbw =& wfGetDB( DB_MASTER );
-			$dbw->immediateBegin();
-			$clFrom = $pathway->getFileTitle(FILETYPE_IMG)->getArticleID();
-			$dbw->delete( 'categorylinks', array( 'cl_from' => $clFrom ) );
-			$dbw->immediateCommit();
-		
+		if($doit) {		
 			//Set pathway categories
 			$pathway->getCategoryHandler()->setGpmlCategories();
 		}

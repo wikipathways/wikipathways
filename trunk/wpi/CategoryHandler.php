@@ -38,6 +38,11 @@ class CategoryHandler {
 		//Add the GPML categories
 		foreach($this->getGpmlCategories() as $cat) {
 			wfDebug("\tCategory: $cat\n");
+						
+			//Format to title (replace '_' with ' ');
+			$catTitle = Title::makeTitle(NS_CATEGORY, $cat);
+			$cat = $catTitle->getDBKey();
+			
 			$clTo = $dbw->addQuotes($cat);
 			$sort = $dbw->addQuotes($this->pathway->getName());
 		
