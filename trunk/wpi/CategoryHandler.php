@@ -82,8 +82,7 @@ class CategoryHandler {
                 $sqlCat= "SELECT 'Categories' as type,
                                 {$NScat} as namespace,
                                 cl_to as title,
-                                $implicit_groupby as value,
-                                COUNT(*) as count
+                                $implicit_groupby as value
                            FROM $categorylinks
                            GROUP BY 1,2,3,4";
                 $res = $dbr->query($sqlCat, get_class($this) . '::getAvailableCategories');
