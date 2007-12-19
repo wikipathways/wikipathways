@@ -218,11 +218,15 @@ class WikiPathwaysTemplate extends QuickTemplate {
     <input type="hidden" name="cx" value="011541552088579423722:rset6ep3k64" />
     <input type="hidden" name="cof" value="FORID:11" />
     <input type="hidden" name="filter" value="0" /> <!--set filter=0 to disable omitting similiar hits-->
-    <input name="q" type="text" size="15%" />
+    <input name="q" type="text" size="14%" />
     </td></tr>
     <tr align="left">
-    <td><input type=radio name=as_occt value="title" checked>titles only
-    <input type=radio name=as_occt value="">all text</td>
+    <td>
+	<input type="checkbox" name="as_occt" value="title" checked>titles only
+<!--	<input type=radio name=as_occt value="title" checked>titles only
+    <input type=radio name=as_occt value="">all text
+-->
+	</td>
     </tr>
 <!-- <td>
     <input type="submit" name="sa" value="Search" />
