@@ -163,17 +163,34 @@ TEXT;
 	static function getDownloadURL($pathway, $type) {
 		return WPI_SCRIPT_URL . "?action=downloadFile&type=$type&pwTitle={$pathway->getTitleObject()->getFullText()}";
 	}
-	
+
 	static function editDropDown($pathway) {
+		global $wgOut;
+		
+		//AP20081218: Operating System Detection
+		include 'DetectBrowserOS.php';
+		//echo (browser_detection( 'os' ));
+		if (browser_detection( 'os' ) != 'win' && browser_detection( 'os' ) != 'nt'){
+                $download = array(
+                        'PathVisio (.gpml)' => self::getDownloadURL($pathway, 'gpml'),
+                        'Gene list (.txt)' => self::getDownloadURL($pathway, 'txt'),
+                        'Eu.Gene (.pwf)' => self::getDownloadURL($pathway, 'pwf'),
+                        'Png image (.png)' => self::getDownloadURL($pathway, 'png'),
+                        'Acrobat (.pdf)' => self::getDownloadURL($pathway, 'pdf'),
+                );
+		} else {
 		$download = array(
 			'PathVisio (.gpml)' => self::getDownloadURL($pathway, 'gpml'),
 			'GenMAPP (.mapp)' => self::getDownloadURL($pathway, 'mapp'),
+			'Gene list (.txt)' => self::getDownloadURL($pathway, 'txt'),
 			'Eu.Gene (.pwf)' => self::getDownloadURL($pathway, 'pwf'),
 			'Png image (.png)' => self::getDownloadURL($pathway, 'png'),
 			'Acrobat (.pdf)' => self::getDownloadURL($pathway, 'pdf'),
 		);
+		}
+
 		$pwTitle = $pathway->getTitleObject()->getFullText();
-		$cytoscape = "<li><a href='" . WPI_SCRIPT_URL . "?launchCytoscape&pwTitle=$pwTitle'>Open in Cytoscape</a></li>";
+		$cytoscape = "<li><a href='" . WPI_SCRIPT_URL . "?action=launchCytoscape&pwTitle=$pwTitle'>Open in Cytoscape</a></li>";
 		
 		foreach(array_keys($download) as $key) {
 			$downloadlist .= "<li><a href='{$download[$key]}'>$key</a></li>";
@@ -182,19 +199,40 @@ TEXT;
 		$drop = '<div style="float:right;">' . $drop . '</div>';
 		$drop = "<a href='\#' class='button'><span>$drop</span></a>";
 		$dropdown = <<<DROPDOWN
-<ul id="nav">		
-<li class="top"><a href="#nogo2" class="button buttondown"><span>Download</span><!--[if gte IE 7]><!--></a><!--<![endif]-->
-		<!--[if lte IE 6]><table><tr><td><![endif]--><ul class="sub">
-			<li><a class="fly" href="#nogo3">Download for<!--[if gte IE 7]><!--></a><!--<![endif]-->
-					<!--[if lte IE 6]><table><tr><td><![endif]--><ul>
+<ul id="nav" name="nav">		
+<li><a href="#nogo2" class="button buttondown"><span>Download</span></a>
+		<ul>
+			<li><a class="parent" href="#">Download for</a>
+					<ul>
 						$downloadlist
-					</ul><!--[if lte IE 6]></td></tr></table></a><![endif]-->
+					</ul>
 			</li>
 			$cytoscape
-		</ul><!--[if lte IE 6]></td></tr></table></a><![endif]-->
+		</ul>
 </li>
 </ul>
+
 DROPDOWN;
+
+		$script = <<<SCRIPT
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+
+sfHover = function() {
+	var sfEls = document.getElementById("nav").getElementsByTagName("LI");
+	for (var i=0; i<sfEls.length; i++) {
+		sfEls[i].onmouseover=function() {
+			this.className+=" sfhover";
+		}
+		sfEls[i].onmouseout=function() {
+			this.className=this.className.replace(new RegExp(" sfhover\\b"), "");
+		}
+	}
+}
+if (window.attachEvent) window.attachEvent("onload", sfHover);
+
+//--><!]]></script>
+SCRIPT;
+		$wgOut->addScript($script);
 		return $dropdown;
 	}
 	static function formatPubMed($text) {
