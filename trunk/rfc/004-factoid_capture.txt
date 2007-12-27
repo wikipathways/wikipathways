@@ -48,45 +48,65 @@ Table 1: Biological entities
 -----------------------------------------------------------------------
 Type						Database					BioPAX element
 -----------------------------------------------------------------------
-Gene						Ensembl, Entrez Gene		-**
+Gene						Ensembl, Entrez Gene		gene
 Protein						UniProt						protein
 DNA							EMBL (?)					dna
-Metabolite/compound			ChEBI, PubChem, HMDB		chemicalStructure
+Metabolite/compound			ChEBI, PubChem, HMDB		smallMolecule
 -----------------------------------------------------------------------
-TODO: complete table
 ** 'dna' is not a valid element for gene, as written in the BioPAX specification:
 "This is not a 'gene', since gene is a genetic concept, not a physical entity. 
-The concept of a gene may be added later in BioPAX."
-TODO: Find out in which level 'gene' will be introduced
+The concept of a gene may be added later in BioPAX." 'dna' is used to refer to
+regions of dna sequence, e.g., promoter binding sites or entire chromosomes.
+** 'gene' is being added as a new subclass of PhysicalEntity in BioPAX level 3
 
 Table 2: Context
 -----------------------------------------------------------------------
 Type						Database					BioPAX element
 -----------------------------------------------------------------------
-Species						NCBI Taxonomy				bioSource (ORGANISM property)
-Cellular location			Gene Ontology				openControlledVocabulary (CELLULAR-LOCATION property)
-Drugs						EBIMed, MedLine druginfo	chemicalStructure?
-Disease						Healthcentral				?
-Cell line					?							?
+Species						NCBI Taxonomy				bioSource (TAXON-XREF property)
+Cellular location			Gene Ontology, OLS, OBO		openControlledVocabulary (CELLULAR-LOCATION property)
+Drugs						EBIMed, MedLine druginfo	smallMolecule
+Disease						Healthcentral, OLS, OBO				?
 Tissue						?							bioSource (TISSUE property)
+Pathway						OLS, OBO							
+Evidence Codes				OLS, OBO					evidence (EVIDENCE-CODE property)
+Cell Type					OLS, OBO
 -----------------------------------------------------------------------
-TODO: complete table
+** I propose going to one source for our ontology needs at this point. BioPAX
+mentions both OBO and OLS as potential sources for their openControlledVocabulary.
+We can work with whichever is easier to implement.
+** OBO : http://obofoundry.org/
+** OLS = Ontology Lookup Service
+ - Pathways: http://www.ebi.ac.uk/ontology-lookup/browse.do?ontName=PW
+ - Evidence Codes: http://www.ebi.ac.uk/ontology-lookup/browse.do?ontName=ECO
+ - Cell Type: http://www.ebi.ac.uk/ontology-lookup/browse.do?ontName=CL
+ - Disease: http://www.ebi.ac.uk/ontology-lookup/browse.do?ontName=DOID
+ - GO: http://www.ebi.ac.uk/ontology-lookup/browse.do?ontName=GO
 
 For interactions, we need an ontology to define the types of interactions. BioPAX is a good
 canidate for this. We should list all interaction types and find out if BioPAX supports them
 
 Table 3: Interactions
 ------------------------------------------------------
-Interaction					BioPAX element
+BioPAX element
 ------------------------------------------------------
-Phosphorylation				biochemicalReaction
-Chemical reaction			biochemicalReaction
-Catalysis					catalysis
-Complex assembly			complexAssembly
-Transport					transport
-Activation					physicalInteraction
-Inhibition					physicalInteraction
-TODO: complete the table
+control
+ catalysis					
+ expression
+ expressionRegulation (activation or inhibition)
+ modulation
+conversion
+ biochemicalReaction (phosphorylation)
+ complexAssembly
+ polymerization
+ transport
+  transport with biochemicalReaction
+geneticInteraction
+physicalInteraction (protein-protein binding)
+------------------------------------------------------
+** I propose we simply use the BioPAX terms directly and provide examples
+of more common terms as annotation.  Above is the list from BioPAX level 3
+and common examples in parentheses.
 
 === Storage and database ===
 Only when BioPAX contains all semantics we want to capture in factoids, we should use it to store the factoids.
