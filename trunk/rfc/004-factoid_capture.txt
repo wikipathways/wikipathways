@@ -141,7 +141,19 @@ database schema and convert to BioPAX on the fly when needed.
 
 === User interface ===
 ==== Add and edit factoids ====
-TODO
+See Factoid_Capture_v2.jpg for an idea of what the interface could look like. The idea is to have a very slim
+version of PV running as an applet and designed to enter and edit very basic reactions or factoids. We can 
+provide templates to facilitate entry.  Entry parameters can be limited to what is supported by BioPAX. In
+general, I think BioPAX should serve as our requirements guide to help constrain what we build and to ensure
+that the factiod that are entered can actually be distributed and exchanged as BioPAX.  In addition to the
+PV window we could add little widgets to select ontology terms to provide context for each factoid.  We should
+find a widget that will work for both this Factoid Capture project and WikiPathways (see SMD's Ontology Widget
+http://smd.stanford.edu/ontologyWidget/OntologyWidgetHelp.htm). We should store the selections as both BioPAX 
+and GPML (for WikiPathways). Finally, there is a description section.  I think we could produce an automatically
+generated sentence from all the information entered.  This would serve as a "double check" for users to make
+sure what they've drawn has the meaning they intend.  In addition, there would be a free text section for a
+description in the user's own words and an area for references.  We might be able to recycle our WP applets for 
+these last two items.
 
 Entering factoids could be computationally guided: the user provides a text (e.g. article excerpt), we try
 to guess the entities and context by using Whatizit. User can choose from these entities and edit or
