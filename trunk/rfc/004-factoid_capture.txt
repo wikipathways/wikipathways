@@ -92,13 +92,12 @@ BioPAX element
 ------------------------------------------------------
 control
  catalysis					
- expression
- expressionRegulation (activation or inhibition)
+ templateReactionRegulation (activation or inhibition)
  modulation
 conversion
  biochemicalReaction (phosphorylation)
  complexAssembly
- polymerization
+ templateReaction (expression, polymerization)
  transport
   transport with biochemicalReaction
 geneticInteraction
@@ -107,6 +106,7 @@ physicalInteraction (protein-protein binding)
 ** I propose we simply use the BioPAX terms directly and provide examples
 of more common terms as annotation.  Above is the list from BioPAX level 3
 and common examples in parentheses.
+** templateReaction and templateReactionRegulation replace old terms from earlier level 3 proposal.
 
 === Storage and database ===
 Only when BioPAX contains all semantics we want to capture in factoids, we should use it to store the factoids.
