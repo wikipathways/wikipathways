@@ -213,6 +213,7 @@ require_once('wpi/extensions/LabeledSectionTransclusion/lsth.php');
 require_once('wpi/extensions/googleSearch.php');
 require_once('wpi/extensions/button.php');
 require_once('wpi/extensions/pathwayThumb.php');
+require_once('wpi/extensions/imageLink.php');
 require_once('wpi/extensions/BrowsePathwaysPage2/BrowsePathwaysPage.php');
 require_once('wpi/extensions/editApplet.php');
 require_once('wpi/extensions/listPathways.php');
