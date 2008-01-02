@@ -6,7 +6,14 @@ require_once('CategoryHandler.php');
 Class that represents a Pathway on WikiPathways
 **/
 class Pathway {
-	private static $spName2Code = array('Human' => 'Hs', 'Rat' => 'Rn', 'Mouse' => 'Mm');
+	private static $spName2Code = array(
+		'Human' => 'Hs', 
+		'Rat' => 'Rn', 
+		'Mouse' => 'Mm',
+		'Drosophila melanogaster' => 'Dm',
+		'Caenorhabditis elegans' => 'Ce',
+		'Saccharomyces cerevisiae' => 'Sc',
+	);
 	private static $spCode2Name; //TODO: complete species
 	
 	private $fileTypes = array(
@@ -144,8 +151,7 @@ class Pathway {
 		if($name && $code) {
 			return new Pathway($name, $species, $checkCache);
 		} else {
-		
-	throw new Exception("Couldn't parse pathway article title: $title");
+			throw new Exception("Couldn't parse pathway article title: $title");
 		}
 	}
 	
@@ -212,7 +218,9 @@ class Pathway {
 			throw new Exception("Invalid pathway article title: $title");
 		}
 		$species = array_slice($parts, -2, 1);
-		return array_pop($species);
+		$species = array_pop($species);
+		$species = str_replace('_', ' ', $species);
+		return $species;
 	}
 
 	/**

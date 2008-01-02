@@ -168,7 +168,7 @@ TEXT;
 		global $wgOut;
 		
 		//AP20081218: Operating System Detection
-		include 'DetectBrowserOS.php';
+		require_once 'DetectBrowserOS.php';
 		//echo (browser_detection( 'os' ));
 		if (browser_detection( 'os' ) != 'win' && browser_detection( 'os' ) != 'nt'){
                 $download = array(

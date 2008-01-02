@@ -17,6 +17,17 @@ class CategoryHandler {
 		return $categories;
 	}
 	
+	public function addToCategory($category) {
+		$cat = "<Comment Source=\"WikiPathways-category\">$category</Comment>";
+		$gpml = $this->pathway->getGPML();
+		if(stripos($gpml, $cat) !== false) {
+			//The category is already present, nothing to do
+			return;
+		}
+		$gpml = preg_replace('/(<Pathway (?U).+)(<Graphics)/s',"$1$cat\n$2", $gpml);
+		$this->pathway->updatePathway($gpml, 'Added to category $category');
+	}
+	
 	/**
 	 * Applies the categories stored in GPML to the
 	 * MediaWiki database
