@@ -1,4 +1,4 @@
-= Factoid Capture Database =
+o = Factoid Capture Database =
 This RFC describes the plan for a factoid capturing database. In this RFC, I will assume that we are going
 to use BioPAX to store the factoids. By describing all required features and data types, we can decide whether 
 this would be a good choice, or if we should look for other options (e.g. a custom SQL database schema).
@@ -162,6 +162,7 @@ add manually.
 ==== Query factoids ====
 "Give me all factoids that contain Protein X in context Y"
 "Give me all factoids that describe a phosphorylation of Protein Y in human"
+"Give me all factoids relating to entities in a given pathway, to see if it can be amended"
 
 TODO: think of some other queries we would like to perform
 
@@ -178,3 +179,7 @@ that should be able to handle the following actions:
 * Factoids should support dependencies:
 For example, factoid A can only happen after factoid B. In BioPAX this is possible by defining
 pathway steps, but I'm not sure this is the way to go.
+
+COMMENT Martijn: I don't really get this idea of dependencies, can you give an example? 
+I think the dependencies can either be inferred 
+(e.g. you need glucose for glucolysis) or they are hard to prove anyway (what is cause and effect?) 

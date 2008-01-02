@@ -48,3 +48,7 @@ Titles will no longer be a targetable field to search, correct?  And all the bro
 (including most_edited, most_viewed, etc) will have to dig into GPML to get pathway names?  
 And some of those won't be unique?  Perhaps these could be made unique using Kristina's trick of 
 having the ID appended to the end of the pathway name?
+
+COMMENT Martijn: I really don't like the idea of adding pathway ID's and names together, you then get the worst of both worlds: both instable and non-intuitive. 
+
+Titles will still be stored in GPML, so they will still be searchable. Indeed, the browse pages will have to dig into the GPML, a solution would be to cache this in a separate database table. The human readable name should really be unique as well (within the species), the pathway creation and renaming functions should check for this.
