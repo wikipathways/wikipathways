@@ -215,7 +215,7 @@ TEXT;
 DROPDOWN;
 
 		$script = <<<SCRIPT
-<script type="text/javascript"><!--//--><![CDATA[//><!--
+<script type="text/javascript">
 
 sfHover = function() {
 	var sfEls = document.getElementById("nav").getElementsByTagName("LI");
@@ -224,13 +224,13 @@ sfHover = function() {
 			this.className+=" sfhover";
 		}
 		sfEls[i].onmouseout=function() {
-			this.className=this.className.replace(new RegExp(" sfhover\\b"), "");
+			this.className=this.className.replace(" sfhover", "");
 		}
 	}
 }
 if (window.attachEvent) window.attachEvent("onload", sfHover);
 
-//--><!]]></script>
+</script>
 SCRIPT;
 		$wgOut->addScript($script);
 		return $dropdown;

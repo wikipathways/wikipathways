@@ -103,7 +103,7 @@ class CategoryHandler {
                            GROUP BY 1,2,3,4";
                 $res = $dbr->query($sqlCat, get_class($this) . '::getAvailableCategories');
                 while ($obj =  $dbr->fetchObject( $res ) ) {
-                        $cat = $obj->title;
+                        $cat = str_replace('_', ' ', $obj->title);
 			array_push($arrayCat, $cat);
 		}
 		//Exclude species if needed

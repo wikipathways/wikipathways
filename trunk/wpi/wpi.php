@@ -179,7 +179,7 @@ function createJnlpArg($flag, $value) {
 function downloadFile($fileType, $pwTitle) {
 	$pathway = Pathway::newFromTitle($pwTitle);
 	if($fileType === 'mapp') {
-		launchGenMappConverter($pwTitle);
+		launchGenMappConverter($pathway);
 	}
 	ob_start();
 	if($oldid = $_REQUEST['oldid']) {

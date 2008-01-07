@@ -75,8 +75,10 @@ function createEditCaption($pathway) {
 			$label = "Edit pathway";
 		}
 	}
+	$helpUrl = Title::newFromText("Help:Known_problems")->getFullUrl();
 	$caption = "<a href='$hrefbtn' title='$label' id='edit' ". 
-				"class='button'><span>$label</span></a>";
+				"class='button'><span>$label</span></a>" .
+				"<div style='float:left;font-size:0.8em'><a href='$helpUrl'> not working?</a></div>";
 				
 	//Create dropdown action menu
 	$pwTitle = $pathway->getTitleObject()->getFullText();
@@ -133,7 +135,7 @@ function createEditCaption($pathway) {
             $magnifyalign = $wgContLang->isRTL() ? 'left' : 'right';
             $textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
 
-            $s = "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;overflow:visible;\">";
+            $s = "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">";
             if( $thumbUrl == '' ) {
                     // Couldn't generate thumbnail? Scale the image client-side.
                     $thumbUrl = $img->getViewURL();
@@ -154,7 +156,7 @@ function createEditCaption($pathway) {
                             'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
                             'longdesc="'.$href.'" class="thumbimage" /></a>';
             }
-            $s .= '  <div class="thumbcaption" style="height:20px"'.$textalign.'>'.$zoomicon.$label."</div></div></div>";
+            $s .= '  <div class="thumbcaption"'.$textalign.'>'.$zoomicon.$label."</div></div></div>";
             return str_replace("\n", ' ', $s);
             //return $s;
     }

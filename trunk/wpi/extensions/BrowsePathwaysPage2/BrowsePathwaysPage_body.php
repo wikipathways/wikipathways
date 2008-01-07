@@ -88,7 +88,7 @@ class BrowsePathwaysPage extends SpecialPage {
                 $none = 'Uncategorized';
                 $pick = $_GET["browse"];
 		if (!isset($pick)){
-                        $pick = 'Human';
+                        $pick = 'Homo sapiens';
                 }
                 if ($pick == $all){
 			$picked = '';

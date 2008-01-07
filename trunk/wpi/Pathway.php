@@ -7,9 +7,9 @@ Class that represents a Pathway on WikiPathways
 **/
 class Pathway {
 	private static $spName2Code = array(
-		'Human' => 'Hs', 
-		'Rat' => 'Rn', 
-		'Mouse' => 'Mm',
+		'Homo sapiens' => 'Hs', 
+		'Rattus norvegicus' => 'Rn', 
+		'Mus musculus' => 'Mm',
 		'Drosophila melanogaster' => 'Dm',
 		'Caenorhabditis elegans' => 'Ce',
 		'Saccharomyces cerevisiae' => 'Sc',
@@ -262,6 +262,14 @@ class Pathway {
 	}
 
 	/**
+	 * Check if this pathway exists in the database
+	 * @return true if the pathway exists, false if not
+	 */
+	public function exists() {
+		return $this->getTitleObject()->exists();
+	}
+	
+	/**
 	 * Get the GPML code for this pathway (the active revision will be
 	 * used, see Pathway::getActiveRevision)
 	 */	 
@@ -376,7 +384,11 @@ class Pathway {
 	public function updatePathway($gpmlData, $description) {
 		global $wgLoadBalancer;
 		$gpmlTitle = $this->getTitleObject();
-		$gpmlArticle = new Article($gpmlTitle);		
+		$gpmlArticle = new Article($gpmlTitle);	
+		if(!$gpmlTitle->exists()) {
+			//This is a new pathway, add the author to the watch list
+			$gpmlArticle->doWatch();
+		}	
 
 		$succ = true;
 		$succ =  $gpmlArticle->doEdit($gpmlData, $description);

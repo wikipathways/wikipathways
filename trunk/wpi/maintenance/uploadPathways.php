@@ -29,9 +29,13 @@ function process($file, $category = '') {
 		echo("\tUploading pathway {$pathway->name()}<BR>\n");
 		echo("\t\tSpecies: " . $pathway->species() . "<BR>\n");
 		echo("\t\tCategory: $category<BR>\n");
-		if($doit) {
-//			uploadPathway($file, $pathway);
-			$pathway->getCategoryHandler()->addToCategory($category);
+		if(!$pathway->exists()) {
+			if($doit) {
+				uploadPathway($file, $pathway);
+				$pathway->getCategoryHandler()->addToCategory($category);
+			}
+		} else {
+				echo("\tPathway already exists!<br>\n");
 		}
 	}
 }
