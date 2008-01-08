@@ -96,7 +96,13 @@ class PathwayOfTheDay {
 		if(!$this->todaysPw) { //No pathway in history yet
 			$this->brandNewDay();
 		}
-		return Pathway::newFromTitle(Title::newFromText($this->todaysPw, NS_PATHWAY));
+		try {
+			$pathway = Pathway::newFromTitle(Title::newFromText($this->todaysPw, NS_PATHWAY));
+		} catch(Exception $e) {
+			//Fallback to default pathway
+			$pathway = Pathway::newFromTitle("Pathway:Homo sapiens:Apoptosis");
+		}
+		return $pathway;
 	}
 	
 	//Create and fill the tables
