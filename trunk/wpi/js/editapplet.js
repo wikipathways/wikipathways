@@ -57,6 +57,12 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 	appletDiv.style.height = '95%';
 	appletDiv.style.clear = 'both';
 	image.appendChild(appletDiv);
+	
+	problems = document.createElement('a');
+	problems.href = 'http://www.wikipathways.org/index.php/Help:Known_problems';
+	problems.innerHTML = 'not working?';
+	problems.style.fontSize = '0.75em';
+	image.appendChild(problems);
 		
 	//Create resize hint
 	resize = document.createElement('div');
@@ -65,6 +71,7 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 	resize.style.bottom = '0';
 	resize.style.right = '0';
 	image.appendChild(resize);
+	
 
 	var appletHTML = getAppletHTML(idApplet, '100%', '100%', main, basePath, 'wikipathways.jar', keys, values);	
 	appletObject.appletHTML = appletHTML;
