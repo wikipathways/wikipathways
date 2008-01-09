@@ -78,7 +78,7 @@ function createEditCaption($pathway) {
 	$helpUrl = Title::newFromText("Help:Known_problems")->getFullUrl();
 	$caption = "<a href='$hrefbtn' title='$label' id='edit' ". 
 				"class='button'><span>$label</span></a>" .
-				"<div style='float:left;font-size:0.8em'><a href='$helpUrl'> not working?</a></div>";
+				"<div style='float:left;font-size:1.0em'><a href='$helpUrl'> not working?</a></div>";
 				
 	//Create dropdown action menu
 	$pwTitle = $pathway->getTitleObject()->getFullText();
