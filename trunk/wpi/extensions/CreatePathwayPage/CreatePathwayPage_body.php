@@ -32,7 +32,6 @@ class CreatePathwayPage extends SpecialPage
 
 	function startEditor($pwName, $pwSpecies) {
 		global $wgRequest, $wgOut, $wpiScriptURL;
-
 		$backlink = '<a href="javascript:history.back(-1)">Back</a>';
 		if(!$pwName) {
 			$wgOut->addHTML("<B>Please specify a name for the pathway<BR>$backlink</B>");
@@ -62,7 +61,7 @@ class CreatePathwayPage extends SpecialPage
 				<select name='pwSpecies'>";
 		$species = Pathway::getAvailableSpecies();
 		foreach($species as $sp) {
-			$html .= "<option value=$sp" . (!$selected ? ' selected' : '') . ">$sp";
+			$html .= "<option value='$sp'" . (!$selected ? ' selected' : '') . ">$sp";
 			$selected = true;
 		}
 		$html .= '</select>';
