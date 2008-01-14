@@ -1453,7 +1453,7 @@ class DPL2Logger {
 			/**
 			 * @todo add a DPL id to identify the DPL tag that generates the message, in case of multiple DPLs in the page
 			 */
-			return '<p>%DPL2-' . DPL2_VERSION . '-' .  wfMsg('dpl2_debug_' . $msgid, $args) . '</p>';
+			return '<p>' . wfMsg('dpl2_debug_' . $msgid, $args) . '</p>';
 		}
 		return '';
 	}
