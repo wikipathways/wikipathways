@@ -77,6 +77,7 @@ function renderGoogleCoop($input) {
     var googleSearchFrameborder = 0;
     var googleSearchDomain = "www.google.com";
     var googleSearchPath = "/cse";
+    var googleSearchResizeIframe = false; //fixes back button issue in firefox
   </script>
   <script type="text/javascript" src="http://www.google.com/afsonline/show_afs_search.js"></script>
 <!-- Google Search Result Snippet Ends -->';
