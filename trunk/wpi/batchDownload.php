@@ -40,6 +40,7 @@ function batchDownload($species, $fileType) {
 		throw new Exception("Invalid file type: $fileType");
 	}
 */
+	$species = str_replace(' ', '_', $species);
 	$pathways = getPathways(array(
 		"page_title LIKE '$species%'"		
 	));

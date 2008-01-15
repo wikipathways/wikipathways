@@ -61,7 +61,6 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 	problems = document.createElement('a');
 	problems.href = 'http://www.wikipathways.org/index.php/Help:Known_problems';
 	problems.innerHTML = 'not working?';
-	problems.style.fontSize = '0.75em';
 	image.appendChild(problems);
 		
 	//Create resize hint
