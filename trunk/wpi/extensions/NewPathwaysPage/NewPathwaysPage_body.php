@@ -36,7 +36,7 @@ class NewPathwaysPage extends SpecialPage
 class RCQueryPage extends QueryPage {
 
 	function getName() {
-		return "NewPathways";
+		return "NewPathwaysPage";
 	}
 
 	function isExpensive() {
@@ -58,7 +58,11 @@ class RCQueryPage extends QueryPage {
 				rc_user_text as utext,
 				rc_timestamp as value
 			FROM $page, $recentchanges
-			WHERE page_title=rc_title AND rc_new=1 AND page_namespace=".NS_PATHWAY." AND page_is_redirect=0";
+			WHERE page_title=rc_title 
+			AND rc_new=1
+			AND rc_bot=0 
+			AND page_namespace=".NS_PATHWAY." 	
+			AND page_is_redirect=0";
 	}
 
 	function formatResult( $skin, $result ) {
