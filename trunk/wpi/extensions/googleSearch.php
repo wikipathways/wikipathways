@@ -20,23 +20,18 @@ function wfGoogleCoop_Magic( &$magicWords, $langCode ) {
 function renderSearchBox(&$parser) {
         $parser->disableCache();
         $output= <<<SEARCH
-<div id="googleSearch"><form id="searchbox_011541552088579423722:rset6ep3k64" action="http://www.wikipathways.org/index.php/WikiPathways:GoogleSearch">
+<div id="googleSearch">
+<form id="searchbox_cref" action="http://www.wikipathways.org/index.php/WikiPathways:GoogleSearch">
 <table width="190" frame="void" border="0">
 <tr>
 <td align="center" bgcolor="#eeeeee" border="1">
-<input type="hidden" name="cx" value="011541552088579423722:rset6ep3k64" />
+<input type="hidden" name="cref" value="http://www.wikipathways.org/wp_cse_context.xml" />
 <input type="hidden" name="cof" value="FORID:11" />
 <input type="hidden" name="filter" value="0" /> <!--set filter=0 to disable omitting similiar hits-->
 <input name="q" type="text" size="20%" />
 <tr><td valign="top" align="center" border="0"><input type="submit" name="sa" value="Search" />
-<!-- <tr align="center">
-     <td><input type="submit" name="sa" value="Search" />
-     <input type=radio name=as_occt value="title" checked>titles only     
-     <input type=radio name=as_occt value="">all text
-     </td>
--->
 </tr>
-</table></form><script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=searchbox_011541552088579423722:rset6ep3k64"></script>
+</table></form><script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=searchbox_cref"></script>
 SEARCH;
 
         return array($output, 'isHTML'=>1, 'noparse'=>1);
@@ -69,10 +64,10 @@ function GoogleCoop() {
 # The callback function for converting the input text to HTML output
 function renderGoogleCoop($input) {
         $output='<!-- Google Search Result Snippet Begins -->
-  <div id="results_011541552088579423722:rset6ep3k64"></div>
+  <div id="results_cref"></div>
   <script type="text/javascript">
-    var googleSearchIframeName = "results_011541552088579423722:rset6ep3k64";
-    var googleSearchFormName = "searchbox_011541552088579423722:rset6ep3k64";
+    var googleSearchIframeName = "results_cref";
+    var googleSearchFormName = "searchbox_cref";
     var googleSearchFrameWidth = 600;
     var googleSearchFrameborder = 0;
     var googleSearchDomain = "www.google.com";
