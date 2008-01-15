@@ -1,0 +1,63 @@
+== RFC 005: Reference pathways ==
+This RFC describes the plan for keeping static, immutable reference pathways on WikiPathways. Since any pathway on WikiPathways is inherently 
+unstable (meaning it's content will be changed by users), keeping an original reference pathway that is immutable is desirable for some 
+pathway content, for example pathways converted from other sources (KEGG, Reactome, inter-species). 
+
+== What is a reference pathway? ==
+
+In the context of this RFC, a reference pathway is an automatically converted pathway, either from an outside source or from a different
+species at WikiPatwhays. The content of the reference pathway would replicate completely that of the original pathway used for conversion.
+The only possible difference in content would be introduced by the converter tool and would not involve the biology described in the pathway, 
+but only cosmetic differences like changes to layout, fonts etc. 
+A reference pathway cannot be edited by users.
+
+== Implementation ==
+
+=== Pathway ===
+
+The reference pathway should be like any other pathway on WikiPathways in *almost* all aspects. The following lists of features/functions
+is a first attempt at defining how the reference pathway is different.
+
+The reference pathway should be different in terms of:
+- Edits: Read-only, no edits allowed (See User interface Option 2)
+- Pathway page (or the actual pathway image) should include a label or icon stating that it is a ref pathway.
+- GPML: Somehow record that this is a reference pathway, source of the content and date it was retrieved
+
+The reference pathway should behave like a normal pathway in terms of:
+- Searching
+- Browsing
+- Pathway ontologies
+- Pathway statistics
+- Downloading
+- Diff viewer (so that users an choose to compare an edited ref patwhay and the original)
+
+=== Automatically updating reference pathways ===
+
+One of the main benefits to keeping static reference pathways is that these can be automatically updated (programmatically) from the source 
+without considering merging content with pathways generated from the ref pathway. Monthly (?) updates of reference pathways would ensure 
+that our representation of outside content is kept up-to-date and accurate.
+ 
+=== User interface ===
+
+Option 1:
+When a user tries to edit a ref pathway, the applet is started but when saving it will not be possible to save pathway with the
+same name.
+
+Option 2:
+To edit a ref pathway a user first has to select "create new pathway" and an option for selecting a ref pathway as a starting point will
+be available. If user tries to edit ref pathway directly, message appears explaining what to do.
+
+These two options could also be combined in some way to provide greater usability.
+
+== Discussion points ==
+
+=== Benefits of keeping reference pathways ===
+
+- Reference pathways can easily be kept up-to-date with source without having to consider merging changes in pathways generated from reference 
+pathway. This allows for accurate representation of outside content.
+
+- User can compare pathways generated from a ref pathway to the original.
+
+=== Drawbacks to keeping reference pathways ===
+
+- Having several pathways with similar name and content may cause issues with pathway statistics. 
