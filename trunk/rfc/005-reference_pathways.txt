@@ -49,6 +49,12 @@ be available. If user tries to edit ref pathway directly, message appears explai
 
 These two options could also be combined in some way to provide greater usability.
 
+AP: I think it would be better to block Option 1 altogether: the edit button should be disabled entirely.  If a user wants to download 
+the pathway and edit it locally they can do that outside of WP. Option 2 is important for adapting reference pathways to create
+specialized pathways.  This could be a general feature available whenever a new pathway is created. You can imagine and option to
+start with an already existing pathway when creating a new pathway, and the reference pathways would be included in this list.  This
+would also make it easier to manually translate a pathway from one species to another.
+
 == Discussion points ==
 
 === Benefits of keeping reference pathways ===
@@ -61,3 +67,6 @@ pathway. This allows for accurate representation of outside content.
 === Drawbacks to keeping reference pathways ===
 
 - Having several pathways with similar name and content may cause issues with pathway statistics. 
+
+AP: Not sure why reference pathways would cause this?  Pathways with similar names can happen anyway and reference pathways shouldn't 
+have more issues with this, I wouldn't think.
