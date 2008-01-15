@@ -88,7 +88,7 @@ class SpecialPage
 		'Preferences'               => array( 'SpecialPage', 'Preferences' ),
 		'Watchlist'                 => array( 'SpecialPage', 'Watchlist' ),
 
-		'Recentchanges'             => array( 'IncludableSpecialPage', 'Recentchanges' ),
+		'Recentchanges'             => array( 'IncludableSpecialPage', 'Recentchanges', 'block' ),
 		'Upload'                    => array( 'SpecialPage', 'Upload', 'block' ),
 		'Imagelist'                 => array( 'SpecialPage', 'Imagelist', 'block' ),
 		'Newimages'                 => array( 'IncludableSpecialPage', 'Newimages' ),
