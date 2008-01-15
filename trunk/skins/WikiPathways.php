@@ -212,10 +212,10 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		<h5><label for="searchInput">search</label></h5>
 		<div id="googleSearch" class="pBody">
 <!-- Google CSE Search Box Begins -->
-  <form id="searchbox_011541552088579423722:rset6ep3k64" action="http://www.wikipathways.org/index.php/WikiPathways:GoogleSearch">
+  <form id="searchbox_cref" action="http://www.wikipathways.org/index.php/WikiPathways:GoogleSearch">
     <table BORDER=0 CELLSPACING=0 CELLPADDING=0 >
     <tr><td>
-    <input type="hidden" name="cx" value="011541552088579423722:rset6ep3k64" />
+    <input type="hidden" name="cref" value="http://www.wikipathways.org/wp_cse_context.xml" />
     <input type="hidden" name="cof" value="FORID:11" />
     <input type="hidden" name="filter" value="0" /> <!--set filter=0 to disable omitting similiar hits-->
     <input name="q" type="text" size="14%" />
@@ -223,18 +223,11 @@ class WikiPathwaysTemplate extends QuickTemplate {
     <tr align="left">
     <td>
 	<input type="checkbox" name="as_occt" value="title" checked>titles only
-<!--	<input type=radio name=as_occt value="title" checked>titles only
-    <input type=radio name=as_occt value="">all text
--->
 	</td>
     </tr>
-<!-- <td>
-    <input type="submit" name="sa" value="Search" />
-    </td></tr>
--->
     </table>
 </form>
-<script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=searchbox_011541552088579423722:rset6ep3k64"></script>
+<script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=searchbox_cref"></script>
 <!-- Google CSE Search Box Ends -->
 		</div>
 	</div>
