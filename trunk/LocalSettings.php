@@ -223,6 +223,7 @@ require_once('wpi/PathwayPage.php');
 require_once('wpi/extensions/SpecialWishList/SpecialWishList.php');
 require_once('wpi/extensions/SpecialWishList/TopWishes.php');
 require_once('wpi/extensions/DiffAppletPage/DiffAppletPage.php');
+require_once('wpi/extensions/RecentPathwayChanges/RecentPathwayChanges.php');
 
 /* Biblio extension
 Isbndb account: thomas.kelder@bigcat.unimaas.nl / BigC0w~wiki
