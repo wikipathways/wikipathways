@@ -210,8 +210,8 @@ class EditApplet {
 			'pwSpecies' => $pathway->species(),
 			'pwUrl' => $pwUrl,
 			'cache_archive' => $archive_string,
-			'cache_version' => $version_string
-		
+			'cache_version' => $version_string,
+			'gdb_server' => $_SERVER['HTTP_HOST'],
 		);
 
 		if($wgUser && $wgUser->isLoggedIn()) {
