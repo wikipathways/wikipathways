@@ -1,0 +1,7 @@
+/* ContributionScores.css */
+.contributionscores-wrapper       {  }
+.contributionscores-title         { background-color: #aaaaaa; margin-bottom: 0px; padding-left: .4em; }
+.contributionscores-tableheadings { background-color: #cccccc; border-bottom: 1px solid #999999; }
+.contributionscores-altrow        { background-color: #eeeeee; }
+.contributionscores-headercell    { font-weight: bold; padding-left: .2em; padding-right: .2em; }
+.contributionscores-contentcell   { padding-left: .2em; padding-right: .2em; }

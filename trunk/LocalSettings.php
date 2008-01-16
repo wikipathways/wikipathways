@@ -225,6 +225,16 @@ require_once('wpi/extensions/SpecialWishList/TopWishes.php');
 require_once('wpi/extensions/DiffAppletPage/DiffAppletPage.php');
 require_once('wpi/extensions/RecentPathwayChanges/RecentPathwayChanges.php');
 
+require_once( "wpi/extensions/ContributionScores/ContributionScores.php" );
+ 
+$contribScoreIgnoreBots = true;  //Set to true if you want to exclude Bots from the reporting - Can be omitted.
+ 
+//Each array defines a report - 7,50 is "past 7 days" and "LIMIT 50" - Can be omitted.
+$contribScoreReports = array(
+    array(7,50),
+    array(30,50),
+    array(0,50));
+
 /* Biblio extension
 Isbndb account: thomas.kelder@bigcat.unimaas.nl / BigC0w~wiki
 */
