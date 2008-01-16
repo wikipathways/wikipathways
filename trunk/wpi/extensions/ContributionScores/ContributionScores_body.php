@@ -31,7 +31,7 @@ class ContributionScores extends IncludableSpecialPage
 	 *
 	 * @return HTML Table representing the requested Contribution Scores.
 	 */
-	function genContributionScoreTable( $days, $limit, $title = null, $options = 'none' ) {
+	function genContributionScoreTable( $days, $limit, $title = null, $options = 'none', $namespace = NS_PATHWAY ) {
 		global $contribScoreIgnoreBots, $wgUser;
 
 		$opts = explode(',', strtolower($options));
@@ -57,12 +57,14 @@ class ContributionScores extends IncludableSpecialPage
 				$sqlWhere .= "WHERE ";
 			}
 			$sqlWhere .= "rev_user NOT IN (SELECT ug_user FROM {$userGroupTable} WHERE ug_group='bot') ";
+			$sqlWhere .= " AND page_namespace = {$namespace} AND page_title != 'Homo_sapiens:Sandbox'";
 		}
 
 		$sqlMostPages = "SELECT rev_user, 
 						 COUNT(DISTINCT rev_page) AS page_count, 
 						 COUNT(rev_id) AS rev_count 
 						 FROM {$revTable} 
+						 INNER JOIN page ON revision.rev_page = page.page_id
 						 {$sqlWhere}
 						 GROUP BY rev_user 
 						 ORDER BY page_count DESC
@@ -72,6 +74,7 @@ class ContributionScores extends IncludableSpecialPage
 						 COUNT(DISTINCT rev_page) AS page_count, 
 						 COUNT(rev_id) AS rev_count 
 						 FROM {$revTable} 
+						 INNER JOIN page ON revision.rev_page = page.page_id
 						 {$sqlWhere}
 						 GROUP BY rev_user 
 						 ORDER BY rev_count DESC 

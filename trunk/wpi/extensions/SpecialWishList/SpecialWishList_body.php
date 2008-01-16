@@ -154,11 +154,11 @@ HTML;
 	 	$wishes = $this->wishlist->getWishlist();
 	 	$html = <<<HTML
 <form action='{$this->this_url}' method='post'>
-<table class="prettytable"><tbody>
+<table class="prettytable sortable"><tbody>
 <th>Pathway name</th><th>Requested by</th><th>Date</th><th>Comments</th><th>Votes
 HTML;
 		if($wgUser->isLoggedIn()) {
-			$html .= "<th>Watch</th><th>Resolve";
+			$html .= "<th class='unsortable'>Watch</th><th class='unsortable'>Resolve";
 		}
 	 	$wgOut->addHTML($html);
 		foreach($wishes as $wish) {
@@ -169,7 +169,7 @@ HTML;
 		$html = "";
 		if($wgUser->isLoggedIn()) {
 			$html = <<<HTML
-<tr><td colspan="5"><td align="center">
+<tr class="sortbottom"><td><td><td><td><td><td align="center">
 	<input type="hidden" name="wishaction" value="watch">
 	<input type="submit" value="Apply">
 HTML;
@@ -178,7 +178,7 @@ HTML;
 		$wgOut->addHTML($html);
 				
 		$wgOut->addWikiText("== Resolved items ==");
-		$wgOut->addHTML("<table class='prettytable'><tbody>
+		$wgOut->addHTML("<table class='prettytable sortable'><tbody>
 				<th>Item name<th>Date resolved<th>Pathway<th>Created on<th>Created by");
 		foreach($wishes as $wish) {
 			if($wish->isResolved()) {
@@ -278,8 +278,8 @@ HELP;
 		$title = $wish->getTitle()->getText();
 		$pathway = $wish->getResolvedPathway();
 		$rev = $pathway->getFirstRevision();
-		$resDate = $wgLang->timeanddate($wish->getResolvedDate());
-		$pwDate = $wgLang->timeanddate($rev->getTimestamp());
+		$resDate = self::getSortTimeDate($wish->getResolvedDate());
+		$pwDate = self::getSortTimeDate($rev->getTimestamp());
 		$user = $wgUser->getSkin()->userLink( $rev->getUser(), $rev->getUserText() );
 		if($wish->isResolved()) {
 			$wgOut->addHTML("<tr><td>$title<td>$resDate<td>");
@@ -301,7 +301,7 @@ HELP;
 		$title = $wish->getTitle()->getText();
 		$user = $wish->getRequestUser();
 		$user = $wgUser->getSkin()->userLink( $user, $user->getName());
-		$date = $wgLang->timeanddate( $wish->getRequestDate(), true );
+		$date = self::getSortTimeDate($wish->getRequestDate());
 		$watching = $wish->userIsWatching() ? "CHECKED" : "";
 		$votes = (int)$wish->countVotes();
 		$fullComment = str_replace('"', "'", $wish->getComments());
@@ -330,6 +330,12 @@ HELP;
 			}
 			$wgOut->addHTML("</table>");
 		}
+	}
+	
+	static function getSortTimeDate($ts) {
+		global $wgLang;
+		return "<span style='display:none'>$ts</span>" . 
+			$wgLang->timeanddate( $ts, true );
 	}
 	
 	function truncateComment($wish, $cutoff = 0) {
