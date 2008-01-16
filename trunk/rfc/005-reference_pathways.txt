@@ -31,6 +31,13 @@ The reference pathway should behave like a normal pathway in terms of:
 - Downloading
 - Diff viewer (so that users an choose to compare an edited ref patwhay and the original)
 
+TK: Pathways derived from reference pathways, should also record this in GPML. I would suggest to store both data
+in the same way, by adding a 'derived-from' child element to pathway.
+This could be used to store external sources:
+<derived-from source="Reactome" source-pathway="Reactome_pathway_id" date="19830402"/>
+and internally:
+<derived-from source="WikiPathways" source-pathway="WP_pathway_id" date="19830402" />
+
 === Automatically updating reference pathways ===
 
 One of the main benefits to keeping static reference pathways is that these can be automatically updated (programmatically) from the source 
@@ -54,6 +61,7 @@ the pathway and edit it locally they can do that outside of WP. Option 2 is impo
 specialized pathways.  This could be a general feature available whenever a new pathway is created. You can imagine and option to
 start with an already existing pathway when creating a new pathway, and the reference pathways would be included in this list.  This
 would also make it easier to manually translate a pathway from one species to another.
+TK: A reason not to block option 1 could be that you want access to the backpage information, which is only available through the editor. An alternative for blocking is to rename the edit button to 'Show interactive pathway' or something similar.
 
 == Discussion points ==
 
@@ -70,3 +78,4 @@ pathway. This allows for accurate representation of outside content.
 
 AP: Not sure why reference pathways would cause this?  Pathways with similar names can happen anyway and reference pathways shouldn't 
 have more issues with this, I wouldn't think.
+TK: But I agree similar content can be an issue, since it could clubber your end results with almost duplicates. It shouldn't matter for the p-value though, since each pathway is tested individually (not sure if I'm right here). As long as we store in GPML from which pathway it's derived, the statistical algorithm can take that into account and filter out or group derived pathways.
