@@ -82,6 +82,7 @@
     <jar href="plugins/biopax.jar" />
     <jar href="plugins/filters.jar" />
     <jar href="plugins/gpml.jar" />
+    <jar href="plugins/NamedSelection.jar" />
   </resources>
   <!--This starts-up Cytoscape, specify your plugins to load, and other command line arguments.  Plugins not specified here will not be loaded.-->
   <application-desc main-class="cytoscape.CyMain">
@@ -117,6 +118,8 @@
     <argument>cytoscape.filters.FilterPlugin</argument>
     <argument>-p</argument>
     <argument>gpml.GpmlPlugin</argument>
+    <argument>-p</argument>
+    <argument>namedSelection.NamedSelection</argument>
     <!--ARG-->
   </application-desc>
 </jnlp>
