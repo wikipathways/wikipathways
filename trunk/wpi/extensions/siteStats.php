@@ -31,7 +31,8 @@ function wfSiteStats_Magic( &$magicWords, $langCode ) {
 }
 
 function getSiteStats( &$parser, $tableAttr ) {
-	$output = "* There are '''{{PAGESINNS:" . NS_PATHWAY . "}}''' pathways";
+	$nrPathways = count(Pathway::getAllPathways());
+	$output = "* There are '''{$nrPathways}''' pathways";
 	$table = <<<EOD
 
 * Number of pathways per species:
