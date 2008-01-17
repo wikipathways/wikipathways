@@ -55,7 +55,7 @@ class PathwayInfo extends PathwayData {
 	 */
 	function datanodes() {
 					$table = <<<TABLE
-<table class="wikitable" id="dnTable">
+<table class="wikitable sortable" id="dnTable">
 <tbody>
 <th>Name
 <th>Type
