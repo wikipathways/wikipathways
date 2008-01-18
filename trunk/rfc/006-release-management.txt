@@ -1,0 +1,200 @@
+= Release Management =
+
+This document intends to formalize the following things:
+* How to keep the test site and the stable site in sync
+* How to do releases, and when to do them.
+
+The proposal in this text is not set in stone, neither is it the only right way to do things. 
+Adjustments may be necessary in the future.
+But the most important thing here is that the procedure is documented and adhered to by all developers.
+
+We have two sites:
+* test    -> this is where development and most testing takes place
+* stable  -> this is what the regular user sees
+
+There are 6 types of data to take into account
+* Pathway content
+* other content data (pages, layout)
+* user account data
+* applet code
+* mediawiki code
+* wpi plugin code
+
+Both sites are completely independent: they each have their own copy of all 6 types.
+
+== Release schedule ==
+
+All developement should take place on the test site *first*. 
+Periodically, we want to sync the test site with the stable site. We want to keep the period between 
+syncs short, around 4-6 weeks is ideal.
+
+I propose that we define simple milestones for each period, and that we sync afterwards. 
+We can keep to a schedule like this one:
+
+* 3-4 weeks of development
+* feature freeze
+* 1-2 weeks of testing
+* milestone release & sync
+
+Each milestone should be preceded by a feature freeze, a period of 1-2 weeks where only bugfixes are allowed.
+Work on major features should be started just after the milestone, so there is enough time to 
+finish it before the feature freeze.
+
+Features and bugs can be assigned to specific milestones, so we can plan a bit ahead to see which
+features and bugs are going to be fixed when. 
+For example:
+
+At this moment (Jan 18) we just had a sync, so that means we are in development mode for the next 3 weeks
+
+new features for milestone 1:
+* anchor nodes, 
+* autocompletion in xref dialog
+* Fix bug #nnn
+Feb 6: feature freeze
+* Fix bug #nnn
+* Fix bug #nnn
+Feb 13: milestone 1
+
+new features for milestone 2:
+...
+Mar 5: feature freeze
+Mar 12: milestone 2
+
+Apr 2: feature freeze
+Apr 9: milestone 3
+
+It would be nice if our bug tracker supported this workflow somehow.
+I think it would be ideal to have our web meeting on the day of the feature freeze, so we can
+go through the list of outstanding bugs together and see where the testing should focus on.
+
+Since PathVisio and the WikiPathways applet share the same code base, this means that PathVisio 
+will have to follow this schedule as well and will have to adhere to the Feature Freeze period.
+
+=== Pathway content ===
+
+* Should be backed up daily on the stable site.
+* the complete test site is considered a sandbox with regards to the Pathways. 
+  The pathways on the test site may be deleted, changes may be reverted, nonsensical pathways may be added. 
+  Never make any changes to Pathway content on the test site if you want to keep it.
+* Periodically, the pathways from the test site may be reset, i.e. overwritten with the pathways from the main site.
+
+=== Page & layout data ===
+
+Since all data is copied in both sites, you have to make each change twice. This leads to the problem if 
+person A changes a page on the stable site, person B changes the same page on the test site, and then copies the page
+to the test site before A had the chance to copy to the test site. Changes of person A are lost.
+
+The solution is very simple: we should all agree to make changes to the test site first, and always copy from the test site to the main site, never in the other direction.
+
+Whether the change is copied immediately or at the next sync is at your own descretion. For simple changes, such as typos, 
+the chance of regression is very small and they may be copied immediately.
+
+TODO: we should have a system to figure out which pages have changed and still need to be copied.
+
+=== User account data ===
+
+User accounts on both sites are separate and never synced. If you want to have an account on both sites, you
+should make two accounts. If you want to block a user on both sites, you have to block twice. The list of
+users on the stable site is most important, of course. 
+The test site should have accounts for developers and beta testers only.
+
+=== applet code ===
+
+* on the test site: running trunk (or very close to it)
+* may be updated on test site anytime
+
+whenever time for a release comes:
+* make branches/tags in pathvisio repository
+
+=== php code ===
+
+* work directly on test site
+* never change main site directly
+* make patches as clean as possible
+
+when doing a point release:
+* run through relevant part of test protocol on test site
+* merge diff to release branch e.g. "1.1.x"
+* add a tag "1.1.1" (if release branch was 1.1.x and last release was 1.1.0)
+
+when doing a major release:
+* one/two weeks before: feature freeze on test site. fixing bugs only, preferably bugs marked major
+* when major bugs fixed:
+* run through entire test protocol
+* create a new branch in wikipathways repository "1.1.x", "1.2.x"
+* add a tag e.g. "1.1.0"
+* svn switch main site to tag
+
+=== mediawiki code ===
+
+Updates to mediawiki are potentially disruptive. Therefore I propose to these kinds of updates 
+on the test site first as well, and always do it before the feature freeze 
+so we still have some time for testing.
+
+=== summary ===
+
+So, in short:
+
+						on test site                    on stable site
+---------------------------------------------------------------------------------
+Pathway content     | may be reset at any time     | important, backed up daily
+other content data  | copy to stable any time      | never edit directly
+user account data   | anybody, never sync          | developers and testers, never sync
+applet code         | pathvisio/trunk              | sync after milestone, tags/milestone_x.0
+mediawiki code      | update before feature freeze | sync after milestone, tags/milestone_x.0
+wpi plugin code     | wikipathways/trunk           | sync after milestone, tags/milestone_x.0
+---------------------------------------------------------------------------------
+
+
+== tagging a release ==
+
+create a milestone branch named milestone_n.x (where n is one higher than the previous branch). 
+The milestone branch is useful for cherry-picking, see below.
+
+svn cp http://svn.bigcat.unimaas.nl/wikipathways/trunk 
+ http://svn.bigcat.unimaas.nl/wikipathways/branches/milestone_n.x
+
+Next, create a milestone tag named milestone_n.0
+
+svn cp http://svn.bigcat.unimaas.nl/wikipathways/branches/milestone_n.x
+ http://svn.bigcat.unimaas.nl/wikipathways/branches/milestone_n.0
+ 
+Now switch the stable site to the tag you just created.
+
+== what to do during feature freeze ==
+
+During a feature freeze, we should go through the entire test list at least once.
+We should pick a list of bugs from mantis, and do nothing but fix those 
+(plus newly found ones if they are major)
+
+The advantage of having brief but frequent feature freezes is two fold:
+* You are forced once in a while to stop and fix some bugs
+* If you only fix bugs, the chance of introducing new bugs at the same time is lower. 
+  Otherwise, developers and testers run in eachothers tracks, 
+  and a new feature may cause a bug in a part that was just tested.
+
+== cherry-picking ==
+
+It may occur, hopefully not often, that just after a milestone we find a major problem in the stable site.
+Instead of syncing early (without going through a round of testing first), we should go through the process
+of cherry-picking:
+
+1. A developer confirms the bug on the stable site.
+2. A developer confirms the bug on the test site
+3. The developer checks in any outstanding changes on the current feature he was working on.
+4. The developer fixes the bug. Make sure to create a clean patch. 
+   The patch should contain just the changes necessary to fix the problem, no more.
+   To save the patch from the command line, run "svn diff > patchfile.txt"
+   To save the patch from eclipse, right-click on the project and follow team->create patch
+5. confirm that the problem is indeed fixed on the test site
+6. Apply the patch to the latest milestone branch (not the tag, a tag should never be changed)
+7. create a new tag from the milestone branch, where you increase the last digit. So if the
+   last tag was milestone_7.0, the new one should be milestone_7.1
+8. the stable site is switched to the newly created tag.
+
+=== Tips: How to keep your diffs clean ===
+
+Here is some background information about diffs, patching, to help you with the process of cherry-picking:
+
+See also: http://producingoss.com/en/vc.html#vc-using
+and: http://svnbook.red-bean.com/en/1.4/svn.branchmerge.copychanges.html
