@@ -225,8 +225,25 @@ class SpecialSearch {
     var googleSearchFrameborder = 0;
     var googleSearchDomain = "www.google.com";
     var googleSearchPath = "/cse";
+    var googleSearchResizeIframe = false; //fixes back button issue in firefox
   </script>
   <script type="text/javascript" src="http://www.google.com/afsonline/show_afs_search.js"></script>
+
+//AP200801014
+<script type="text/javascript">
+  var googleSearchFrame = document.getElementsByName("googleSearchFrame");
+  if (googleSearchFrame[0]) {
+      // Firefox, Opera, ...
+      googleSearchFrame[0].style.height = "60em";
+  } else {
+      // IE - which has a misbehaving getElementsByName - assumin only one iframe
+      var googleSearchFrame = document.getElementsByTagName("iframe");
+      if (googleSearchFrame[0]) {
+          googleSearchFrame[0].style.height = "65em";
+      }
+  }
+</script>
+
 <!-- Google Search Result Snippet Ends -->
 		');
 	}
