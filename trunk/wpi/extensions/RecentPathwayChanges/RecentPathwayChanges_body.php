@@ -39,6 +39,7 @@ class RecentPathwayChanges extends SpecialPage
 }
 
 class RecentQueryPage extends QueryPage {
+	var $requestedSort = '';
 	private $namespace;
 	
 	function __construct($namespace) {
@@ -55,9 +56,41 @@ class RecentQueryPage extends QueryPage {
 	}
 	function isSyndicated() { return false; }
 
-	function getSQL() {
-		global $wgUser, $wgOut;
+        /**
+         * Show a drop down list to select a field for sorting.
+         */
+        function getPageHeader( ) {
+ 		global $wgRequest;
+	        $requestedSort = $wgRequest->getVal('sort');
+        
+               $self = $this->getTitle();
 
+                # Form tag
+                $out = wfOpenElement( 'form', array( 'method' => 'post', 'action' => $self->getLocalUrl() ) );
+
+                # Drop-down list
+                $out .= wfElement( 'label', array( 'for' => 'sort' ), 'Sort by:' ) . ' ';
+                $out .= wfOpenElement( 'select', array( 'name' => 'sort' ) );
+                $fields = array('Date','Title','User');
+                foreach( $fields as $field ) {
+                        $attribs = array( 'value' => $field );
+                        if( $field == $requestedSort )
+                                $attribs['selected'] = 'selected';
+                        $out .= wfElement( 'option', $attribs, $field );
+                }
+                $out .= wfCloseElement( 'select' ) . ' ';;# . wfElement( 'br' );
+
+                # Submit button and form bottom
+                $out .= wfElement( 'input', array( 'type' => 'submit', 'value' => wfMsg( 'allpagessubmit' ) ) );
+                $out .= wfCloseElement( 'form' );
+
+                return $out;
+        }
+
+	function getSQL() {
+		global $wgUser, $wgOut, $wgRequest;
+
+		$requestedSort = $wgRequest->getVal('sort');
 		$dbr =& wfGetDB( DB_SLAVE );
 		list( $recentchanges, $watchlist ) = $dbr->tableNamesN( 'recentchanges', 'watchlist' );
 		
@@ -66,9 +99,13 @@ class RecentQueryPage extends QueryPage {
         	//$cutoff_unixtime = $cutoff_unixtime - ($cutoff_unixtime % 86400);
         	//$cutoff = $dbr->timestamp( $cutoff_unixtime );
 		
-		//$orderby_value = 'rc_timestamp as value';
-                //$orderby_value = 'rc_user_text as value';
-		$orderby_value = 'rc_title as value';
+		if ($requestedSort == 'Title'){	
+			$orderby_value = 'rc_title as value';
+		} elseif ($requestedSort == 'User'){
+                	$orderby_value = 'rc_user_text as value';
+		} else {
+		        $orderby_value = 'rc_timestamp as value';
+		}
 
 		$forceclause = $dbr->useIndexClause("rc_timestamp");
 
@@ -86,6 +123,16 @@ class RecentQueryPage extends QueryPage {
 		return $sql;
 	}
 
+        function sortDescending() {
+		global $wgRequest;
+                $requestedSort = $wgRequest->getVal('sort');
+
+                if ($requestedSort == 'Title' || $requestedSort == 'User'){
+			return false;
+		} else {
+			return true;
+		}
+        }
 
 
 	function formatResult( $skin, $result ) {
