@@ -101,6 +101,9 @@ should make two accounts. If you want to block a user on both sites, you have to
 users on the stable site is most important, of course. 
 The test site should have accounts for developers and beta testers only.
 
+AP:  Good point!  How should we go about removing the other accounts from the test site?  Delete? Block?  Make site editable
+only by SysOps?
+
 === applet code ===
 
 * on the test site: running trunk (or very close to it)
