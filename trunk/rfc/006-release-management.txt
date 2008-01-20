@@ -90,6 +90,9 @@ Whether the change is copied immediately or at the next sync is at your own desc
 the chance of regression is very small and they may be copied immediately.
 
 TODO: we should have a system to figure out which pages have changed and still need to be copied.
+AP: We could use the wiki history to track changes to the test site pages since since the last sync.  This could serve as the
+master checklist of changes: some may have already been copied over and some we might not want to copy over, but at least
+we'd have a complete list.  
 
 === User account data ===
 
