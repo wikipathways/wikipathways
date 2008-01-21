@@ -76,7 +76,7 @@ will have to follow this schedule as well and will have to adhere to the Feature
 * the complete test site is considered a sandbox with regards to the Pathways. 
   The pathways on the test site may be deleted, changes may be reverted, nonsensical pathways may be added. 
   Never make any changes to Pathway content on the test site if you want to keep it.
-* Periodically, the pathways from the test site may be reset, i.e. overwritten with the pathways from the main site.
+* Periodically, the pathways from the test site may be reset, i.e. overwritten with the pathways from the stable site.
 
 === Page & layout data ===
 
@@ -84,7 +84,7 @@ Since all data is copied in both sites, you have to make each change twice. This
 person A changes a page on the stable site, person B changes the same page on the test site, and then copies the page
 to the test site before A had the chance to copy to the test site. Changes of person A are lost.
 
-The solution is very simple: we should all agree to make changes to the test site first, and always copy from the test site to the main site, never in the other direction.
+The solution is very simple: we should all agree to make changes to the test site first, and always copy from the test site to the stable site, never in the other direction.
 
 Whether the change is copied immediately or at the next sync is at your own descretion. For simple changes, such as typos, 
 the chance of regression is very small and they may be copied immediately.
@@ -93,6 +93,7 @@ TODO: we should have a system to figure out which pages have changed and still n
 AP: We could use the wiki history to track changes to the test site pages since since the last sync.  This could serve as the
 master checklist of changes: some may have already been copied over and some we might not want to copy over, but at least
 we'd have a complete list.  
+MI: Yes, using the recent changes page on the wiki is a good idea.
 
 === User account data ===
 
@@ -103,33 +104,54 @@ The test site should have accounts for developers and beta testers only.
 
 AP:  Good point!  How should we go about removing the other accounts from the test site?  Delete? Block?  Make site editable
 only by SysOps?
+MI: I don't think we need to actively block them. 
+What I wanted to say is that we don't need to care about copying account info all the time.
 
 === applet code ===
 
 * on the test site: running trunk (or very close to it)
 * may be updated on test site anytime
 
+on the stable site: always running the latest tag
+* make point releases when serious bugs occur in the middle of the release cycle.
+
 whenever time for a release comes:
-* make branches/tags in pathvisio repository
+* start by making a release branch from the (tested) trunk. 
+  The release branch is considered stable and should not be developed further except for important bugfixes.
+  The release branch is named e.g. milestone_12.x. The letter x denotes that this branch is the offspring for all minor releases milestone_12.0, milestone_12.1, etc.
+* then make a release tag from the release branch. Start with milestone_12.0
+* if necessary, fix bugs in the branch. 
+  Only do this for major bugs! 
+  Since our release cycle is short, people should never have to wait for more than 6 weeks for the next release anyway, 
+  so any bug that can wait that long should be fixed in the trunk and in the trunk only.
+  If there is a bug that can't wait, fix it in the trunk, test it, and then cherry-pick that fix into the release branch.
+  Then make a new tag, where you increase the minor version number.
+ 
+  So in short:
+  
+  create branch 	trunk -> milestone_12.x
+  create tag 		milestone_12.x -> milestone_12.0
+  switch main site to milestone_12.0
+  ...
+  fix major bug in trunk
+  apply bugfix to milestone_12.x branch as well
+  create new tag milestone_12.x -> milestone_12.1
+  switch main site to milestone_12.1
+
+Q: why create a branch and a tag?
+The tag is simply a marker for which revision is tested and considered stable.
+The branch is there for allowing bugfixes to be added to the stable release, without having to copy any new features over as well.
+i.e. a release that is nothing more than the latest tag plus a small bugfix. 
+Continued development can go on in the trunk, and bug-fixes can be cherry-picked from the trunk to the release branch.
 
 === php code ===
 
-* work directly on test site
-* never change main site directly
-* make patches as clean as possible
+The procedure for dealing with the php code is exactly the same as the applet code.
+branches/tags for the php code should be made exactly at the same time, and should get exactly the same name.
 
-when doing a point release:
-* run through relevant part of test protocol on test site
-* merge diff to release branch e.g. "1.1.x"
-* add a tag "1.1.1" (if release branch was 1.1.x and last release was 1.1.0)
-
-when doing a major release:
-* one/two weeks before: feature freeze on test site. fixing bugs only, preferably bugs marked major
-* when major bugs fixed:
-* run through entire test protocol
-* create a new branch in wikipathways repository "1.1.x", "1.2.x"
-* add a tag e.g. "1.1.0"
-* svn switch main site to tag
+The reason for doing both together is that it makes the release cycle simpler and more understandable. 
+If there isn't confusion about when to test, 
+when to develop new features etc. it is more likely that people will actually do these things at the right time.
 
 === mediawiki code ===
 
@@ -169,7 +191,11 @@ Now switch the stable site to the tag you just created.
 
 == what to do during feature freeze ==
 
-During a feature freeze, we should go through the entire test list at least once.
+The test plan is described at: http://conklinwolf.ucsf.edu/genmappwiki/WikiPathways_Test_Plan
+Accurately testing the plan requires modifying PathWays, so it should be done on the test site.
+This test plan should be performed at least once during feature freeze, but preferably several times on different computers.
+Any bugs found during testing should be immediately entered in our bug tracker.
+
 We should pick a list of bugs from mantis, and do nothing but fix those 
 (plus newly found ones if they are major)
 
@@ -199,6 +225,21 @@ of cherry-picking:
 8. the stable site is switched to the newly created tag.
 
 === Tips: How to keep your diffs clean ===
+
+It is good practice that each time you check in, you only change one aspect at the time.
+i.e. try not to mix documentation, general cleanup, bugfixes and features together.
+This makes it easier for other to review your changes, and makes it easier to pick up a single set of changes from one line of 
+development (.e.g trunk) and apply it to a different line of development (.e.g. a branch)
+
+To see the commits as they are generated, sign up for the commit mailinglist at 
+http://groups.google.com/group/wikipathways-commit/
+
+the "diff" that you check in, e.g. the difference between your working copy and the repository 
+on the server is as clean as possible. 
+That means that the diff should change only one aspect of the program, e.g. clean up, add 
+
+You can always check the current status of your changes with the command "svn diff", or in 
+eclipse in team->create patch. Before you commit them.
 
 Here is some background information about diffs, patching, to help you with the process of cherry-picking:
 
