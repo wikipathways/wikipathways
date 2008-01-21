@@ -50,7 +50,9 @@ EOD;
 	$table .= "\n|}";
 	$output .= $table;
 	$output .= "\n* There are '''{{NUMBEROFUSERS}}''' registered users";
-	return $output;
+	$output .= "\n* Active user [[Special:ContributionScores|statistics]]";
+
+		return $output;
 }
 
 function howManyPathways($species) {
