@@ -44,20 +44,20 @@ h2.frontPagePanel {
 	border:1px solid #a3b0bf;
 }
 .redBg {
-	background-color: #fffcfa; 
-	border: 1px solid #f2cdcd;
+	background-color: #fffdfb; 
+	border: 1px solid #f2dede;
 }
 .redFg {
-	background-color:#ef8b88;
+	background-color:#ef9b9a;
 	border:1px solid #a3b0bf;
 }
 
 .greenBg {
-	background-color:  #f5fff8; 
-	border: 1px solid #cef2e0;
+	background-color:  #f5fff5; 
+	border: 1px solid #cef2de;
 }
 .greenFg {
-	background-color:#cef2e0;
+	background-color:#cef2d5;
 	border:1px solid #a3b0bf;
 }
 
