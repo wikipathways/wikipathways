@@ -94,19 +94,19 @@ class ContributionScores extends IncludableSpecialPage
 		$sortable = in_array('nosort', $opts) ? '' : ' sortable';
 		
 		$output = "<table class=\"wikitable plainlinks{$sortable}\" >\n".
-			"<tr class='contributionscores-tableheadings'>\n".
-			"<td class=\"contributionscores-headercell\">" . wfMsgHtml( 'contributionscores-score' ) . "</td>\n" .
-			"<td class=\"contributionscores-headercell\">" . wfMsgHtml( 'contributionscores-pages' ) . "</td>\n" .
-			"<td class=\"contributionscores-headercell\">" . wfMsgHtml( 'contributionscores-changes' ) . "</td>\n" .
-			"<td class=\"contributionscores-headercell\">" . wfMsgHtml( 'contributionscores-username' ) . "</td>\n";
+			"<tr class='table-orange-tableheadings'>\n".
+			"<td class=\"table-orange-headercell\">" . wfMsgHtml( 'contributionscores-score' ) . "</td>\n" .
+			"<td class=\"table-orange-headercell\">" . wfMsgHtml( 'contributionscores-pages' ) . "</td>\n" .
+			"<td class=\"table-orange-headercell\">" . wfMsgHtml( 'contributionscores-changes' ) . "</td>\n" .
+			"<td class=\"table-orange-headercell\">" . wfMsgHtml( 'contributionscores-username' ) . "</td>\n";
 
 		$skin =& $wgUser->getSkin();
 		$altrow = '';
 		while ( $row = $dbr->fetchObject( $res ) ) {
-			$output .= "</tr><tr class='{$altrow}'>\n<td class='contributionscores-contentcell'>" .
-				round($row->wiki_rank,0) . "\n</td><td class='contributionscores-contentcell'>" .
-				$row->page_count . "\n</td><td class='contributionscores-contentcell'>" .
-				$row->rev_count . "\n</td><td class='contributionscores-contentcell'>" .
+			$output .= "</tr><tr class='{$altrow}'>\n<td class='table-orange-contentcell'>" .
+				round($row->wiki_rank,0) . "\n</td><td class='table-orange-contentcell'>" .
+				$row->page_count . "\n</td><td class='table-orange-contentcell'>" .
+				$row->rev_count . "\n</td><td class='table-orange-contentcell'>" .
 				$skin->userLink( $row->user_id, $row->user_name );
 			
 			# Option to not display user tools
@@ -116,7 +116,7 @@ class ContributionScores extends IncludableSpecialPage
 			$output .= "</td>\n";
 				
 			if ($altrow == '')
-				$altrow = 'contributionscores-altrow ';
+				$altrow = 'table-orange-altrow ';
 			else
 				$altrow = '';
 		}
@@ -124,7 +124,7 @@ class ContributionScores extends IncludableSpecialPage
 		$dbr->freeResult( $res );
 		
 		if ( !empty( $title ) )
-			$output = "<table cellspacing='0' cellpadding='0' class='contributionscores-wrapper'>\n".
+			$output = "<table cellspacing='0' cellpadding='0' class='table-orange-wrapper'>\n".
 			"<tr>\n".
 			"<td style='padding: 0px;'>{$title}</td>\n".
 			"</tr>\n".
@@ -184,7 +184,7 @@ class ContributionScores extends IncludableSpecialPage
 			$reportTitle = wfMsg( 'contributionscores-allrevisions' );
 		}
 		$reportTitle .= " " . wfMsg( 'contributionscores-top', $limit );
-		$title = Xml::element( 'h4', array( 'class' => 'contributionscores-title' ), $reportTitle ) . "\n";
+		$title = Xml::element( 'h4', array( 'class' => 'table-orange-title' ), $reportTitle ) . "\n";
 		$wgOut->addHtml( $this->genContributionScoreTable( $days, $limit, $title, $options ) );
 	}
 	
@@ -207,7 +207,7 @@ class ContributionScores extends IncludableSpecialPage
 				$reportTitle = wfMsg( 'contributionscores-allrevisions' );
 			}
 			$reportTitle .= " " . wfMsg('contributionscores-top', $scoreReport[1] );
-			$title = Xml::element( 'h2', array( 'class' => 'contributionscores-title' ), $reportTitle ) . "\n";
+			$title = Xml::element( 'h2', array( 'class' => 'table-orange-title' ), $reportTitle ) . "\n";
 			$wgOut->addHtml( $title );
 			$wgOut->addHtml( $this->genContributionScoreTable( $scoreReport[0], $scoreReport[1] ) );
 		}
