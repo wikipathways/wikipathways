@@ -96,10 +96,10 @@ a.stub {
 	color: #772233;
 }
 a.new, #p-personal a.new {
-	color: #ba0000;
+	color: #001E80; //#ba0000;
 }
 a.new:visited, #p-personal a.new:visited {
-	color: #a55858;
+	color: #001E80; //#a55858;
 }
 
 img {
@@ -600,6 +600,9 @@ span.diffchange {
 ** keep the whitespace in front of the ^=, hides rule from konqueror
 ** this is css3, the validator doesn't like it when validating as css2
 */
+#bodyContent a.new {
+	color: #001E80;
+}
 #bodyContent a.external,
 #bodyContent a[href ^="gopher://"] {
 	background: url(external.png) center right no-repeat;
@@ -959,7 +962,7 @@ input.searchButton {
 		background-color: white;
 	}
 	#p-cactions .new a {
-		color: #ba0000;
+		color: #001E80; //#ba0000;
 	}
 	#p-cactions li a:hover {
 		z-index: 3;
