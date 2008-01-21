@@ -43,6 +43,6 @@ function efContributionScores() {
 }
 
 function efContributionScores_addHeadScripts(&$out) {
-	$out->addScript( '<link rel="stylesheet" type="text/css" href="' . CONTRIBUTIONSCORES_EXTPATH . '/TableColor.css" />' . "\n" );
+	$out->addScript( '<link rel="stylesheet" type="text/css" href="/wikipathways/skins/wikipathways/TableColor.css" />' . "\n" );
 	return true;
 }
