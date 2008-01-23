@@ -88,9 +88,8 @@ class RecentQueryPage extends QueryPage {
         }
 
 	function getSQL() {
-		global $wgUser, $wgOut, $wgRequest;
+		global $wgUser, $wgOut;
 
-		$requestedSort = $wgRequest->getVal('sort');
 		$dbr =& wfGetDB( DB_SLAVE );
 		list( $recentchanges, $watchlist ) = $dbr->tableNamesN( 'recentchanges', 'watchlist' );
 		
@@ -98,14 +97,6 @@ class RecentQueryPage extends QueryPage {
        		//$cutoff_unixtime = time() - ( $days * 86400 );
         	//$cutoff_unixtime = $cutoff_unixtime - ($cutoff_unixtime % 86400);
         	//$cutoff = $dbr->timestamp( $cutoff_unixtime );
-		
-		if ($requestedSort == 'Title'){	
-			$orderby_value = 'rc_title as value';
-		} elseif ($requestedSort == 'User'){
-                	$orderby_value = 'rc_user_text as value';
-		} else {
-		        $orderby_value = 'rc_timestamp as value';
-		}
 
 		$forceclause = $dbr->useIndexClause("rc_timestamp");
 
@@ -114,7 +105,7 @@ class RecentQueryPage extends QueryPage {
 				rc_namespace as namespace,
 			 	rc_title as title,
 				UNIX_TIMESTAMP(rc_timestamp) as unix_time,
-				$orderby_value
+				rc_timestamp as value
 			FROM $recentchanges $foreclause 
 			WHERE rc_namespace = " . $this->namespace .
 			" AND rc_bot = 0
@@ -123,17 +114,18 @@ class RecentQueryPage extends QueryPage {
 		return $sql;
 	}
 
-        function sortDescending() {
+        function getOrder() {
 		global $wgRequest;
-                $requestedSort = $wgRequest->getVal('sort');
-
-                if ($requestedSort == 'Title' || $requestedSort == 'User'){
-			return false;
+		$requestedSort = $wgRequest->getVal('sort');
+		
+		if ($requestedSort == 'Title'){
+			return 'ORDER BY rc_title, rc_timestamp DESC';
+		} elseif ($requestedSort == 'User'){
+			return 'ORDER BY rc_user_text, rc_timestamp DESC';
 		} else {
-			return true;
+			return 'ORDER BY rc_timestamp DESC';
 		}
-        }
-
+	}
 
 	function formatResult( $skin, $result ) {
 		global $wgLang, $wgContLang;

@@ -326,6 +326,7 @@ class QueryPage {
 
 		$sql .= $this->getOrder();
 		$sql = $dbr->limitResult($sql, $limit, $offset);
+		//echo $sql;
 		$res = $dbr->query( $sql );
 		$num = $dbr->numRows($res);
 
