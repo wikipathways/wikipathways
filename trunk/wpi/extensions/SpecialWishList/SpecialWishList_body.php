@@ -155,23 +155,30 @@ HTML;
 	 	$html = <<<HTML
 <form action='{$this->this_url}' method='post'>
 <table class="prettytable sortable"><tbody>
-<th>Pathway name</th><th>Requested by</th><th>Date</th><th>Comments</th><th>Votes
+<tr class='table-blue-tableheadings'>
+<td class='table-blue-headercell'>Pathway name</td><td class='table-blue-headercell'>Requested by</td><td class='table-blue-headercell'>Date</td><td class='table-blue-headercell'>Comments</td><td class='table-blue-headercell'>Votes
 HTML;
 		if($wgUser->isLoggedIn()) {
-			$html .= "<th class='unsortable'>Watch</th><th class='unsortable'>Resolve";
+			$html .= "<td class='table-blue-headercell' class='unsortable'>Watch</td><td class='table-blue-headercell' class='unsortable'>Resolve";
 		}
 	 	$wgOut->addHTML($html);
+		$altrow = '';
 		foreach($wishes as $wish) {
 			if(!$wish->isResolved()) {
-				$this->createUnresolvedRow($wish);
+				$this->createUnresolvedRow($wish, $altrow);
+				if($altrow == ''){
+					$altrow = 'table-blue-altrow';
+				} else {
+					$altrow = '';
+				}
 			}
 		}
 		$html = "";
 		if($wgUser->isLoggedIn()) {
 			$html = <<<HTML
-<tr class="sortbottom"><td><td><td><td><td><td align="center">
+<tr class='{$altrow}' class="sortbottom"><td class='table-blue-contentcell'><td class='table-blue-contentcell'><td class='table-blue-contentcell'><td class='table-blue-contentcell'><td class='table-blue-contentcell'><td class='table-blue-contentcell' align="center">
 	<input type="hidden" name="wishaction" value="watch">
-	<input type="submit" value="Apply">
+	<input type="submit" value="Apply"><td class='table-blue-contentcell'></tr>
 HTML;
 		}
 		$html .= "</tbody></table></form>";
@@ -179,10 +186,17 @@ HTML;
 				
 		$wgOut->addWikiText("== Resolved items ==");
 		$wgOut->addHTML("<table class='prettytable sortable'><tbody>
-				<th>Item name<th>Date resolved<th>Pathway<th>Created on<th>Created by");
+				<tr class='table-green-tableheadings'>
+				<td class='table-green-headercell'>Item name<td class='table-green-headercell'>Date resolved<td class='table-green-headercell'>Pathway<td class='table-green-headercell'>Created on<td class='table-green-headercell'>Created by");
+		$altrow2 = '';
 		foreach($wishes as $wish) {
 			if($wish->isResolved()) {
-				$this->createResolvedRow($wish);
+				$this->createResolvedRow($wish, $altrow2);
+				if($altrow2 == ''){
+                                        $altrow2 = 'table-green-altrow';
+                                } else {
+                                        $altrow2 = '';
+                                }
 			}
 		}
 		$wgOut->addHTML("</tbody></table>");
@@ -203,6 +217,7 @@ HTML;
 		}
 	}
 </script>
+<link rel="stylesheet" type="text/css" href="/wikipathways/skins/wikipathways/TableColor.css" />
 JS;
 		$wgOut->addScript($js);
 	}
@@ -273,7 +288,7 @@ HELP;
 		return array('button' => $button, 'div' => $div);
 	}
 		
-	function createResolvedRow($wish) {
+	function createResolvedRow($wish, $altrow2) {
 		global $wgOut, $wgLang, $wgUser, $wgScriptPath;
 		$title = $wish->getTitle()->getText();
 		$pathway = $wish->getResolvedPathway();
@@ -282,16 +297,16 @@ HELP;
 		$pwDate = self::getSortTimeDate($rev->getTimestamp());
 		$user = $wgUser->getSkin()->userLink( $rev->getUser(), $rev->getUserText() );
 		if($wish->isResolved()) {
-			$wgOut->addHTML("<tr><td>$title<td>$resDate<td>");
+			$wgOut->addHTML("<tr class='{$altrow2}'><td class='table-green-contentcell'>$title<td class='table-green-contentcell'>$resDate<td>");
 			$wgOut->addWikiText("[[{$pathway->getTitleObject()->getFullText()} | {$pathway->name()} ({$pathway->species()})]]");
-			$wgOut->addHTML("<td>$pwDate<td>$user");
+			$wgOut->addHTML("<td class='table-green-contentcell'>$pwDate<td class='table-green-contentcell'>$user");
 			if($wish->userCan('delete') && $wgUser->getId() == $wish->getRequestUser()->getId()) {
-				$wgOut->addHTML("<td>" . $this->createButton("cancel.gif", "remove", "Remove this item", $wish->getId()));
+				$wgOut->addHTML("<td class='table-green-contentcell'>" . $this->createButton("cancel.gif", "remove", "Remove this item", $wish->getId()));
 			}
 		}	
 	}
 	
-	function createUnresolvedRow($wish) {
+	function createUnresolvedRow($wish, $altrow) {
 		global $wgOut, $wgLang, $wgScriptPath, $wgUser;
 		
 		$login = $wgUser->isLoggedIn();
@@ -307,19 +322,19 @@ HELP;
 		$fullComment = str_replace('"', "'", $wish->getComments());
 		$comment = $this->truncateComment($wish, 75); //Cutoff comment at 20 chars
 		if($wish->userCan('vote')) {
-			$voteButton = '<td style="border:0px">' . 
+			$voteButton = '<td class="table-blue-contentcell" style="border:0px">' . 
 				$this->createButton('plus.png', 'vote', 'Vote for this pathway', $id);
 		} else if ($wish->userCan('unvote')) {
-			$voteButton = '<td style="border:0px">' . 
+			$voteButton = '<td class="table-blue-contentcell" style="border:0px">' . 
 				$this->createButton('minus.png', 'unvote', 'Remove your vote', $id);
 		}
-		$wgOut->addHTML("<tr><td><b><a href='$url'>$title</a></b><td>$user
-				<td>$date<td title=\"$fullComment\">");
+		$wgOut->addHTML("<tr class='{$altrow}'><td class='table-blue-contentcell'><b><a href='$url'>$title</a></b><td class='table-blue-contentcell'>$user
+				<td class='table-blue-contentcell'>$date<td class='table-blue-contentcell' title=\"$fullComment\">");
 		$wgOut->addWikiText($comment);
-		$wgOut->addHTML("<td><table class='prettytable' style='border:0px'><tr><td style='border:0px'>$votes" . $voteButton . '</table>');
+		$wgOut->addHTML("<td class='table-blue-contentcell'><table class='prettytable' style='border:0px'><tr class='{$altrow}'><td style='border:0px'>$votes" . $voteButton . '</table>');
 		if($login) { //Following columns only when user is logged in
-			$wgOut->addHTML("<td align='center'><input type=checkbox value='1' name='check_$id' $watching>");
-			$wgOut->addHTML("<td><table class='prettytable' style='border:0px'><tr>");
+			$wgOut->addHTML("<td class='table-blue-contentcell' align='center'><input type=checkbox value='1' name='check_$id' $watching>");
+			$wgOut->addHTML("<td class='table-blue-contentcell'><table class='prettytable' style='border:0px'><tr class='{$altrow}'>");
 			if($wish->userCan('resolve')) {
 				$wgOut->addHTML('<td style="border:0px">' . 
 					$this->createButton("apply.gif", "resolved", "Resolve this item", $id));
