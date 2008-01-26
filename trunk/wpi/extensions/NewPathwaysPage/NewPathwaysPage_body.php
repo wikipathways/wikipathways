@@ -61,7 +61,7 @@ class RCQueryPage extends QueryPage {
 			WHERE page_title=rc_title 
 			AND rc_new=1
 			AND rc_bot=0 
-			AND page_namespace=".NS_PATHWAY." "; 	
+			AND page_namespace=".NS_PATHWAY." ";	
 	}
 
 	function formatResult( $skin, $result ) {
