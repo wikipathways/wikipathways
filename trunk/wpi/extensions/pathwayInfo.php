@@ -72,8 +72,8 @@ TABLE;
 		if(count($nodes) > $nrShow) {
 			$expand = "<B>View all $nrNodes DataNodes</B>";
 			$collapse = "<B>View last " . ($nrShow - 1) . " DataNodes</B>";
-			$button = "<p onClick='toggleRows(\"dnTable\", this, \"$expand\", 
-				\"$collapse\", {$nrShow}, true)' style='cursor:pointer;color:#0000FF'>$expand</p>";
+			$button = "<table><td width='51%'> <div onClick='toggleRows(\"dnTable\", this, \"$expand\", 
+				\"$collapse\", {$nrShow}, true)' style='cursor:pointer;color:#0000FF'>$expand<td width='45%'></table>";
 		}
 		//Sort and iterate over all elements
 		sort($nodes);

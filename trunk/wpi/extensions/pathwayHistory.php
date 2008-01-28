@@ -160,8 +160,8 @@ class GpmlHistoryPager extends PageHistoryPager {
 		if($nr >= $this->nrShow) {
 			$expand = "<B>View all</B>";
 			$collapse = "<B>View last " . ($this->nrShow - 1) . "</B>";
-			$button = "<p onClick='toggleRows(\"historyTable\", this, \"$expand\", 
-				\"$collapse\", {$this->nrShow}, true)' style='cursor:pointer;color:#0000FF'>$expand</p>";
+			$button = "<table><td width='51%'><div onClick='toggleRows(\"historyTable\", this, \"$expand\",
+                                \"$collapse\", {$this->nrShow}, true)' style='cursor:pointer;color:#0000FF'>$expand<td width='20%'></table>";
 			$table = $button . $table;
 		}
 
