@@ -102,9 +102,9 @@ function historyLine($pathway, $row, $cur = false) {
 	
 	$rev->setTitle( $pathway->getFileTitle(FILETYPE_GPML) );
 
-	$revUrl = 'http://'.$_SERVER['HTTP_HOST'] . '/' .$wpiScript . '?action=revert&pwTitle=' .
+	$revUrl = WPI_SCRIPT_URL . '?action=revert&pwTitle=' .
 				$pathway->getTitleObject()->getPartialURL() .
-				"&oldId={$rev->getId()}";
+				"&oldid={$rev->getId()}";
 	
 	$revert = "";
 	if($wgUser->getID() != 0 && $wgTitle && $wgTitle->userCanEdit()) {
