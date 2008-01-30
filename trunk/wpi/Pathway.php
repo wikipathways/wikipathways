@@ -384,7 +384,7 @@ class Pathway {
 	public function updatePathway($gpmlData, $description) {
 		global $wgLoadBalancer;
 		$gpmlTitle = $this->getTitleObject();
-		$gpmlArticle = new Article($gpmlTitle);	
+		$gpmlArticle = new Article($gpmlTitle, 0);	//Force update from the newest version
 		if(!$gpmlTitle->exists()) {
 			//This is a new pathway, add the author to the watch list
 			$gpmlArticle->doWatch();
