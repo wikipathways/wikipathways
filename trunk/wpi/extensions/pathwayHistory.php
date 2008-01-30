@@ -37,40 +37,6 @@ function getHistory($pathway) {
 			$s = $delete . $s;
 		}
 		return $s;
-		/*global $wgUser, $wpiScriptURL;
-		$sk = $wgUser->getSkin();
-		
-		$imgTitle = $pathway->getTitleObject();
-		$img = new Image($imgTitle);
-		$line = $img->nextHistoryLine();
-		$nrShow = 4;
-		$buttonStyle = 'color:#0000FF';
-		$expand = "<B>View all</B>";
-		$collapse = "<B>View last " . ($nrShow - 1) . "</B>";
-		if ( $line ) {
-			$table = "<TABLE  id='historyTable' class='wikitable'><TR><TH><TH>Time<TH>User<TH>Comment";
-			$table .= historyRow(historyLine(true, $line, $pathway), '');
-			$nr = 0;
-			while($line = $img->nextHistoryLine()) {
-				$h = historyLine(false, $line, $pathway);
-				$style = $n<$nrShow ? '' : 'style="display:none"';
-				$table .= historyRow($h, $style);
-				$n++;
-			}
-			$table .= "</TABLE>";
-		}
-		if($n >= $nrShow - 1) {
-			$button = "<p onClick='toggleRows(\"historyTable\", this, \"$expand\", 
-				\"$collapse\", $nrShow, true)' style='cursor:pointer;color:#0000FF'>$expand</p>";
-			$table = $button . $table;
-		}
-		if($wgUser->isAllowed('delete')) {
-			$pwTitle = $pathway->getTitleObject()->getDBKey();
-			$delete = "<p><a href=$wpiScriptURL?action=delete&pwTitle=$pwTitle>Delete this pathway</a></p>";
-			$table = $delete . $table;
-		}
-		return $table;
-		*/
 }
 
 function historyRow($h, $style) {
@@ -95,10 +61,12 @@ function historyLine($pathway, $row, $cur = false) {
 	$rev = new Revision( $row );
 	
 	$user = User::newFromId($rev->getUser());
+	/* Show bots
 	if($user->isBot()) {
 		//Ignore bots
 		return "";
 	}
+	*/
 	
 	$rev->setTitle( $pathway->getFileTitle(FILETYPE_GPML) );
 
