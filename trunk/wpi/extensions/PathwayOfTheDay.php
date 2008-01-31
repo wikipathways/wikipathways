@@ -42,12 +42,52 @@ function wfPathwayOfTheDay_Magic( &$magicWords, $langCode ) {
         return true;
 }
 
-function getPathwayOfTheDay( &$parser, $date ) {	
+function getPathwayOfTheDay( &$parser, $date ) {
+	$parser->disableCache();	
 	wfDebug("GETTING PATHWAY OF THE DAY for date: $date\n");
-	$potd = new PathwayOfTheDay($date);
+	$potd = new FeaturedPathway($date);
     $out =  $potd->getWikiOutput();
 	wfDebug("END GETTING PATHWAY OF THE DAY for date: $date\n");
 	return $out;
+}
+
+/**
+Featured pathway is a slight modification on PathwayOfTheDay, it does get
+pathways from a limited collection, kept on the FeaturedPathway wiki page
+**/
+class FeaturedPathway extends PathwayOfTheDay {
+	private $listPage = "FeaturedPathways";
+	
+	/**
+	Select a random pathway from the list
+	on the wiki page FeaturedPathway
+	**/
+	protected function fetchRandomPathway() {
+		wfDebug("Fetching random pathway...\n");
+		
+		$listRev = Revision::newFromTitle(Title::newFromText($this->listPage), 0);
+		$lines = explode("\n", $listRev->getText());
+
+		$pathwayList = array();
+		
+		//Try to parse a pathway from each line
+		foreach($lines as $title) {
+			//Regex to fetch title from "* [[title|...]]"
+			// \*\ *\[\[(.*)\]\]
+			$title = preg_replace('/\*\ *\[\[(.*)\]\]/', '$1', $title);
+			try {
+				//If pathway creation works and the pathway exists, add to array
+				$pathway = Pathway::newFromTitle($title);
+				if(!is_null($pathway) && $pathway->exists()) {
+					$pathwayList[] = $title;
+				}
+			} catch(Exception $e) {
+				//Ignore the pathway
+			}
+		}
+
+		return $pathwayList[rand(0, count($pathwayList) - 1)];
+	}
 }
 
 class PathwayOfTheDay {
@@ -183,7 +223,7 @@ class PathwayOfTheDay {
 	}
 	
 	//Select a random pathway
-	private function fetchRandomPathway() {
+	protected function fetchRandomPathway() {
 		wfDebug("Fetching random pathway...\n");
 		$dbr =& wfGetDB(DB_SLAVE);
 		//Pick a random pathway from all articles in namespace NS_PATHWAY

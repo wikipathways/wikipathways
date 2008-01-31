@@ -266,7 +266,8 @@ class Pathway {
 	 * @return true if the pathway exists, false if not
 	 */
 	public function exists() {
-		return $this->getTitleObject()->exists();
+		$title = $this->getTitleObject();
+		return !is_null($title) && $title->exists();
 	}
 	
 	/**
