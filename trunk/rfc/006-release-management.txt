@@ -44,31 +44,45 @@ Features and bugs can be assigned to specific milestones, so we can plan a bit a
 features and bugs are going to be fixed when. 
 For example:
 
-At this moment (Jan 18) we just had a sync, so that means we are in development mode for the next 3 weeks
+Our development plan for the coming weeks: 
 
-new features for milestone 1:
-* anchor nodes, 
-* autocompletion in xref dialog
-* Fix bug #nnn
-Feb 6: feature freeze
-* Fix bug #nnn
-* Fix bug #nnn
-Feb 13: milestone 1
+Feb 13: feature freeze
+Feb 20: release Milestone 1
 
-new features for milestone 2:
-...
-Mar 5: feature freeze
-Mar 12: milestone 2
+Mar 12 : feature freeze
+Mar 19 : release Milestone 2
 
-Apr 2: feature freeze
-Apr 9: milestone 3
+Apr 9: feature freeze
+Apr 16: release Milestone 3
 
-It would be nice if our bug tracker supported this workflow somehow.
-I think it would be ideal to have our web meeting on the day of the feature freeze, so we can
+The goal is to have a web meeting on the day of the feature freeze, so we can 
 go through the list of outstanding bugs together and see where the testing should focus on.
 
+To keep track of which features / bugs are going to be implemented / fixed for each milestone,
+we use our bug tracker. The bug tracker will be used for bugs as well as features, so
+it's probably best to speak of "issues" and "issue tracker".
+
+A subproject will be created for each milestone. For example, right now we have
+
+subprojects of project "wikipathways"
+
+- wikipathways_milestone_1
+- wikipathways_milestone_2
+- wikipathawys_milestone_3
+
+If you think you can fix an issue for a certain date, move the issue to that particular
+subproject and assign it to yourself. Issues that are unassigned should go in the main project. 
+
+If you are unsure when something should be fixed, or if it is too unimportant to fix right
+now, just leave it in the main project wikipathways and we'll put it in a milestone
+when we get around to it.
+
+I still think that mantis doesn't support this workflow terribly well. However, it works
+so we'll make do.
+
 Since PathVisio and the WikiPathways applet share the same code base, this means that PathVisio 
-will have to follow this schedule as well and will have to adhere to the Feature Freeze period.
+will have to follow this schedule as well and will have to adhere to the Feature Freeze period. 
+Likewise, there are milestone subprojects for pathvisio as well.
 
 === Pathway content ===
 
