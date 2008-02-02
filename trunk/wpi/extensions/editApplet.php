@@ -212,6 +212,7 @@ class EditApplet {
 			'cache_archive' => $archive_string,
 			'cache_version' => $version_string,
 			'gdb_server' => $_SERVER['HTTP_HOST'],
+			'revision' => $pathway->getLatestRevision()
 		);
 
 		if($wgUser && $wgUser->isLoggedIn()) {

@@ -59,6 +59,14 @@ class Pathway {
 	}
 	
 	/**
+	 * Get the revision number of the latest version
+	 * of this pathway
+	 **/
+	public function getLatestRevision() {
+		return $this->getTitleObject()->getLatestRevID();
+	}
+	
+	/**
 	 * Set the active revision for this instance. The active
 	 * revision is '0' by default, pointing to the most recent
 	 * revision. Set another revision number to retrieve older
@@ -383,24 +391,83 @@ class Pathway {
 	 * \param description A description of the changes
 	 */
 	public function updatePathway($gpmlData, $description) {
-		global $wgLoadBalancer;
+		global $wgLoadBalancer, $wgUser;
+		
+		//First validate the gpml
+		//if($error = self::validateGpml($gpmlData)) {
+		//	throw new Exception($error);
+		//}
+		
 		$gpmlTitle = $this->getTitleObject();
+		
+		//Check permissions
+		if(is_null($wgUser) || !$wgUser->isLoggedIn()) {
+			throw new Exception("User is not logged in");
+		}
+		if($wgUser->isBlocked()) {
+			throw new Exception("User is blocked");
+		}
+		if(!$gpmlTitle->userCanEdit()) {
+			throw new Exception("User has wrong permissions to edit the pathway");
+		}
+		if(wfReadOnly()) {
+			throw new Exception("Database is read-only");
+		}
+		
 		$gpmlArticle = new Article($gpmlTitle, 0);	//Force update from the newest version
 		if(!$gpmlTitle->exists()) {
 			//This is a new pathway, add the author to the watch list
 			$gpmlArticle->doWatch();
-		}	
+		}
 
 		$succ = true;
 		$succ =  $gpmlArticle->doEdit($gpmlData, $description);
-		$wgLoadBalancer->commitAll();
+		if($succ) {
+			$wgLoadBalancer->commitAll();
 		
-		//Update category links
-		$this->updateCategories();
-		//Update cache
-		$this->updateCache();
-		
+			//Update category links
+			$this->updateCategories();
+			//Update cache
+			$this->updateCache();
+		} else {
+			throw new Exception("Unable to save GPML, are you logged in?");
+		}
 		return $succ;
+	}
+
+	/**
+	 * Validates the GPML code and returns the error if it's invalid
+	 * @return <code>null</code> if the GPML is valid, the error if it's invalid
+	 **/
+	static function validateGpml($gpml) {
+		$return = null;
+		$xml = DOMDocument::loadXML($gpml);
+		if(!$xml->schemaValidate(WPI_SCRIPT_PATH . "/bin/GPML.xsd")) {
+			$error = libxml_get_last_error();
+			$return  = $gpml[$error->line - 1] . "\n";
+			$return .= str_repeat('-', $error->column) . "^\n";
+
+			switch ($error->level) {
+				case LIBXML_ERR_WARNING:
+				    $return .= "Warning $error->code: ";
+				    break;
+				 case LIBXML_ERR_ERROR:
+				    $return .= "Error $error->code: ";
+				    break;
+				case LIBXML_ERR_FATAL:
+				    $return .= "Fatal Error $error->code: ";
+				    break;
+			}
+
+			$return .= trim($error->message) .
+				       "\n  Line: $error->line" .
+				       "\n  Column: $error->column";
+
+			if ($error->file) {
+				$return .= "\n  File: $error->file";
+			}
+		}
+		return $return;
 	}
 
 	/**

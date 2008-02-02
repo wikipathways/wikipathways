@@ -91,8 +91,6 @@ class FeaturedPathway extends PathwayOfTheDay {
 }
 
 class PathwayOfTheDay {
-	private static $historytable = 'pathwayOfTheDay_history';
-	private static $daytable = 'pathwayOfTheDay_today';
 	private static $table = 'pathwayOfTheDay';
 	
 	var $todaysPw; //Todays pathway
@@ -147,8 +145,6 @@ class PathwayOfTheDay {
 	
 	//Create and fill the tables
 	private static function setupDB() {
-		$ind_pw = 'pathwayOfTheDay_pathway';
-		$ind_day = 'pathwayOfTheDay_day';
 		$tbl = PathwayOfTheDay::$table;
 		$dbw =& wfGetDB(DB_MASTER);
 		wfDebug("\tCreating tables\n");
@@ -214,7 +210,7 @@ class PathwayOfTheDay {
 	private function clearHistory() {
 		$dbw =& wfGetDB(DB_MASTER);
 		wfDebug("\tClearing history\n");
-		$dbw->query( "TRUNCATE TABLE " . PathwayOfTheDay::$historytable, DB_MASTER );
+		$dbw->query( "TRUNCATE TABLE " . PathwayOfTheDay::$table, DB_MASTER );
 	}
 		
 	private function updateHistory() {
