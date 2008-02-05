@@ -44,6 +44,10 @@ class CreatePathwayPage extends SpecialPage
 
 		//TODO
 		$pathway = new Pathway($pwName, $pwSpecies, false); //new pathway, but no caching
+		if($pathway->exists()) { //Error, the pathway already exists
+			$wgOut->addWikiText("<B>The pathway already exists, please edit [[{$pathway->getTitleObject()->getFullText()}]]</B>");
+			return;
+		}
 		$wgOut->addHTML("<div id='applet'></div>");
 		$pwTitle = $pathway->getTitleObject()->getText();
 		$wgOut->addWikiText("{{#editApplet:direct|applet|true|$pwTitle}}");

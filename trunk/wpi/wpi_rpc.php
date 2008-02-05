@@ -160,7 +160,8 @@ function updatePathway($pwName, $pwSpecies, $description, $gpmlData64, $revision
 	try {
 		$pathway = new Pathway($pwName, $pwSpecies);
 		//Only update if the given revision is the newest
-		if($revision == $pathway->getLatestRevision()) {
+		//Or if this is a new pathway
+		if(!$pathway->exists() || $revision == $pathway->getLatestRevision()) {
 			$gpmlData = base64_decode($gpmlData64);
 			$pathway->updatePathway($gpmlData, $description);
 		} else {

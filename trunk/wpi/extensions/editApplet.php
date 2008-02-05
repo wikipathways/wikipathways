@@ -203,7 +203,7 @@ class EditApplet {
 		$cache = self::getCacheParameters();
 		$archive_string = $cache["archive"];
 		$version_string = $cache["version"];
-		
+				
 		$args = array(
 			'rpcUrl' => WPI_URL . "/wpi_rpc.php",
 			'pwName' =>     $pathway->name(),
@@ -212,7 +212,7 @@ class EditApplet {
 			'cache_archive' => $archive_string,
 			'cache_version' => $version_string,
 			'gdb_server' => $_SERVER['HTTP_HOST'],
-			'revision' => $pathway->getLatestRevision()
+			'revision' => $new ? '0' : $pathway->getLatestRevision()
 		);
 
 		if($wgUser && $wgUser->isLoggedIn()) {
