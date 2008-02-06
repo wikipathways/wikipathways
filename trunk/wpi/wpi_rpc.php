@@ -224,7 +224,7 @@ function getPathway($pwName, $pwSpecies, $revision = 0) {
 }
 
 function login($name, $pass) {
-	global $wgUser, $wgAuth;
+	global $wgUser, $wgAuth, $xmlrpcerruser;
 	
 	$user = User::newFromName( $name );
 	if( is_null($user) || $user->getID() == 0) {

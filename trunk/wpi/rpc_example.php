@@ -22,7 +22,7 @@ $pass = "YourPassword";
 require("includes/xmlrpc.inc");
 
 //Setup a connection to the xml-rpc server (on the test site)
-$c = new xmlrpc_client("http://137.120.89.38/wikipathways-test/wpi/wpi_rpc.php", "localhost", 80);
+$c = new xmlrpc_client("/wikipathways-test/wpi/wpi_rpc.php", "137.120.89.38", 80);
 $c->setDebug(1);
 $c->setAcceptedCompression(null);
 
