@@ -147,8 +147,13 @@ class PathwayData {
 	private function loadGpml($revision = 0) {
 		if(!$this->gpml) {
 			$gpml = $this->pathway->getGpml($revision);
+
+			try {
 			$this->gpml = new SimpleXMLElement($gpml);
-			
+			}
+			catch(Exception $e){
+			}
+
 			//Pre-parse some data
 			$this->findPublicationXRefs();
 			//Fill byGraphId array
