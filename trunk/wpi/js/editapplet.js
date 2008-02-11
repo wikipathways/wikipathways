@@ -82,6 +82,9 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 	
 	//ao.load( idApplet );
 	setTimeout('addApplet("' + idApplet + '", "' + appletDiv.id + '")', 500);
+	
+	//Prevent back button / browser close to exit applet
+	window.onbeforeunload = function() { return "Any changes to the pathway will be lost!"; };
 }
 
 function javaError() {
