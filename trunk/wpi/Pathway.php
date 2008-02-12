@@ -374,7 +374,10 @@ class Pathway {
 		}
 		return $title->getDBKey();
 	}
-
+	
+	/**
+	 * Get first revision for current title
+	 */
 	public function getFirstRevision() {
 		if(!$this->firstRevision) {
 			$revs = Revision::fetchAllRevisions($this->getTitleObject());
@@ -386,6 +389,22 @@ class Pathway {
 	}
 	
 	/**
+	 * Get revision id for the last revision prior to specified datae.
+	 * This is useful for generating statistics over the history of the archive. 
+	 */
+	public function getLastRevisionPriorToDate($timestamp) {
+		$revs =  Revision::fetchAllRevisions($this->getTitleObject());
+		foreach($revs as $eachRev){
+			$revTime = $eachRev->rev_timestamp;
+			print "$revTime\n";
+			if ($revTime < $timestamp){
+				return $eachRev;
+			}
+		}
+		return NULL;
+	}
+
+	/**
 	 * Update the pathway with the given GPML code
 	 * \param gpmlData The GPML code that contains the updated pathway data
 	 * \param description A description of the changes
@@ -394,9 +413,9 @@ class Pathway {
 		global $wgLoadBalancer, $wgUser;
 		
 		//First validate the gpml
-		//if($error = self::validateGpml($gpmlData)) {
-		//	throw new Exception($error);
-		//}
+		if($error = self::validateGpml($gpmlData)) {
+			throw new Exception($error);
+		}
 		
 		$gpmlTitle = $this->getTitleObject();
 		
@@ -442,6 +461,9 @@ class Pathway {
 	static function validateGpml($gpml) {
 		$return = null;
 		$xml = DOMDocument::loadXML($gpml);
+		if(!$xml) {
+			return "Error: no valid XML provided\n$gpml";
+		}
 		if(!$xml->schemaValidate(WPI_SCRIPT_PATH . "/bin/GPML.xsd")) {
 			$error = libxml_get_last_error();
 			$return  = $gpml[$error->line - 1] . "\n";
