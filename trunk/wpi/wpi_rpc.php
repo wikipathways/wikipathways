@@ -144,7 +144,7 @@ $s->functions_parameters_type = 'phpvals';
 $s->service();
 
 //Function implementations
-function updatePathway($pwName, $pwSpecies, $description, $gpmlData64, $revision, $auth = NULL) {
+function updatePathway($pwName, $pwSpecies, $description, $gpmlData, $revision, $auth = NULL) {
 	global $xmlrpcerruser, $wgUser;
 	
 	//Authenticate first, if token is provided
@@ -162,7 +162,6 @@ function updatePathway($pwName, $pwSpecies, $description, $gpmlData64, $revision
 		//Only update if the given revision is the newest
 		//Or if this is a new pathway
 		if(!$pathway->exists() || $revision == $pathway->getLatestRevision()) {
-			$gpmlData = base64_decode($gpmlData64);
 			$pathway->updatePathway($gpmlData, $description);
 		} else {
 			$resp = new xmlrpcresp(0, $xmlrpcerruser,
