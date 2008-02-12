@@ -84,7 +84,17 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 	setTimeout('addApplet("' + idApplet + '", "' + appletDiv.id + '")', 500);
 	
 	//Prevent back button / browser close to exit applet
-	window.onbeforeunload = function() { return "Any changes to the pathway will be lost!"; };
+	window.onbeforeunload = checkExit;
+}
+
+function checkExit() {
+	var applets = document.applets;
+	for(key in document.applets) {
+		var applet = applets[key];
+		if(!applet.mayExit()) {
+			return "Any changes to the pathway will be lost!";
+		}
+	}
 }
 
 function javaError() {
@@ -110,7 +120,7 @@ function getAppletHTML(id, width, height, main, base, archive, keys, values) {
 			params += '<param name="' + keys[i] + '" value="' + values[i] + '"/>';	
 		}
 	}
-	var html = '<APPLET code="' + main + '" codebase="' + base + '" width="100%" height="100%">' +
+	var html = '<APPLET code="' + main + '" codebase="' + base + '" width="100%" height="100%" >' +
 		params + '<BR><B>To edit the pathway, please download and install Java from: ' +
 		'<a href="http://java.sun.com/javase/downloads">http://java.sun.com/javase/downloads</a></b></APPLET>';
 	return html;
