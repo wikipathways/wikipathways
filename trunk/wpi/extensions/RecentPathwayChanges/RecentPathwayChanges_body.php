@@ -146,13 +146,9 @@ class RecentQueryPage extends QueryPage {
 	 	if( $result->rc_type > 0 ) { //not an edit of an existing page
                         $diffLink = $this->message['diff'];
                 } else {
-                        $diffLink = $skin->makeKnownLinkObj( $title, $this->message['diff'],
-                                wfArrayToCGI( array(
-                                        'curid' => $result->rc_cur_id,
-                                        'diff'  => $result->rc_this_oldid,
-                                        'oldid' => $result->rc_last_oldid ),
-                                        array( 'rcid' => $result->rc_id) ),
-                                '', '', ' tabindex="'.$result->counter.'"');
+                        $diffLink = "<a href='" . SITE_URL . 
+                        	"/index.php?title=Special:DiffAppletPage&old={$result->rc_last_oldid}&new={$result->rc_cur_oldid}" .
+                        	"&pwTitle={$title->getFullText()}'>diff</a>";
 		}
 
 		$text = $wgContLang->convert($result->rc_comment);
@@ -164,7 +160,7 @@ class RecentQueryPage extends QueryPage {
 		$nlink = $skin->makeKnownLinkObj( $nt, $nl, 'action=history' );
 		*/
 
-		return wfSpecialList("(".$diffLink.") (".$histLink.") . . ".$plink. ": <b>".$date."</b> by <b>".$name."</b>","<i>".$comment."</i>");
+		return wfSpecialList("(".$diffLink.") . . ".$plink. ": <b>".$date."</b> by <b>".$name."</b>","<i>".$comment."</i>");
 	}
 }
 ?>
