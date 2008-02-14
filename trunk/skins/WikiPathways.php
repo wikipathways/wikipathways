@@ -66,6 +66,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
 			if($ns == NS_PATHWAY) {
 	                        $actions = $this->data['content_actions'];
 	                        unset($actions['edit']);
+	                        unset($actions['history']); //Also remove history tab
 	                        $this->data['content_actions'] = $actions;
 			}
 			//If not sysop, remove move button on pathway/gpml/image pages

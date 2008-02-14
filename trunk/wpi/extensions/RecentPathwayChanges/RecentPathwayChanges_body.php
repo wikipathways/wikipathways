@@ -147,7 +147,7 @@ class RecentQueryPage extends QueryPage {
                         $diffLink = $this->message['diff'];
                 } else {
                         $diffLink = "<a href='" . SITE_URL . 
-                        	"/index.php?title=Special:DiffAppletPage&old={$result->rc_last_oldid}&new={$result->rc_cur_oldid}" .
+                        	"/index.php?title=Special:DiffAppletPage&old={$result->rc_last_oldid}&new={$result->rc_this_oldid}" .
                         	"&pwTitle={$title->getFullText()}'>diff</a>";
 		}
 

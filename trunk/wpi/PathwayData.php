@@ -63,7 +63,7 @@ class PathwayData {
 		$categories = array();
 		foreach($this->gpml->Comment as $comment) {
 			if($comment['Source'] == COMMENT_WP_CATEGORY) {
-				array_push($categories, (string)$comment);
+				array_push($categories, trim((string)$comment));
 			}
 		}
 		return $categories;

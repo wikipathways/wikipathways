@@ -5,14 +5,10 @@ require_once("Maintenance.php");
 ## Reset the MediaWiki categorylinks records for each pathway to contain only the GPML attributes
 ## And remove categories on images
 
-$dbr =& wfGetDB(DB_SLAVE);
-$res = $dbr->select( "page", array("page_title"), array("page_namespace" => NS_PATHWAY));
-$np = $dbr->numRows( $res );
-echo 'nrow: ' . $np . '<br>';
-$i = 0;
-while( $row = $dbr->fetchRow( $res )) {
+$pathways = Pathway::getAllPathways();
+
+foreach($pathways as $pathway) {
 	try {
-		$pathway = Pathway::newFromTitle($row[0]);
 		echo("PROCESSING: {$pathway->getTitleObject()->getFullText()}<BR>\n");
 				
 		if($doit) {		

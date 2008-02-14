@@ -130,86 +130,52 @@ function getXrefLink($xref) {
 	case 'RefSeq':
 		$ret = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?";
 		if(substr($id,0,2) == 'NM') return $ret . "db=Nucleotide&cmd=Search&term=" . $id;
-		else return $ret . "db=Protein&cmd=search&term=" . $id;		
+		else return $ret . "db=Protein&cmd=search&term=" . $id;
+	case 'SGD':
+		return "http://db.yeastgenome.org/cgi-bin/locus.pl?locus=$id";
+	case 'FlyBase':
+		return $id;
+	case 'GenBank':
+		return $id;
+	case 'InterPro':
+		return "http://www.ebi.ac.uk/interpro/IEntry?ac=$id";
+	case 'MGI':
+		return "http://www.informatics.jax.org/searches/accession_report.cgi?id=$id";
+	case 'RGD':
+		return "http://rgd.mcw.edu/generalSearch/RgdSearch.jsp?quickSearch=1&searchKeyword=$id";
+	case 'GeneOntology':
+		return "http://godatabase.org/cgi-bin/go.cgi?view=details&search_constraint=terms&depth=0&query=$id";
+	case 'UniGene':
+		$org_nr = split('\.', $id);
+		return "http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG={$org_nr[0]}&CID={$org_nr[1]}";
+	case 'WormBase':
+		return "http://www.wormbase.org/db/gene/gene?name=$id";
+	case 'Affy':
+		return "http://www.ensembl.org/Homo_sapiens/featureview?type=OligoProbe;id=$id";
+	case 'EMBL':
+		return "http://www.ebi.ac.uk/cgi-bin/emblfetch?style=html&id=$id";
+	case 'HUGO':
+		return "http://www.gene.ucl.ac.uk/cgi-bin/nomenclature/get_data.pl?hgnc_id=$id";
+	case 'OMIM':
+		return "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=OMIM&cmd=Search&doptcmdl=Detailed&term=?$id";
+	case 'PDB':
+		return "http://bip.weizmann.ac.il/oca-bin/ocashort?id=$id";
+	case 'Pfam':
+		return "http://www.sanger.ac.uk//cgi-bin/Pfam/getacc?$id";
+	case 'CAS':
+		return  "http://chem.sis.nlm.nih.gov/chemidplus/direct.jsp?regno=$id";
+	case 'ChEBI':
+		return "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:$id";
+	case 'PubChem':
+		return "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=$id";
+	case 'NuGO wiki':
+		return "http://nugowiki.org/index.php/$id";
+	case 'Kegg Compound':
+		return "http://www.genome.jp/dbget-bin/www_bget?cpd:$id";
+	case 'HMDB':
+		return "http://www.hmdb.ca/scripts/show_card.cgi?METABOCARD=$id";
 	default:
 		return $id;
 	}
 }
-
-/* TODO: put in switch
-if(c.equalsIgnoreCase("En"))
-			return "http://www.ensembl.org/Homo_sapiens/searchview?species=all&idx=Gene&q=" + id;
-		if(c.equalsIgnoreCase("P"))
-			return "http://www.expasy.org/uniprot/" + id;
-		if(c.equalsIgnoreCase("Q")) {
-			String pre = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?";
-			if(id.startsWith("NM")) {
-				return pre + "db=Nucleotide&cmd=Search&term=" + id;
-			} else {
-				return pre + "db=Protein&cmd=search&term=" + id;
-			}
-		}
-		if(c.equalsIgnoreCase("T"))
-			return "http://godatabase.org/cgi-bin/go.cgi?view=details&search_constraint=terms&depth=0&query=" + id;
-		if(c.equalsIgnoreCase("I"))
-			return "http://www.ebi.ac.uk/interpro/IEntry?ac=" + id;
-		if(c.equalsIgnoreCase("Pd"))
-			return "http://bip.weizmann.ac.il/oca-bin/ocashort?id=" + id;
-		if(c.equalsIgnoreCase("X"))
-			return "http://www.ensembl.org/Homo_sapiens/featureview?type=OligoProbe;id=" + id;
-		if(c.equalsIgnoreCase("Em"))
-			return "http://www.ebi.ac.uk/cgi-bin/emblfetch?style=html&id=" + id;
-		if(c.equalsIgnoreCase("L"))
-			return "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=full_report&list_uids=" + id;
-		if(c.equalsIgnoreCase("H"))
-			return "http://www.gene.ucl.ac.uk/cgi-bin/nomenclature/get_data.pl?hgnc_id=" + id;
-		if(c.equalsIgnoreCase("I"))
-			return "http://www.ebi.ac.uk/interpro/IEntry?ac=" + id;
-		if(c.equalsIgnoreCase("M"))
-			return "http://www.informatics.jax.org/searches/accession_report.cgi?id=" + id;
-		if(c.equalsIgnoreCase("Om"))
-			return "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=OMIM&cmd=Search&doptcmdl=Detailed&term=?" + id;
-		if(c.equalsIgnoreCase("Pf"))
-			return "http://www.sanger.ac.uk//cgi-bin/Pfam/getacc?" + id;
-		if(c.equalsIgnoreCase("R"))
-			return "http://rgd.mcw.edu/generalSearch/RgdSearch.jsp?quickSearch=1&searchKeyword=" + id;
-		if(c.equalsIgnoreCase("D"))
-			return "http://db.yeastgenome.org/cgi-bin/locus.pl?locus=" + id;
-		if(c.equalsIgnoreCase("S"))
-			return "http://www.expasy.org/uniprot/" + id;
-		if(c.equalsIgnoreCase("U")) {
-			String [] org_nr = id.split("\\.");
-			if(org_nr.length == 2) {
-				return "http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=" + 
-				org_nr[0] + "&CID=" + org_nr[1];
-			}
-			else {
-				return null;
-			}
-		}
-		if (c.equalsIgnoreCase("Nw"))
-		{
-			return "http://nugowiki.org/index.php/" + id;
-		}
-		if (c.equalsIgnoreCase("Ca"))
-		{
-			return "http://chem.sis.nlm.nih.gov/chemidplus/direct.jsp?regno=" + id;
-		}
-		if (c.equalsIgnoreCase("Cp"))
-		{
-			return "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=" + id;
-		}
-		if (c.equalsIgnoreCase("Ce"))
-		{
-			return "http://www.ebi.ac.uk/chebi/searchId=CHEBI:" + id;
-		}
-		if (c.equalsIgnoreCase("Ch"))
-		{
-			return "http://www.hmdb.ca/scripts/show_card.cgi?METABOCARD=" + id + ".txt";
-		}
-		if (c.equalsIgnoreCase("Ck"))
-		{
-			return "http://www.genome.jp/dbget-bin/www_bget?cpd:" + id;
-		}
-*/
 ?>
