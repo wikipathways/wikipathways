@@ -50,7 +50,7 @@ EOD;
 	$table .= "\n|}";
 	$output .= $table;
 	$output .= "\n* There are '''{{NUMBEROFUSERS}}''' registered users";
-	$output .= "\n* Active user [[Special:ContributionScores|statistics]]";
+	//$output .= "\n* Active user [[Special:ContributionScores|statistics]]";
 
 		return $output;
 }
