@@ -1,6 +1,8 @@
 <?php
 
 require_once("wpi/wpi.php");
+require_once("wpi/Pathway.php");
+require_once("wpi/PathwayData.php");
 
 /*
 Statistics for main page
@@ -35,16 +37,18 @@ function getSiteStats( &$parser, $tableAttr ) {
 	$output = "* There are '''{$nrPathways}''' pathways";
 	$table = <<<EOD
 
-* Number of pathways per species:
+* Number of '''pathways''' ''(and unique genes)'' per species:
 {| align="center" $tableAttr
 EOD;
 	foreach(Pathway::getAvailableSpecies() as $species) {
 		$nr = howManyPathways($species);
+		$genes = howManyUniqueGenes($species);
 		$table .= <<<EOD
 
 |-align="left"
 |$species:
 |'''$nr'''
+|''($genes)''
 EOD;
 	}
 	$table .= "\n|}";
@@ -64,6 +68,42 @@ function howManyPathways($species) {
 	$row = $dbr->fetchRow($res);
 	$dbr->freeResult($res);
 	return $row[0];
+}
+
+function howManyUniqueGenes($species){
+	$geneList = array();
+	$all_pathways = Pathway::getAllPathways();
+	foreach (array_keys($all_pathways) as $pathway) {
+		$pathwaySpecies = $all_pathways[$pathway]->species();
+		if ($pathwaySpecies != $species) continue;
+                if ($all_pathways[$pathway]->getName() == 'XMLRPC') continue;
+		//$name = $all_pathways[$pathway]->getName();
+                //echo $name;
+ 		$xml = $all_pathways[$pathway]->getPathwayData();
+		$nodes = $xml->getUniqueElements('DataNode', 'TextLabel');
+		foreach ($nodes as $datanode){
+			$xref = $datanode->Xref;
+			if ($xref[ID] && $xref[ID] != '' && $xref[ID] != ' '){
+				if ($xref[Database] == 'HUGO'
+		                  || $xref[Database] == 'Entrez Gene'
+                                  || $xref[Database] == 'Ensembl'
+                                  || $xref[Database] == 'SwissProt'
+                                  || $xref[Database] == 'UniGene'
+                                  || $xref[Database] == 'RefSeq'
+                                  || $xref[Database] == 'MGI'
+                		  || $xref[Database] == 'RGD'
+                		  || $xref[Database] == 'ZFIN'
+                		  || $xref[Database] == 'FlyBase'
+                		  || $xref[Database] == 'WormBase'
+                		  || $xref[Database] == 'SGD'
+                		  ){
+					array_push($geneList, $xref[ID]);
+				}
+			}
+		}
+	}
+	$geneList = array_unique($geneList);
+	return count($geneList);
 }
 
 function getSpecies() {
