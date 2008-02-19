@@ -1,0 +1,21 @@
+== RFC 007: Community Notification Tags ==
+We should implement a set of tags that users can post on any pathway, notifying the authors 
+and the community about incomplete data or the status of the work.  These are analogous to 
+the tags used in Wikipedia for the same purpose. Some of these could be very brief, others
+could contain multiple sentences.
+
+== TODO ==
+1. Research how the tags are implemented at Wikipedia
+2. Plan our implementation
+3. Decide on levels of tags (some may be for admin only)
+4. Decide on content
+5. Implement
+
+
+== Tag Brainstorm ==
+Some ideas for tags:
+  * In Progress, contact author ___
+  * New Pathways
+  * Recently edited
+  * Hypothetical, not backed by published findings
+  * Community Approved
