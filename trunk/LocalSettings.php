@@ -152,6 +152,9 @@ $wgSVGConverters['inkscape'] = '$path/inkscape -z -b white -w $width -f $input -
 ##$wgMimeDetectorCommand = "file -bi"; #This doesn't work for svg!!!
 ##$wgCheckFileExtensions = false;
 
+# Allow direct linking to external images (so we don't have to upload them to the wiki)
+$wgAllowExternalImages = true;
+
 ##Pathway namespace
 define("NS_PATHWAY", 102); //NS_PATHWAY is same as NS_GPML since refactoring
 define("NS_PATHWAY_TALK", 103);
@@ -201,6 +204,7 @@ require_once('wpi/extensions/siteStats.php');
 require_once('wpi/extensions/pathwayInfo.php');
 require_once('wpi/extensions/imageSize.php');
 require_once('wpi/extensions/magicWords.php');
+require_once('extensions/EmbedVideo.php');
 require_once('wpi/extensions/PopularPathwaysPage2/PopularPathwaysPage.php');
 require_once('wpi/extensions/MostEditedPathwaysPage/MostEditedPathwaysPage.php');
 require_once('wpi/extensions/NewPathwaysPage/NewPathwaysPage.php');
