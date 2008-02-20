@@ -190,6 +190,9 @@ wpi plugin code     | wikipathways/trunk           | sync after milestone, tags/
 
 == tagging a release ==
 
+Check if there are any remaining changes on the test site that haven't been checked in.
+Check if somebody accicentally changed the stable site
+
 create a milestone branch named milestone_n.x (where n is one higher than the previous branch). 
 The milestone branch is useful for cherry-picking, see below.
 
