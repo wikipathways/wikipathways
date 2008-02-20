@@ -75,7 +75,7 @@ function historyRadios(parent) {
 	var inputs = parent.getElementsByTagName('input');
 	var radios = [];
 	for (var i = 0; i < inputs.length; i++) {
-		if (inputs[i].name == "diff" || inputs[i].name == "oldid") {
+		if (inputs[i].name == "diff" || inputs[i].name == "oldid" || inputs[i].name == "old" || inputs[i].name == "new") {
 			radios[radios.length] = inputs[i];
 		}
 	}

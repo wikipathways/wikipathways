@@ -16,32 +16,52 @@ if(!$outputFormat){
 
 
 // Print header
+//NOTE: Model Organism Databases = HUGO, MGI, RGD, ZFIN, FlyBase, WormBase, SGD
 if ($outputFormat =='html'){
 print "<html><table border=1 cellpadding=3>
-<tr bgcolor=\"#CCCCFF\" font><td>Pathway Name<td>Organism<td>Categories<td>Url to WikiPathways<td>Last Changed<td>Last Revision<td>Author<td>Count<td>Datanodes</tr>\n";
+<tr bgcolor=\"#CCCCFF\" font><td>Pathway Name<td>Organism<td>Categories<td>Url to WikiPathways<td>Last Changed<td>Last Revision<td>Author<td>Count
+	<td>Entrez Gene
+	<td>Ensembl
+	<td>SwissProt
+	<td>UniGene
+	<td>RefSeq
+	<td>MOD
+	<td>PubChem
+	<td>CAS
+	<td>ChEBI</tr>\n";
 }
 elseif ($outputFormat == 'excel'){
 	//TODO (see Pear module for spreadsheet writer)
 	print "Not available yet...\n";
 }
 else {
-print "Pathway Name\tOrganism\tCategories\tUrl to WikiPathways\tLast Changed\tLast Revision\tAuthor\tCount\tDatanodes\n";
-
+print "Pathway Name\tOrganism\tCategories\tUrl to WikiPathways\tLast Changed\tLast Revision\tAuthor\tCount
+	\tEntrez Gene
+        \tEnsembl
+        \tSwissProt
+        \tUniGene
+        \tRefSeq
+        \tMOD
+	\tPubChem
+        \tCAS
+        \tChEBI\n";
 } 
 
 $all_pathways = Pathway::getAllPathways();
 foreach (array_keys($all_pathways) as $pathway) {
 
-$species = $all_pathways[$pathway]->species();
-
 //Apply species restriction if necessary
+$species = $all_pathways[$pathway]->species();
 if($restrictSpecies) {
 	if ($species != $restrictSpecies) continue; 	
 }
 
+//Exclude Sandbox pathway
+$name = $all_pathways[$pathway]->getName();
+if ($name == 'Sandbox')	continue;
+
 $xml = $all_pathways[$pathway]->getPathwayData();  
 $gpml = $xml->getGpml();
-$name = $all_pathways[$pathway]->getName();
 $modTime = $all_pathways[$pathway]->getGpmlModificationTime();
 $url = $all_pathways[$pathway]->getFullUrl();
 $author = $gpml["Author"];
@@ -55,7 +75,7 @@ perlChop($categories);
 
 // Print pathways data
 if ($outputFormat =='html'){
-print "<tr><td>".$name."<td>".$species."<td>".$categories."<td>".$url."<td>".$modTime."<td>".$lastRevision."<td>".$author."<td>";
+print "<tr><td>".$name."<td>".$species."<td>".$categories."&nbsp<td>".$url."<td>".$modTime."<td>".$lastRevision."<td>".$author."&nbsp<td>";
 }
 elseif ($outputFormat == 'excel'){
 	//TODO
@@ -65,28 +85,100 @@ else {
 }
 
 $count = 0;
-$geneList = "";
+$L_list = "";
+$En_list = "";
+$S_list = "";
+$U_list = "";
+$Q_list = "";
+$MOD_list = "";
+$Pc_list = "";
+$CAS_list = "";
+$Che_list = "";
 $nodes = $xml->getUniqueElements('DataNode', 'TextLabel');
 foreach ($nodes as $datanode){
 	$xref = $datanode->Xref;
-     if ($xref['ID']){
+     if ($xref[ID] && $xref[ID] != '' && $xref[ID] != ' '){
+	
+	//Replace space characters with underscore to generate proper IDs (e.g., NP 067461 -> NP_067461)
+	$xrefID = str_replace(' ','_',$xref[ID]);	
+
 	if ($xref[Database] == 'Entrez Gene'){
-		$geneList .= $xref[ID].",";
-		$count++;
-	}	
+		$L_list .= $xrefID.",";
+	}
+	else if ($xref[Database] == 'Ensembl'){
+		$En_list .= $xrefID.",";
+	}
+        else if ($xref[Database] == 'SwissProt'){
+                $S_list .= $xrefID.",";
+        }
+        else if ($xref[Database] == 'UniGene'){
+                $U_list .= $xrefID.",";
+        }
+        else if ($xref[Database] == 'RefSeq'){
+                $Q_list .= $xrefID.",";
+        }
+        else if ($xref[Database] == 'HUGO'
+		|| $xref[Database] == 'MGI'
+		|| $xref[Database] == 'RGD'
+                || $xref[Database] == 'ZFIN'
+                || $xref[Database] == 'FlyBase'
+                || $xref[Database] == 'WormBase'
+                || $xref[Database] == 'SGD'
+                ){
+                $MOD_list .= $xrefID.",";
+        }
+        else if ($xref[Database] == 'PubChem'){
+                $Pc_list .= $xrefID.",";
+        }
+        else if ($xref[Database] == 'CAS'){
+                $CAS_list .= $xrefID.",";
+        }
+        else if ($xref[Database] == 'ChEBI'){
+                $Che_list .= $xrefID.",";
+        }
+	$count++;
      }
 }
-perlChop($geneList);
+perlChop($L_list);
+perlChop($En_list);
+perlChop($S_list);
+perlChop($U_list);
+perlChop($Q_list);
+perlChop($MOD_list);
+perlChop($Pc_list);
+perlChop($CAS_list);
+perlChop($Che_list);
 
 //Print gene content data
 if ($outputFormat =='html'){
-print $count."<td>".$geneList."</tr>";
+	//append with space character toprovide for empty cells in html table 
+	print $count
+	."<td>".$L_list."&nbsp"
+	."<td>".$En_list."&nbsp"
+        ."<td>".$S_list."&nbsp"
+        ."<td>".$U_list."&nbsp"
+        ."<td>".$Q_list."&nbsp"
+        ."<td>".$MOD_list."&nbsp"
+        ."<td>".$Pc_list."&nbsp"
+        ."<td>".$CAS_list."&nbsp"
+        ."<td>".$Che_list."&nbsp"
+        ."</tr>";
 }
 elseif ($outputFormat == 'excel'){
 	//TODO
 }
 else {
-	print $count."\t".$geneList."\n";
+	print $count
+	."\t".$L_list
+	."\t".$En_list
+        ."\t".$S_list
+        ."\t".$U_list
+        ."\t".$Q_list
+        ."\t".$MOD_list
+        ."\t".$Pc_list
+        ."\t".$CAS_list
+        ."\t".$Che_list
+        ."\n";
 }
 
 } // end foreach pathway
