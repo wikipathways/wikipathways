@@ -35,16 +35,7 @@ elseif ($outputFormat == 'excel'){
 	print "Not available yet...\n";
 }
 else {
-print "Pathway Name\tOrganism\tCategories\tUrl to WikiPathways\tLast Changed\tLast Revision\tAuthor\tCount
-	\tEntrez Gene
-        \tEnsembl
-        \tSwissProt
-        \tUniGene
-        \tRefSeq
-        \tMOD
-	\tPubChem
-        \tCAS
-        \tChEBI\n";
+print "Pathway Name\tOrganism\tCategories\tUrl to WikiPathways\tLast Changed\tLast Revision\tAuthor\tCount\tEntrez Gene\tEnsembl\tSwissProt\tUniGene\tRefSeq\tMOD\tPubChem\tCAS\tChEBI\n";
 } 
 
 $all_pathways = Pathway::getAllPathways();
