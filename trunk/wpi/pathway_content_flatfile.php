@@ -55,7 +55,6 @@ $xml = $all_pathways[$pathway]->getPathwayData();
 $gpml = $xml->getGpml();
 $modTime = $all_pathways[$pathway]->getGpmlModificationTime();
 $url = $all_pathways[$pathway]->getFullUrl();
-$url = str_replace('137.120.89.38','www.wikipathways.org',$url);
 $author = $gpml["Author"];
 $categories = "";
 $lastRevision = $all_pathways[$pathway]->getLatestRevision();

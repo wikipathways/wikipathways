@@ -203,7 +203,7 @@ HTML;
 	}
 	
 	function addJavaScript() {
-		global $wgOut;
+		global $wgOut, $wgScriptPath;;
 		$js = <<<JS
 <script type="text/javascript">
 	function showhide(id, toggle, hidelabel, showlabel) {
@@ -217,7 +217,7 @@ HTML;
 		}
 	}
 </script>
-<link rel="stylesheet" type="text/css" href="/wikipathways/skins/wikipathways/TableColor.css" />
+<link rel="stylesheet" type="text/css" href="$wgScriptPath/skins/wikipathways/TableColor.css" />
 JS;
 		$wgOut->addScript($js);
 	}
