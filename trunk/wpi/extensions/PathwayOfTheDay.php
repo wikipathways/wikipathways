@@ -45,9 +45,13 @@ function wfPathwayOfTheDay_Magic( &$magicWords, $langCode ) {
 function getPathwayOfTheDay( &$parser, $date ) {
 	$parser->disableCache();	
 	wfDebug("GETTING PATHWAY OF THE DAY for date: $date\n");
-	$potd = new FeaturedPathway($date);
-    $out =  $potd->getWikiOutput();
-	wfDebug("END GETTING PATHWAY OF THE DAY for date: $date\n");
+	try {
+		$potd = new FeaturedPathway($date);
+		$out =  $potd->getWikiOutput();
+		wfDebug("END GETTING PATHWAY OF THE DAY for date: $date\n");
+	} catch(Exception $e) {
+		$out = "Unable to get pathway of the day: {$e->getMessage()}";
+	}
 	return $out;
 }
 
@@ -66,8 +70,11 @@ class FeaturedPathway extends PathwayOfTheDay {
 		wfDebug("Fetching random pathway...\n");
 		
 		$listRev = Revision::newFromTitle(Title::newFromText($this->listPage), 0);
-		$lines = explode("\n", $listRev->getText());
-
+		if($listRev != null) {
+			$lines = explode("\n", $listRev->getText());
+		} else {
+			throw new Exception("[[{$this->listPage}]] doesn't exist!");
+		}
 		$pathwayList = array();
 		
 		//Try to parse a pathway from each line
@@ -85,7 +92,9 @@ class FeaturedPathway extends PathwayOfTheDay {
 				//Ignore the pathway
 			}
 		}
-
+		if(count($pathwayList) == 0) {
+			throw new Exception("{$this->listPage} doesn't contain any valid pathway!");
+		}
 		return $pathwayList[rand(0, count($pathwayList) - 1)];
 	}
 }
