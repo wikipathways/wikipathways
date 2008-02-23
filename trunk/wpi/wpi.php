@@ -51,19 +51,29 @@ switch($action) {
 }
 
 function delete($title) {
-	global $wgUser;
+	global $wgUser, $wgOut;
 	$pathway = Pathway::newFromTitle($_GET['pwTitle']);
-	if($wgUser->isAllowed('delete')) {
+	if($wgUser->isAllowed('delete') || isPathwayCreator($wgUser, $_GET['pwTitle'])) {
 		$pathway = Pathway::newFromTitle($_GET['pwTitle']);
 		$pathway->delete();
 		echo "<h1>Deleted</h1>";
-		echo "<p>Pathway $title was deleted, go back to <a href=http://{$_SERVER['HTTP_HOST']}>wikipathways</a>";
+		echo "<p>Pathway $title was deleted, return to <a href='" . SITE_URL . "'>wikipathways</a>";
 	} else {
 		echo "<h1>Error</h1>";
 		echo "<p>Pathway $title is not deleted, you have no delete permissions</a>";
 		$wgOut->permissionRequired( 'delete' );
 	}
 	exit;
+}
+
+function isPathwayCreator($user, $title) {
+	//Check if this user created the page
+	if(is_null($user) || is_null($title)) {
+		return false;
+	}
+	$pathway = Pathway::newFromTitle($title);
+	$first = $pathway->getFirstRevision();
+	return $first->getUser() == $user->getID();
 }
 
 function revert($pwTitle, $oldId) {

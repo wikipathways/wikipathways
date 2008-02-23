@@ -78,6 +78,18 @@ class WikiPathwaysTemplate extends QuickTemplate {
 			$actions = $this->data['content_actions'];
 			$this->data['content_actions'] = $actions;
 		}
+		//Add delete link when user created the pathway
+		if($ns == NS_PATHWAY) {
+			if(isPathwayCreator($wgUser, $wgTitle)) {
+				$actions = $this->data['content_actions'];
+				$actions['delete'] = array(
+					'class' => ($action == 'delete') ? 'selected' : false,
+					'text' => wfMsg('delete'),
+					'href' => WPI_SCRIPT_URL . "?action=delete&pwTitle={$wgTitle->getFullText()}"
+				);
+				$this->data['content_actions'] = $actions;
+			}
+	}
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="<?php $this->text('xhtmldefaultnamespace') ?>" <?php 
 	foreach($this->data['xhtmlnamespaces'] as $tag => $ns) {

@@ -31,7 +31,7 @@ class CreatePathwayPage extends SpecialPage
 		}        }
 
 	function startEditor($pwName, $pwSpecies) {
-		global $wgRequest, $wgOut, $wpiScriptURL;
+		global $wgRequest, $wgOut, $wpiScriptURL;		
 		$backlink = '<a href="javascript:history.back(-1)">Back</a>';
 		if(!$pwName) {
 			$wgOut->addHTML("<B>Please specify a name for the pathway<BR>$backlink</B>");
@@ -42,15 +42,19 @@ class CreatePathwayPage extends SpecialPage
 			return;
 		}
 
-		//TODO
-		$pathway = new Pathway($pwName, $pwSpecies, false); //new pathway, but no caching
-		if($pathway->exists()) { //Error, the pathway already exists
-			$wgOut->addWikiText("<B>The pathway already exists, please edit [[{$pathway->getTitleObject()->getFullText()}]]</B>");
+		try {
+			$pathway = new Pathway($pwName, $pwSpecies, false); //new pathway, but no caching
+			if($pathway->exists()) { //Error, the pathway already exists
+				$wgOut->addWikiText("<B>The pathway already exists, please edit [[{$pathway->getTitleObject()->getFullText()}]]</B>");
+				return;
+			}
+			$wgOut->addHTML("<div id='applet'></div>");
+			$pwTitle = $pathway->getTitleObject()->getText();
+			$wgOut->addWikiText("{{#editApplet:direct|applet|true|$pwTitle}}");
+		} catch(Exception $e) {
+			$wgOut->addHTML("<B>Error:</B><P>{$e->getMessage()}</P><BR>$backlink</BR>");
 			return;
 		}
-		$wgOut->addHTML("<div id='applet'></div>");
-		$pwTitle = $pathway->getTitleObject()->getText();
-		$wgOut->addWikiText("{{#editApplet:direct|applet|true|$pwTitle}}");
 	}
 
 	function showForm() {

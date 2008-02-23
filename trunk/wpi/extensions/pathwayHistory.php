@@ -30,12 +30,6 @@ function getHistory($pathway) {
 		$pager = new GpmlHistoryPager( $pathway, $hist );
 
 		$s = $pager->getBody();
-		
-		if($wgUser->isAllowed('delete')) {
-			$pwTitle = $pathway->getTitleObject()->getDBKey();
-			$delete = "<p><a href=$wpiScriptURL?action=delete&pwTitle=$pwTitle>Delete this pathway</a></p>";
-			$s = $delete . $s;
-		}
 		return $s;
 }
 

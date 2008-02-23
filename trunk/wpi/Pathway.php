@@ -41,6 +41,14 @@ class Pathway {
 		if(!$name) throw new Exception("name argument missing in constructor for Pathway");
 		if(!$species) throw new Exception("species argument missing in constructor for Pathway");
 		
+		//Check name for illegal characters
+		$illegal_chars = array("\\", '/', ',');
+		foreach($illegal_chars as $char) {
+			if(strstr($name, $char)) {
+				throw new Exception("Illegal character '$char' in pathway name");
+			}
+		}
+		
 		$this->pwName = $name;
 		$this->pwSpecies = $species;
 		
@@ -603,7 +611,10 @@ class Pathway {
 			$this->clearCache(FILETYPE_PNG);
 			$this->clearCache(FILETYPE_GPML);
 		} else {
-			unlink($this->getFileLocation($fileType, false)); //Delete the cached file
+			$file = $this->getFileLocation($fileType, false);
+			if(file_exists($file)) {
+				unlink($file); //Delete the cached file
+			}
 		}
 	}
 
