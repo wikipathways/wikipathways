@@ -19,7 +19,7 @@ if(!$outputFormat){
 //NOTE: Model Organism Databases = HUGO, MGI, RGD, ZFIN, FlyBase, WormBase, SGD
 if ($outputFormat =='html'){
 print "<html><table border=1 cellpadding=3>
-<tr bgcolor=\"#CCCCFF\" font><td>Pathway Name<td>Organism<td>Categories<td>Url to WikiPathways<td>Last Changed<td>Last Revision<td>Author<td>Count
+<tr bgcolor=\"#CCCCFF\" font><td>Pathway Name<td>Organism<td>Gene Ontology<td>Url to WikiPathways<td>Last Changed<td>Last Revision<td>Author<td>Count
 	<td>Entrez Gene
 	<td>Ensembl
 	<td>SwissProt
@@ -35,7 +35,7 @@ elseif ($outputFormat == 'excel'){
 	print "Not available yet...\n";
 }
 else {
-print "Pathway Name\tOrganism\tCategories\tUrl to WikiPathways\tLast Changed\tLast Revision\tAuthor\tCount\tEntrez Gene\tEnsembl\tSwissProt\tUniGene\tRefSeq\tMOD\tPubChem\tCAS\tChEBI\n";
+print "Pathway Name\tOrganism\tGene Ontology\tUrl to WikiPathways\tLast Changed\tLast Revision\tAuthor\tCount\tEntrez Gene\tEnsembl\tSwissProt\tUniGene\tRefSeq\tMOD\tPubChem\tCAS\tChEBI\n";
 } 
 
 $all_pathways = Pathway::getAllPathways();
