@@ -1,19 +1,51 @@
-Categorization of Pathways
+== Using Ontologies to Categorize Pathways ==
+We want to provide ontology-based terms to label pathways in a standardized way. 
+Ontology-based labels or tags will not only provide information about the pathway
+(i.e., relevant biological or experimental context) but also provide a means to
+organize the pathways.  These terms will allow us to organize pathways relative to
+each other (i.e., those that share terms) and relative to the source ontologies (i.e.,
+parent-child relationships transfered from ontology to pathways). 
 
-GO vs GO-SLIM
+Ideally, we can also make use of the ontology terms associated with the component 
+genes and proteins in a given pathway. For example, we might be able to auto-recommend
+an ontology term for the pathway based on the predominate gene-level term or based on
+the profile of terms at the gene level.
 
-Species: binary name system
+Futhermore, ontologies can help provide links into WikiPathways.  The Ontrez project
+is a resource for browsing biomedical ontologies and provides links to other resources
+that have material tags with any given term. For example, someone browsing "Molecular
+Function" would find links to all of the pathways at WikiPathways tagged with that
+Gene Ontology term.  Pretty neat!
 
-We need to be able to specify pathways at levels lower than just species
-(i.e. tissue type, maybe disease state)
+== Implementation Steps ==
 
-Totally open attribute <-> value pairs?
-Preselected attribute <-> values?
-Predefined onthologies? Which ones?
+==== Pick an ontology service ====
+I initially stumbled across the Stanford resource (SMD) and the associated Ontology Widget.
+The developer of the widget recently moved on to another group and the SMD apparently
+will not be around (i.e., updated) in a year or so. As an alternative, Nigam Shah (whom
+I met at the BioPAX meeting) is actively developing BioPortal and Ontrez resources as part
+of a big NCBO grant (one of 7 centers funded by NIH to support other bioinformatics tools, 
+like ours!). They are not only keeping up to date with all biomedical ontologies, they are 
+also integrating across ontologies to establish meaningful cross-links.
 
-There is a centralized, open source repository of biological ontologies at OLS
-http://www.ebi.ac.uk/ontology-lookup/browse.do?ontName=PW
-The link above goes to a Pathway Ontology we may consider (not sure of the source or the info).  
-But, in addition, OLS has ontologies cell and tissue types, diseases, etc.
-There are also ontologies available from OBO:
-http://obofoundry.org/
+==== Develop an interface for add ontologies ====
+The Ontology Widget may be an easy start, but it is likely a dead end. We could:
+ 1. Adapt it ourselves to use the BioPortal resource
+ 2. Make our own interface from scratch to access BioPortal (GSoC project?!)
+
+BioPortal API - comming soon...
+
+==== Populate ontology terms on pathways ====
+We'll have to catch up and add a bunch of terms ourselves.  It will be critical to instruct
+users on adding these terms themselves to help out and keep up with new content.
+Some of this may be able to be automated?
+
+==== Link back from Ontrez ====
+This is done!  The flatfile output format should allow Ontrez to link back to WikiPathways
+and stay up-to-date as we add ontology labels and add new ontology sources.
+
+==== Inference from gene-level ontology terms ====
+Reference to cross-ontology mappings = comming soon...
+
+
+
