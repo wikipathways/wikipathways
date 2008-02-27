@@ -4,18 +4,55 @@ and the community about incomplete data or the status of the work.  These are an
 the tags used in Wikipedia for the same purpose. Some of these could be very brief, others
 could contain multiple sentences.
 
-== TODO ==
-1. Research how the tags are implemented at Wikipedia
-2. Plan our implementation
-3. Decide on levels of tags (some may be for admin only)
-4. Decide on content
-5. Implement
+We should also implement bots to manage some of the tags to automatically notify users of
+highlighted content, whether it might be 'new' or 'incomplete' or 'scheduled for deletion'.
 
+== How Wikipedia Does It ==
+http://en.wikipedia.org/wiki/Wikipedia:Template_messages/User_talk_namespace
+
+Wikipedia uses templates to define the contents of tags for a broad range of purposes. The
+templates are then simply referenced in any page by adding {{template_name}} to the text. Bots
+handle a significant portion of the template usage. Note that templates are referenced "in real time" 
+as each page is rendered, this is called transclusion. This can put a strain on the server. Wikipedia 
+recommends using substitution to remedy this. Substitution simply replaces the template reference 
+with the contents of the template into the target. Substitution can be implemented by simply
+preceding the the template name with 'subst:', e.g., {{subst:template_name}}.  When using substitution,
+you'll notice the contents of the template copied into the page when editing that page. This
+also effectively disconnects the template reference from the template. So, when the template is changed
+the change is NOT reflected in the target page. This is OK for simple or temporary tags, but not for
+templates like the ones that generate the header and footer of every Pathway Page, i.e., we want changes
+to those to be reflected in the target pages.
+
+== Implementation ==
+1. Create three pages for template-based tag listings:
+   a. User tags: tags we want users to use
+   b. Admin tags: tags for admins to use
+   c. Bot tags: tags for bots to use
+   Note that there is overlapping usage across these categories such that Admins can use User tags, and
+   Bots can use Admin and User tags; the categories help to distinguish which tags cannot be used by Users
+   (e.g., Admin and Bot tags) and which should be automatic only (Bot tags).
+2. Create template-based tags and reference them (via transclusion) in the appropriate list pages
+3. Create bots to use bot tags
+4. Use Admin tags
+5. Introduce user tags via Help pages
 
 == Tag Brainstorm ==
-Some ideas for tags:
-  * In Progress, contact author ___
-  * New Pathways
-  * Recently edited
-  * Hypothetical, not backed by published findings
-  * Community Approved
+==== User Tags ====
+ * In Progress, contact author ___
+ * Hypothetical, not backed by published findings
+ * Inappropriate edit (potential vandalism)
+ * Inappropriate edit (potentially false)
+ * Incomplete information (lit ref missing)
+ * Incomplete informaiton (left blank)
+ 
+==== Admin Tags ====
+ * Community Approved
+ * Scheduled for deletion... by date... contact admin
+ * Featured pathway (addded to feature page list)
+ 
+==== Bot Tags =====
+ * New Pathway
+ * Recently edited... date
+ * Not updated in over a year... last edit date
+
+
