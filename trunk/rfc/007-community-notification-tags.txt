@@ -24,17 +24,20 @@ templates like the ones that generate the header and footer of every Pathway Pag
 to those to be reflected in the target pages.
 
 == Implementation ==
-1. Create three pages for template-based tag listings:
+1. Since our pathway pages are rendered from GPML and Pathway Page Templates, we will have to add
+   an applet to the Top page template to handle the template tags, so that they are added to the
+   rendered page without being in the GPML.
+2. Create three pages for template-based tag listings:
    a. User tags: tags we want users to use
    b. Admin tags: tags for admins to use
    c. Bot tags: tags for bots to use
    Note that there is overlapping usage across these categories such that Admins can use User tags, and
    Bots can use Admin and User tags; the categories help to distinguish which tags cannot be used by Users
    (e.g., Admin and Bot tags) and which should be automatic only (Bot tags).
-2. Create template-based tags and reference them (via transclusion) in the appropriate list pages
-3. Create bots to use bot tags
-4. Use Admin tags
-5. Introduce user tags via Help pages
+3. Create template-based tags and reference them (via transclusion) in the appropriate list pages
+4. Create bots to use bot tags
+5. Use Admin tags
+6. Introduce user tags via Help pages
 
 == Tag Brainstorm ==
 ==== User Tags ====
