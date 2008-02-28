@@ -35,6 +35,11 @@ elseif ($outputFormat == 'excel'){
 	print "Not available yet...\n";
 }
 else {
+//set mime type and prompt for download
+$filename = "wikipathways_data_" . date('Ymd') . ".tab";
+header("Content-type: text/plain");
+header("Content-Disposition: attachment; filename=\"$filename\"");
+//print header
 print "Pathway Name\tOrganism\tGene Ontology\tUrl to WikiPathways\tLast Changed\tLast Revision\tAuthor\tCount\tEntrez Gene\tEnsembl\tSwissProt\tUniGene\tRefSeq\tMOD\tPubChem\tCAS\tChEBI\n";
 } 
 
