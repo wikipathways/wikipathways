@@ -13,7 +13,7 @@ require("wpi.php");
 //Definition of functions
 $updatePathway_sig=array(
 	array(
-		$xmlrpcBoolean, 
+		$xmlrpcInt, 
 		$xmlrpcString, $xmlrpcString, $xmlrpcString, $xmlrpcBase64,
 		$xmlrpcInt
 	),
@@ -28,7 +28,7 @@ $updatePathway_doc= "Update a pathway on wikipathways.";
 
 $updatePathway_docsig = array(
 	array(
-		"True when the update was successful, false when not",
+		"The newest revision number when the update was successful, 0 otherwise",
 		"The pathway name (e.g. Apoptosis)",
 		"The pathway species (e.g. Human)",
 		"Description of the modifications",
@@ -36,7 +36,7 @@ $updatePathway_docsig = array(
 		"The revision id on which the updated GPML is based"
 	),
 	array(
-		"True when the update was successful, false when not",
+		"The newest revision number when the update was successful, 0 otherwise",
 		"The pathway name (e.g. Apoptosis)",
 		"The pathway species (e.g. Human)",
 		"Description of the modifications",
@@ -156,13 +156,14 @@ function updatePathway($pwName, $pwSpecies, $description, $gpmlData, $revision, 
 		}
 	}
 		
-	$resp = TRUE;
+	$resp = 0;
 	try {
 		$pathway = new Pathway($pwName, $pwSpecies);
 		//Only update if the given revision is the newest
 		//Or if this is a new pathway
 		if(!$pathway->exists() || $revision == $pathway->getLatestRevision()) {
 			$pathway->updatePathway($gpmlData, $description);
+			$resp = $pathway->getLatestRevision();
 		} else {
 			$resp = new xmlrpcresp(0, $xmlrpcerruser,
 				"Revision out of date: your GPML code originates from " .
