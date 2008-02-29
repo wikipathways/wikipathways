@@ -113,6 +113,20 @@ $login_docsig = array(
 	)
 );
 
+$getPathwayList_sig = array(
+	array(
+			$xmlrpcArray
+	)
+);
+
+$getPathwayList_doc = "Get a list of all pathway titles (in the form of Species:PathwayName)";
+
+$getPathwayList_docsig = array(
+	array(
+		"An array containing all pathway titles"
+	)
+);
+
 //Definition of dispatch map
 $disp_map=array(
 		"WikiPathways.updatePathway" => 
@@ -135,6 +149,11 @@ $disp_map=array(
 			"signature" => $login_sig,
 			"docstring" => $login_doc,
 			"signature_docs" => $login_docsig),
+		"WikiPathways.getPathwayList" =>
+			array("function" => "getPathwayList",
+			"signature" => $getPathwayList_sig,
+			"docstring" => $getPathwayList_doc,
+			"signature_docs" => $getPathwayList_docsig),
 );
 
 //Setup the XML-RPC server
@@ -144,6 +163,15 @@ $s->functions_parameters_type = 'phpvals';
 $s->service();
 
 //Function implementations
+function getPathwayList() {
+	$pathways = Pathway::getAllPathways();
+	$titles = array();
+	foreach($pathways as $p) {
+		$titles[] = $p->getTitleObject()->getDbKey();
+	}
+	return $titles;
+}
+
 function updatePathway($pwName, $pwSpecies, $description, $gpmlData, $revision, $auth = NULL) {
 	global $xmlrpcerruser, $wgUser;
 	

@@ -23,9 +23,20 @@ require("includes/xmlrpc.inc");
 
 //Setup a connection to the xml-rpc server (on the test site)
 $c = new xmlrpc_client("/wikipathways-test/wpi/wpi_rpc.php", "137.120.89.38", 80);
-$c->setDebug(1);
+$c->setDebug(0);
 $c->setAcceptedCompression(null);
 
+//Get all pathways
+$m = new xmlrpcmsg("WikiPathways.getPathwayList",
+	array()
+);
+
+$r = $c->send($m);
+$v = getvalue($r);
+echo "<H2>Fetched list of {$v->arraysize()} pathways:</H2>";
+for($i = 0; $i < $v->arraysize(); $i++) {
+	echo($v->arraymem($i)->scalarval() . "<BR>\n");
+}
 
 //Get an authentication token
 $m = new xmlrpcmsg("WikiPathways.login", 
