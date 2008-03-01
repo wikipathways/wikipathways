@@ -229,8 +229,12 @@ require_once('wpi/extensions/SpecialWishList/TopWishes.php');
 require_once('wpi/extensions/DiffAppletPage/DiffAppletPage.php');
 require_once('wpi/extensions/RecentPathwayChanges/RecentPathwayChanges.php');
 
+require_once('wpi/extensions/recaptcha/ReCaptcha.php'); 
+// Sign up for keys at http://recaptcha.net/api/getKey
+$recaptcha_public_key = '6LeiOwEAAAAAACCN8U2k8RdieW9cQgpvhRiTU0kF';
+$recaptcha_private_key = '6LeiOwEAAAAAAHD10FkLMlxgqvMbiVHscE3YhDh-';
+
 require_once( "wpi/extensions/ContributionScores/ContributionScores.php" );
- 
 $contribScoreIgnoreBots = true;  //Set to true if you want to exclude Bots from the reporting - Can be omitted.
  
 //Each array defines a report - 7,50 is "past 7 days" and "LIMIT 50" - Can be omitted.
