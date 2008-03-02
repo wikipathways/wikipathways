@@ -14,7 +14,7 @@ We have two sites:
 
 There are 6 types of data to take into account
 * Pathway content
-* other content data (pages, layout)
+* other content data (pages, layout, Help, FAQ)
 * user account data
 * applet code
 * mediawiki code
@@ -49,14 +49,18 @@ Our development plan for the coming weeks:
 Feb 13: feature freeze
 Feb 20: release Milestone 1
 
-Mar 12 : feature freeze
-Mar 19 : release Milestone 2
+Mar 5 : feature freeze
+Mar 12 : release Milestone 2
 
-Apr 9: feature freeze
-Apr 16: release Milestone 3
+Apr 2: feature freeze
+Apr 9: release Milestone 3
 
-The goal is to have a web meeting on the day of the feature freeze, so we can 
-go through the list of outstanding bugs together and see where the testing should focus on.
+Apr 30: feature freeze
+May 7: release Milestone 4
+
+The goal is to have a web meeting just before the Milestone, so we can 
+go through the list of outstanding bugs together and see if there is any important
+work remaining before the release.
 
 To keep track of which features / bugs are going to be implemented / fixed for each milestone,
 we use our bug tracker. The bug tracker will be used for bugs as well as features, so
