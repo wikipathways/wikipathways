@@ -136,7 +136,7 @@ $wgGroupPermissions['*'    ]['createtalk']      = true;
 $wgAllowSlowParserFunctions = true;
 
 #Logo
-$wgLogo = "http://www.wikipathways.org/skins/common/images/earth-or-pathway_text2_beta.png";
+$wgLogo = "http://www.wikipathways.org/skins/common/images/earth-or-pathway_text3_beta.png";
 
 #Allow gpml extension and larger image files
 $wgFileExtensions = array( 'png', 'gif', 'jpg', 'jpeg', 'svg', 'gpml', 'mapp');
@@ -231,8 +231,8 @@ require_once('wpi/extensions/RecentPathwayChanges/RecentPathwayChanges.php');
 
 require_once('wpi/extensions/recaptcha/ReCaptcha.php'); 
 // Sign up for keys at http://recaptcha.net/api/getKey
-$recaptcha_public_key = '6LeiOwEAAAAAACCN8U2k8RdieW9cQgpvhRiTU0kF';
-$recaptcha_private_key = '6LeiOwEAAAAAAHD10FkLMlxgqvMbiVHscE3YhDh-';
+$recaptcha_public_key = '6LeiPAEAAAAAAGLl8epcouGivbh5bQcmAwFuCgKO';
+$recaptcha_private_key = '6LeiPAEAAAAAABWdtfRXHzrtUn6Xigv7DIAtQCJ0';
 
 require_once( "wpi/extensions/ContributionScores/ContributionScores.php" );
 $contribScoreIgnoreBots = true;  //Set to true if you want to exclude Bots from the reporting - Can be omitted.
