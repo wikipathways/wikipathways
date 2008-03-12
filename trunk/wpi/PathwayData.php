@@ -148,11 +148,7 @@ class PathwayData {
 		if(!$this->gpml) {
 			$gpml = $this->pathway->getGpml($revision);
 
-			try {
 			$this->gpml = new SimpleXMLElement($gpml);
-			}
-			catch(Exception $e){
-			}
 
 			//Pre-parse some data
 			$this->findPublicationXRefs();

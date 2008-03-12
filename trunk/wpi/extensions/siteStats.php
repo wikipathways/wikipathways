@@ -76,30 +76,37 @@ function howManyUniqueGenes($species){
 	foreach (array_keys($all_pathways) as $pathway) {
 		$pathwaySpecies = $all_pathways[$pathway]->species();
 		if ($pathwaySpecies != $species) continue;
-                if ($all_pathways[$pathway]->getName() == 'XMLRPC') continue;
 		//$name = $all_pathways[$pathway]->getName();
-                //echo $name;
- 		$xml = $all_pathways[$pathway]->getPathwayData();
-		$nodes = $xml->getUniqueElements('DataNode', 'TextLabel');
-		foreach ($nodes as $datanode){
-			$xref = $datanode->Xref;
-			if ($xref[ID] && $xref[ID] != '' && $xref[ID] != ' '){
-				if ($xref[Database] == 'HUGO'
-		                  || $xref[Database] == 'Entrez Gene'
-                                  || $xref[Database] == 'Ensembl'
-                                  || $xref[Database] == 'SwissProt'
-                                  || $xref[Database] == 'UniGene'
-                                  || $xref[Database] == 'RefSeq'
-                                  || $xref[Database] == 'MGI'
-                		  || $xref[Database] == 'RGD'
-                		  || $xref[Database] == 'ZFIN'
-                		  || $xref[Database] == 'FlyBase'
-                		  || $xref[Database] == 'WormBase'
-                		  || $xref[Database] == 'SGD'
-                		  ){
-					array_push($geneList, $xref[ID]);
+                //echo "[" . $name . "]";
+		try
+		{
+ 			$xml = $all_pathways[$pathway]->getPathwayData();
+			$nodes = $xml->getUniqueElements('DataNode', 'TextLabel');
+			foreach ($nodes as $datanode){
+				$xref = $datanode->Xref;
+				if ($xref[ID] && $xref[ID] != '' && $xref[ID] != ' '){
+					if ($xref[Database] == 'HUGO'
+		                  	|| $xref[Database] == 'Entrez Gene'
+                                  	|| $xref[Database] == 'Ensembl'
+                                  	|| $xref[Database] == 'SwissProt'
+                                  	|| $xref[Database] == 'UniGene'
+                                  	|| $xref[Database] == 'RefSeq'
+                                  	|| $xref[Database] == 'MGI'
+                		  	|| $xref[Database] == 'RGD'
+                		  	|| $xref[Database] == 'ZFIN'
+                		  	|| $xref[Database] == 'FlyBase'
+                		  	|| $xref[Database] == 'WormBase'
+                		  	|| $xref[Database] == 'SGD'
+                		  	){
+						array_push($geneList, $xref[ID]);
+					}
 				}
 			}
+		}
+		catch (Exception $e)
+		{
+			// we can safely ignore exceptions
+			// errorneous pathways simply won't get counted
 		}
 	}
 	$geneList = array_unique($geneList);
