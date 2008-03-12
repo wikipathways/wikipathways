@@ -23,6 +23,11 @@ the change is NOT reflected in the target page. This is OK for simple or tempora
 templates like the ones that generate the header and footer of every Pathway Page, i.e., we want changes
 to those to be reflected in the target pages.
 
+Comment Martijn:
+I wouldn't worry too much about the server load here. It's probably a rather small optimization
+that comes at a cost of flexibility. I think we have much lower hanging fruit to pick in terms of
+optimization.
+
 == Implementation ==
 1. Since our pathway pages are rendered from GPML and Pathway Page Templates, we will have to add
    an applet to the Top page template to handle the template tags, so that they are added to the
@@ -46,16 +51,34 @@ to those to be reflected in the target pages.
  * Inappropriate edit (potential vandalism)
  * Inappropriate edit (potentially false)
  * Incomplete information (lit ref missing)
- * Incomplete informaiton (left blank)
+ * Incomplete information (left blank)
+
+Martijn: Some ideas
+ * missing gene / protein database references
+ * missing metabolite database refereces
+ * missing literature references
+ * no interactions defined (i.e. no sticky edges)
  
 ==== Admin Tags ====
  * Community Approved
+ 
+	Comment Martijn: Is it possible to attach tags to specific revisions? That would be really cool here.
+		Especially if you can easily find the latest verison of a Pathway that has been Approved.
+
  * Scheduled for deletion... by date... contact admin
  * Featured pathway (addded to feature page list)
  
 ==== Bot Tags =====
  * New Pathway
+ 
  * Recently edited... date
+ 
+	Is a tag necessary for this? The database already stores that information,
+	so a simple SQL query can pull that information out dynamically. Then we won't
+	have to 
+	
  * Not updated in over a year... last edit date
+
+	Idem: Is a tag necessary for this? 
 
 
