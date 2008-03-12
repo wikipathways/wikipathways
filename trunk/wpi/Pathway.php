@@ -41,12 +41,13 @@ class Pathway {
 		if(!$name) throw new Exception("name argument missing in constructor for Pathway");
 		if(!$species) throw new Exception("species argument missing in constructor for Pathway");
 		
-		//Check name for illegal characters
-		$illegal_chars = array("\\", '/', ',');
-		foreach($illegal_chars as $char) {
-			if(strstr($name, $char)) {
-				throw new Exception("Illegal character '$char' in pathway name");
-			}
+		# general illegal chars 
+		
+		//~ $rxIllegal = '/[^' . Title::legalChars() . ']/';
+		$rxIllegal = '/[^a-zA-Z0-9_ -]/';
+		if (preg_match ($rxIllegal, $name, $matches))
+		{
+			throw new Exception("Illegal character '" . $matches[0] . "' in pathway name");
 		}
 		
 		$this->pwName = $name;
@@ -200,7 +201,7 @@ class Pathway {
 	 * Get the MediaWiki Title object for the pathway page
 	 */
 	public function getTitleObject() {
-		//wfDebug("TITLE OBJECT: $this->species():$this->name()\n");
+		//wfDebug("TITLE OBJECT:" . $this->species() . ":" . $this->name() . "\n");
 		return Title::newFromText($this->species() . ':' . $this->name(), NS_PATHWAY);
 	}
 	

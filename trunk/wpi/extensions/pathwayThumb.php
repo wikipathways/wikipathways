@@ -15,8 +15,9 @@ function wfPathwayThumb_Magic( &$magicWords, $langCode ) {
         return true;
 }
 
-function renderPathwayImage( &$parser, $pwTitle, $width = 0, $align = '', $caption = '', $href = '', $tooltip = '', $id='pwthumb') {      
+function renderPathwayImage( &$parser, $pwTitleEncoded, $width = 0, $align = '', $caption = '', $href = '', $tooltip = '', $id='pwthumb') {      
 	global $wgUser;
+	$pwTitle = urldecode ($pwTitleEncoded);
 	$parser->disableCache();
       try {
                 $pathway = Pathway::newFromTitle($pwTitle);
