@@ -222,7 +222,7 @@ HTML;
 	}
 	
 	function addJavaScript() {
-		global $wgOut, $wgScriptPath;;
+		global $wgOut, $wgScriptPath;
 		$js = <<<JS
 <script type="text/javascript">
 	function showhide(id, toggle, hidelabel, showlabel) {
