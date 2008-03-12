@@ -55,7 +55,7 @@ if($restrictSpecies) {
 //Exclude Sandbox pathway
 $name = $all_pathways[$pathway]->getName();
 if ($name == 'Sandbox')	continue;
-
+try {
 $xml = $all_pathways[$pathway]->getPathwayData();  
 $gpml = $xml->getGpml();
 $modTime = $all_pathways[$pathway]->getGpmlModificationTime();
@@ -175,6 +175,12 @@ else {
         ."\t".$CAS_list
         ."\t".$Che_list
         ."\n";
+}
+
+} catch (Exception $e)
+{
+ // we can safely ignore exceptions
+ // erroneous pathways simply won't get processed
 }
 
 } // end foreach pathway
