@@ -71,46 +71,26 @@ function howManyPathways($species) {
 }
 
 function howManyUniqueGenes($species){
-	$geneList = array();
-	$all_pathways = Pathway::getAllPathways();
-	foreach (array_keys($all_pathways) as $pathway) {
-		$pathwaySpecies = $all_pathways[$pathway]->species();
-		if ($pathwaySpecies != $species) continue;
-		//$name = $all_pathways[$pathway]->getName();
-                //echo "[" . $name . "]";
-		try
-		{
- 			$xml = $all_pathways[$pathway]->getPathwayData();
-			$nodes = $xml->getUniqueElements('DataNode', 'TextLabel');
-			foreach ($nodes as $datanode){
-				$xref = $datanode->Xref;
-				if ($xref[ID] && $xref[ID] != '' && $xref[ID] != ' '){
-					if ($xref[Database] == 'HUGO'
-		                  	|| $xref[Database] == 'Entrez Gene'
-                                  	|| $xref[Database] == 'Ensembl'
-                                  	|| $xref[Database] == 'SwissProt'
-                                  	|| $xref[Database] == 'UniGene'
-                                  	|| $xref[Database] == 'RefSeq'
-                                  	|| $xref[Database] == 'MGI'
-                		  	|| $xref[Database] == 'RGD'
-                		  	|| $xref[Database] == 'ZFIN'
-                		  	|| $xref[Database] == 'FlyBase'
-                		  	|| $xref[Database] == 'WormBase'
-                		  	|| $xref[Database] == 'SGD'
-                		  	){
-						array_push($geneList, $xref[ID]);
-					}
-				}
+	global $wgScriptPath;
+	$count = 0;
+     try {
+        $filename = $_SERVER['DOCUMENT_ROOT'].$wgScriptPath.'wpi/UniqueGeneCounts.data';
+        $file = fopen($filename, 'r') or die("Can't open file: $filename");
+	if ($file) {
+		while (!feof($file)){
+			$line = fgets($file);
+			$explodedLine = explode("\t", $line);
+			if ($explodedLine[0] == $species){
+				$count = trim($explodedLine[1]);
 			}
 		}
-		catch (Exception $e)
-		{
-			// we can safely ignore exceptions
-			// errorneous pathways simply won't get counted
-		}
+		fclose($file);
 	}
-	$geneList = array_unique($geneList);
-	return count($geneList);
+    }  catch(Exception $e) {
+                // likely having trouble opening files, perhaps due to permissions
+                // files should have 664 permissions
+    }
+	return $count;
 }
 
 function getSpecies() {
