@@ -457,6 +457,11 @@ class Pathway {
 			$this->updateCategories();
 			//Update cache
 			$this->updateCache();
+
+			//Calculate number of unique genes for given species
+			// and update file with stored values
+			$this->calculateUniqueGenes($this->speciesFromTitle($gpmlTitle->getFullText()));
+
 		} else {
 			throw new Exception("Unable to save GPML, are you logged in?");
 		}
@@ -972,6 +977,92 @@ class Pathway {
 
 		return true;
 	}
+
+	/**
+	 * Calculates the number of unique genes in all pathways per species.
+	 * Updates number in file stored on server to be referenced by siteStats
+	 */
+	function calculateUniqueGenes($species){
+          global $wgScriptPath;
+
+	  $geneList = array();
+          $all_pathways = $this->getAllPathways();
+          foreach (array_keys($all_pathways) as $pathway) {
+                $pathwaySpecies = $all_pathways[$pathway]->species();
+                if ($pathwaySpecies != $species) continue;
+                $name = $all_pathways[$pathway]->getName();
+		if ($name == 'Sandbox') continue;
+                //echo "[" . $name . "]";
+                try
+                {
+                        $xml = $all_pathways[$pathway]->getPathwayData();
+                        $nodes = $xml->getUniqueElements('DataNode', 'TextLabel');
+                        foreach ($nodes as $datanode){
+                                $xref = $datanode->Xref;
+                                if ($xref[ID] && $xref[ID] != '' && $xref[ID] != ' '){
+                                        if ($xref[Database] == 'HUGO'
+                                        || $xref[Database] == 'Entrez Gene'
+                                        || $xref[Database] == 'Ensembl'
+                                        || $xref[Database] == 'SwissProt'
+                                        || $xref[Database] == 'UniGene'
+                                        || $xref[Database] == 'RefSeq'
+                                        || $xref[Database] == 'MGI'
+                                        || $xref[Database] == 'RGD'
+                                        || $xref[Database] == 'ZFIN'
+                                        || $xref[Database] == 'FlyBase'
+                                        || $xref[Database] == 'WormBase'
+                                        || $xref[Database] == 'SGD'
+                                        ){
+                                                array_push($geneList, $xref[ID]);
+                                        }
+                                }
+                        }
+                }
+                catch (Exception $e)
+                {
+                        // we can safely ignore exceptions
+                        // errorneous pathways simply won't get counted
+                }
+          }
+          $geneList = array_unique($geneList);
+          
+	  // Write value to file
+	  $newLine = $species."\t".count($geneList)."\n";
+	  $filename = $_SERVER['DOCUMENT_ROOT'].$wgScriptPath.'wpi/UniqueGeneCounts.data';
+          $filename2 = $_SERVER['DOCUMENT_ROOT'].$wgScriptPath.'wpi/UniqueGeneCounts.tmp';
+	try {
+	  $file = fopen($filename, 'r+') or die("Can't open file: $filename");
+	  $file2 = fopen($filename2, 'w+') or die("Can't open file: $filename2");
+	  $isNewEntry = true;
+	  if ($file && $file2) {
+		while (!feof($file)) {
+			$line = fgets($file);
+			$explodedLine = explode("\t", $line);
+                        if ($explodedLine[0] == $species){
+				fwrite($file2, $newLine);			
+				$isNewEntry = false;
+			}
+			else {
+				fwrite($file2, $line);
+			}
+		}
+		if ($isNewEntry){
+			fwrite($file2, $newLine);
+		}
+		//overwrite .data file
+		rewind($file);
+		rewind($file2);
+                $data = fread($file2, filesize($filename2));
+                fwrite($file, $data);
+		//close files 
+          	fclose($file);
+		fclose($file2);
+	  }
+	} catch(Exception $e) {
+		// likely having trouble opening files, perhaps due to permissions
+		// files should have 664 permissions
+	}
+      }
 }
 
 ?>
