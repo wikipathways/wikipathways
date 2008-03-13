@@ -3,6 +3,7 @@
 require_once("wpi/wpi.php");
 require_once("wpi/Pathway.php");
 require_once("wpi/PathwayData.php");
+require_once("wpi/StatisticsCache.php");
 
 /*
 Statistics for main page
@@ -42,7 +43,7 @@ function getSiteStats( &$parser, $tableAttr ) {
 EOD;
 	foreach(Pathway::getAvailableSpecies() as $species) {
 		$nr = howManyPathways($species);
-		$genes = howManyUniqueGenes($species);
+		$genes = StatisticsCache::howManyUniqueGenes($species);
 		$table .= <<<EOD
 
 |-align="left"
@@ -68,33 +69,6 @@ function howManyPathways($species) {
 	$row = $dbr->fetchRow($res);
 	$dbr->freeResult($res);
 	return $row[0];
-}
-
-function howManyUniqueGenes($species){
-	global $wgScriptPath;
-	$count = 0;
-	try {
-		$filename = $_SERVER['DOCUMENT_ROOT'].$wgScriptPath.'wpi/UniqueGeneCounts.data';
-		$file = @fopen($filename, 'r');
-		if ($file) {
-			while (!feof($file)){
-				$line = fgets($file);
-				$explodedLine = explode("\t", $line);
-				if ($explodedLine[0] == $species){
-					$count = trim($explodedLine[1]);
-				}
-			}
-			fclose($file);
-		}
-		else
-		{
-			$count = "?";
-		}
-    } catch(Exception $e) {
-                // likely having trouble opening files, perhaps due to permissions
-                // files should have 664 permissions
-    }
-	return $count;
 }
 
 function getSpecies() {
