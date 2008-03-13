@@ -73,6 +73,9 @@ function isPathwayCreator($user, $title) {
 	}
 	$pathway = Pathway::newFromTitle($title);
 	$first = $pathway->getFirstRevision();
+	if(is_null($first)) {
+		return false;
+	}
 	return $first->getUser() == $user->getID();
 }
 
