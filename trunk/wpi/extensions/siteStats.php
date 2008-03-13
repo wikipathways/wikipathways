@@ -75,7 +75,7 @@ function howManyUniqueGenes($species){
 	$count = 0;
 	try {
 		$filename = $_SERVER['DOCUMENT_ROOT'].$wgScriptPath.'wpi/UniqueGeneCounts.data';
-		$file = fopen($filename, 'r') or die("Can't open file: $filename");
+		$file = @fopen($filename, 'r');
 		if ($file) {
 			while (!feof($file)){
 				$line = fgets($file);
@@ -85,6 +85,10 @@ function howManyUniqueGenes($species){
 				}
 			}
 			fclose($file);
+		}
+		else
+		{
+			$count = "?";
 		}
     } catch(Exception $e) {
                 // likely having trouble opening files, perhaps due to permissions
