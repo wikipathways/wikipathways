@@ -73,20 +73,20 @@ function howManyPathways($species) {
 function howManyUniqueGenes($species){
 	global $wgScriptPath;
 	$count = 0;
-     try {
-        $filename = $_SERVER['DOCUMENT_ROOT'].$wgScriptPath.'wpi/UniqueGeneCounts.data';
-        $file = fopen($filename, 'r') or die("Can't open file: $filename");
-	if ($file) {
-		while (!feof($file)){
-			$line = fgets($file);
-			$explodedLine = explode("\t", $line);
-			if ($explodedLine[0] == $species){
-				$count = trim($explodedLine[1]);
+	try {
+		$filename = $_SERVER['DOCUMENT_ROOT'].$wgScriptPath.'wpi/UniqueGeneCounts.data';
+		$file = fopen($filename, 'r') or die("Can't open file: $filename");
+		if ($file) {
+			while (!feof($file)){
+				$line = fgets($file);
+				$explodedLine = explode("\t", $line);
+				if ($explodedLine[0] == $species){
+					$count = trim($explodedLine[1]);
+				}
 			}
+			fclose($file);
 		}
-		fclose($file);
-	}
-    }  catch(Exception $e) {
+    } catch(Exception $e) {
                 // likely having trouble opening files, perhaps due to permissions
                 // files should have 664 permissions
     }
