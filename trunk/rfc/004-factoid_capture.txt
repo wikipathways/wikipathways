@@ -1,4 +1,4 @@
-o = Factoid Capture Database =
+= Factoid Capture Database =
 This RFC describes the plan for a factoid capturing database. In this RFC, I will assume that we are going
 to use BioPAX to store the factoids. By describing all required features and data types, we can decide whether 
 this would be a good choice, or if we should look for other options (e.g. a custom SQL database schema).
