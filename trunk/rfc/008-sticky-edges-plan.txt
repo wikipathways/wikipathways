@@ -1,29 +1,55 @@
 == Plan for Sticky Edge ==
-This RFC covers the multi-stage plan to add "sticky edges" (datanode-linked edge lines) to the archive of pathways in WikiPathways.  This is a "sticky" problem because many of the lines drawn in pathways have multiple meanings and involve groups of nodes or even aliases.
+This RFC covers the multi-stage plan to add "sticky edges" (datanode-linked edge lines) to the archive 
+of pathways in WikiPathways.  This is a "sticky" problem because many of the lines drawn in pathways 
+have multiple meanings and involve groups of nodes or even aliases.
 
 == Main issues ==
 === Edges to groups ===
-This includes stacks of nodes representing complexes and paralogs, most commonly.  It could also include arbitrary collections of nodes that have been grouped for functional or organizational reasons. PathVisio does not have a metanode concept, so do you draw the edge to one of the group members, to each of the members, to a brace or label next to the group?  How does this get translated to Cytoscape?
+This includes stacks of nodes representing complexes and paralogs, most commonly.  It could also include 
+arbitrary collections of nodes that have been grouped for functional or organizational reasons. PathVisio 
+does not have a metanode concept, so do you draw the edge to one of the group members, to each of the members, 
+to a brace or label next to the group?  How does this get translated to Cytoscape?
 
-Solution: Edges can be linked to group objects, so you should group together all nodes, braces and labels representing your grouped entity and then link the edge line to the group object.  Edges should not be linked to only the brace, label or only a single member node. [Note that later braces, and aliases will be properties of the group node (see below).]  In terms of the representation in Cytoscape, here are two proposals:
+Solution: Edges can be linked to group objects, so you should group together all nodes, braces and labels 
+representing your grouped entity and then link the edge line to the group object.  Edges should not be linked 
+to only the brace, label or only a single member node. [Note that later braces, and aliases will be properties 
+of the group node (see below).]  In terms of the representation in Cytoscape, here are two proposals:
 
-	(1) Edges to grouped objects will be translated by the GPML Read/Writer Plugin into proper network edges connecting group nodes (e.g., tiny dummy nodes) which are in turn connected to each of their members. See gpml-groups.png. The advantages of the tiny group nodes include:
- - doesn't clobber pathway view
- - edges between groups are represented accurately, i.e., not assumed to be inherited down to member nodes
- - edges between group and group node represent a 'contains' relation
+	(1) Edges to grouped objects will be translated by the GPML Read/Writer Plugin into proper network edges 
+	connecting group nodes (e.g., tiny dummy nodes) which are in turn connected to each of their members. See 
+	gpml-groups.png. The advantages of the tiny group nodes include:
+     - doesn't clobber pathway view
+     - edges between groups are represented accurately, i.e., not assumed to be inherited down to member nodes
+     - edges between group and group node represent a 'contains' relation
 
-	(2) Our groups could get translated into Cytoscape group nodes.  These would be proper metanodes that can be expanded/collapsed and viewed in a number of different ways (still under active development in Cytoscape).  We would have to provide a name for the group and default visual state.  The name could be a concatenation of the member nodes and the default visual state could be expanded using provided coords. We can include a dashed box around the stack or braces, etc to represent the metanode, if we like. The visual style could match whatever we end up developing in PathVisio and thus even be stored in the GPML and explicitly set in Cytoscape. This is very flexible and I think more accurate in terms of network representations. Scooter Morris is the primary developer of groups in Cytoscape, so we have a close relationship with group dev plan as well.
+	(2) Our groups could get translated into Cytoscape group nodes.  These would be proper metanodes that can be 
+	expanded/collapsed and viewed in a number of different ways (still under active development in Cytoscape).  
+	We would have to provide a name for the group and default visual state.  The name could be a concatenation of 
+	the member nodes and the default visual state could be expanded using provided coords. We can include a dashed 
+	box around the stack or braces, etc to represent the metanode, if we like. The visual style could match 
+	whatever we end up developing in PathVisio and thus even be stored in the GPML and explicitly set in 
+	Cytoscape. This is very flexible and I think more accurate in terms of network representations. Scooter Morris 
+	is the primary developer of groups in Cytoscape, so we have a close relationship with group dev plan as well.
 
 === Edges to aliases of groups ===
-Aliases are labels used in place of a group of datanodes for the purpose of simplifying the visual representation of a pathway.  How can aliases be associated with groups of nodes?  What does it mean to connect an egde to an alias? How would this get translated to Cytoscape?
+Aliases are labels used in place of a group of datanodes for the purpose of simplifying the visual representation 
+of a pathway.  How can aliases be associated with groups of nodes?  What does it mean to connect an egde to an 
+alias? How would this get translated to Cytoscape?
 
-Solution:  Formalize the use of boxed red text as aliases for groups.  The alias could be a property of the group, like a label, but such that edges could be linked to it.  Edges to aliases would then be translated to edges to a metanode in Cytoscape, where the metanode contained all the members of the group.  This solution is analogous to proposal (2) above, the only difference being that the default metanode state for aliased groups would be collapsed, viewed as a single node which could then be expanded to view all the members.
+Solution:  Formalize the use of boxed red text as aliases for groups.  The alias could be a property of the group, 
+like a label, but such that edges could be linked to it.  Edges to aliases would then be translated to edges to a 
+metanode in Cytoscape, where the metanode contained all the members of the group.  This solution is analogous to 
+proposal (2) above, the only difference being that the default metanode state for aliased groups would be 
+collapsed, viewed as a single node which could then be expanded to view all the members.
 
 === Representation of Groups ===
-In addition to the handling of edges linking to groups, we should also address the basic visualization of groups.  We would like to see the following:
+In addition to the handling of edges linking to groups, we should also address the basic visualization of groups.  
+We would like to see the following:
  * Groups should have default braces (top, bottom, left, right) that can be toggled on and off
- * Groups should have label properties that can be edited and displayed in fixed relation to the nodes (e.g., top, bottom, left, right) and perhaps rotatable, in a way that does not clobber the braces
- * Groups should have aliases that can be labels or labels in boxes (like datanodes). These should probably have a fixed color (e.g, red) to distinguish them.
+ * Groups should have label properties that can be edited and displayed in fixed relation to the nodes (e.g., top, 
+ bottom, left, right) and perhaps rotatable, in a way that does not clobber the braces
+ * Groups should have aliases that can be labels or labels in boxes (like datanodes). These should probably have 
+ a fixed color (e.g, red) to distinguish them.
 
 
 
