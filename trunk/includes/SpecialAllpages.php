@@ -7,7 +7,7 @@
 /** AP20070419
  * Added wpi.php to access Pathway class and getAvailableSpecies()
  */
-require_once('/var/www/wikipathways/wpi/wpi.php');
+require_once('./wpi/wpi.php');
 
 /**
  * Entry point : initialise variables and call subfunctions.
