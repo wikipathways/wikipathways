@@ -155,18 +155,21 @@ $wgSVGConverters['inkscape'] = '$path/inkscape -z -b white -w $width -f $input -
 # Allow direct linking to external images (so we don't have to upload them to the wiki)
 $wgAllowExternalImages = true;
 
-##Pathway namespace
+##Custom namespaces
 define("NS_PATHWAY", 102); //NS_PATHWAY is same as NS_GPML since refactoring
 define("NS_PATHWAY_TALK", 103);
 define("NS_GPML", 102);
 define("NS_GPML_TALK", 103);
 define("NS_WISHLIST", 104);
 define("NS_WISHLIST_TALK", 105);
+define("NS_PORTAL", 106);
+define("NS_PORTAL_TALK", 107);
 
 $wgExtraNamespaces =
 	array(	NS_PATHWAY => "Pathway", NS_PATHWAY_TALK => "Pathway_Talk",
 			100 => "Pw_Old", 101 => "Pw_Old_Talk", //Old namespace
-			NS_WISHLIST => "Wishlist", NS_WISHLIST_TALK => "Wishlist_Talk"
+			NS_WISHLIST => "Wishlist", NS_WISHLIST_TALK => "Wishlist_Talk",
+			NS_PORTAL => "Portal", NS_PORTAL_TALK => "Portal_Talk"
 		);
 $wgNamespacesToBeSearchedDefault += 
 	array( 	NS_PATHWAY => true, NS_PATHWAY_TALK => true,
