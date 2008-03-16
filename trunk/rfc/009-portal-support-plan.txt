@@ -1,0 +1,92 @@
+== Portal Support Plan ==
+Once again taking a page from the Wikipedia playbook, we would like to support Portal pages to serve as focal 
+points for various pathway curation/user communities. A Portal page is essentially a specialized Main Page that 
+can provide links, organization and features specific to a community.  In the end, the Portal is simply a single wiki 
+page and all the links go to the common pool of content available to all WikiPathways users.
+
+=== References ===
+Definition:
+   http://en.wikipedia.org/wiki/Wikipedia:Namespace#Portal
+   http://en.wikipedia.org/wiki/Wikipedia:Portal_namespace
+
+Wikipedia Implementation:
+   http://en.wikipedia.org/wiki/Wikipedia:Portal/Instructions
+   http://en.wikipedia.org/wiki/Wikipedia:Portal/Instructions
+
+Examples:
+   http://en.wikipedia.org/wiki/Portal:Energy
+   http://en.wikipedia.org/wiki/Portal:West_Bengal
+   http://en.wikipedia.org/wiki/Portal:Literature
+
+== Our First Portal ==
+The folks at Gramene (http://www.gramene.org/) contacted us about having their own WikiPathways. We responded 
+with a Portal proposal. 
+
+== Specific Goals ==
+ 1. To establish a Portal page, Portal:Gramene, to serve as a specialized Main Page for their plant pathway community
+ 2. Provide easy admin controls over banner, colors and content 
+ 3. Provide functions such as featured pathway, site stats, and news that are specific to their content
+ 4. Load their BioPAX-converted content (conversion back and forth will be a collaborative effort outside the scope of this RFC).
+
+== General Implementation Plan ==
+In order to achieve the specific goals above and look to the future of having other portals, we should make a general
+implementation plan.  This entails the development of templates, stylesheets and magic words that can be used by the
+admins of various portals. 
+
+=== Content ===
+Clearly, all pathway content should go in the current Pathway namespace.  I propose using categories to tag pathways
+that are associated to a portal.  For example, there could be a 'Gramene' category and it would be up to the Gramene
+community to make sure it's content stayed appropriately tagged.  These categories could then be use in Magic Words
+and browse/search functions to help provide portal-specific functionality.
+
+=== Magic Words ===
+Magic Words are a Mediawiki concept that basically function like macros. We employ magic words throughout WikiPathways
+already to generate statistics, links to pages via images, and featured pathways. I propose we generalize many of our current
+magic words (e.g., statistics and feature pathways) that take variables for category tags. The same magic word could then
+be used for multiple different portals, in addition to the Main Page for the whol site (e.g., all categories).
+
+We should adapt the following magic words in the following order:
+ * PathwayOfTheDay (featured pathway)
+
+      Comment Alex: all we have to do here is provide for alternative reference pages that list featured pathways per portal. This is
+      potentially better than restricting to a category tag, though it does require more admin maintenance. Should
+      there be an option to cycle through all content by category rather than based on a wiki page?
+
+ * siteStats (provide pathway, gene and user counts)
+     Comment Alex: this should just require a category to restrict what is counted.  User counts, however, would be non-
+     specific.  Should this be extracted out as a separate stat in an independent magic word?
+
+Magic words that already work generically and specifically:
+ * pathwayThumb (allow pathway image thumbnails to link to pathway page)
+ * imageLink (allow any image to serve as a thumbnail link to any page)
+
+These will require documentation to allow admins to easily make use of them.  A single page describing the technical
+usage of each would suffice.
+ 
+=== Templates ===
+Templates are also used quite a bit in WikiPathways to plugin in common chuncks of code into multiple pages. We should
+develop some portal templates to support basic page layout elements, such as header, content boxes, and footers.  The
+Content boxes, for example, could include News feeds, Featured information, Statistics, General site descriptions, etc. There
+should be a template for each of these basic types.  This would dramatically cut down on development per admin per portal
+and lend consistency to WikiPathways overall.
+
+I propose the following templates (see Wikipedia examples):
+ * Header (title, banner, brief description)
+ * Featured information (feature pathway, text area)
+ * Stats (site stats)
+ * News (read in from a wiki page?)
+
+=== Admin Pages ===
+There is a need for a small set of pages per portal that allow the admin to maintain the front page of the portal. These could
+have names like Portal:Gramene:<admin_page_name>
+ * Featured pathways list - the list of pathways they want to cycle through for their PathwayOfTheDay
+ * News page - the list of news items to display on Portal Page.  Abstracting out the content makes maintenance much easier.
+ * Variables page - configurable variables to encode banner image, colors, perhaps even some text such as title and brief desc?
+
+=== Organization ===
+Portals = Portal:<portal_name>
+Templates = Template:Portal_<template_name>
+Admin pages = Portal:<portal_name>:<admin_page_name>
+MagicWords = wpi/extensions/<magicword.php>
+Stylesheets = skins/portals/<filename>
+
