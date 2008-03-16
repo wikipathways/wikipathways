@@ -51,5 +51,37 @@ We would like to see the following:
  * Groups should have aliases that can be labels or labels in boxes (like datanodes). These should probably have 
  a fixed color (e.g, red) to distinguish them.
 
+== Multi-stage Plan ==
+ 1. We can go through the archive today and identify which pathways can be made at least 80% "sticky" immediately.
+ I propose that we mark these (via a list; too bad we don't have tags yet!) and distribute the work to update
+ them in a consistent manner, according to these rules:
+   * Group all stacks representing complexes, paralogs, or other sets that are associated (or could potentially be
+     associated) with edges as a group, i.e., not individually. Include any braces or labels associated with the
+     group.
+   * Associate edges connecting single nodes and/or groups, as formed above.
+   * Aliases are to be ignored at this stage.
+   
+ 2. Modify GPMLReader to translate our groups to Cytoscape metanodes so that associated edges become legitimate
+ cytoscape graph egdes, connecting to a group node in expanded mode. We can define a visual style for the expanded
+ mode so that it maintains the coords and layout provided by the GPML.
+ 
+ 3. Implement group properties for braces, labels and aliases in PathVisio.  Manually go through archive to update
+ group objects:
+   * Ungroup, delete old braces and labels, replace with group braces and labels as defined in new implementation.
+   * Replace free text aliases with group aliases.
+   * Restore edge associations to group aliases.
 
+ 4. Modify GPMLReader to translate our aliases to collapsed metanodes. The metanode can take the coords from the
+ alias label in the GPML. The children nodes would be visible upon expansion of the metanode. We could define
+ various expanded visual styles.
+ 
+ 5. Implement BioPAX definitions so that all edges in PathVisio can be directly defined by a BioPAX term which is
+ robustly stored in the GPML. Go through archive again with new edge annotation tool:
+ 	* Annotate edges with literature references and BioPAX terms.
+ 	
+Comment Alex: In terms of the manual work of going through the pathways and making changes, I think we can 
+handle 1-4 ourselves, given a few dedicated weekends. For #5 we can enlist the community by declaring a
+special initiative to annotate edges. This is where curation dashboards and other community mechanisms
+will come into play.  If we could get a handful of people annotating, it would establish a great precident
+for community-based curation.
 
