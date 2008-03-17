@@ -28,6 +28,8 @@ with a Portal proposal.
  3. Provide functions such as featured pathway, site stats, and news that are specific to their content
  4. Load their BioPAX-converted content (conversion back and forth will be a collaborative effort outside the scope of this RFC).
 
+Comment Thomas: How to load their BioPAX content, using Cytoscape maybe?
+
 == General Implementation Plan ==
 In order to achieve the specific goals above and look to the future of having other portals, we should make a general
 implementation plan.  This entails the development of templates, stylesheets and magic words that can be used by the
@@ -51,10 +53,14 @@ We should adapt the following magic words in the following order:
       Comment Alex: all we have to do here is provide for alternative reference pages that list featured pathways per portal. This is
       potentially better than restricting to a category tag, though it does require more admin maintenance. Should
       there be an option to cycle through all content by category rather than based on a wiki page?
+      Comment Thomas: I think that in the end, you only want to use the curated list, since you want to be sure that
+      no crappy pathways will automatically be featured. We could try to stimulate people to update the list by giving a notification
+      (or tag...yes, tags again, we really need them!) when their pathway is not on the featured list.
 
  * siteStats (provide pathway, gene and user counts)
      Comment Alex: this should just require a category to restrict what is counted.  User counts, however, would be non-
      specific.  Should this be extracted out as a separate stat in an independent magic word?
+     Comment Thomas: I agree, make a seperate magic word for user statistics.
 
 Magic words that already work generically and specifically:
  * pathwayThumb (allow pathway image thumbnails to link to pathway page)
@@ -89,4 +95,8 @@ Templates = Template:Portal_<template_name>
 Admin pages = Portal:<portal_name>:<admin_page_name>
 MagicWords = wpi/extensions/<magicword.php>
 Stylesheets = skins/portals/<filename>
+
+Comment Thomas: Maybe we shouldn't put the portal stylesheets in our server, but on the server of the portal administrator. This
+would be more secure for us and less administrative work (no foreign user accounts, setting rights). MediaWiki might have an option
+to store different stylesheet pages in the wiki (like MediaWiki:Common.css).
 
