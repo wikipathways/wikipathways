@@ -200,7 +200,7 @@ $wgDebugLogFile = '/var/www/wikipathways/wpi/tmp/wikipathwaysdebug.txt';
 ##Extensions
 require_once('extensions/analytics.php'); //Google Analytics support
 require_once('extensions/inputbox.php');
-require_once('extensions/ParserFunctions.php');
+//require_once('extensions/ParserFunctions.php');
 //require_once('wpi/extensions/redirectImage.php'); //Redirect all image pages to file
 require_once('wpi/extensions/PathwayOfTheDay.php');
 require_once('wpi/extensions/siteStats.php');
@@ -231,6 +231,7 @@ require_once('wpi/extensions/SpecialWishList/SpecialWishList.php');
 require_once('wpi/extensions/SpecialWishList/TopWishes.php');
 require_once('wpi/extensions/DiffAppletPage/DiffAppletPage.php');
 require_once('wpi/extensions/RecentPathwayChanges/RecentPathwayChanges.php');
+require_once('wpi/extensions/ParserFunctions/ParserFunctions.php' );
 
 require_once('wpi/extensions/recaptcha/ReCaptcha.php'); 
 // Sign up for keys at http://recaptcha.net/api/getKey
