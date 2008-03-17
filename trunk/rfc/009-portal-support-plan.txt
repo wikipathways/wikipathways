@@ -29,6 +29,8 @@ with a Portal proposal.
  4. Load their BioPAX-converted content (conversion back and forth will be a collaborative effort outside the scope of this RFC).
 
 Comment Thomas: How to load their BioPAX content, using Cytoscape maybe?
+Comment Alex:  Interesting idea.  I was thinking of having them build a converter, like our Reactome project.  But
+I really like the idea of converting via Cytoscape.  I will test a few and see what the result it like.
 
 == General Implementation Plan ==
 In order to achieve the specific goals above and look to the future of having other portals, we should make a general
@@ -84,7 +86,7 @@ I propose the following templates (see Wikipedia examples):
 
 === Admin Pages ===
 There is a need for a small set of pages per portal that allow the admin to maintain the front page of the portal. These could
-have names like Portal:Gramene:<admin_page_name>
+have names like Portal:Gramene/<admin_page_name>
  * Featured pathways list - the list of pathways they want to cycle through for their PathwayOfTheDay
  * News page - the list of news items to display on Portal Page.  Abstracting out the content makes maintenance much easier.
  * Variables page - configurable variables to encode banner image, colors, perhaps even some text such as title and brief desc?
@@ -92,11 +94,17 @@ have names like Portal:Gramene:<admin_page_name>
 === Organization ===
 Portals = Portal:<portal_name>
 Templates = Template:Portal_<template_name>
-Admin pages = Portal:<portal_name>:<admin_page_name>
+Admin pages = Portal:<portal_name>/<admin_page_name>
 MagicWords = wpi/extensions/<magicword.php>
 Stylesheets = skins/portals/<filename>
 
 Comment Thomas: Maybe we shouldn't put the portal stylesheets in our server, but on the server of the portal administrator. This
 would be more secure for us and less administrative work (no foreign user accounts, setting rights). MediaWiki might have an option
 to store different stylesheet pages in the wiki (like MediaWiki:Common.css).
+Comment Alex:  I think we may be able to side-step the stylesheet issue.  I agree that if we do need to support them, we should have
+them stored on their sites.  However, with the template system I've been working on, we can provide admins with simply style control
+over their Portal pages without stylesheets.  My feeling at this point is that this is a better route. It gives the Portals a consis-
+tent look and feel. And I think the drawback of not having complete sytle control is made up for by having it be so easy to build
+and maintain a portal.  See Portal:Test on the test site for an example. Style is controlled by /box-title, /box-normal and Portal:
+Box-header.  These may change in the near future. 
 
