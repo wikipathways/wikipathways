@@ -103,6 +103,16 @@ for the list of sticky-able pathways.
 Comment Alex:  Too bad he did it offline :)  Is there a ways to integrate his changes, perhaps by copy/paste replace of the contents of
 pathways?  Or do you think we will just have them as reference as we manually make edges?
 
+Comment Martijn: There is a plan for this: we want to use the gpmldiff / gpmlpatch programs in combination with the webservice to add
+Sjoerd's changes to wikipathways. Step by step it would work like this:
+ step 1. For each pathway that Sjoerd modified, create a "patch" using the gpmldiff program
+ step 2. (optionally) filter the patch to remove changes not related to graphId's / groupId's 
+    (such as slight movements of objects, we don't want those)
+ step 3. Download the current state of this pathway from wikipathways using the webservice
+ step 4. apply the patch using the gpmlpatch program
+ step 5. upload the new start of the pathway
+ This would also be a good proof-of-concept for the gpmlpatch program.
+
  2. Modify GPMLReader to translate our groups to Cytoscape metanodes so that associated edges become legitimate
  cytoscape graph egdes, connecting to a group node in expanded mode. We can define a visual style for the expanded
  mode so that it maintains the coords and layout provided by the GPML.

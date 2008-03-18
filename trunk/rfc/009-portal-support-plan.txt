@@ -108,3 +108,4 @@ tent look and feel. And I think the drawback of not having complete sytle contro
 and maintain a portal.  See Portal:Test on the test site for an example. Style is controlled by /box-title, /box-normal and Portal:
 Box-header.  These may change in the near future. 
 
+Comment Martijn: We can also make gramene.wikipathways.org direct you directly to the Gramene portal page.
