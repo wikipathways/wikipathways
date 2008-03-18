@@ -94,8 +94,12 @@ class Wish {
 		global $wgLoadBalancer;
 		
 		if(!$name) throw new Exception("Please fill in the pathway name");
-		
+
 		$title = Title::newFromText($name, NS_WISHLIST);
+		if(!$title->userCan('create')) {
+			throw new Exception("User can not create new request, are you logged in?");
+		}
+		
 		$wishArticle = new Article($title);		
 
 		$succ = true;
@@ -116,11 +120,15 @@ class Wish {
 		
 		$wishArticle->doWatch();
 		
-		return new Wish($wishArticle->getID());		
+		return new Wish($wishArticle->getID());
 	}
 	
 	function vote($userId) {
 		global $wgLoadBalancer;
+		
+		if(!$this->userCan('vote')) {
+			throw new Exception("You have no permissions to vote");
+		}
 		
 		//Add the user id to the talk page
 		$votes = $this->getVotes();
@@ -132,6 +140,10 @@ class Wish {
 	
 	function unvote($userId) {
 		global $wgLoadBalancer;
+		
+		if(!$this->userCan('unvote')) {
+			throw new Exception("You have no permissions to remove a vote");
+		}
 		
 		//Remove the user id from the talk page
 		$votes = $this->getVotes();
@@ -202,6 +214,9 @@ class Wish {
 	}
 	
 	function remove() {
+		if(!$this->userCan('delete')) {
+			throw new Exception("You have no permissions to delete the item");
+		}
 		Pathway::deleteArticle($this->title, "Removed wishlist item");
 	}
 	
@@ -220,6 +235,10 @@ class Wish {
 	function markResolved($pathway) {
 		global $wgLoadBalancer;
 		//#REDIRECT [[pagename]]
+		if(!$this->userCan('resolve')) {
+			throw new Exception("You have no permissions to resolve this item");
+		}
+		
 		$this->article->doEdit("#REDIRECT [[{$pathway->getTitleObject()->getFullText()}]]",
 					"Resolved wishlist item {$this->getTitle()->getText()}");
 		$wgLoadBalancer->commitAll();		
