@@ -241,6 +241,8 @@ in to the svn repository. Put it in pass.php instead!
 $recaptcha_public_key = '***********';
 $recaptcha_private_key = '**********';
 */
+//Recaptcha keys need to be defined again after loading the recaptcha extension
+require("pass.php");
 
 require_once( "wpi/extensions/ContributionScores/ContributionScores.php" );
 $contribScoreIgnoreBots = true;  //Set to true if you want to exclude Bots from the reporting - Can be omitted.
