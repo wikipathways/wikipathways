@@ -46,17 +46,11 @@ For example:
 
 Our development plan for the coming weeks: 
 
-Feb 13: feature freeze
-Feb 20: release Milestone 1
+See
 
-Mar 5 : feature freeze
-Mar 12 : release Milestone 2
+http://conklinwolf.ucsf.edu/genmappwiki/WikiPathways_Plan
 
-Apr 2: feature freeze
-Apr 9: release Milestone 3
-
-Apr 30: feature freeze
-May 7: release Milestone 4
+for all the dates
 
 The goal is to have a web meeting just before the Milestone, so we can 
 go through the list of outstanding bugs together and see if there is any important
@@ -130,8 +124,30 @@ What I wanted to say is that we don't need to care about copying account info al
 * on the test site: running trunk (or very close to it)
 * may be updated on test site anytime
 
-on the stable site: always running the latest tag
+  Tip: to update the applets on the test site, run these commands (on the server)
+  
+  # ~/code/pathvisio is the staging ground, where everything will be compiled
+  cd ~/code/pathvisio
+  svn update
+  cd trunk
+  # compile & copy to site
+  ant diffapplet -Dwikipathways.dest=/var/www/wikipathways-test
+  ant wikipathways-dest -Dwikipathways.dest=/var/www/wikipathways-test
+
+* on the stable site: always running a release tag
+
+  Tip: to update the applet on the stable site to the latest tag, run this:
+
+  # keep staging ground up-to-date
+  cd ~/code/pathvisio
+  svn update
+  cd tags/milestone_n.n
+  # compile & copy to site
+  ant diffapplet -Dwikipathways.dest=/var/www/wikipathways
+  ant wikipathways-dest -Dwikipathways.dest=/var/www/wikipathways
+
 * make point releases when serious bugs occur in the middle of the release cycle.
+
 
 whenever time for a release comes:
 * start by making a release branch from the (tested) trunk. 
@@ -185,7 +201,8 @@ So, in short:
 ---------------------------------------------------------------------------------
 Pathway content     | may be reset at any time     | important, backed up daily
 other content data  | copy to stable any time      | never edit directly
-user account data   | anybody, never sync          | developers and testers, never sync
+user account data   | developers and testers,      | anybody, never sync
+				    | never sync                   | 
 applet code         | pathvisio/trunk              | sync after milestone, tags/milestone_x.0
 mediawiki code      | update before feature freeze | sync after milestone, tags/milestone_x.0
 wpi plugin code     | wikipathways/trunk           | sync after milestone, tags/milestone_x.0
