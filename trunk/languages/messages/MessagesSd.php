@@ -1,12 +1,11 @@
 <?php
 /** Sindhi language file ( सिनधि )
   *
-  * @package MediaWiki
-  * @subpackage Language
+  * @addtogroup Language
   */
 
 #FIXME: inherit almost everything for now
 
 $rtl = true;
 
-?>
+

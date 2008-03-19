@@ -2,8 +2,7 @@
 /** Kazakh (Қазақша)
   *
   *
-  * @package MediaWiki
-  * @subpackage Language
+  * @addtogroup Language
   */
 
 
@@ -266,4 +265,4 @@ class LanguageKk_kz extends Language {
 	}
 }
 
-?>
+

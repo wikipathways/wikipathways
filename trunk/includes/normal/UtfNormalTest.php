@@ -20,7 +20,7 @@
 /**
  * Implements the conformance test at:
  * http://www.unicode.org/Public/UNIDATA/NormalizationTest.txt
- * @package UtfNormal
+ * @addtogroup UtfNormal
  */
 
 /** */
@@ -246,4 +246,4 @@ function testInvariant( &$u, $char, $desc, $reportFailure = false ) {
 	return $result;
 }
 
-?>
+

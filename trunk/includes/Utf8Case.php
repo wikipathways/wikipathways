@@ -7,8 +7,7 @@
  *
  * These are pulled from memcached if possible, as this is faster than filling
  * up a big array manually.
- * @package MediaWiki
- * @subpackage Language
+ * @addtogroup Language
  */
 
 /*
@@ -1503,4 +1502,4 @@ $wikiLowerChars = array (
 	"\xf0\x90\x90\xa5" => "\xf0\x90\x91\x8d"
 );
 
-?>
+

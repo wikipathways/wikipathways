@@ -1,8 +1,7 @@
 <?php
 /** Finnish (Suomi)
  *
- * @package MediaWiki
- * @subpackage Language
+ * @addtogroup Language
  *
  * @author Niklas Laxström
  */
@@ -11,7 +10,7 @@ class LanguageFi extends Language {
 	 * Avoid grouping whole numbers between 0 to 9999
 	 */
 	function commafy($_) {
-		if (!preg_match('/^\d{1,4}$/',$_)) {
+		if (!preg_match('/^-?\d{1,4}$/',$_)) {
 			return strrev((string)preg_replace('/(\d{3})(?=\d)(?!\d*\.)/','$1,',strrev($_)));
 		} else {
 			return $_;
@@ -31,6 +30,13 @@ class LanguageFi extends Language {
 
 		# wovel harmony flag
 		$aou = preg_match( '/[aou][^äöy]*$/i', $word );
+
+		# The flag should be false for compounds where the last word has only neutral vowels (e/i).
+		# The general case cannot be handled without a dictionary, but there's at least one notable
+		# special case we should check for:
+
+		if ( preg_match( '/wiki$/i', $word ) )
+			$aou = false;
 
 		# append i after final consonant
 		if ( preg_match( '/[bcdfghjklmnpqrstvwxz]$/i', $word ) )
@@ -58,7 +64,7 @@ class LanguageFi extends Language {
 		return $word;
 	}
 
-	function translateBlockExpiry( $str ) {
+	function translateBlockExpiry( $str, $forContent = false ) {
 		/*
 			'ago', 'now', 'today', 'this', 'next',
 			'first', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth',
@@ -132,9 +138,14 @@ class LanguageFi extends Language {
 
 			$final .= ' ' . $item;
 		}
-	   	return '<span class="blockexpiry" title="' . htmlspecialchars($str). '">”' . trim( $final ) . '”</span>';
+
+		if ( $forContent ) {
+			return htmlspecialchars( trim( $final ) );
+		} else {
+			return '<span class="blockexpiry" title="' . htmlspecialchars($str). '">”' . trim( $final ) . '”</span>';
+		}
 	}
 
 }
 
-?>
+

@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * A collection of static methods to play with strings.
+ */
 class StringUtils {
 	/**
 	 * Perform an operation equivalent to 
@@ -298,4 +300,4 @@ class ReplacementArray {
 	}
 }
 
-?>
+

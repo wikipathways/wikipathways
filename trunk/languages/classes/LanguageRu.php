@@ -3,8 +3,7 @@
   *
   * You can contact Alexander Sigachov (alexander.sigachov at Googgle Mail)
   *
-  * @package MediaWiki
-  * @subpackage Language
+  * @addtogroup Language
   */
 
 /* Please, see Language.php for general function comments */
@@ -84,4 +83,4 @@ class LanguageRu extends Language {
 		}
 	}
 }
-?>
+

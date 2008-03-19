@@ -1,8 +1,7 @@
 <?php
 /** Bengali (বাংলা)
   *
-  * @package MediaWiki
-  * @subpackage Language
+  * @addtogroup Language
   */
 
 $namespaceNames = array(
@@ -130,4 +129,4 @@ $messages = array(
 );
 
 
-?>
+

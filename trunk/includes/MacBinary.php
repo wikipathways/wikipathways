@@ -22,12 +22,11 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 class MacBinary {
-	function MacBinary( $filename ) {
+	function __construct( $filename ) {
 		$this->open( $filename );
 		$this->loadHeader();
 	}
@@ -101,7 +100,7 @@ class MacBinary {
 
 		fseek( $this->handle, 0 );
 		$head = fread( $this->handle, 128 );
-		$this->hexdump( $head );
+		#$this->hexdump( $head );
 
 		if( strlen( $head ) < 128 ) {
 			wfDebug( "$fname: couldn't read full MacBinary header\n" );
@@ -269,4 +268,4 @@ class MacBinary {
 	}
 }
 
-?>
+

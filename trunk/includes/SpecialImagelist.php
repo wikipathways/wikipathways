@@ -1,8 +1,7 @@
 <?php
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 /**
@@ -24,6 +23,10 @@ function wfSpecialImagelist() {
 		. $nav );
 }
 
+/**
+ * @addtogroup SpecialPage
+ * @addtogroup Pager
+ */
 class ImageListPager extends TablePager {
 	var $mFieldNames = null;
 	var $mMessages = array();
@@ -40,11 +43,11 @@ class ImageListPager extends TablePager {
 		if ( $search != '' && !$wgMiserMode ) {
 			$nt = Title::newFromUrl( $search );
 			if( $nt ) {
-				$dbr =& wfGetDB( DB_SLAVE );
+				$dbr = wfGetDB( DB_SLAVE );
 				$m = $dbr->strencode( strtolower( $nt->getDBkey() ) );
 				$m = str_replace( "%", "\\%", $m );
 				$m = str_replace( "_", "\\_", $m );
-				$this->mQueryConds = array( "LCASE(img_name) LIKE '%{$m}%'" );
+				$this->mQueryConds = array( "LOWER(img_name) LIKE '%{$m}%'" );
 			}
 		}
 
@@ -54,7 +57,6 @@ class ImageListPager extends TablePager {
 	function getFieldNames() {
 		if ( !$this->mFieldNames ) {
 			$this->mFieldNames = array(
-				'links' => '',
 				'img_timestamp' => wfMsg( 'imagelist_date' ),
 				'img_name' => wfMsg( 'imagelist_name' ),
 				'img_user_text' => wfMsg( 'imagelist_user' ),
@@ -72,7 +74,6 @@ class ImageListPager extends TablePager {
 
 	function getQueryInfo() {
 		$fields = $this->getFieldNames();
-		unset( $fields['links'] );
 		$fields = array_keys( $fields );
 		$fields[] = 'img_user';
 		return array(
@@ -109,17 +110,15 @@ class ImageListPager extends TablePager {
 	function formatValue( $field, $value ) {
 		global $wgLang;
 		switch ( $field ) {
-			case 'links':
-				$name = $this->mCurrentRow->img_name;
-				$ilink = "<a href=\"" . htmlspecialchars( Image::imageUrl( $name ) ) .
-				  "\">" . $this->mMessages['imgfile'] . "</a>";
-				$desc = $this->getSkin()->makeKnownLinkObj( Title::makeTitle( NS_IMAGE, $name ),
-					$this->mMessages['imgdesc'] );
-				return "$desc | $ilink";
 			case 'img_timestamp':
 				return $wgLang->timeanddate( $value, true );
 			case 'img_name':
-				return htmlspecialchars( $value );
+				$name = $this->mCurrentRow->img_name;
+				$link = $this->getSkin()->makeKnownLinkObj( Title::makeTitle( NS_IMAGE, $name ), $value );
+				$image = wfLocalFile( $value );
+				$url = $image->getURL();
+				$download = Xml::element('a', array( "href" => $url ), $this->mMessages['imgfile'] );
+				return "$link ($download)";
 			case 'img_user_text':
 				if ( $this->mCurrentRow->img_user ) {
 					$link = $this->getSkin()->makeLinkObj( Title::makeTitle( NS_USER, $value ), 
@@ -129,7 +128,7 @@ class ImageListPager extends TablePager {
 				}
 				return $link;
 			case 'img_size':
-				return $wgLang->formatNum( $value );
+				return $this->getSkin()->formatSize( $value );
 			case 'img_description':
 				return $this->getSkin()->commentBlock( $value );
 		}
@@ -138,17 +137,14 @@ class ImageListPager extends TablePager {
 	function getForm() {
 		global $wgRequest, $wgMiserMode;
 		$url = $this->getTitle()->escapeLocalURL();
-		$msgSubmit = wfMsgHtml( 'table_pager_limit_submit' );
-		$msgSearch = wfMsgHtml( 'imagelist_search_for' );
 		$search = $wgRequest->getText( 'ilsearch' );
-		$encSearch = htmlspecialchars( $search );
-		$s = "<form method=\"get\" action=\"$url\">\n" . 
+		$s = "<form method=\"get\" action=\"$url\">\n" .
 			wfMsgHtml( 'table_pager_limit', $this->getLimitSelect() );
 		if ( !$wgMiserMode ) {
-			$s .= "<br/>\n" . $msgSearch .
-				" <input type=\"text\" size=\"20\" name=\"ilsearch\" value=\"$encSearch\"/><br/>\n";
+			$s .= "<br/>\n" .
+			Xml::inputLabel( wfMsg( 'imagelist_search_for' ), 'ilsearch', 'mw-ilsearch', 20, $search );
 		}
-		$s .= " <input type=\"submit\" value=\"$msgSubmit\"/>\n" .
+		$s .= " " . Xml::submitButton( wfMsg( 'table_pager_limit_submit' ) ) ." \n" .
 			$this->getHiddenFields( array( 'limit', 'ilsearch' ) ) .
 			"</form>\n";
 		return $s;
@@ -167,4 +163,4 @@ class ImageListPager extends TablePager {
 	}
 }
 
-?>
+

@@ -2,8 +2,7 @@
 /**
  * West Flemish (West-Vlams)
  *
- * @package MediaWiki
- * @subpackage Language
+ * @addtogroup Language
 */
 
 $namespaceNames = array(
@@ -27,4 +26,4 @@ $namespaceNames = array(
 	NS_CATEGORY_TALK  => 'Discuusje_categorie',
 );
 
-?>
+

@@ -317,7 +317,7 @@ class Pathway {
 			$this->updateCache($fileType);	
 		}
 		$fn = $this->getFileName($fileType);
-		return wfImageDir( $fn ) . "/$fn";
+		return wfLocalFile( $fn )->getPath();
 	}
 	
 	/**
@@ -778,14 +778,17 @@ class Pathway {
 		if( wfReadOnly() ) {
 			throw new Exception( "Page is read-only" );
 		}
-
+		
+		$localFile = wfLocalFile($saveName);
+		$localFile->upload($fileName, $description, "");
+/*
 		# Move the file to the proper directory
-		$dest = wfImageDir( $saveName );
+		$dest = wfLocalFile( $saveName )->getPath();
 		$archive = wfImageArchiveDir( $saveName );
 		if ( !is_dir( $dest ) ) wfMkdirParents( $dest );
 		if ( !is_dir( $archive ) ) wfMkdirParents( $archive );
 
-		$toFile = "{$dest}/{$saveName}";
+		$toFile = $dest;
 		if( is_file( $toFile) ) {
 			$oldVersion = gmdate( 'YmdHis' ) . "!{$saveName}";
 			$success = rename($toFile, "{$archive}/{$oldVersion}");
@@ -821,6 +824,7 @@ class Pathway {
 		$wgParser->mTitle = $oldTitle;
 		
 		return $toFile; # return the saved file
+		*/
 	}
 	
 	/**

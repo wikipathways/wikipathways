@@ -1,14 +1,12 @@
 <?php
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 /**
- *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * implements Special:Newpages
+ * @addtogroup SpecialPage
  */
 class NewPagesPage extends QueryPage {
 
@@ -38,12 +36,19 @@ class NewPagesPage extends QueryPage {
 		}
 	}
 
+	private function makeNamespaceWhere() {
+		return $this->namespace !== 'all'
+			? ' AND rc_namespace = ' . intval( $this->namespace )
+			: '';
+	}
+
 	function getSQL() {
 		global $wgUser, $wgUseRCPatrol;
 		$usepatrol = ( $wgUseRCPatrol && $wgUser->isAllowed( 'patrol' ) ) ? 1 : 0;
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		list( $recentchanges, $page ) = $dbr->tableNamesN( 'recentchanges', 'page' );
 
+		$nsfilter = $this->makeNamespaceWhere();
 		$uwhere = $this->makeUserWhere( $dbr );
 
 		# FIXME: text will break with compression
@@ -52,9 +57,9 @@ class NewPagesPage extends QueryPage {
 				rc_namespace AS namespace,
 				rc_title AS title,
 				rc_cur_id AS cur_id,
-				rc_user AS user,
+				rc_user AS \"user\",
 				rc_user_text AS user_text,
-				rc_comment as comment,
+				rc_comment as \"comment\",
 				rc_timestamp AS timestamp,
 				rc_timestamp AS value,
 				'{$usepatrol}' as usepatrol,
@@ -64,7 +69,8 @@ class NewPagesPage extends QueryPage {
 				page_latest as rev_id
 			FROM $recentchanges,$page
 			WHERE rc_cur_id=page_id AND rc_new=1
-			AND rc_namespace=" . $this->namespace . " AND page_is_redirect=0
+			{$nsfilter}
+			AND page_is_redirect = 0
 			{$uwhere}";
 	}
 	
@@ -132,14 +138,19 @@ class NewPagesPage extends QueryPage {
 	 * @return string
 	 */	
 	function getPageHeader() {
+		global $wgScript;
 		$self = SpecialPage::getTitleFor( $this->getName() );
-		$form = wfOpenElement( 'form', array( 'method' => 'post', 'action' => $self->getLocalUrl() ) );
-		$form .= '<table><tr><td align="right">' . wfMsgHtml( 'namespace' ) . '</td>';
-		$form .= '<td>' . HtmlNamespaceSelector( $this->namespace ) . '</td><tr>';
-		$form .= '<tr><td align="right">' . wfMsgHtml( 'newpages-username' ) . '</td>';
-		$form .= '<td>' . wfInput( 'username', 30, $this->username ) . '</td></tr>';
-		$form .= '<tr><td></td><td>' . wfSubmitButton( wfMsg( 'allpagessubmit' ) ) . '</td></tr></table>';
-		$form .= wfHidden( 'offset', $this->offset ) . wfHidden( 'limit', $this->limit ) . '</form>';
+		$form = Xml::openElement( 'form', array( 'method' => 'get', 'action' => $wgScript ) );
+		$form .= Xml::hidden( 'title', $self->getPrefixedDBkey() );
+		# Namespace selector
+		$form .= '<table><tr><td align="right">' . Xml::label( wfMsg( 'namespace' ), 'namespace' ) . '</td>';
+		$form .= '<td>' . Xml::namespaceSelector( $this->namespace, 'all' ) . '</td></tr>';
+		# Username filter
+		$form .= '<tr><td align="right">' . Xml::label( wfMsg( 'newpages-username' ), 'mw-np-username' ) . '</td>';
+		$form .= '<td>' . Xml::input( 'username', 30, $this->username, array( 'id' => 'mw-np-username' ) ) . '</td></tr>';
+		
+		$form .= '<tr><td></td><td>' . Xml::submitButton( wfMsg( 'allpagessubmit' ) ) . '</td></tr></table>';
+		$form .= Xml::hidden( 'offset', $this->offset ) . Xml::hidden( 'limit', $this->limit ) . '</form>';
 		return $form;
 	}
 	
@@ -185,7 +196,7 @@ function wfSpecialNewpages($par, $specialPage) {
 			}
 		}
 	} else {
-		if( $ns = $wgRequest->getInt( 'namespace', 0 ) )
+		if( $ns = $wgRequest->getText( 'namespace', NS_MAIN ) )
 			$namespace = $ns;
 		if( $un = $wgRequest->getText( 'username' ) )
 			$username = $un;
@@ -199,5 +210,3 @@ function wfSpecialNewpages($par, $specialPage) {
 	if ( ! $npp->doFeed( $wgRequest->getVal( 'feed' ), $limit ) )
 		$npp->doQuery( $offset, $limit, $shownavigation );
 }
-
-?>

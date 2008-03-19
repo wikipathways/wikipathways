@@ -2,8 +2,7 @@
 /**
  * Tajik (Тоҷикӣ)
  *
- * @package MediaWiki
- * @subpackage Language
+ * @addtogroup Language
  *
  * @author Francis Tyers
  */
@@ -31,4 +30,4 @@ $namespaceNames = array(
 
 $linkTrail = '/^([a-zабвгдеёжзийклмнопрстуфхчшъэюяғӣқўҳҷцщыь]+)(.*)$/sDu';
 
-?>
+

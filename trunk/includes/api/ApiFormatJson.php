@@ -1,12 +1,11 @@
 <?php
 
-
 /*
  * Created on Sep 19, 2006
  *
  * API for MediaWiki 1.8+
  *
- * Copyright (C) 2006 Yuri Astrakhan <FirstnameLastname@gmail.com>
+ * Copyright (C) 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +28,9 @@ if (!defined('MEDIAWIKI')) {
 	require_once ('ApiFormatBase.php');
 }
 
+/**
+ * @addtogroup API
+ */
 class ApiFormatJson extends ApiFormatBase {
 
 	private $mIsRaw;
@@ -47,12 +49,33 @@ class ApiFormatJson extends ApiFormatBase {
 	}
 
 	public function execute() {
+		$prefix = $suffix = "";
+
+		$params = $this->extractRequestParams();
+		$callback = $params['callback'];
+		if(!is_null($callback)) {
+			$prefix = ereg_replace("[^_A-Za-z0-9]", "", $callback ) . "(";
+			$suffix = ")";
+		}
+
 		if (!function_exists('json_encode') || $this->getIsHtml()) {
 			$json = new Services_JSON();
-			$this->printText($json->encode($this->getResultData(), $this->getIsHtml()));
+			$this->printText($prefix . $json->encode($this->getResultData(), $this->getIsHtml()) . $suffix);
 		} else {
-			$this->printText(json_encode($this->getResultData()));
+			$this->printText($prefix . json_encode($this->getResultData()) . $suffix);
 		}
+	}
+
+	protected function getAllowedParams() {
+		return array (
+			'callback' => null
+		);
+	}
+
+	protected function getParamDescription() {
+		return array (
+			'callback' => 'If specified, wraps the output into a given function call. For safety, all user-specific data will be restricted.',
+		);
 	}
 
 	protected function getDescription() {
@@ -63,7 +86,7 @@ class ApiFormatJson extends ApiFormatBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiFormatJson.php 17374 2006-11-03 06:53:47Z yurik $';
+		return __CLASS__ . ': $Id: ApiFormatJson.php 23531 2007-06-29 01:19:14Z simetrical $';
 	}
 }
-?>
+

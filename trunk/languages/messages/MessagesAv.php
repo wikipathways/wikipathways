@@ -1,9 +1,7 @@
 <?php
 /** Avar (Авар)
   *
-  * @package MediaWiki
-  * @subpackage Language
+  * @addtogroup Language
   */
 
 $fallback = 'ru';
-?>

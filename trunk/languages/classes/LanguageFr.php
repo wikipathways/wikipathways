@@ -1,8 +1,7 @@
 <?php
 /** French (Français)
  *
- * @package MediaWiki
- * @subpackage Language
+ * @addtogroup Language
  *
  */
 
@@ -14,4 +13,4 @@ class LanguageFr extends Language {
 		return $count <= '1' ? $w1 : $w2;
         }
 }
-?>
+

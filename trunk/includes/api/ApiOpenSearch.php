@@ -1,12 +1,11 @@
 <?php
 
-
 /*
  * Created on Oct 13, 2006
  *
  * API for MediaWiki 1.8+
  *
- * Copyright (C) 2006 Yuri Astrakhan <FirstnameLastname@gmail.com>
+ * Copyright (C) 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +28,9 @@ if (!defined('MEDIAWIKI')) {
 	require_once ("ApiBase.php");
 }
 
+/**
+ * @addtogroup API
+ */
 class ApiOpenSearch extends ApiBase {
 
 	public function __construct($main, $action) {
@@ -40,8 +42,8 @@ class ApiOpenSearch extends ApiBase {
 	}
 
 	public function execute() {
-		$search = null;
-		extract($this->ExtractRequestParams());
+		$params = $this->extractRequestParams();
+		$search = $params['search'];
 
 		// Open search results may be stored for a very long time
 		$this->getMain()->setCacheMaxAge(1200);
@@ -51,7 +53,7 @@ class ApiOpenSearch extends ApiBase {
 			return; // Return empty result
 			
 		// Prepare nested request
-		$params = new FauxRequest(array (
+		$req = new FauxRequest(array (
 			'action' => 'query',
 			'list' => 'allpages',
 			'apnamespace' => $title->getNamespace(),
@@ -60,7 +62,7 @@ class ApiOpenSearch extends ApiBase {
 		));
 
 		// Execute
-		$module = new ApiMain($params);
+		$module = new ApiMain($req);
 		$module->execute();
 
 		// Get resulting data
@@ -103,7 +105,7 @@ class ApiOpenSearch extends ApiBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiOpenSearch.php 17880 2006-11-23 08:25:56Z nickj $';
+		return __CLASS__ . ': $Id: ApiOpenSearch.php 24099 2007-07-15 00:52:35Z yurik $';
 	}
 }
-?>
+

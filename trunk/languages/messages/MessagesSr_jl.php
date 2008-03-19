@@ -1,10 +1,9 @@
 <?php
 /**
-  * @package MediaWiki
-  * @subpackage Language
+  * @addtogroup Language
   */
 
 # Inherit everything for now
 $fallback = 'sr-ec';
 
-?>
+

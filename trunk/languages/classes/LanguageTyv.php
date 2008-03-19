@@ -1,7 +1,6 @@
 <?php
 /** Tyvan localization (Тыва дыл)
- * @package MediaWiki
- * @subpackage Language
+ * @addtogroup Language
  */
 
 # From friends at tyvawiki.org
@@ -230,4 +229,4 @@ class LanguageTyv extends Language {
 		return $word;
 	}
 }
-?>
+

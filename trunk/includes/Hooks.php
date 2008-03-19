@@ -18,7 +18,6 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
  *
  * @author Evan Prodromou <evan@wikitravel.org>
- * @package MediaWiki
  * @see hooks.txt
  */
 
@@ -103,7 +102,7 @@ function wfRunHooks($event, $args = null) {
 		if ( isset( $object ) ) {
 			$func = get_class( $object ) . '::' . $method;
 			$callback = array( $object, $method );
-		} elseif ( false !== ( $pos = strpos( '::', $func ) ) ) {
+		} elseif ( false !== ( $pos = strpos( $func, '::' ) ) ) {
 			$callback = array( substr( $func, 0, $pos ), substr( $func, $pos + 2 ) );
 		} else {
 			$callback = $func;
@@ -120,6 +119,20 @@ function wfRunHooks($event, $args = null) {
 			global $wgOut;
 			$wgOut->showFatalError($retval);
 			return false;
+		} elseif( $retval === null ) {
+			if( is_array( $callback ) ) {
+				if( is_object( $callback[0] ) ) {
+					$prettyClass = get_class( $callback[0] );
+				} else {
+					$prettyClass = strval( $callback[0] );
+				}
+				$prettyFunc = $prettyClass . '::' . strval( $callback[1] );
+			} else {
+				$prettyFunc = strval( $callback );
+			}
+			throw new MWException( "Detected bug in an extension! " .
+				"Hook $prettyFunc failed to return a value; " .
+				"should return true to continue hook processing or false to abort." );
 		} else if (!$retval) {
 			return false;
 		}
@@ -127,4 +140,4 @@ function wfRunHooks($event, $args = null) {
 
 	return true;
 }
-?>
+

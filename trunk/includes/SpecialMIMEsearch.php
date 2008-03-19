@@ -3,16 +3,16 @@
  * A special page to search for files by MIME type as defined in the
  * img_major_mime and img_minor_mime fields in the image table
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  *
  * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
 /**
- * @package MediaWiki
- * @subpackage SpecialPage
+ * Searches the database for files of the requested MIME type, comparing this with the
+ * 'img_major_mime' and 'img_minor_mime' fields in the image table.
+ * @addtogroup SpecialPage
  */
 class MIMEsearchPage extends QueryPage {
 	var $major, $minor;
@@ -38,7 +38,7 @@ class MIMEsearchPage extends QueryPage {
 	}
 
 	function getSQL() {
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		$image = $dbr->tableName( 'image' );
 		$major = $dbr->addQuotes( $this->major );
 		$minor = $dbr->addQuotes( $this->minor );
@@ -66,10 +66,10 @@ class MIMEsearchPage extends QueryPage {
 		$text = $wgContLang->convert( $nt->getText() );
 		$plink = $skin->makeLink( $nt->getPrefixedText(), $text );
 
-		$download = $skin->makeMediaLink( $nt->getText(), 'fuck me!', wfMsgHtml( 'download' ) );
+		$download = $skin->makeMediaLinkObj( $nt, wfMsgHtml( 'download' ) );
 		$bytes = wfMsgExt( 'nbytes', array( 'parsemag', 'escape'),
 			$wgLang->formatNum( $result->img_size ) );
-		$dimensions = wfMsg( 'widthheight', $wgLang->formatNum( $result->img_width ),
+		$dimensions = wfMsgHtml( 'widthheight', $wgLang->formatNum( $result->img_width ),
 			$wgLang->formatNum( $result->img_height ) );
 		$user = $skin->makeLinkObj( Title::makeTitle( NS_USER, $result->img_user_text ), $result->img_user_text );
 		$time = $wgLang->timeanddate( $result->img_timestamp );
@@ -79,7 +79,7 @@ class MIMEsearchPage extends QueryPage {
 }
 
 /**
- * constructor
+ * Output the HTML search form, and constructs the MIMEsearchPage object.
  */
 function wfSpecialMIMEsearch( $par = null ) {
 	global $wgRequest, $wgTitle, $wgOut;
@@ -87,33 +87,16 @@ function wfSpecialMIMEsearch( $par = null ) {
 	$mime = isset( $par ) ? $par : $wgRequest->getText( 'mime' );
 
 	$wgOut->addHTML(
-		wfElement( 'form',
+		Xml::openElement( 'form',
 			array(
 				'id' => 'specialmimesearch',
 				'method' => 'get',
 				'action' => $wgTitle->escapeLocalUrl()
-			),
-			null
+			)
 		) .
-			wfOpenElement( 'label' ) .
-				wfMsgHtml( 'mimetype' ) .
-				wfElement( 'input', array(
-						'type' => 'text',
-						'size' => 20,
-						'name' => 'mime',
-						'value' => $mime
-					),
-					''
-				) .
-				' ' .
-				wfElement( 'input', array(
-						'type' => 'submit',
-						'value' => wfMsg( 'ilsubmit' )
-					),
-					''
-				) .
-			wfCloseElement( 'label' ) .
-		wfCloseElement( 'form' )
+			Xml::inputLabel( wfMsg( 'mimetype' ), 'mime', 'mime', 20, $mime ) .
+			Xml::submitButton( wfMsg( 'ilsubmit' ) ) .
+		Xml::closeElement( 'form' )
 	);
 
 	list( $major, $minor ) = wfSpecialMIMEsearchParse( $mime );
@@ -155,4 +138,4 @@ function wfSpecialMIMEsearchValidType( $type ) {
 
 	return in_array( $type, $types );
 }
-?>
+

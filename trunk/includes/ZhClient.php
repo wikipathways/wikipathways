@@ -1,12 +1,10 @@
 <?php
 /**
- * @package MediaWiki
  */
 
 /**
  * Client for querying zhdaemon
  *
- * @package MediaWiki
  */
 class ZhClient {
 	var $mHost, $mPort, $mFP, $mConnected;
@@ -146,4 +144,3 @@ class ZhClient {
 		fclose($this->mFP);
 	}
 }
-?>

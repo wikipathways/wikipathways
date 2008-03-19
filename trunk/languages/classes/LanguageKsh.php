@@ -1,8 +1,7 @@
 <?php
 /** Ripuarian (Ripoarėsh)
  *
- * @package MediaWiki
- * @subpackage Language
+ * @addtogroup Language
  *
  * @author Purodha Blissenbach
  */
@@ -33,4 +32,4 @@ class LanguageKsh extends Language {
 		}
 	}
 }
-?>
+

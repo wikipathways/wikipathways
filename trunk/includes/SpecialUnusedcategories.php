@@ -1,14 +1,12 @@
 <?php
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 class UnusedCategoriesPage extends QueryPage {
 
@@ -17,12 +15,12 @@ class UnusedCategoriesPage extends QueryPage {
 	}
 
 	function getPageHeader() {
-		return '<p>' . wfMsg('unusedcategoriestext') . '</p>';
+		return wfMsgExt( 'unusedcategoriestext', array( 'parse' ) );
 	}
 
 	function getSQL() {
 		$NScat = NS_CATEGORY;
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		list( $categorylinks, $page ) = $dbr->tableNamesN( 'categorylinks', 'page' );
 		return "SELECT 'Unusedcategories' as type,
 				{$NScat} as namespace, page_title as title, page_title as value
@@ -45,4 +43,4 @@ function wfSpecialUnusedCategories() {
 	$uc = new UnusedCategoriesPage();
 	return $uc->doQuery( $offset, $limit );
 }
-?>
+

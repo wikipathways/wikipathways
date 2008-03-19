@@ -1,14 +1,13 @@
 <?php
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 /**
- *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * A special page listing redirects to redirecting page.
+ * The software will automatically not follow double redirects, to prevent loops.
+ * @addtogroup SpecialPage
  */
 class DoubleRedirectsPage extends PageQueryPage {
 
@@ -20,13 +19,12 @@ class DoubleRedirectsPage extends PageQueryPage {
 	function isSyndicated() { return false; }
 
 	function getPageHeader( ) {
-		#FIXME : probably need to add a backlink to the maintenance page.
-		return '<p>'.wfMsg("doubleredirectstext")."</p><br />\n";
+		return wfMsgExt( 'doubleredirectstext', array( 'parse' ) );
 	}
 
 	function getSQLText( &$dbr, $namespace = null, $title = null ) {
 		
-		list( $page, $pagelinks ) = $dbr->tableNamesN( 'page', 'pagelinks' );
+		list( $page, $redirect ) = $dbr->tableNamesN( 'page', 'redirect' );
 
 		$limitToTitle = !( $namespace === null && $title === null );
 		$sql = $limitToTitle ? "SELECT" : "SELECT 'DoubleRedirects' as type," ;
@@ -34,14 +32,13 @@ class DoubleRedirectsPage extends PageQueryPage {
 			 " pa.page_namespace as namespace, pa.page_title as title," .
 			 " pb.page_namespace as nsb, pb.page_title as tb," .
 			 " pc.page_namespace as nsc, pc.page_title as tc" .
-		   " FROM $pagelinks AS la, $pagelinks AS lb, $page AS pa, $page AS pb, $page AS pc" .
-		   " WHERE pa.page_is_redirect=1 AND pb.page_is_redirect=1" .
-			 " AND la.pl_from=pa.page_id" .
-			 " AND la.pl_namespace=pb.page_namespace" .
-			 " AND la.pl_title=pb.page_title" .
-			 " AND lb.pl_from=pb.page_id" .
-			 " AND lb.pl_namespace=pc.page_namespace" .
-			 " AND lb.pl_title=pc.page_title";
+		   " FROM $redirect AS ra, $redirect AS rb, $page AS pa, $page AS pb, $page AS pc" .
+		   " WHERE ra.rd_from=pa.page_id" .
+			 " AND ra.rd_namespace=pb.page_namespace" .
+			 " AND ra.rd_title=pb.page_title" .
+			 " AND rb.rd_from=pb.page_id" .
+			 " AND rb.rd_namespace=pc.page_namespace" .
+			 " AND rb.rd_title=pc.page_title";
 
 		if( $limitToTitle ) {
 			$encTitle = $dbr->addQuotes( $title );
@@ -53,7 +50,7 @@ class DoubleRedirectsPage extends PageQueryPage {
 	}
 	
 	function getSQL() {
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		return $this->getSQLText( $dbr );
 	}
 
@@ -66,9 +63,10 @@ class DoubleRedirectsPage extends PageQueryPage {
 	
 		$fname = 'DoubleRedirectsPage::formatResult';
 		$titleA = Title::makeTitle( $result->namespace, $result->title );
+		$linkA = $skin->makeKnownLinkObj( $titleA,'', 'redirect=no' );
 
 		if ( $result && !isset( $result->nsb ) ) {
-			$dbr =& wfGetDB( DB_SLAVE );
+			$dbr = wfGetDB( DB_SLAVE );
 			$sql = $this->getSQLText( $dbr, $result->namespace, $result->title );
 			$res = $dbr->query( $sql, $fname );
 			if ( $res ) {
@@ -77,13 +75,12 @@ class DoubleRedirectsPage extends PageQueryPage {
 			}
 		}
 		if ( !$result ) {
-			return '';
+			return "<s>{$linkA}</s>\n";
 		}
 
 		$titleB = Title::makeTitle( $result->nsb, $result->tb );
 		$titleC = Title::makeTitle( $result->nsc, $result->tc );
 
-		$linkA = $skin->makeKnownLinkObj( $titleA,'', 'redirect=no' );
 		$edit = $skin->makeBrokenLinkObj( $titleA, "(".wfMsg("qbedit").")" , 'redirect=no');
 		$linkB = $skin->makeKnownLinkObj( $titleB, '', 'redirect=no' );
 		$linkC = $skin->makeKnownLinkObj( $titleC );
@@ -104,4 +101,4 @@ function wfSpecialDoubleRedirects() {
 	return $sdr->doQuery( $offset, $limit );
 
 }
-?>
+

@@ -1,8 +1,7 @@
 <?php
 /** Estonian (Eesti)
  *
- * @package MediaWiki
- * @subpackage Language
+ * @addtogroup Language
  *
  */
 
@@ -18,4 +17,4 @@ class LanguageEt extends Language {
 		}
 	}
 }
-?>
+

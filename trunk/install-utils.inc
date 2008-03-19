@@ -11,7 +11,9 @@ function install_version_checks() {
 		die( -1 );
 	}
 	if( version_compare( phpversion(), '5.0.0' ) < 0 ) {
-		echo "PHP 5.0.0 or higher is required. ABORTING.\n";
+		echo "PHP 5.0.0 or higher is required. If PHP 5 is available only when \n".
+   "PHP files have a .php5 extension, please navigate to <a href=\"index.php5\">index.php5</a> \n".
+   "to continue installation. ABORTING.\n";
 		die( -1 );
 	}
 	
@@ -28,7 +30,7 @@ function install_version_checks() {
 	global $wgCommandLineMode;
 	$wgCommandLineMode = true;
 	umask( 000 );
-	set_time_limit( 0 );
+	@set_time_limit( 0 );
 }
 
 function copyfile( $sdir, $name, $ddir, $perms = 0664 ) {
@@ -94,10 +96,10 @@ function dbsource( $fname, $db = false ) {
 		// Try $wgDatabase, which is used in the install and update scripts
 		global $wgDatabase;
 		if ( isset( $wgDatabase ) ) {
-			$db =& $wgDatabase;
+			$db = $wgDatabase;
 		} else {
 			// No? Well, we must be outside of those scripts, so use the standard method
-			$db =& wfGetDB( DB_MASTER );
+			$db = wfGetDB( DB_MASTER );
 		}
 	}
 	$error = $db->sourceFile( $fname );
@@ -107,47 +109,32 @@ function dbsource( $fname, $db = false ) {
 	}
 }
 
-# Obsolete, use Database::fieldExists()
-function field_exists( $table, $field ) {
-	$fname = 'Update script: field_exists';
-	$db =& wfGetDB( DB_SLAVE );
-	$res = $db->query( "DESCRIBE $table", $fname );
-	$found = false;
-
-	while ( $row = $db->fetchObject( $res ) ) {
-		if ( $row->Field == $field ) {
-			$found = true;
-			break;
-		}
-	}
-	return $found;
+/**
+ * Get the value of session.save_path
+ *
+ * Per http://uk.php.net/manual/en/ref.session.php#ini.session.save-path,
+ * this might have some additional preceding parts which need to be
+ * ditched
+ *
+ * @return string
+ */
+function mw_get_session_save_path() {
+	$path = ini_get( 'session.save_path' );
+	$path = substr( $path, strrpos( $path, ';' ) );
+	return $path;
 }
 
-# Obsolete Database::tableExists()
-function table_exists( $db ) {
-	global $wgDBname;
-	$res = mysql_list_tables( $wgDBname );
-	if( !$res ) {
-		echo "** " . mysql_error() . "\n";
-		return false;
-	}
-	for( $i = mysql_num_rows( $res ) - 1; $i--; $i > 0 ) {
-		if( mysql_tablename( $res, $i ) == $db ) return true;
-	}
-	return false;
+/**
+ * Is dl() available to us?
+ *
+ * According to http://uk.php.net/manual/en/function.dl.php, dl()
+ * is *not* available when `enable_dl` is off, or under `safe_mode`
+ *
+ * @return bool
+ */
+function mw_have_dl() {
+	return function_exists( 'dl' )
+		&& is_callable( 'dl' )
+		&& ini_get( 'enable_dl' )
+		&& !ini_get( 'safe_mode' );
 }
-
-# Obsolete, use Database:fieldInfo()
-function field_info( $table, $field ) {
-	$res = mysql_query( "SELECT * FROM $table LIMIT 1" );
-	$n = mysql_num_fields( $res );
-	for( $i = 0; $i < $n; $i++ ) {
-		$meta = mysql_fetch_field( $res, $i );
-		if( $field == $meta->name ) {
-			return $meta;
-		}
-	}
-	return false;
-}
-
-?>

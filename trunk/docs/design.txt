@@ -1,5 +1,8 @@
 This is a brief overview of the new design.
 
+More thorough and up-to-date information is available on the documentation
+wiki at http://www.mediawiki.org/
+
 Primary source files/objects:
 
   index.php
@@ -31,8 +34,7 @@ Primary source files/objects:
     calling output() to send it all. It could be easily changed
     to send incrementally if that becomes useful, but I prefer
     the flexibility. This should also do the output encoding.
-    The system allocates a global one in $wgOut. This class
-    also handles converting wikitext format to HTML.
+    The system allocates a global one in $wgOut.
 
   Title
     Represents the title of an article, and does all the work
@@ -42,9 +44,14 @@ Primary source files/objects:
     don't involve their text, such as access rights.
 
   Article
-    Encapsulates access to the "cur" table of the database. The
+    Encapsulates access to the "page" table of the database. The
     object represents a an article, and maintains state such as
     text (in Wikitext format), flags, etc.
+
+  Revision
+    Encapsulates individual page revision data and access to the
+    revision/text/blobs storage system. Higher-level code should
+    never touch text storage directly; this class mediates it.
 
   Skin
     Encapsulates a "look and feel" for the wiki. All of the
@@ -61,7 +68,9 @@ Primary source files/objects:
   Language
     Represents the language used for incidental text, and also
     has some character encoding functions and other locale stuff.
-    A global one is allocated in $wgLang.
+	The current user interface language is instantiated as $wgLang,
+	and the local content language as $wgContLang; be sure to use
+	the *correct* language object depending upon the circumstances.
 
   LinkCache
     Keeps information on existence of articles. See LINKCACHE.TXT.
@@ -86,13 +95,14 @@ Naming/coding conventions:
     its own line or the statement that opened the block--that's
     confusing as hell.
 
-  - PHP doesn't have "private" member variables of functions,
-    so I've used the comment "/* private */" in some places to
-    indicate my intent. Don't access things marked that way
-    from outside the class def--use the accessor functions (or
-    make your own if you need them). Yes, even some globals
-    are marked private, because PHP is broken and doesn't
-    allow static class variables.
+  - Certain functions and class members are marked with
+	/* private */, rather than being marked as such. This is a
+	hold-over from PHP 4, which didn't support proper visibilities.
+	You should not access things marked in this manner outside the
+	class/inheritance line as this code is subjected to be updated
+	in a manner that enforces this at some time in the near future,
+	and things will break. New code should use the standard method of
+	setting visibilities as normal.
 
   - Member variables are generally "mXxx" to distinguish them.
     This should make it easier to spot errors of forgetting the
@@ -116,13 +126,3 @@ Naming/coding conventions:
     Other conventions: Top-level functions are wfFuncname(), names
     of session variables are wsName, cookies wcName, and form field
     values wpName ("p" for "POST").
-
-  - Be kind to your release manager and don't use CVS keywords (Id,
-    Revision, etc.) to mark file versions. They make merging code
-    between different branches a pain for CVS, and are kind of sketchy
-    for versions after that. (Yes, you can use the '-kk' flag so that
-    merges ignore keywords, but that messes up binary  files. See
-    https://www.cvshome.org/docs/manual/cvs-1.11.18/cvs_5.html#SEC64).
-    
-
-    

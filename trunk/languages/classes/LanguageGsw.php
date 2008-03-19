@@ -1,8 +1,7 @@
 <?php
 /** Alemannic (Alemannisch)
  *
- * @package MediaWiki
- * @subpackage Language
+ * @addtogroup Language
  */
 
 class LanguageGsw extends Language {
@@ -66,4 +65,4 @@ class LanguageGsw extends Language {
 
 }
 
-?>
+

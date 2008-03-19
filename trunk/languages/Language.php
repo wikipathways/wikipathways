@@ -1,7 +1,6 @@
 <?php
 /**
- * @package MediaWiki
- * @subpackage Language
+ * @addtogroup Language
  */
 
 if( !defined( 'MEDIAWIKI' ) ) {
@@ -23,7 +22,7 @@ if( !defined( 'MEDIAWIKI' ) ) {
 
 # Read language names
 global $wgLanguageNames;
-require_once( 'Names.php' );
+require_once( dirname(__FILE__) . '/Names.php' ) ;
 
 global $wgInputEncoding, $wgOutputEncoding;
 
@@ -60,9 +59,10 @@ class FakeConverter {
 
 class Language {
 	var $mConverter, $mVariants, $mCode, $mLoaded = false;
+	var $mMagicExtensions = array(), $mMagicHookDone = false;
 
 	static public $mLocalisationKeys = array( 'fallback', 'namespaceNames',
-		'quickbarSettings', 'skinNames', 'mathNames', 
+		'skinNames', 'mathNames', 
 		'bookstoreList', 'magicWords', 'messages', 'rtl', 'digitTransformTable', 
 		'separatorTransformTable', 'fallback8bitEncoding', 'linkPrefixExtension',
 		'defaultUserOptionOverrides', 'linkTrail', 'namespaceAliases', 
@@ -163,6 +163,11 @@ class Language {
 		return User::getDefaultOptions();
 	}
 
+	function getFallbackLanguageCode() {
+		$this->load();
+		return $this->fallback;
+	}
+
 	/**
 	 * Exports $wgBookstoreListEn
 	 * @return array
@@ -224,7 +229,22 @@ class Language {
 	}
 
 	/**
-	 * Get a namespace key by value, case insensetive.
+	 * Get a namespace key by value, case insensitive.
+	 * Only matches namespace names for the current language, not the
+	 * canonical ones defined in Namespace.php.
+	 *
+	 * @param string $text
+	 * @return mixed An integer if $text is a valid value otherwise false
+	 */
+	function getLocalNsIndex( $text ) {
+		$this->load();
+		$lctext = $this->lc($text);
+		return isset( $this->mNamespaceIds[$lctext] ) ? $this->mNamespaceIds[$lctext] : false;
+	}
+
+	/**
+	 * Get a namespace key by value, case insensitive.  Canonical namespace
+	 * names override custom ones defined for the current language.
 	 *
 	 * @param string $text
 	 * @return mixed An integer if $text is a valid value otherwise false
@@ -232,6 +252,7 @@ class Language {
 	function getNsIndex( $text ) {
 		$this->load();
 		$lctext = $this->lc($text);
+		if( ( $ns = Namespace::getCanonicalIndex( $lctext ) ) !== null ) return $ns;
 		return isset( $this->mNamespaceIds[$lctext] ) ? $this->mNamespaceIds[$lctext] : false;
 	}
 
@@ -254,8 +275,13 @@ class Language {
 	}
 
 	function getQuickbarSettings() {
-		$this->load();
-		return $this->quickbarSettings;
+		return array(
+			$this->getMessage( 'qbsettings-none' ),
+			$this->getMessage( 'qbsettings-fixedleft' ),
+			$this->getMessage( 'qbsettings-fixedright' ),
+			$this->getMessage( 'qbsettings-floatingleft' ),
+			$this->getMessage( 'qbsettings-floatingright' )
+		);
 	}
 
 	function getSkinNames() {
@@ -313,9 +339,10 @@ class Language {
 		}
 		
 		global $IP;
-		$messageFiles = glob( "$IP/languages/messages/Messages*.php" );
 		$names = array();
-		foreach ( $messageFiles as $file ) {
+		$dir = opendir( "$IP/languages/messages" );
+		while( false !== ( $file = readdir( $dir ) ) ) {
+			$m = array();
 			if( preg_match( '/Messages([A-Z][a-z_]+)\.php$/', $file, $m ) ) {
 				$code = str_replace( '_', '-', strtolower( $m[1] ) );
 				if ( isset( $wgLanguageNames[$code] ) ) {
@@ -323,6 +350,7 @@ class Language {
 				}
 			}
 		}
+		closedir( $dir );
 		return $names;
 	}
 
@@ -394,8 +422,12 @@ class Language {
 		if ( $tz === '' ) {
 			# Global offset in minutes.
 			if( isset($wgLocalTZoffset) ) {
-				$hrDiff = $wgLocalTZoffset % 60;
-				$minDiff = $wgLocalTZoffset - ($hrDiff * 60);
+				if( $wgLocalTZoffset >= 0 ) {
+					$hrDiff = floor($wgLocalTZoffset / 60);
+				} else {
+					$hrDiff = ceil($wgLocalTZoffset / 60);
+				}
+				$minDiff = $wgLocalTZoffset % 60;
 			}
 		} elseif ( strpos( $tz, ':' ) !== false ) {
 			$tzArray = explode( ':', $tz );
@@ -408,7 +440,8 @@ class Language {
 		# No difference ? Return time unchanged
 		if ( 0 == $hrDiff && 0 == $minDiff ) { return $ts; }
 
-		# Generate an adjusted date
+		wfSuppressWarnings(); // E_STRICT system time bitching
+		# Generate an adjusted date
 		$t = mktime( (
 		  (int)substr( $ts, 8, 2) ) + $hrDiff, # Hours
 		  (int)substr( $ts, 10, 2 ) + $minDiff, # Minutes
@@ -416,7 +449,11 @@ class Language {
 		  (int)substr( $ts, 4, 2 ), # Month
 		  (int)substr( $ts, 6, 2 ), # Day
 		  (int)substr( $ts, 0, 4 ) ); #Year
-		return date( 'YmdHis', $t );
+		
+		$date = date( 'YmdHis', $t );
+		wfRestoreWarnings();
+		
+		return $date;
 	}
 
 	/**
@@ -442,6 +479,9 @@ class Language {
 	 * i's"                   => 20'11"
 	 *
 	 * Backslash escaping is also supported.
+	 *
+	 * Input timestamp is assumed to be pre-normalized to the desired local
+	 * time zone, if any.
 	 * 
 	 * @param string $format
 	 * @param string $ts 14-character timestamp
@@ -482,31 +522,31 @@ class Language {
 					break;
 				case 'D':
 					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
-					$s .= $this->getWeekdayAbbreviation( date( 'w', $unix ) + 1 );
+					$s .= $this->getWeekdayAbbreviation( gmdate( 'w', $unix ) + 1 );
 					break;
 				case 'j':
 					$num = intval( substr( $ts, 6, 2 ) );
 					break;
 				case 'l':
 					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
-					$s .= $this->getWeekdayName( date( 'w', $unix ) + 1 );
+					$s .= $this->getWeekdayName( gmdate( 'w', $unix ) + 1 );
 					break;
 				case 'N':
 					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
-					$w = date( 'w', $unix );
+					$w = gmdate( 'w', $unix );
 					$num = $w ? $w : 7;
 					break;
 				case 'w':
 					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
-					$num = date( 'w', $unix );
+					$num = gmdate( 'w', $unix );
 					break;
 				case 'z':
 					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
-					$num = date( 'z', $unix );
+					$num = gmdate( 'z', $unix );
 					break;
 				case 'W':
 					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
-					$num = date( 'W', $unix );
+					$num = gmdate( 'W', $unix );
 					break;					
 				case 'F':
 					$s .= $this->getMonthName( substr( $ts, 4, 2 ) );
@@ -522,11 +562,11 @@ class Language {
 					break;
 				case 't':
 					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
-					$num = date( 't', $unix );
+					$num = gmdate( 't', $unix );
 					break;
 				case 'L':
 					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
-					$num = date( 'L', $unix );
+					$num = gmdate( 'L', $unix );
 					break;					
 				case 'Y':
 					$num = substr( $ts, 0, 4 );
@@ -562,11 +602,11 @@ class Language {
 					break;
 				case 'c':
 					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
-					$s .= date( 'c', $unix );
+					$s .= gmdate( 'c', $unix );
 					break;
 				case 'r':
 					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
-					$s .= date( 'r', $unix );
+					$s .= gmdate( 'r', $unix );
 					break;
 				case 'U':
 					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
@@ -743,6 +783,9 @@ class Language {
 	*/
 	function timeanddate( $ts, $adj = false, $format = true, $timecorrection = false) {
 		$this->load();
+
+		$ts = wfTimestamp( TS_MW, $ts );
+
 		if ( $adj ) { 
 			$ts = $this->userAdjust( $ts, $timecorrection ); 
 		}
@@ -767,7 +810,7 @@ class Language {
 
 	function iconv( $in, $out, $string ) {
 		# For most languages, this is a wrapper for iconv
-		return iconv( $in, $out, $string );
+		return iconv( $in, $out . '//IGNORE', $string );
 	}
 
 	// callback functions for uc(), lc(), ucwords(), ucwordbreaks()
@@ -803,15 +846,17 @@ class Language {
 	}
 
 	function uc( $str, $first = false ) {
-		if ( function_exists( 'mb_strtoupper' ) )
-			if ( $first )
-				if ( self::isMultibyte( $str ) )
+		if ( function_exists( 'mb_strtoupper' ) ) {
+			if ( $first ) {
+				if ( self::isMultibyte( $str ) ) {
 					return mb_strtoupper( mb_substr( $str, 0, 1 ) ) . mb_substr( $str, 1 );
-				else
+				} else {
 					return ucfirst( $str );
-			else
+				}
+			} else {
 				return self::isMultibyte( $str ) ? mb_strtoupper( $str ) : strtoupper( $str );
-		else
+			}
+		} else {
 			if ( self::isMultibyte( $str ) ) {
 				list( $wikiUpperChars ) = $this->getCaseMaps();
 				$x = $first ? '^' : '';
@@ -820,8 +865,10 @@ class Language {
 					array($this,"ucCallback"),
 					$str
 				);
-			} else
+			} else {
 				return $first ? ucfirst( $str ) : strtoupper( $str );
+			}
+		}
 	}
 	
 	function lcfirst( $str ) {
@@ -992,6 +1039,7 @@ class Language {
 	 * @return string
 	 */
 	function firstChar( $s ) {
+		$matches = array();
 		preg_match( '/^([\x00-\x7f]|[\xc0-\xdf][\x80-\xbf]|' .
 		'[\xe0-\xef][\x80-\xbf]{2}|[\xf0-\xf7][\x80-\xbf]{3})/', $s, $matches);
 
@@ -1081,8 +1129,8 @@ class Language {
 
 	# Fill a MagicWord object with data from here
 	function getMagic( &$mw ) {
-		if ( !isset( $this->mMagicExtensions ) ) {
-			$this->mMagicExtensions = array();
+		if ( !$this->mMagicHookDone ) {
+			$this->mMagicHookDone = true;
 			wfRunHooks( 'LanguageGetMagic', array( &$this->mMagicExtensions, $this->getCode() ) );
 		}
 		if ( isset( $this->mMagicExtensions[$mw->mId] ) ) {
@@ -1106,6 +1154,24 @@ class Language {
 	}
 
 	/**
+	 * Add magic words to the extension array
+	 */
+	function addMagicWordsByLang( $newWords ) {
+		$code = $this->getCode();
+		$fallbackChain = array();
+		while ( $code && !in_array( $code, $fallbackChain ) ) {
+			$fallbackChain[] = $code;
+			$code = self::getFallbackFor( $code );
+		}
+		$fallbackChain = array_reverse( $fallbackChain );
+		foreach ( $fallbackChain as $code ) {
+			if ( isset( $newWords[$code] ) ) {
+				$this->mMagicExtensions = $newWords[$code] + $this->mMagicExtensions;
+			}
+		}
+	}
+
+	/**
 	 * Get special page names, as an associative array
 	 *   case folded alias => real name
 	 */
@@ -1113,7 +1179,7 @@ class Language {
 		$this->load();
 		if ( !isset( $this->mExtendedSpecialPageAliases ) ) {
 			$this->mExtendedSpecialPageAliases = $this->specialPageAliases;
-			wfRunHooks( 'LangugeGetSpecialPageAliases', 
+			wfRunHooks( 'LanguageGetSpecialPageAliases', 
 				array( &$this->mExtendedSpecialPageAliases, $this->getCode() ) );
 		}
 		return $this->mExtendedSpecialPageAliases;
@@ -1224,13 +1290,21 @@ class Language {
 		return $s;
 	}
 
-	# Crop a string from the beginning or end to a certain number of bytes.
-	# (Bytes are used because our storage has limited byte lengths for some
-	# columns in the database.) Multibyte charsets will need to make sure that
-	# only whole characters are included!
-	#
-	# $length does not include the optional ellipsis.
-	# If $length is negative, snip from the beginning
+	/**
+	 * Truncate a string to a specified length in bytes, appending an optional
+	 * string (e.g. for ellipses)
+	 *
+	 * The database offers limited byte lengths for some columns in the database;
+	 * multi-byte character sets mean we need to ensure that only whole characters
+	 * are included, otherwise broken characters can be passed to the user
+	 *
+	 * If $length is negative, the string will be truncated from the beginning
+	 *	 
+	 * @param string $string String to truncate
+	 * @param int $length Maximum length (excluding ellipses)
+	 * @param string $ellipses String to append to the truncated text
+	 * @return string
+	 */
 	function truncate( $string, $length, $ellipsis = "" ) {
 		if( $length == 0 ) {
 			return $ellipsis;
@@ -1241,6 +1315,7 @@ class Language {
 		if( $length > 0 ) {
 			$string = substr( $string, 0, $length );
 			$char = ord( $string[strlen( $string ) - 1] );
+			$m = array();
 			if ($char >= 0xc0) {
 				# We got the first byte only of a multibyte char; remove it.
 				$string = substr( $string, 0, -1 );
@@ -1298,16 +1373,17 @@ class Language {
 	 * @return string
 	 */
 	function convertPlural( $count, $w1, $w2, $w3, $w4, $w5) {
-		return $count == '1' ? $w1 : $w2;
+		return ( $count == '1' || $count == '-1' ) ? $w1 : $w2;
 	}
 
 	/**
 	 * For translaing of expiry times
 	 * @param string The validated block time in English
+	 * @param $forContent, avoid html?
 	 * @return Somehow translated block time
 	 * @see LanguageFi.php for example implementation
 	 */
-	function translateBlockExpiry( $str ) {
+	function translateBlockExpiry( $str, $forContent=false ) {
 
 		$scBlockExpiryOptions = $this->getMessageFromDB( 'ipboptions' );
 
@@ -1319,9 +1395,12 @@ class Language {
 			if ( strpos($option, ":") === false )
 				continue;
 			list($show, $value) = explode(":", $option);
-			if ( strcmp ( $str, $value) == 0 )
-				return '<span title="' . htmlspecialchars($str). '">' .
-					htmlspecialchars( trim( $show ) ) . '</span>';
+			if ( strcmp ( $str, $value) == 0 ) {
+				if ( $forContent )
+					return htmlspecialchars($str) . htmlspecialchars( trim( $show ) );
+				else
+					return '<span title="' . htmlspecialchars($str). '">' . htmlspecialchars( trim( $show ) ) . '</span>';
+			}
 		}
 
 		return $str;
@@ -1537,11 +1616,9 @@ class Language {
 			$memcKey = wfMemcKey('localisation', $code );
 			$cache = $wgMemc->get( $memcKey );
 			if ( $cache ) {
-				$expired = false;
 				# Check file modification times
 				foreach ( $cache['deps'] as $file => $mtime ) {
 					if ( !file_exists( $file ) || filemtime( $file ) > $mtime ) {
-						$expired = true;
 						break;
 					}
 				}
@@ -1701,7 +1778,7 @@ class Language {
 	 * Do any necessary post-cache-load settings adjustment
 	 */
 	function fixUpSettings() {
-		global $wgExtraNamespaces, $wgMetaNamespace, $wgMetaNamespaceTalk, $wgMessageCache, 
+		global $wgExtraNamespaces, $wgMetaNamespace, $wgMetaNamespaceTalk,
 			$wgNamespaceAliases, $wgAmericanDates;
 		wfProfileIn( __METHOD__ );
 		if ( $wgExtraNamespaces ) {
@@ -1774,6 +1851,73 @@ class Language {
 		wfProfileOut( __METHOD__ );
 		return array( $wikiUpperChars, $wikiLowerChars );
 	}
+
+	function formatTimePeriod( $seconds ) {
+		if ( $seconds < 10 ) {
+			return $this->formatNum( sprintf( "%.1f", $seconds ) ) . wfMsg( 'seconds-abbrev' );
+		} elseif ( $seconds < 60 ) {
+			return $this->formatNum( round( $seconds ) ) . wfMsg( 'seconds-abbrev' );
+		} elseif ( $seconds < 3600 ) {
+			return $this->formatNum( floor( $seconds / 60 ) ) . wfMsg( 'minutes-abbrev' ) . 
+				$this->formatNum( round( fmod( $seconds, 60 ) ) ) . wfMsg( 'seconds-abbrev' );
+		} else {
+			$hours = floor( $seconds / 3600 );
+			$minutes = floor( ( $seconds - $hours * 3600 ) / 60 );
+			$secondsPart = round( $seconds - $hours * 3600 - $minutes * 60 );
+			return $this->formatNum( $hours ) . wfMsg( 'hours-abbrev' ) . 
+				$this->formatNum( $minutes ) . wfMsg( 'minutes-abbrev' ) .
+				$this->formatNum( $secondsPart ) . wfMsg( 'seconds-abbrev' );
+		}
+	}
+
+	function formatBitrate( $bps ) {
+		$units = array( 'bps', 'kbps', 'Mbps', 'Gbps' );
+		if ( $bps <= 0 ) {
+			return $this->formatNum( $bps ) . $units[0];
+		}
+		$unitIndex = floor( log10( $bps ) / 3 );
+		$mantissa = $bps / pow( 1000, $unitIndex );
+		if ( $mantissa < 10 ) {
+			$mantissa = round( $mantissa, 1 );
+		} else {
+			$mantissa = round( $mantissa );
+		}
+		return $this->formatNum( $mantissa ) . $units[$unitIndex];
+	}
+
+	/**
+	 * Format a size in bytes for output, using an appropriate
+	 * unit (B, KB, MB or GB) according to the magnitude in question
+	 *
+	 * @param $size Size to format
+	 * @return string Plain text (not HTML)
+	 */
+	function formatSize( $size ) {
+		// For small sizes no decimal places necessary
+		$round = 0;
+		if( $size > 1024 ) {
+			$size = $size / 1024;
+			if( $size > 1024 ) {
+				$size = $size / 1024;
+				// For MB and bigger two decimal places are smarter
+				$round = 2;
+				if( $size > 1024 ) {
+					$size = $size / 1024;
+					$msg = 'size-gigabytes';
+				} else {
+					$msg = 'size-megabytes';
+				}
+			} else {
+				$msg = 'size-kilobytes';
+			}
+		} else {
+			$msg = 'size-bytes';
+		}
+		$size = round( $size, $round );
+		$text = $this->getMessageFromDB( $msg );
+		return str_replace( '$1', $this->formatNum( $size ), $text );
+	}
 }
 
-?>
+
+

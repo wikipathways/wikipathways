@@ -136,7 +136,7 @@ $wgGroupPermissions['*'    ]['createtalk']      = true;
 $wgAllowSlowParserFunctions = true;
 
 #Logo
-$wgLogo = "http://www.wikipathways.org/skins/common/images/earth-or-pathway_text3_beta.png";
+$wgLogo = "http://www.wikipathways.org/skins/common/images/earth-or-pathway_text2_beta.png";
 
 #Allow gpml extension and larger image files
 $wgFileExtensions = array( 'png', 'gif', 'jpg', 'jpeg', 'svg', 'gpml', 'mapp');
@@ -155,21 +155,18 @@ $wgSVGConverters['inkscape'] = '$path/inkscape -z -b white -w $width -f $input -
 # Allow direct linking to external images (so we don't have to upload them to the wiki)
 $wgAllowExternalImages = true;
 
-##Custom namespaces
+##Pathway namespace
 define("NS_PATHWAY", 102); //NS_PATHWAY is same as NS_GPML since refactoring
 define("NS_PATHWAY_TALK", 103);
 define("NS_GPML", 102);
 define("NS_GPML_TALK", 103);
 define("NS_WISHLIST", 104);
 define("NS_WISHLIST_TALK", 105);
-define("NS_PORTAL", 106);
-define("NS_PORTAL_TALK", 107);
 
 $wgExtraNamespaces =
 	array(	NS_PATHWAY => "Pathway", NS_PATHWAY_TALK => "Pathway_Talk",
 			100 => "Pw_Old", 101 => "Pw_Old_Talk", //Old namespace
-			NS_WISHLIST => "Wishlist", NS_WISHLIST_TALK => "Wishlist_Talk",
-			NS_PORTAL => "Portal", NS_PORTAL_TALK => "Portal_Talk"
+			NS_WISHLIST => "Wishlist", NS_WISHLIST_TALK => "Wishlist_Talk"
 		);
 $wgNamespacesToBeSearchedDefault += 
 	array( 	NS_PATHWAY => true, NS_PATHWAY_TALK => true,
@@ -200,7 +197,7 @@ $wgDebugLogFile = '/var/www/wikipathways/wpi/tmp/wikipathwaysdebug.txt';
 ##Extensions
 require_once('extensions/analytics.php'); //Google Analytics support
 require_once('extensions/inputbox.php');
-//require_once('extensions/ParserFunctions.php');
+require_once('extensions/ParserFunctions.php');
 //require_once('wpi/extensions/redirectImage.php'); //Redirect all image pages to file
 require_once('wpi/extensions/PathwayOfTheDay.php');
 require_once('wpi/extensions/siteStats.php');
@@ -231,20 +228,9 @@ require_once('wpi/extensions/SpecialWishList/SpecialWishList.php');
 require_once('wpi/extensions/SpecialWishList/TopWishes.php');
 require_once('wpi/extensions/DiffAppletPage/DiffAppletPage.php');
 require_once('wpi/extensions/RecentPathwayChanges/RecentPathwayChanges.php');
-require_once('wpi/extensions/ParserFunctions/ParserFunctions.php' );
-
-require_once('wpi/extensions/recaptcha/ReCaptcha.php'); 
-
-/* This shouldn't be in LocalSettings.php, since that's checked
-in to the svn repository. Put it in pass.php instead!
-// Sign up for keys at http://recaptcha.net/api/getKey
-$recaptcha_public_key = '***********';
-$recaptcha_private_key = '**********';
-*/
-//Recaptcha keys need to be defined again after loading the recaptcha extension
-require("pass.php");
 
 require_once( "wpi/extensions/ContributionScores/ContributionScores.php" );
+ 
 $contribScoreIgnoreBots = true;  //Set to true if you want to exclude Bots from the reporting - Can be omitted.
  
 //Each array defines a report - 7,50 is "past 7 days" and "LIMIT 50" - Can be omitted.

@@ -3,9 +3,8 @@
   *
   * Defaults to Icelandic instead of English.
   *
-  * @package MediaWiki
-  * @subpackage Language
+  * @addtogroup Language
   */
 $fallback = 'is';
 
-?>
+

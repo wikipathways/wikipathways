@@ -2,64 +2,65 @@
 
 /**
  * PHP script to stream out an image thumbnail.
- * If the file exists, we make do with abridged MediaWiki initialisation.
+ *
+ * @addtogroup Media
  */
-define( 'MW_NO_SETUP', 1 );
+define( 'MW_NO_OUTPUT_COMPRESSION', 1 );
 require_once( './includes/WebStart.php' );
 wfProfileIn( 'thumb.php' );
 wfProfileIn( 'thumb.php-start' );
-require_once( 'GlobalFunctions.php' );
-require_once( 'ImageFunctions.php' );
 
 $wgTrivialMimeDetection = true; //don't use fancy mime detection, just check the file extension for jpg/gif/png.
 
-require_once( 'Image.php' );
-require_once( 'StreamFile.php' );
+require_once( "$IP/includes/StreamFile.php" );
 
 // Get input parameters
-$fileName = isset( $_REQUEST['f'] ) ? $_REQUEST['f'] : '';
-$width = isset( $_REQUEST['w'] ) ? intval( $_REQUEST['w'] ) : 0;
-$page = isset( $_REQUEST['p'] ) ? intval( $_REQUEST['p'] ) : null;
-
 if ( get_magic_quotes_gpc() ) {
-	$fileName = stripslashes( $fileName );
+	$params = array_map( 'stripslashes', $_REQUEST );
+} else {
+	$params = $_REQUEST;
 }
 
-$pre_render= isset($_REQUEST['r']) && $_REQUEST['r']!="0";
+$fileName = isset( $params['f'] ) ? $params['f'] : '';
+unset( $params['f'] );
+
+// Backwards compatibility parameters
+if ( isset( $params['w'] ) ) {
+	$params['width'] = $params['w'];
+	unset( $params['w'] );
+}
+if ( isset( $params['p'] ) ) {
+	$params['page'] = $params['p'];
+}
+unset( $params['r'] );
 
 // Some basic input validation
 $fileName = strtr( $fileName, '\\/', '__' );
 
-// Work out paths, carefully avoiding constructing an Image object because that won't work yet
+// Stream the file if it exists already
+try {
+	$img = wfLocalFile( $fileName );
+	if ( $img && false != ( $thumbName = $img->thumbName( $params ) ) ) {
+		$thumbPath = $img->getThumbPath( $thumbName );
 
-$imagePath = wfImageDir( $fileName ) . '/' . $fileName;
-$thumbName = "{$width}px-$fileName";
-if ( ! is_null( $page ) ) {
-	$thumbName = 'page' . $page . '-' . $thumbName;
-}
-if ( $pre_render ) {
-	$thumbName .= '.png';
-}
-$thumbPath = wfImageThumbDir( $fileName ) . '/' . $thumbName;
-
-if ( is_file( $thumbPath ) && filemtime( $thumbPath ) >= filemtime( $imagePath ) ) {
-	wfStreamFile( $thumbPath );
-	// Can't log profiling data with no Setup.php
+		if ( is_file( $thumbPath ) ) {
+			wfStreamFile( $thumbPath );
+			wfLogProfilingData();
+			exit;
+		}
+	}
+} catch ( MWException $e ) {
+	thumbInternalError( $e->getHTML() );
+	wfLogProfilingData();
 	exit;
 }
 
-// OK, no valid thumbnail, time to get out the heavy machinery
 wfProfileOut( 'thumb.php-start' );
-require_once( 'Setup.php' );
 wfProfileIn( 'thumb.php-render' );
 
-$img = Image::newFromName( $fileName );
 try {
 	if ( $img ) {
-		if ( ! is_null( $page ) ) {
-			$img->selectPage( $page );
-		}
-		$thumb = $img->renderThumb( $width, false );
+		$thumb = $img->transform( $params, File::RENDER_NOW );
 	} else {
 		$thumb = false;
 	}
@@ -68,24 +69,46 @@ try {
 	$thumb = false;
 }
 
-if ( $thumb && $thumb->path ) {
-	wfStreamFile( $thumb->path );
+$errorMsg = false;
+if ( !$img ) {
+	$errorMsg = wfMsg( 'badtitletext' );
+} elseif ( !$thumb ) {
+	$errorMsg = wfMsgHtml( 'thumbnail_error', 'File::transform() returned false' );
+} elseif ( $thumb->isError() ) {
+	$errorMsg = $thumb->getHtmlMsg();
+} elseif ( !$thumb->getPath() ) {
+	$errorMsg = wfMsgHtml( 'thumbnail_error', 'No path supplied in thumbnail object' );
+} elseif ( $thumb->getPath() == $img->getPath() ) {
+	$errorMsg = wfMsgHtml( 'thumbnail_error', 'Image was not scaled, ' .
+		'is the requested width bigger than the source?' );
 } else {
-	$badtitle = wfMsg( 'badtitle' );
-	$badtitletext = wfMsg( 'badtitletext' );
-	header( 'Cache-Control: no-cache' );
-	header( 'Content-Type: text/html; charset=utf-8' );
-	echo "<html><head>
-	<title>$badtitle</title>
-	<body>
-<h1>$badtitle</h1>
-<p>$badtitletext</p>
-</body></html>
-";
+	wfStreamFile( $thumb->getPath() );
+}
+if ( $errorMsg !== false ) {
+	thumbInternalError( $errorMsg );
 }
 
 wfProfileOut( 'thumb.php-render' );
 wfProfileOut( 'thumb.php' );
 wfLogProfilingData();
 
-?>
+//--------------------------------------------------------------------------
+
+function thumbInternalError( $msg ) {
+	header( 'Cache-Control: no-cache' );
+	header( 'Content-Type: text/html; charset=utf-8' );
+	header( 'HTTP/1.1 500 Internal server error' );
+	echo <<<EOT
+<html><head><title>Error generating thumbnail</title></head>
+<body>
+<h1>Error generating thumbnail</h1>
+<p>
+$msg
+</p>
+</body>
+</html>
+
+EOT;
+}
+
+

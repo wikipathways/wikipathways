@@ -1,14 +1,13 @@
 <?php
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 /**
  *
  */
-require_once( 'ChangesList.php' );
+require_once( dirname(__FILE__) . '/ChangesList.php' );
 
 /**
  * Constructor
@@ -22,7 +21,7 @@ function wfSpecialRecentchanges( $par, $specialPage ) {
 	# Get query parameters
 	$feedFormat = $wgRequest->getVal( 'feed' );
 
-	/* Checkbox values can't be true be default, because
+	/* Checkbox values can't be true by default, because
 	 * we cannot differentiate between unset and not set at all
 	 */
 	$defaults = array(
@@ -58,7 +57,7 @@ function wfSpecialRecentchanges( $par, $specialPage ) {
 	if( $feedFormat ) {
 		global $wgFeedLimit;
 		if( $limit > $wgFeedLimit ) {
-			$options['limit'] = $wgFeedLimit;
+			$limit = $wgFeedLimit;
 		}
 
 	} else {
@@ -105,7 +104,7 @@ function wfSpecialRecentchanges( $par, $specialPage ) {
 
 
 	# Database connection and caching
-	$dbr =& wfGetDB( DB_SLAVE );
+	$dbr = wfGetDB( DB_SLAVE );
 	list( $recentchanges, $watchlist ) = $dbr->tableNamesN( 'recentchanges', 'watchlist' );
 
 
@@ -270,8 +269,6 @@ function wfSpecialRecentchanges( $par, $specialPage ) {
 }
 
 function rcFilterByCategories ( &$rows , $categories , $any ) {
-	require_once ( 'Categoryfinder.php' ) ;
-	
 	# Filter categories
 	$cats = array () ;
 	foreach ( $categories AS $cat ) {
@@ -470,7 +467,7 @@ function rcDayLimitLinks( $days, $limit, $page='Recentchanges', $more='', $doall
 
 /**
  * Makes change an option link which carries all the other options
- * @param $title @see Title
+ * @param $title see Title
  * @param $override
  * @param $options
  */
@@ -625,7 +622,7 @@ function rcFormatDiffRow( $title, $oldid, $newid, $timestamp, $comment ) {
 	$skin = $wgUser->getSkin();
 	$completeText = '<p>' . $skin->formatComment( $comment ) . "</p>\n";
 
-	if( $title->getNamespace() >= 0 ) {
+	if( $title->getNamespace() >= 0 && $title->userCan( 'read' ) ) {
 		if( $oldid ) {
 			wfProfileIn( "$fname-dodiff" );
 
@@ -686,13 +683,13 @@ function rcFormatDiffRow( $title, $oldid, $newid, $timestamp, $comment ) {
  */
 function rcApplyDiffStyle( $text ) {
 	$styles = array(
-		'diff'             => 'background-color: white;',
-		'diff-otitle'      => 'background-color: white;',
-		'diff-ntitle'      => 'background-color: white;',
-		'diff-addedline'   => 'background: #cfc; font-size: smaller;',
-		'diff-deletedline' => 'background: #ffa; font-size: smaller;',
-		'diff-context'     => 'background: #eee; font-size: smaller;',
-		'diffchange'       => 'color: red; font-weight: bold;',
+		'diff'             => 'background-color: white; color:black;',
+		'diff-otitle'      => 'background-color: white; color:black;',
+		'diff-ntitle'      => 'background-color: white; color:black;',
+		'diff-addedline'   => 'background: #cfc; color:black; font-size: smaller;',
+		'diff-deletedline' => 'background: #ffa; color:black; font-size: smaller;',
+		'diff-context'     => 'background: #eee; color:black; font-size: smaller;',
+		'diffchange'       => 'color: red; font-weight: bold; text-decoration: none;',
 	);
 	
 	foreach( $styles as $class => $style ) {
@@ -703,4 +700,4 @@ function rcApplyDiffStyle( $text ) {
 	return $text;
 }
 
-?>
+

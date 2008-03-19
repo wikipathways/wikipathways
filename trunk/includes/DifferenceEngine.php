@@ -1,15 +1,22 @@
 <?php
 /**
  * See diff.doc
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @todo indicate where diff.doc can be found.
+ * @addtogroup DifferenceEngine
  */
+
+/**
+ * Constant to indicate diff cache compatibility.
+ * Bump this when changing the diff formatting in a way that
+ * fixes important bugs or such to force cached diff views to
+ * clear.
+ */
+define( 'MW_DIFF_VERSION', '1.11a' );
 
 /**
  * @todo document
  * @public
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class DifferenceEngine {
 	/**#@+
@@ -63,8 +70,8 @@ class DifferenceEngine {
 		$this->mRcidMarkPatrolled = intval($rcid);  # force it to be an integer
 	}
 
-	function showDiffPage() {
-		global $wgUser, $wgOut, $wgContLang, $wgUseExternalEditor, $wgUseRCPatrol;
+	function showDiffPage( $diffOnly = false ) {
+		global $wgUser, $wgOut, $wgUseExternalEditor, $wgUseRCPatrol;
 		$fname = 'DifferenceEngine::showDiffPage';
 		wfProfileIn( $fname );
 
@@ -118,6 +125,7 @@ CONTROL;
 		# is the first version of that article. In that case, V' does not exist.
 		if ( $this->mOldid === false ) {
 			$this->showFirstRevision();
+			$this->renderNewRevision();  // should we respect $diffOnly here or not?
 			wfProfileOut( $fname );
 			return;
 		}
@@ -148,8 +156,42 @@ CONTROL;
 		} else {
 			$rollback = '';
 		}
-		if( $wgUseRCPatrol && $this->mRcidMarkPatrolled != 0 && $wgUser->isAllowed( 'patrol' ) ) {
-			$patrol = ' [' . $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'markaspatrolleddiff' ), "action=markpatrolled&rcid={$this->mRcidMarkPatrolled}" ) . ']';
+		
+		// Prepare a change patrol link, if applicable
+		if( $wgUseRCPatrol && $wgUser->isAllowed( 'patrol' ) ) {
+			// If we've been given an explicit change identifier, use it; saves time
+			if( $this->mRcidMarkPatrolled ) {
+				$rcid = $this->mRcidMarkPatrolled;
+			} else {
+				// Look for an unpatrolled change corresponding to this diff
+				$change = RecentChange::newFromConds(
+					array(
+						// Add redundant timestamp condition so we can use the
+						// existing index
+						'rc_timestamp' => $this->mNewRev->getTimestamp(),
+						'rc_this_oldid' => $this->mNewid,
+						'rc_last_oldid' => $this->mOldid,
+						'rc_patrolled' => 0,
+					),
+					__METHOD__
+				);
+				if( $change instanceof RecentChange ) {
+					$rcid = $change->mAttribs['rc_id'];
+				} else {
+					// None found
+					$rcid = 0;
+				}
+			}
+			// Build the link
+			if( $rcid ) {
+				$patrol = ' [' . $sk->makeKnownLinkObj(
+					$this->mTitle,
+					wfMsgHtml( 'markaspatrolleddiff' ),
+					"action=markpatrolled&rcid={$rcid}"
+				) . ']';
+			} else {
+				$patrol = '';
+			}
 		} else {
 			$patrol = '';
 		}
@@ -176,17 +218,36 @@ CONTROL;
 			wfMsg( 'minoreditletter') ) . ' ';
 		}
 
-		$oldHeader = "<strong>{$this->mOldtitle}</strong><br />" .
-			$sk->revUserTools( $this->mOldRev ) . "<br />" .
-			$oldminor . $sk->revComment( $this->mOldRev, true ) . "<br />" .
-			$prevlink;
-		$newHeader = "<strong>{$this->mNewtitle}</strong><br />" .
-			$sk->revUserTools( $this->mNewRev ) . " $rollback<br />" .
-			$newminor . $sk->revComment( $this->mNewRev, true ) . "<br />" .
-			$nextlink . $patrol;
+		$oldHeader = '<div id="mw-diff-otitle1"><strong>' . $this->mOldtitle . '</strong></div>' .
+			'<div id="mw-diff-otitle2">' . $sk->revUserTools( $this->mOldRev ) . "</div>" .
+			'<div id="mw-diff-otitle3">' . $oldminor . $sk->revComment( $this->mOldRev, !$diffOnly ) . "</div>" .
+			'<div id="mw-diff-otitle4">' . $prevlink . '</div>';
+		$newHeader = '<div id="mw-diff-ntitle1"><strong>' .$this->mNewtitle . '</strong></div>' .
+			'<div id="mw-diff-ntitle2">' . $sk->revUserTools( $this->mNewRev ) . " $rollback</div>" .
+			'<div id="mw-diff-ntitle3">' . $newminor . $sk->revComment( $this->mNewRev, !$diffOnly ) . "</div>" .
+			'<div id="mw-diff-ntitle4">' . $nextlink . $patrol . '</div>';
 
 		$this->showDiff( $oldHeader, $newHeader );
+
+		if ( !$diffOnly )
+			$this->renderNewRevision();
+
+		wfProfileOut( $fname );
+	}
+
+	/**
+	 * Show the new revision of the page.
+	 */
+	function renderNewRevision() {
+		global $wgOut;
+		$fname = 'DifferenceEngine::renderNewRevision';
+		wfProfileIn( $fname );
+
 		$wgOut->addHTML( "<hr /><h2>{$this->mPagetitle}</h2>\n" );
+		#add deleted rev tag if needed
+		if ( !$this->mNewRev->userCan(Revision::DELETED_TEXT) ) {
+		  	$wgOut->addWikiText( wfMsg( 'rev-deleted-text-permission' ) );
+		}
 
 		if( !$this->mNewRev->isCurrent() ) {
 			$oldEditSectionSetting = $wgOut->parserOptions()->setEditSection( false );
@@ -196,7 +257,8 @@ CONTROL;
 		if( is_object( $this->mNewRev ) ) {
 			$wgOut->setRevisionId( $this->mNewRev->getId() );
 		}
-		$wgOut->addSecondaryWikiText( $this->mNewtext );
+
+		$wgOut->addWikiTextTidy( $this->mNewtext );
 
 		if( !$this->mNewRev->isCurrent() ) {
 			$wgOut->parserOptions()->setEditSection( $oldEditSectionSetting );
@@ -254,15 +316,6 @@ CONTROL;
 		$wgOut->setSubtitle( wfMsg( 'difference' ) );
 		$wgOut->setRobotpolicy( 'noindex,nofollow' );
 
-
-		# Show current revision
-		#
-		$wgOut->addHTML( "<hr /><h2>{$this->mPagetitle}</h2>\n" );
-		if( is_object( $this->mNewRev ) ) {
-			$wgOut->setRevisionId( $this->mNewRev->getId() );
-		}
-		$wgOut->addSecondaryWikiText( $this->mNewtext );
-
 		wfProfileOut( $fname );
 	}
 
@@ -271,24 +324,39 @@ CONTROL;
 	 * Returns false if the diff could not be generated, otherwise returns true
 	 */
 	function showDiff( $otitle, $ntitle ) {
-		global $wgOut;
-		$diff = $this->getDiff( $otitle, $ntitle );
+		global $wgOut, $wgRequest;
+		$diff = $this->getDiff( $otitle, $ntitle, $wgRequest->getVal( 'action' ) == 'purge' );
 		if ( $diff === false ) {
 			$wgOut->addWikitext( wfMsg( 'missingarticle', "<nowiki>(fixme, bug)</nowiki>" ) );
 			return false;
 		} else {
+			$this->showDiffStyle();
 			$wgOut->addHTML( $diff );
 			return true;
 		}
 	}
+	
+	/**
+	 * Add style sheets and supporting JS for diff display.
+	 */
+	function showDiffStyle() {
+		global $wgStylePath, $wgStyleVersion, $wgOut;
+		$wgOut->addStyle( 'common/diff.css' );
+		
+		// JS is needed to detect old versions of Mozilla to work around an annoyance bug.
+		$wgOut->addScript( "<script type=\"text/javascript\" src=\"$wgStylePath/common/diff.js?$wgStyleVersion\"></script>" );
+	}
 
 	/**
-	 * Get diff table, including header
-	 * Note that the interface has changed, it's no longer static.
-	 * Returns false on error
+	 * Get complete diff table, including header
+	 *
+	 * @param Title $otitle Old title
+	 * @param Title $ntitle New title
+	 * @param bool $skipCache Skip the diff cache for this request?
+	 * @return mixed
 	 */
-	function getDiff( $otitle, $ntitle ) {
-		$body = $this->getDiffBody();
+	function getDiff( $otitle, $ntitle, $skipCache = false ) {
+		$body = $this->getDiffBody( $skipCache );
 		if ( $body === false ) {
 			return false;
 		} else {
@@ -299,19 +367,20 @@ CONTROL;
 
 	/**
 	 * Get the diff table body, without header
-	 * Results are cached
-	 * Returns false on error
+	 *
+	 * @param bool $skipCache Skip cache for this request?
+	 * @return mixed
 	 */
-	function getDiffBody() {
+	function getDiffBody( $skipCache = false ) {
 		global $wgMemc;
 		$fname = 'DifferenceEngine::getDiffBody';
 		wfProfileIn( $fname );
 		
 		// Cacheable?
 		$key = false;
-		if ( $this->mOldid && $this->mNewid ) {
+		if ( $this->mOldid && $this->mNewid && !$skipCache ) {
 			// Try cache
-			$key = wfMemcKey( 'diff', 'oldid', $this->mOldid, 'newid', $this->mNewid );
+			$key = wfMemcKey( 'diff', 'version', MW_DIFF_VERSION, 'oldid', $this->mOldid, 'newid', $this->mNewid );
 			$difftext = $wgMemc->get( $key );
 			if ( $difftext ) {
 				wfIncrStats( 'diff_cache_hit' );
@@ -322,9 +391,14 @@ CONTROL;
 			}
 		}
 
+		#loadtext is permission safe, this just clears out the diff
 		if ( !$this->loadText() ) {
 			wfProfileOut( $fname );
 			return false;
+		} else if ( $this->mOldRev && !$this->mOldRev->userCan(Revision::DELETED_TEXT) ) {
+		  return '';
+		} else if ( $this->mNewRev && !$this->mNewRev->userCan(Revision::DELETED_TEXT) ) {
+		  return '';
 		}
 
 		$difftext = $this->generateDiffBody( $this->mOldtext, $this->mNewtext );
@@ -463,11 +537,23 @@ CONTROL;
 	 * Add the header to a diff body
 	 */
 	function addHeader( $diff, $otitle, $ntitle, $multi = '' ) {
+		global $wgOut;
+	
+		if ( $this->mOldRev && $this->mOldRev->isDeleted(Revision::DELETED_TEXT) ) {
+		   $otitle = '<span class="history-deleted">'.$otitle.'</span>';
+		}
+		if ( $this->mNewRev && $this->mNewRev->isDeleted(Revision::DELETED_TEXT) ) {
+		   $ntitle = '<span class="history-deleted">'.$ntitle.'</span>';
+		}
 		$header = "
-			<table border='0' width='98%' cellpadding='0' cellspacing='4' class='diff'>
+			<table class='diff'>
+			<col class='diff-marker' />
+			<col class='diff-content' />
+			<col class='diff-marker' />
+			<col class='diff-content' />
 			<tr>
-				<td colspan='2' width='50%' align='center' class='diff-otitle'>{$otitle}</td>
-				<td colspan='2' width='50%' align='center' class='diff-ntitle'>{$ntitle}</td>
+				<td colspan='2' class='diff-otitle'>{$otitle}</td>
+				<td colspan='2' class='diff-ntitle'>{$ntitle}</td>
 			</tr>
 		";
 
@@ -506,16 +592,15 @@ CONTROL;
 		}
 
 		// Load the new revision object
-		if( $this->mNewid ) {
-			$this->mNewRev = Revision::newFromId( $this->mNewid );
-		} else {
-			$this->mNewRev = Revision::newFromTitle( $this->mTitle );
-		}
-
-		if( is_null( $this->mNewRev ) ) {
+		$this->mNewRev = $this->mNewid
+			? Revision::newFromId( $this->mNewid )
+			: Revision::newFromTitle( $this->mTitle );
+		if( !$this->mNewRev instanceof Revision )
 			return false;
-		}
-
+		
+		// Update the new revision ID in case it was 0 (makes life easier doing UI stuff)
+		$this->mNewid = $this->mNewRev->getId();
+		
 		// Set assorted variables
 		$timestamp = $wgLang->timeanddate( $this->mNewRev->getTimestamp(), true );
 		$this->mNewPage = $this->mNewRev->getTitle();
@@ -523,21 +608,17 @@ CONTROL;
 			$newLink = $this->mNewPage->escapeLocalUrl();
 			$this->mPagetitle = htmlspecialchars( wfMsg( 'currentrev' ) );
 			$newEdit = $this->mNewPage->escapeLocalUrl( 'action=edit' );
-			$newUndo = $this->mNewPage->escapeLocalUrl( 'action=edit&undo=' . $this->mNewid );
 
 			$this->mNewtitle = "<a href='$newLink'>{$this->mPagetitle}</a> ($timestamp)"
-				. " (<a href='$newEdit'>" . htmlspecialchars( wfMsg( 'editold' ) ) . "</a>)"
-				. " (<a href='$newUndo'>" . htmlspecialchars( wfMsg( 'editundo' ) ) . "</a>)";
+				. " (<a href='$newEdit'>" . htmlspecialchars( wfMsg( 'editold' ) ) . "</a>)";
 
 		} else {
 			$newLink = $this->mNewPage->escapeLocalUrl( 'oldid=' . $this->mNewid );
 			$newEdit = $this->mNewPage->escapeLocalUrl( 'action=edit&oldid=' . $this->mNewid );
-			$newUndo = $this->mNewPage->escapeLocalUrl( 'action=edit&undo=' . $this->mNewid );
 			$this->mPagetitle = htmlspecialchars( wfMsg( 'revisionasof', $timestamp ) );
 
 			$this->mNewtitle = "<a href='$newLink'>{$this->mPagetitle}</a>"
-				. " (<a href='$newEdit'>" . htmlspecialchars( wfMsg( 'editold' ) ) . "</a>)"
-				. " (<a href='$newUndo'>" . htmlspecialchars( wfMsg( 'editundo' ) ) . "</a>)";
+				. " (<a href='$newEdit'>" . htmlspecialchars( wfMsg( 'editold' ) ) . "</a>)";
 		}
 
 		// Load the old revision object
@@ -568,6 +649,10 @@ CONTROL;
 			$oldEdit = $this->mOldPage->escapeLocalUrl( 'action=edit&oldid=' . $this->mOldid );
 			$this->mOldtitle = "<a href='$oldLink'>" . htmlspecialchars( wfMsg( 'revisionasof', $t ) )
 				. "</a> (<a href='$oldEdit'>" . htmlspecialchars( wfMsg( 'editold' ) ) . "</a>)";
+			
+			// Add an "undo" link
+			$newUndo = $this->mNewPage->escapeLocalUrl( 'action=edit&undoafter=' . $this->mOldid . '&undo=' . $this->mNewid);
+			$this->mNewtitle .= " (<a href='$newUndo'>" . htmlspecialchars( wfMsg( 'editundo' ) ) . "</a>)";
 		}
 
 		return true;
@@ -589,13 +674,13 @@ CONTROL;
 		}
 		if ( $this->mOldRev ) {
 			// FIXME: permission tests
-			$this->mOldtext = $this->mOldRev->getText();
+			$this->mOldtext = $this->mOldRev->revText();
 			if ( $this->mOldtext === false ) {
 				return false;
 			}
 		}
 		if ( $this->mNewRev ) {
-			$this->mNewtext = $this->mNewRev->getText();
+			$this->mNewtext = $this->mNewRev->revText();
 			if ( $this->mNewtext === false ) {
 				return false;
 			}
@@ -633,8 +718,7 @@ define('USE_ASSERTS', function_exists('assert'));
 /**
  * @todo document
  * @private
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class _DiffOp {
 	var $type;
@@ -657,8 +741,7 @@ class _DiffOp {
 /**
  * @todo document
  * @private
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class _DiffOp_Copy extends _DiffOp {
 	var $type = 'copy';
@@ -678,8 +761,7 @@ class _DiffOp_Copy extends _DiffOp {
 /**
  * @todo document
  * @private
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class _DiffOp_Delete extends _DiffOp {
 	var $type = 'delete';
@@ -697,8 +779,7 @@ class _DiffOp_Delete extends _DiffOp {
 /**
  * @todo document
  * @private
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class _DiffOp_Add extends _DiffOp {
 	var $type = 'add';
@@ -716,8 +797,7 @@ class _DiffOp_Add extends _DiffOp {
 /**
  * @todo document
  * @private
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class _DiffOp_Change extends _DiffOp {
 	var $type = 'change';
@@ -754,8 +834,7 @@ class _DiffOp_Change extends _DiffOp {
  *
  * @author Geoffrey T. Dairiki, Tim Starling
  * @private
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class _DiffEngine
 {
@@ -1176,8 +1255,7 @@ class _DiffEngine
  * Class representing a 'diff' between two sequences of strings.
  * @todo document
  * @private
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class Diff
 {
@@ -1315,11 +1393,9 @@ class Diff
 }
 
 /**
- * FIXME: bad name.
- * @todo document
+ * @todo document, bad name.
  * @private
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class MappedDiff extends Diff
 {
@@ -1382,8 +1458,7 @@ class MappedDiff extends Diff
  * to obtain fancier outputs.
  * @todo document
  * @private
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class DiffFormatter
 {
@@ -1549,8 +1624,7 @@ define('NBSP', '&#160;');			// iso-8859-x non-breaking space.
 /**
  * @todo document
  * @private
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class _HWLDF_WordAccumulator {
 	function _HWLDF_WordAccumulator () {
@@ -1562,9 +1636,12 @@ class _HWLDF_WordAccumulator {
 
 	function _flushGroup ($new_tag) {
 		if ($this->_group !== '') {
-			if ($this->_tag == 'mark')
-				$this->_line .= '<span class="diffchange">' .
-					htmlspecialchars ( $this->_group ) . '</span>';
+			if ($this->_tag == 'ins')
+				$this->_line .= '<ins class="diffchange">' .
+					htmlspecialchars ( $this->_group ) . '</ins>';
+			elseif ($this->_tag == 'del')
+				$this->_line .= '<del class="diffchange">' .
+					htmlspecialchars ( $this->_group ) . '</del>';
 			else
 				$this->_line .= htmlspecialchars ( $this->_group );
 		}
@@ -1608,8 +1685,7 @@ class _HWLDF_WordAccumulator {
 /**
  * @todo document
  * @private
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class WordLevelDiff extends MappedDiff
 {
@@ -1669,7 +1745,7 @@ class WordLevelDiff extends MappedDiff
 			if ($edit->type == 'copy')
 				$orig->addWords($edit->orig);
 			elseif ($edit->orig)
-				$orig->addWords($edit->orig, 'mark');
+				$orig->addWords($edit->orig, 'del');
 		}
 		$lines = $orig->getLines();
 		wfProfileOut( $fname );
@@ -1685,7 +1761,7 @@ class WordLevelDiff extends MappedDiff
 			if ($edit->type == 'copy')
 				$closing->addWords($edit->closing);
 			elseif ($edit->closing)
-				$closing->addWords($edit->closing, 'mark');
+				$closing->addWords($edit->closing, 'ins');
 		}
 		$lines = $closing->getLines();
 		wfProfileOut( $fname );
@@ -1697,8 +1773,7 @@ class WordLevelDiff extends MappedDiff
  *	Wikipedia Table style diff formatter.
  * @todo document
  * @private
- * @package MediaWiki
- * @subpackage DifferenceEngine
+ * @addtogroup DifferenceEngine
  */
 class TableDiffFormatter extends DiffFormatter
 {
@@ -1708,8 +1783,8 @@ class TableDiffFormatter extends DiffFormatter
 	}
 
 	function _block_header( $xbeg, $xlen, $ybeg, $ylen ) {
-		$r = '<tr><td colspan="2" align="left"><strong><!--LINE '.$xbeg."--></strong></td>\n" .
-		  '<td colspan="2" align="left"><strong><!--LINE '.$ybeg."--></strong></td></tr>\n";
+		$r = '<tr><td colspan="2" class="diff-lineno"><!--LINE '.$xbeg."--></td>\n" .
+		  '<td colspan="2" class="diff-lineno"><!--LINE '.$ybeg."--></td></tr>\n";
 		return $r;
 	}
 
@@ -1725,17 +1800,25 @@ class TableDiffFormatter extends DiffFormatter
 
 	# HTML-escape parameter before calling this
 	function addedLine( $line ) {
-		return "<td>+</td><td class='diff-addedline'>{$line}</td>";
+		return $this->wrapLine( '+', 'diff-addedline', $line );
 	}
 
 	# HTML-escape parameter before calling this
 	function deletedLine( $line ) {
-		return "<td>-</td><td class='diff-deletedline'>{$line}</td>";
+		return $this->wrapLine( '-', 'diff-deletedline', $line );
 	}
 
 	# HTML-escape parameter before calling this
 	function contextLine( $line ) {
-		return "<td> </td><td class='diff-context'>{$line}</td>";
+		return $this->wrapLine( ' ', 'diff-context', $line );
+	}
+	
+	private function wrapLine( $marker, $class, $line ) {
+		if( $line !== '' ) {
+			// The <div> wrapper is needed for 'overflow: auto' style to scroll properly
+			$line = "<div>$line</div>";
+		}
+		return "<td class='diff-marker'>$marker</td><td class='$class'>$line</td>";
 	}
 
 	function emptyLine() {
@@ -1788,4 +1871,5 @@ class TableDiffFormatter extends DiffFormatter
 	}
 }
 
-?>
+
+

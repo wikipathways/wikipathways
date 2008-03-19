@@ -98,19 +98,20 @@ model/vrml wrl vrml
 text/calendar ics ifb
 text/css css
 text/html html htm
-text/plain txt gpml
+text/plain txt
 text/richtext rtx
-text/rtf rtf gpml
+text/rtf rtf
 text/sgml sgml sgm
 text/tab-separated-values tsv
 text/vnd.wap.wml wml
 text/vnd.wap.wmlscript wmls
-text/xml xml xsl xslt rss rdf gpml
+text/xml xml xsl xslt rss rdf
 text/x-setext etx
 video/mpeg mpeg mpg mpe
 video/ogg ogm ogg
 video/quicktime qt mov
 video/vnd.mpegurl mxu
+video/x-flv flv
 video/x-msvideo avi
 video/x-ogg ogm ogg
 video/x-sgi-movie movie

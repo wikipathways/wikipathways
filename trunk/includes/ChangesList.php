@@ -1,15 +1,7 @@
 <?php
-/**
- * @package MediaWiki
- * Contain class to show various lists of change:
- * - what's link here
- * - related changes
- * - recent changes
- */
 
 /**
  * @todo document
- * @package MediaWiki
  */
 class RCCacheEntry extends RecentChange
 {
@@ -17,8 +9,7 @@ class RCCacheEntry extends RecentChange
 	var $curlink , $difflink, $lastlink , $usertalklink , $versionlink ;
 	var $userlink, $timestamp, $watched;
 
-	function newFromParent( $rc )
-	{
+	static function newFromParent( $rc ) {
 		$rc2 = new RCCacheEntry;
 		$rc2->mAttribs = $rc->mAttribs;
 		$rc2->mExtra = $rc->mExtra;
@@ -27,14 +18,17 @@ class RCCacheEntry extends RecentChange
 } ;
 
 /**
- * @package MediaWiki
+ * Class to show various lists of changes:
+ * - what links here
+ * - related changes
+ * - recent changes
  */
 class ChangesList {
 	# Called by history lists and recent changes
 	#
 
 	/** @todo document */
-	function ChangesList( &$skin ) {
+	function __construct( &$skin ) {
 		$this->skin =& $skin;
 		$this->preCacheMessages();
 	}
@@ -47,7 +41,7 @@ class ChangesList {
 	 * @return ChangesList derivative
 	 */
 	public static function newFromUser( &$user ) {
-		$sk =& $user->getSkin();
+		$sk = $user->getSkin();
 		$list = NULL;
 		if( wfRunHooks( 'FetchChangesList', array( &$user, &$sk, &$list ) ) ) {
 			return $user->getOption( 'usenewrc' ) ? new EnhancedChangesList( $sk ) : new OldChangesList( $sk );
@@ -64,7 +58,7 @@ class ChangesList {
 		// Precache various messages
 		if( !isset( $this->message ) ) {
 			foreach( explode(' ', 'cur diff hist minoreditletter newpageletter last '.
-				'blocklink changes history boteditletter' ) as $msg ) {
+				'blocklink history boteditletter' ) as $msg ) {
 				$this->message[$msg] = wfMsgExt( $msg, array( 'escape') );
 			}
 		}
@@ -177,7 +171,8 @@ class ChangesList {
 			? 'rcid='.$rc->mAttribs['rc_id']
 			: '';
 		$articlelink = ' '. $this->skin->makeKnownLinkObj( $rc->getTitle(), '', $params );
-		if($watched) $articlelink = '<strong>'.$articlelink.'</strong>';
+		if( $watched )
+			$articlelink = "<strong class=\"mw-watched\">{$articlelink}</strong>";
 		global $wgContLang;
 		$articlelink .= $wgContLang->getDirMark();
 
@@ -210,7 +205,24 @@ class ChangesList {
 	 */
 	function usePatrol() {
 		global $wgUseRCPatrol, $wgUser;
-		return( $wgUseRCPatrol && $wgUser->isAllowed( 'patrol' ) );
+		return( $wgUseRCPatrol && ($wgUser->isAllowed('patrol') || $wgUser->isAllowed('patrolmarks')) );
+	}
+
+	/**
+	 * Returns the string which indicates the number of watching users
+	 */
+	function numberofWatchingusers( $count ) {
+		global $wgLang;
+		static $cache = array();
+		if ( $count > 0 ) {
+			if ( !isset( $cache[$count] ) ) {
+				$cache[$count] = wfMsgExt('number_of_watching_users_RCview',
+					array('parsemag', 'escape'), $wgLang->formatNum($count));
+			}
+			return $cache[$count];
+		} else {
+			return '';
+		}
 	}
 }
 
@@ -229,6 +241,7 @@ class OldChangesList extends ChangesList {
 		wfProfileIn( $fname );
 
 		# Extract DB fields into local scope
+		// FIXME: Would be good to replace this extract() call with something that explicitly initializes local variables.
 		extract( $rc->mAttribs );
 
 		# Should patrol-related stuff be shown?
@@ -273,9 +286,7 @@ class OldChangesList extends ChangesList {
 		$this->insertUserRelatedLinks($s,$rc);
 		$this->insertComment($s, $rc);
 
-		if($rc->numberofWatchingusers > 0) {
-			$s .= ' ' . wfMsg('number_of_watching_users_RCview',  $wgContLang->formatNum($rc->numberofWatchingusers));
-		}
+		$s .=  rtrim(' ' . $this->numberofWatchingusers($rc->numberofWatchingusers));
 
 		$s .= "</li>\n";
 
@@ -301,6 +312,7 @@ class EnhancedChangesList extends ChangesList {
 		$rc = RCCacheEntry::newFromParent( $baseRC );
 
 		# Extract fields from DB into the function scope (rc_xxxx variables)
+		// FIXME: Would be good to replace this extract() call with something that explicitly initializes local variables.
 		extract( $rc->mAttribs );
 		$curIdEq = 'curid=' . $rc_cur_id;
 
@@ -405,7 +417,7 @@ class EnhancedChangesList extends ChangesList {
 	 * Enhanced RC group
 	 */
 	function recentChangesBlockGroup( $block ) {
-		global $wgContLang, $wgRCShowChangedSize;
+		global $wgLang, $wgContLang, $wgRCShowChangedSize;
 		$r = '';
 
 		# Collate list of users
@@ -467,43 +479,52 @@ class EnhancedChangesList extends ChangesList {
 		$currentRevision = $block[0]->mAttribs['rc_this_oldid'];
 		if( $block[0]->mAttribs['rc_type'] != RC_LOG ) {
 			# Changes
-			$r .= ' ('.count($block).' ';
+
+			$n = count($block);
+			static $nchanges = array();
+			if ( !isset( $nchanges[$n] ) ) {
+				$nchanges[$n] = wfMsgExt( 'nchanges', array( 'parsemag', 'escape'),
+					$wgLang->formatNum( $n ) );
+			}
+
+			$r .= ' (';
 
 			if( $isnew ) {
-				$r .= $this->message['changes'];
+				$r .= $nchanges[$n];
 			} else {
 				$r .= $this->skin->makeKnownLinkObj( $block[0]->getTitle(),
-					$this->message['changes'], $curIdEq."&diff=$currentRevision&oldid=$oldid" );
+					$nchanges[$n], $curIdEq."&diff=$currentRevision&oldid=$oldid" );
 			}
 
-			# Character difference
-			$chardiff = $rcObj->getCharacterDifference( $block[ count( $block ) - 1 ]->mAttribs['rc_old_len'],
-					$block[0]->mAttribs['rc_new_len'] );
-			if( $chardiff == '' ) {
-				$r .= '; ';
-			} else {
-				$r .= '; ' . $chardiff . ' ';
-			}
-			
+			$r .= ') . . ';
+
+			if( $wgRCShowChangedSize ) {
+				# Character difference
+				$chardiff = $rcObj->getCharacterDifference( $block[ count( $block ) - 1 ]->mAttribs['rc_old_len'],
+						$block[0]->mAttribs['rc_new_len'] );
+				if( $chardiff == '' ) {
+					$r .= ' (';
+				} else {
+					$r .= ' ' . $chardiff. ' . . ';
+				}
+			}	
 
 			# History
-			$r .= $this->skin->makeKnownLinkObj( $block[0]->getTitle(),
+			$r .= '(' . $this->skin->makeKnownLinkObj( $block[0]->getTitle(),
 				$this->message['history'], $curIdEq.'&action=history' );
 			$r .= ')';
 		}
 
 		$r .= $users;
 
-		if($block[0]->numberofWatchingusers > 0) {
-			global $wgContLang;
-			$r .= wfMsg('number_of_watching_users_RCview',  $wgContLang->formatNum($block[0]->numberofWatchingusers));
-		}
+		$r .= $this->numberofWatchingusers($block[0]->numberofWatchingusers);
 		$r .= "<br />\n";
 
 		# Sub-entries
 		$r .= '<div id="'.$rci.'" style="display:none">';
 		foreach( $block as $rcObj ) {
 			# Get rc_xxxx variables
+			// FIXME: Would be good to replace this extract() call with something that explicitly initializes local variables.
 			extract( $rcObj->mAttribs );
 
 			$r .= $this->spacerArrow();
@@ -548,7 +569,7 @@ class EnhancedChangesList extends ChangesList {
 	function maybeWatchedLink( $link, $watched=false ) {
 		if( $watched ) {
 			// FIXME: css style might be more appropriate
-			return '<strong>' . $link . '</strong>';
+			return '<strong class="mw-watched">' . $link . '</strong>';
 		} else {
 			return $link;
 		}
@@ -607,6 +628,7 @@ class EnhancedChangesList extends ChangesList {
 		global $wgContLang, $wgRCShowChangedSize;
 
 		# Get rc_xxxx variables
+		// FIXME: Would be good to replace this extract() call with something that explicitly initializes local variables.
 		extract( $rcObj->mAttribs );
 		$curIdEq = 'curid='.$rc_cur_id;
 
@@ -647,9 +669,7 @@ class EnhancedChangesList extends ChangesList {
 			$r .= $this->skin->commentBlock( $rc_comment, $rcObj->getTitle() );
 		}
 
-		if( $rcObj->numberofWatchingusers > 0 ) {
-			$r .= wfMsg('number_of_watching_users_RCview', $wgContLang->formatNum($rcObj->numberofWatchingusers));
-		}
+		$r .= $this->numberofWatchingusers($rcObj->numberofWatchingusers);
 
 		$r .= "<br />\n";
 		return $r;
@@ -684,4 +704,4 @@ class EnhancedChangesList extends ChangesList {
 	}
 
 }
-?>
+

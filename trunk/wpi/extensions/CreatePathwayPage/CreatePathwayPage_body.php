@@ -24,7 +24,7 @@ class CreatePathwayPage extends SpecialPage
 			create an account first!");
 			return;
 		}
-		if($_GET['action'] == 'new') { //Submit button pressed
+		if($_GET['create'] == '1') { //Submit button pressed
 			$this->startEditor($_GET['pwName'], $_GET['pwSpecies']);
 		} else {
 			$this->showForm();
@@ -62,7 +62,8 @@ class CreatePathwayPage extends SpecialPage
 		$html = tag('p', 'To create a new pathway on WikiPathways, specify the pathway name and species 
 				and then click "create pathway" to start the pathway editor.<br>'
 				);
-		$html .= "	<input type='hidden' name='action' value='new'>
+		$html .= "	<input type='hidden' name='create' value='1'>
+				<input type='hidden' name='title' value='Special:CreatePathwayPage'>
 				<td>Pathway name:
 				<td><input type='text' name='pwName'>
 				<tr><td>Species:<td>
@@ -75,20 +76,21 @@ class CreatePathwayPage extends SpecialPage
 		$html .= '</select>';
 		$html = tag('table', $html);
 		$html .= tag('input', "", array('type'=>'submit', 'value'=>'Create pathway'));
-		$html = tag('form', $html, array('action'=> SITE_URL . '/index.php/Special:CreatePathwayPage', 'method'=>'get'));
+		$html = tag('form', $html, array('action'=> SITE_URL . '/index.php', 'method'=>'get'));
 		$wgOut->addHTML($html);
 	}
 
         function loadMessages() {
                 static $messagesLoaded = false;
                 global $wgMessageCache;
-                if ( $messagesLoaded ) return;
+                if ( $messagesLoaded ) return true;
                 $messagesLoaded = true;
 
                 require( dirname( __FILE__ ) . '/CreatePathwayPage.i18n.php' );
                 foreach ( $allMessages as $lang => $langMessages ) {
                         $wgMessageCache->addMessages( $langMessages, $lang );
                 }
+                return true;
         }
 }
 ?>

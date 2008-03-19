@@ -3,12 +3,14 @@
 
 require 'Test.php';
 
-plan( 11 );
+plan( 13 );
 
+define( 'MEDIAWIKI', 1 );
 require_ok( 'includes/Defines.php' );
 require_ok( 'includes/GlobalFunctions.php' );
 require_ok( 'includes/Sanitizer.php' );
 require_ok( 'includes/normal/UtfNormal.php' );
+require_ok( 'includes/ProfilerStub.php' ); # For removeHTMLtags
 
 
 #
@@ -51,5 +53,13 @@ cmp_ok( Sanitizer::decodeCharReferences( '&foo;' ), '==', '&foo;', 'Invalid name
 
 cmp_ok( Sanitizer::decodeCharReferences( "&#88888888888888;" ), '==', UTF8_REPLACEMENT, 'Invalid numbered entity' );
 
+$wgUseTidy = false;
+cmp_ok(
+	Sanitizer::removeHTMLtags( '<div>Hello world</div />' ),
+	'==',
+	'<div>Hello world</div>',
+	'Self-closing closing div'
+);
 
-
+/* vim: set filetype=php: */
+?>

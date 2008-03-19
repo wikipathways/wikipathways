@@ -1,14 +1,12 @@
 <?php
 /**
  *
- * @package MediaWiki
  *
  * DB accessable external objects
  *
  */
 
 
-/** @package MediaWiki */
 
 /**
  * External database storage will use one (or more) separate connection pools
@@ -146,4 +144,4 @@ class ExternalStoreDB {
 		return "DB://$cluster/$id";
 	}
 }
-?>
+

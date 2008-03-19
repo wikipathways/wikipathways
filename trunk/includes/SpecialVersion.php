@@ -2,10 +2,7 @@
 /**#@+
  * Give information about the version of MediaWiki, PHP, the DB and extensions
  *
- * @package MediaWiki
- * @subpackage SpecialPage
- *
- * @bug 2019, 4531
+ * @addtogroup SpecialPage
  *
  * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
  * @copyright Copyright © 2005, Ævar Arnfjörð Bjarmason
@@ -50,10 +47,7 @@ class SpecialVersion {
 	 */
 	function MediaWikiCredits() {
 		$version = self::getVersion();
-		$dbr =& wfGetDB( DB_SLAVE );
-
-		global $wgLanguageNames, $wgLanguageCode;
-		$mwlang = $wgLanguageNames[$wgLanguageCode];
+		$dbr = wfGetDB( DB_SLAVE );
 
 		$ret =
 		"__NOTOC__
@@ -110,21 +104,19 @@ class SpecialVersion {
 		$out .= wfOpenElement('table', array('id' => 'sv-ext') );
 
 		foreach ( $extensionTypes as $type => $text ) {
-			if ( count( @$wgExtensionCredits[$type] ) ) {
+			if ( isset ( $wgExtensionCredits[$type] ) && count ( $wgExtensionCredits[$type] ) ) {
 				$out .= $this->openExtType( $text );
 
 				usort( $wgExtensionCredits[$type], array( $this, 'compare' ) );
 
 				foreach ( $wgExtensionCredits[$type] as $extension ) {
-					wfSuppressWarnings();
 					$out .= $this->formatCredits(
-						$extension['name'],
-						$extension['version'],
-						$extension['author'],
-						$extension['url'],
-						$extension['description']
+						isset ( $extension['name'] )        ? $extension['name']        : '',
+						isset ( $extension['version'] )     ? $extension['version']     : null,
+						isset ( $extension['author'] )      ? $extension['author']      : '',
+						isset ( $extension['url'] )         ? $extension['url']         : null,
+						isset ( $extension['description'] ) ? $extension['description'] : ''
 					);
-					wfRestoreWarnings();
 				}
 			}
 		}
@@ -156,10 +148,14 @@ class SpecialVersion {
 
 	/** Callback to sort extensions by type */
 	function compare( $a, $b ) {
-		if ( $a['name'] === $b['name'] )
+		global $wgLang;
+		if( $a['name'] === $b['name'] ) {
 			return 0;
-		else
-			return Language::lc( $a['name'] ) > Language::lc( $b['name'] ) ? 1 : -1;
+		} else {
+			return $wgLang->lc( $a['name'] ) > $wgLang->lc( $b['name'] )
+				? 1
+				: -1;
+		}
 	}
 
 	function formatCredits( $name, $version = null, $author = null, $url = null, $description = null) {
@@ -195,7 +191,7 @@ class SpecialVersion {
 
 			foreach ($myWgHooks as $hook => $hooks)
 				$ret .= "<tr><td>$hook</td><td>" . $this->listToText( $hooks ) . "</td></tr>\n";
-			
+
 			$ret .= '</table>';
 			return $ret;
 		} else
@@ -258,7 +254,10 @@ class SpecialVersion {
 	 * @return mixed
 	 */
 	function arrayToString( $list ) {
-		if ( ! is_array( $list ) ) {
+		if( is_object( $list ) ) {
+			$class = get_class( $list );
+			return "($class)";
+		} elseif ( ! is_array( $list ) ) {
 			return $list;
 		} else {
 			$class = get_class( $list[0] );
@@ -268,8 +267,6 @@ class SpecialVersion {
 
 	/**
 	 * Retrieve the revision number of a Subversion working directory.
-	 *
-	 * @bug 7335
 	 *
 	 * @param string $dir
 	 * @return mixed revision number as int, or false if not a SVN checkout
@@ -318,4 +315,4 @@ class SpecialVersion {
 }
 
 /**#@-*/
-?>
+

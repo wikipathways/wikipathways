@@ -1,7 +1,6 @@
 <?php
 /** Esperanto (Esperanto)
-  * @package MediaWiki
-  * @subpackage Language
+  * @addtogroup Language
   */
 
 class LanguageEo extends Language {
@@ -71,4 +70,4 @@ class LanguageEo extends Language {
 	}
 }
 
-?>
+

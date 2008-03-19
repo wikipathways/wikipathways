@@ -1,7 +1,6 @@
 <?php
 /**
-  * @package MediaWiki
-  * @subpackage Language
+  * @addtogroup Language
   */
 
 #--------------------------------------------------------------------------
@@ -25,4 +24,4 @@ class LanguageSr_ec extends Language {
 	}
 
 }
-?>
+

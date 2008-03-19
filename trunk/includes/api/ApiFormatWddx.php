@@ -1,12 +1,11 @@
 <?php
 
-
 /*
  * Created on Oct 22, 2006
  *
  * API for MediaWiki 1.8+
  *
- * Copyright (C) 2006 Yuri Astrakhan <FirstnameLastname@gmail.com>
+ * Copyright (C) 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +28,9 @@ if (!defined('MEDIAWIKI')) {
 	require_once ('ApiFormatBase.php');
 }
 
+/**
+ * @addtogroup API
+ */
 class ApiFormatWddx extends ApiFormatBase {
 
 	public function __construct($main, $format) {
@@ -83,7 +85,7 @@ class ApiFormatWddx extends ApiFormatBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiFormatWddx.php 17374 2006-11-03 06:53:47Z yurik $';
+		return __CLASS__ . ': $Id: ApiFormatWddx.php 23531 2007-06-29 01:19:14Z simetrical $';
 	}
 }
-?>
+

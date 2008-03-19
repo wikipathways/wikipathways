@@ -1,16 +1,13 @@
 <?php
 /** Faroese (Føroyskt)
   *
-  * @package MediaWiki
-  * @subpackage Language
+  * @addtogroup Language
   */
 
-$quickbarSettings = array(
-	'Eingin', 'Fast vinstru', 'Fast høgru', 'Flótandi vinstru'
-);
-
 $skinNames = array(
-	'Standardur', 'Nostalgiskur', 'Cologne-bláur', 'Paddington', 'Montparnasse'
+	'standard'    => 'Standardur', 
+	'nostalgia'   => 'Nostalgiskur', 
+	'cologneblue' => 'Cologne-bláur'
 );
 
 $bookstoreList = array(
@@ -111,6 +108,12 @@ $messages = array(
 'mw_math_modern' => "Tilmælt nýtíðarkagara",
 'mw_math_mathml' => 'MathML if possible (experimental)',
 
+# Preferences page
+'qbsettings-none'	=> 'Eingin',
+'qbsettings-fixedleft'	=> 'Fast vinstru',
+'qbsettings-fixedright'	=> 'Fast høgru',
+'qbsettings-floatingleft'	=> 'Flótandi vinstru',
+
 );
 
-?>
+

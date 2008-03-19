@@ -8,9 +8,11 @@ function __autoload($className) {
 	global $wgAutoloadClasses;
 
 	static $localClasses = array(
+		# Includes
 		'AjaxDispatcher' => 'includes/AjaxDispatcher.php',
 		'AjaxCachePolicy' => 'includes/AjaxFunctions.php',
 		'AjaxResponse' => 'includes/AjaxResponse.php',
+		'AlphabeticPager' => 'includes/Pager.php',
 		'Article' => 'includes/Article.php',
 		'AuthPlugin' => 'includes/AuthPlugin.php',
 		'BagOStuff' => 'includes/BagOStuff.php',
@@ -20,6 +22,7 @@ function __autoload($className) {
 		'TurckBagOStuff' => 'includes/BagOStuff.php',
 		'APCBagOStuff' => 'includes/BagOStuff.php',
 		'eAccelBagOStuff' => 'includes/BagOStuff.php',
+		'XCacheBagOStuff' => 'includes/BagOStuff.php',
 		'DBABagOStuff' => 'includes/BagOStuff.php',
 		'Block' => 'includes/Block.php',
 		'HTMLFileCache' => 'includes/HTMLFileCache.php',
@@ -39,9 +42,8 @@ function __autoload($className) {
 		'Database' => 'includes/Database.php',
 		'DatabaseMysql' => 'includes/Database.php',
 		'ResultWrapper' => 'includes/Database.php',
-		'OracleBlob' => 'includes/DatabaseOracle.php',
-		'DatabaseOracle' => 'includes/DatabaseOracle.php',
 		'DatabasePostgres' => 'includes/DatabasePostgres.php',
+		'DatabaseOracle' => 'includes/DatabaseOracle.php',
 		'DateFormatter' => 'includes/DateFormatter.php',
 		'DifferenceEngine' => 'includes/DifferenceEngine.php',
 		'_DiffOp' => 'includes/DifferenceEngine.php',
@@ -92,16 +94,19 @@ function __autoload($className) {
 		'HistoryBlobStub' => 'includes/HistoryBlob.php',
 		'HistoryBlobCurStub' => 'includes/HistoryBlob.php',
 		'HTMLCacheUpdate' => 'includes/HTMLCacheUpdate.php',
-		'HTMLCacheUpdateJob' => 'includes/HTMLCacheUpdate.php',
 		'Http' => 'includes/HttpFunctions.php',
-		'Image' => 'includes/Image.php',
 		'IP' => 'includes/IP.php',
-		'ThumbnailImage' => 'includes/Image.php',
 		'ImageGallery' => 'includes/ImageGallery.php',
 		'ImagePage' => 'includes/ImagePage.php',
 		'ImageHistoryList' => 'includes/ImagePage.php',
 		'ImageRemote' => 'includes/ImageRemote.php',
+		'FileDeleteForm' => 'includes/FileDeleteForm.php',
+		'FileRevertForm' => 'includes/FileRevertForm.php',
 		'Job' => 'includes/JobQueue.php',
+		'EmaillingJob' => 'includes/EmaillingJob.php',
+		'EnotifNotifyJob' => 'includes/EnotifNotifyJob.php',
+		'HTMLCacheUpdateJob' => 'includes/HTMLCacheUpdate.php',
+		'RefreshLinksJob' => 'includes/RefreshLinksJob.php',
 		'Licenses' => 'includes/Licenses.php',
 		'License' => 'includes/Licenses.php',
 		'LinkBatch' => 'includes/LinkBatch.php',
@@ -113,7 +118,12 @@ function __autoload($className) {
 		'LogPage' => 'includes/LogPage.php',
 		'MacBinary' => 'includes/MacBinary.php',
 		'MagicWord' => 'includes/MagicWord.php',
+		'MagicWordArray' => 'includes/MagicWord.php',
 		'MathRenderer' => 'includes/Math.php',
+		'MediaTransformOutput' => 'includes/MediaTransformOutput.php',
+		'ThumbnailImage' => 'includes/MediaTransformOutput.php',
+		'MediaTransformError' => 'includes/MediaTransformOutput.php',
+		'TransformParameterError' => 'includes/MediaTransformOutput.php',
 		'MessageCache' => 'includes/MessageCache.php',
 		'MimeMagic' => 'includes/MimeMagic.php',
 		'Namespace' => 'includes/Namespace.php',
@@ -124,16 +134,18 @@ function __autoload($className) {
 		'ReverseChronologicalPager' => 'includes/Pager.php',
 		'TablePager' => 'includes/Pager.php',
 		'Parser' => 'includes/Parser.php',
-		'ParserOutput' => 'includes/Parser.php',
-		'ParserOptions' => 'includes/Parser.php',
+		'ParserOutput' => 'includes/ParserOutput.php',
+		'ParserOptions' => 'includes/ParserOptions.php',
 		'ParserCache' => 'includes/ParserCache.php',
+		'PatrolLog' => 'includes/PatrolLog.php',
 		'ProfilerSimple' => 'includes/ProfilerSimple.php',
 		'ProfilerSimpleUDP' => 'includes/ProfilerSimpleUDP.php',
 		'Profiler' => 'includes/Profiler.php',
 		'ProxyTools' => 'includes/ProxyTools.php',
 		'ProtectionForm' => 'includes/ProtectionForm.php',
 		'QueryPage' => 'includes/QueryPage.php',
-		'PageQueryPage' => 'includes/QueryPage.php',
+		'PageQueryPage' => 'includes/PageQueryPage.php',
+		'ImageQueryPage' => 'includes/ImageQueryPage.php',
 		'RawPage' => 'includes/RawPage.php',
 		'RecentChange' => 'includes/RecentChange.php',
 		'Revision' => 'includes/Revision.php',
@@ -148,6 +160,7 @@ function __autoload($className) {
 		'SearchPostgres' => 'includes/SearchPostgres.php',
 		'SearchUpdate' => 'includes/SearchUpdate.php',
 		'SearchUpdateMyISAM' => 'includes/SearchUpdate.php',
+		'SearchOracle' => 'includes/SearchOracle.php',
 		'SiteConfiguration' => 'includes/SiteConfiguration.php',
 		'SiteStats' => 'includes/SiteStats.php',
 		'SiteStatsUpdate' => 'includes/SiteStats.php',
@@ -160,7 +173,6 @@ function __autoload($className) {
 		'IPBlockForm' => 'includes/SpecialBlockip.php',
 		'SpecialBookSources' => 'includes/SpecialBooksources.php',
 		'BrokenRedirectsPage' => 'includes/SpecialBrokenRedirects.php',
-		'CategoriesPage' => 'includes/SpecialCategories.php',
 		'EmailConfirmation' => 'includes/SpecialConfirmemail.php',
 		'ContributionsPage' => 'includes/SpecialContributions.php',
 		'DeadendPagesPage' => 'includes/SpecialDeadendpages.php',
@@ -173,7 +185,6 @@ function __autoload($className) {
 		'ImportStreamSource' => 'includes/SpecialImport.php',
 		'IPUnblockForm' => 'includes/SpecialIpblocklist.php',
 		'ListredirectsPage' => 'includes/SpecialListredirects.php',
-		'ListUsersPage' => 'includes/SpecialListusers.php',
 		'DBLockForm' => 'includes/SpecialLockdb.php',
 		'LogReader' => 'includes/SpecialLog.php',
 		'LogViewer' => 'includes/SpecialLog.php',
@@ -184,7 +195,9 @@ function __autoload($className) {
 		'MostimagesPage' => 'includes/SpecialMostimages.php',
 		'MostlinkedPage' => 'includes/SpecialMostlinked.php',
 		'MostlinkedCategoriesPage' => 'includes/SpecialMostlinkedcategories.php',
+		'SpecialMostlinkedtemplates' => 'includes/SpecialMostlinkedtemplates.php',
 		'MostrevisionsPage' => 'includes/SpecialMostrevisions.php',
+		'FewestrevisionsPage' => 'includes/SpecialFewestrevisions.php',
 		'MovePageForm' => 'includes/SpecialMovepage.php',
 		'NewbieContributionsPage' => 'includes/SpecialNewbieContributions.php',
 		'NewPagesPage' => 'includes/SpecialNewpages.php',
@@ -194,12 +207,14 @@ function __autoload($className) {
 		'PopularPagesPage' => 'includes/SpecialPopularpages.php',
 		'PreferencesForm' => 'includes/SpecialPreferences.php',
 		'SpecialPrefixindex' => 'includes/SpecialPrefixindex.php',
+		'PasswordResetForm' => 'includes/SpecialResetpass.php',
 		'RevisionDeleteForm' => 'includes/SpecialRevisiondelete.php',
 		'RevisionDeleter' => 'includes/SpecialRevisiondelete.php',
 		'SpecialSearch' => 'includes/SpecialSearch.php',
 		'ShortPagesPage' => 'includes/SpecialShortpages.php',
 		'UncategorizedCategoriesPage' => 'includes/SpecialUncategorizedcategories.php',
 		'UncategorizedPagesPage' => 'includes/SpecialUncategorizedpages.php',
+		'UncategorizedTemplatesPage' => 'includes/SpecialUncategorizedtemplates.php',
 		'PageArchive' => 'includes/SpecialUndelete.php',
 		'UndeleteForm' => 'includes/SpecialUndelete.php',
 		'DBUnlockForm' => 'includes/SpecialUnlockdb.php',
@@ -215,6 +230,7 @@ function __autoload($className) {
 		'WantedCategoriesPage' => 'includes/SpecialWantedcategories.php',
 		'WantedPagesPage' => 'includes/SpecialWantedpages.php',
 		'WhatLinksHerePage' => 'includes/SpecialWhatlinkshere.php',
+		'WithoutInterwikiPage' => 'includes/SpecialWithoutinterwiki.php',
 		'SquidUpdate' => 'includes/SquidUpdate.php',
 		'ReplacementArray' => 'includes/StringUtils.php',
 		'Replacer' => 'includes/StringUtils.php',
@@ -237,13 +253,46 @@ function __autoload($className) {
 		'Xml' => 'includes/Xml.php',
 		'ZhClient' => 'includes/ZhClient.php',
 		'memcached' => 'includes/memcached-client.php',
+		'EmaillingJob' => 'includes/JobQueue.php',
+		'WatchlistEditor' => 'includes/WatchlistEditor.php',
+
+		# filerepo
+		'ArchivedFile' => 'includes/filerepo/ArchivedFile.php',
+		'File' => 'includes/filerepo/File.php',
+		'FileRepo' => 'includes/filerepo/FileRepo.php',
+		'FileRepoStatus' => 'includes/filerepo/FileRepoStatus.php',
+		'ForeignDBFile' => 'includes/filerepo/ForeignDBFile.php',
+		'ForeignDBRepo' => 'includes/filerepo/ForeignDBRepo.php',
+		'FSRepo' => 'includes/filerepo/FSRepo.php',
+		'Image' => 'includes/filerepo/LocalFile.php',
+		'LocalFile' => 'includes/filerepo/LocalFile.php',
+		'LocalFileDeleteBatch' => 'includes/filerepo/LocalFile.php',
+		'LocalFileRestoreBatch' => 'includes/filerepo/LocalFile.php',
+		'LocalRepo' => 'includes/filerepo/LocalRepo.php',
+		'OldLocalFile' => 'includes/filerepo/OldLocalFile.php',
+		'RepoGroup' => 'includes/filerepo/RepoGroup.php',
+		'UnregisteredLocalFile' => 'includes/filerepo/UnregisteredLocalFile.php',
+
+		# Media
+		'BitmapHandler' => 'includes/media/Bitmap.php',
+		'BmpHandler' => 'includes/media/BMP.php',
+		'DjVuHandler' => 'includes/media/DjVu.php',
+		'MediaHandler' => 'includes/media/Generic.php',
+		'ImageHandler' => 'includes/media/Generic.php',
+		'SvgHandler' => 'includes/media/SVG.php',
+
+		# Normal
 		'UtfNormal' => 'includes/normal/UtfNormal.php',
+
+		# Templates
 		'UsercreateTemplate' => 'includes/templates/Userlogin.php',
 		'UserloginTemplate' => 'includes/templates/Userlogin.php',
-		'Language' => 'languages/Language.php',
-		'PasswordResetForm' => 'includes/SpecialResetpass.php',
 
-		// API classes
+		# Languages
+		'Language' => 'languages/Language.php',
+		'RandomPage' => 'includes/SpecialRandompage.php',
+
+		# API
 		'ApiBase' => 'includes/api/ApiBase.php',
 		'ApiFormatFeedWrapper' => 'includes/api/ApiFormatBase.php',
 		'ApiFeedWatchlist' => 'includes/api/ApiFeedWatchlist.php',
@@ -262,18 +311,32 @@ function __autoload($className) {
 		'ApiPageSet' => 'includes/api/ApiPageSet.php',
 		'ApiQuery' => 'includes/api/ApiQuery.php',
 		'ApiQueryAllpages' => 'includes/api/ApiQueryAllpages.php',
+		'ApiQueryAllLinks' => 'includes/api/ApiQueryAllLinks.php',
+		'ApiQueryAllUsers' => 'includes/api/ApiQueryAllUsers.php',
 		'ApiQueryBase' => 'includes/api/ApiQueryBase.php',
+		'ApiQueryGeneratorBase' => 'includes/api/ApiQueryBase.php',
 		'ApiQueryBacklinks' => 'includes/api/ApiQueryBacklinks.php',
+		'ApiQueryCategories' => 'includes/api/ApiQueryCategories.php',
+		'ApiQueryCategoryMembers' => 'includes/api/ApiQueryCategoryMembers.php',
 		'ApiQueryContributions' => 'includes/api/ApiQueryUserContributions.php',
+		'ApiQueryExternalLinks' => 'includes/api/ApiQueryExternalLinks.php',
+		'ApiQueryExtLinksUsage' => 'includes/api/ApiQueryExtLinksUsage.php',
+		'ApiQueryImages' => 'includes/api/ApiQueryImages.php',
+		'ApiQueryImageInfo' => 'includes/api/ApiQueryImageInfo.php',
 		'ApiQueryInfo' => 'includes/api/ApiQueryInfo.php',
+		'ApiQueryLangLinks' => 'includes/api/ApiQueryLangLinks.php',
+		'ApiQueryLinks' => 'includes/api/ApiQueryLinks.php',
 		'ApiQueryLogEvents' => 'includes/api/ApiQueryLogEvents.php',
 		'ApiQueryRecentChanges'=> 'includes/api/ApiQueryRecentChanges.php',
 		'ApiQueryRevisions' => 'includes/api/ApiQueryRevisions.php',
+		'ApiQuerySearch' => 'includes/api/ApiQuerySearch.php',
 		'ApiQuerySiteinfo' => 'includes/api/ApiQuerySiteinfo.php',
+		'ApiQueryUserInfo' => 'includes/api/ApiQueryUserInfo.php',
 		'ApiQueryWatchlist' => 'includes/api/ApiQueryWatchlist.php',
 		'ApiResult' => 'includes/api/ApiResult.php',
 	);
 	
+	wfProfileIn( __METHOD__ );
 	if ( isset( $localClasses[$className] ) ) {
 		$filename = $localClasses[$className];
 	} elseif ( isset( $wgAutoloadClasses[$className] ) ) {
@@ -290,6 +353,7 @@ function __autoload($className) {
 		}
 		if ( !$filename ) {
 			# Give up
+			wfProfileOut( __METHOD__ );
 			return;
 		}
 	}
@@ -300,6 +364,7 @@ function __autoload($className) {
 		$filename = "$IP/$filename";
 	}
 	require( $filename );
+	wfProfileOut( __METHOD__ );
 }
 
 function wfLoadAllExtensions() {
@@ -311,13 +376,11 @@ function wfLoadAllExtensions() {
 	# guaranteed by entering special pages via SpecialPage members such as 
 	# executePath(), but here we have to take a more explicit measure.
 	
-	require_once( 'SpecialPage.php' );
+	require_once( dirname(__FILE__) . '/SpecialPage.php' );
 	
 	foreach( $wgAutoloadClasses as $class => $file ) {
-		if ( ! class_exists( $class ) ) {
+		if( !( class_exists( $class ) || interface_exists( $class ) ) ) {
 			require( $file );
 		}
 	}
 }
-
-?>

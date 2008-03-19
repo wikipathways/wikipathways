@@ -1,15 +1,14 @@
 <?php
 /**
  *
- * @package MediaWiki
- * @subpackage SpecialPage
+ * @addtogroup SpecialPage
  */
 
 /**
- * @package MediaWiki
- * @subpackage SpecialPage
+ * implements Special:Unusedimages
+ * @addtogroup SpecialPage
  */
-class UnusedimagesPage extends QueryPage {
+class UnusedimagesPage extends ImageQueryPage {
 
 	function getName() {
 		return 'Unusedimages';
@@ -22,7 +21,7 @@ class UnusedimagesPage extends QueryPage {
 
 	function getSQL() {
 		global $wgCountCategorizedImagesAsUsed;
-		$dbr =& wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 
 		if ( $wgCountCategorizedImagesAsUsed ) {
 			list( $page, $image, $imagelinks, $categorylinks ) = $dbr->tableNamesN( 'page', 'image', 'imagelinks', 'categorylinks' );
@@ -40,34 +39,6 @@ class UnusedimagesPage extends QueryPage {
 		}
 	}
 
-	function formatResult( $skin, $result ) {
-		global $wgLang, $wgContLang;
-		$title = Title::makeTitle( NS_IMAGE, $result->title );
-
-		$imageUrl = htmlspecialchars( Image::imageUrl( $result->title ) );
-		$dirmark = $wgContLang->getDirMark(); // To keep text in correct order
-
-		$return =
-		# The 'desc' linking to the image page
-		'('.$skin->makeKnownLinkObj( $title, wfMsg('imgdesc') ).') ' . $dirmark .
-
-		# Link to the image itself
-		'<a href="' . $imageUrl . '">' . htmlspecialchars( $title->getText() ) .
-			'</a> . . ' . $dirmark .
-
-		# Last modified date
-		$wgLang->timeanddate($result->value) . ' . . ' . $dirmark .
-
-		# Link to username
-		$skin->makeLinkObj( Title::makeTitle( NS_USER, $result->img_user_text ),
-			$result->img_user_text) . $dirmark .
-
-		# If there is a description, show it
-		$skin->commentBlock( $wgContLang->convert( $result->img_description ) );
-
-		return $return;
-	}
-
 	function getPageHeader() {
 		return wfMsg( "unusedimagestext" );
 	}
@@ -83,4 +54,4 @@ function wfSpecialUnusedimages() {
 
 	return $uip->doQuery( $offset, $limit );
 }
-?>
+
