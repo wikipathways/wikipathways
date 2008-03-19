@@ -68,7 +68,7 @@ class RCQueryPage extends QueryPage {
 		global $wgLang, $wgContLang, $wgUser;
 		$title = Title::makeTitle( $result->namespace, $result->title );
 		$link = $skin->makeKnownLinkObj( $title, htmlspecialchars( $wgContLang->convert( $title->getBaseText() ) ) );
-		$nv = "created ". $wgLang->timeanddate($result->value) . " by " . $wgUser->getSkin()->userlink($result->user_id, $result->utext);
+		$nv = "<b>". $wgLang->date($result->value) . "</b> by <b>" . $wgUser->getSkin()->userlink($result->user_id, $result->utext) ."</b>";
 		return wfSpecialList($link, $nv);
 	}
 }
