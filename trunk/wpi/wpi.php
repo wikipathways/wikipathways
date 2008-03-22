@@ -53,7 +53,7 @@ switch($action) {
 function delete($title) {
 	global $wgUser, $wgOut;
 	$pathway = Pathway::newFromTitle($_GET['pwTitle']);
-	if($wgUser->isAllowed('delete') || isPathwayCreator($wgUser, $_GET['pwTitle'])) {
+	if($wgUser->isAllowed('delete')) {
 		$pathway = Pathway::newFromTitle($_GET['pwTitle']);
 		$pathway->delete();
 		echo "<h1>Deleted</h1>";
@@ -64,19 +64,6 @@ function delete($title) {
 		$wgOut->permissionRequired( 'delete' );
 	}
 	exit;
-}
-
-function isPathwayCreator($user, $title) {
-	//Check if this user created the page
-	if(is_null($user) || is_null($title)) {
-		return false;
-	}
-	$pathway = Pathway::newFromTitle($title);
-	$first = $pathway->getFirstRevision();
-	if(is_null($first)) {
-		return false;
-	}
-	return $first->getUser() == $user->getID();
 }
 
 function revert($pwTitle, $oldId) {
