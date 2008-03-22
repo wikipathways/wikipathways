@@ -29,6 +29,17 @@ class Linker {
 
 	/** @todo document */
 	function getExternalLinkAttributes( $link, $text, $class='' ) {
+                /**AP20070417
+                *Added support for opening external links as new page
+                * Usage: [http://www.genmapp.org|_new Link]
+                */
+               $targ = "";
+               $pos  = strpos( $link, '|' );
+               if ( $pos !== false ) {
+                       $targ = " target='" . substr ( $link, $pos + 1 ) . "'";
+                       $link = substr ( $link, 0, $pos );
+               }
+
 		$link = htmlspecialchars( $link );
 
 		$r = ($class != '') ? " class=\"$class\"" : " class=\"external\"";
@@ -773,6 +784,16 @@ class Linker {
 		if( $wgNoFollowLinks && !(isset($ns) && in_array($ns, $wgNoFollowNsExceptions)) ) {
 			$style .= ' rel="nofollow"';
 		}
+
+               /**AP20070417
+                * Added support for opening external links as new page
+                * Usage: [http://www.genmapp.org|_new Link]
+                */
+                $pos = strpos( $url, '|' );
+                if ( $pos !== false ) {
+                          $url = substr ( $url, 0, $pos );
+                }
+
 		$url = htmlspecialchars( $url );
 		if( $escape ) {
 			$text = htmlspecialchars( $text );

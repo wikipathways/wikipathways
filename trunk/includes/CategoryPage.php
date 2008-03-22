@@ -139,13 +139,18 @@ class CategoryViewer {
 	*/
 	function getSubcategorySortChar( $title, $sortkey ) {
 		global $wgContLang;
-		
+/** AP20070502 */
+                $trim_title = ltrim(strstr($title->getBaseText(), ':'), ':');
+                $firstChar = $wgContLang->firstChar( $trim_title );
+
+/*		
 		if( $title->getPrefixedText() == $sortkey ) {
 			$firstChar = $wgContLang->firstChar( $title->getDBkey() );
 		} else {
 			$firstChar = $wgContLang->firstChar( $sortkey );
 		}
 		
+*/
 		return $wgContLang->convert( $firstChar );
 	}
 
@@ -170,10 +175,13 @@ class CategoryViewer {
 	 */
 	function addPage( $title, $sortkey, $pageLength, $isRedirect = false ) {
 		global $wgContLang;
+/** AP20070502 */
+                $trim_title = ltrim(strstr($title->getBaseText(), ':'), ':');
+
 		$this->articles[] = $isRedirect
 			? '<span class="redirect-in-category">' . $this->getSkin()->makeKnownLinkObj( $title ) . '</span>'
 			: $this->getSkin()->makeSizeLinkObj( $pageLength, $title );
-		$this->articles_start_char[] = $wgContLang->convert( $wgContLang->firstChar( $sortkey ) );
+		$this->articles_start_char[] = $wgContLang->convert( $wgContLang->firstChar( $trim_title ) );
 	}
 
 	function finaliseCategoryState() {
@@ -377,6 +385,54 @@ class CategoryViewer {
 		return $r;
 	}
 
+        /** AP20070821
+         * Format a list of articles chunked in a three-column
+         * list, ordered vertically, WITHOUT HEADERS.
+         *
+         * @param array $articles
+         * @return string
+         * @private
+         */
+        function columnListSimple( $articles) {
+                // divide list into three equal chunks
+                $chunk = (int) (count ( $articles ) / 3);
+
+                // get and display header
+                $r = '<table width="100%"><tr valign="top">';
+
+                // loop through the chunks
+                for($startChunk = 0, $endChunk = $chunk, $chunkIndex = 0;
+                        $chunkIndex < 3;
+                        $chunkIndex++, $startChunk = $endChunk, $endChunk += $chunk + 1)
+                {
+                        $r .= "<td>\n";
+                        $atColumnTop = true;
+
+                        // output all articles in category
+                        for ($index = $startChunk ;
+                                $index < $endChunk && $index < count($articles);
+                                $index++ )
+                        {
+                               if( $atColumnTop ) {
+                                       $atColumnTop = false;
+                                } else {
+                                       $r .= "</ul>\n";
+                                }
+                                $r .= "<ul>";
+                                $r .= "<li>{$articles[$index]}</li>";
+                        }
+                        if( !$atColumnTop ) {
+                                $r .= "</ul>\n";
+                        }
+                        $r .= "</td>\n";
+
+
+                }
+                $r .= '</tr></table>';
+                return $r;
+        }
+
+
 	/**
 	 * Format a list of articles chunked by letter in a bullet list.
 	 * @param array $articles
@@ -399,6 +455,23 @@ class CategoryViewer {
 		$r .= '</ul>';
 		return $r;
 	}
+
+        /** AP20070822
+         * Format a list of articles in a bullet list, WITHOUT HEADERS.
+         * @param array $articles
+         * @return string
+         * @private
+         */
+        function shortListSimple( $articles ) {
+                $r = '<ul><li>'.$articles[0].'</li>';
+                for ($index = 1; $index < count($articles); $index++ )
+                {
+                        $r .= "<li>{$articles[$index]}</li>";
+                }
+                $r .= '</ul>';
+                return $r;
+        }
+
 
 	/**
 	 * @param Title  $title
