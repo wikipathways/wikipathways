@@ -832,7 +832,9 @@ class ExtDynamicPageList2
         if ($reset[3]) {	// we can remove the images by save/restore
             $saveImages = $parser->mOutput->mImages;
         }
-        $parsedDPL = $parser->recursiveTagParse($text);
+        //AP20080321 commented out recursiveTagParse to preserve HTML tags in pathways links
+        //$parsedDPL = $parser->recursiveTagParse($text);
+        $parsedDPL = $text;
         if ($reset[1]) {	// TEMPLATES
             $parser->mOutput->mTemplates =$saveTemplates;
         }
