@@ -83,6 +83,7 @@
     <jar href="plugins/filters.jar" />
     <jar href="plugins/gpml.jar" />
     <jar href="plugins/NamedSelection.jar" />
+    <jar href="plugins/BubbleRouter.jar" />
   </resources>
   <!--This starts-up Cytoscape, specify your plugins to load, and other command line arguments.  Plugins not specified here will not be loaded.-->
   <application-desc main-class="cytoscape.CyMain">
@@ -120,6 +121,8 @@
     <argument>gpml.GpmlPlugin</argument>
     <argument>-p</argument>
     <argument>namedSelection.NamedSelection</argument>
+    <argument>-p</argument>
+    <argument>cytoscape.bubbleRouter.BubbleRouterPlugin</argument>
     <!--ARG-->
   </application-desc>
 </jnlp>
