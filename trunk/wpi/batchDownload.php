@@ -15,23 +15,29 @@ if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
 	wfDebug("PROCESSING BATCH DOWNLOAD\n");
 	$species = $_GET['species'];
 	$fileType = $_GET['fileType'];
+	$listPage = $_GET['listPage'];
 
 	if($species) {
-		batchDownload($species, $fileType);
+		batchDownload($species, $fileType, $listPage);
 	}
 }
 
 function createDownloadLinks($input, $argv, &$parser) {
 	$fileType = $argv['filetype'];
+	$listPage = $argv['listpage'];
+	if($listPage) {
+		$listParam = '&listPage=' . $listPage;
+	}
+	
 	foreach(Pathway::getAvailableSpecies() as $species) {
 		$html .= tag('li', 
-					tag('a',$species,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType", 'target'=>'_new')));
+					tag('a',$species,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType$listParam", 'target'=>'_new')));
 	}
 	$html = tag('ul', $html);
 	return $html;
 }
 
-function batchDownload($species, $fileType) {
+function batchDownload($species, $fileType, $listPage = '') {
 /*
 	if(!(
 		$fileType == FILETYPE_GPML ||
@@ -41,10 +47,27 @@ function batchDownload($species, $fileType) {
 	}
 */
 	$species = str_replace(' ', '_', $species);
-	$pathways = getPathways(array(
-		"page_title LIKE '$species%'"		
-	));
+	if($listPage) {
+		$allpws = getPathwaysByList($listPage);
+		$pathways = array();
+		//Apply additional filter by species
+		foreach($allpws as $p) {
+			$pspecies = str_replace(' ', '_', $p->species());
+			if($pspecies == $species) {
+				$pathways[] = $p;
+			}
+		}
+	} else {
+		$pathways = getPathways(array(
+			"page_title LIKE '$species%'"		
+		));
+	}
 	doDownload($pathways, $fileType); //Exits script
+}
+
+function getPathwaysByList($listPage) {
+	$pathways = Pathway::parsePathwayListPage($listPage);
+	return $pathways;
 }
 
 function getPathways($conditions = array()) {
@@ -77,6 +100,11 @@ function getPathways($conditions = array()) {
 
 function doDownload($pathways, $fileType) {
 	ob_start();
+	
+	if(is_null($pathways) || count($pathways) == 0) {
+		exit("<H1>Unable process download</H1><P>There are no pathways available</P>");
+	}
+	
 /*	$zip = new zipfile();
 	
 	//Fill zip file
