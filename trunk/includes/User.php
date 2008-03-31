@@ -206,13 +206,7 @@ class User {
 				return false;
 			}
 
-			# Save to cache
-			$data = array();
-			foreach ( self::$mCacheVars as $name ) {
-				$data[$name] = $this->$name;
-			}
-			$data['mVersion'] = MW_USER_VERSION;
-			$wgMemc->set( $key, $data );
+			$this->saveToCache();
 		} else {
 			wfDebug( "Got user {$this->mId} from cache\n" );
 			# Restore from cache
@@ -221,6 +215,25 @@ class User {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Save user data to the shared cache
+	 */
+	function saveToCache() {
+		$this->load();
+		if ( $this->isAnon() ) {
+			// Anonymous users are uncached
+			return;
+		}
+		$data = array();
+		foreach ( self::$mCacheVars as $name ) {
+			$data[$name] = $this->$name;
+		}
+		$data['mVersion'] = MW_USER_VERSION;
+		$key = wfMemcKey( 'user', 'id', $this->mId );
+		global $wgMemc;
+		$wgMemc->set( $key, $data );
 	}
 
 	/**
@@ -513,6 +526,11 @@ class User {
 	 * @return bool
 	 */
 	public static function isValidEmailAddr( $addr ) {
+		$result = null;
+		if( !wfRunHooks( 'isValidEmailAddr', array( $addr, &$result ) ) ) {
+			return $result;
+		}
+
 		return strpos( $addr, '@' ) !== false;
 	}
 
@@ -592,7 +610,7 @@ class User {
 		);
 
 		if( $field === null ) { // it has not been initialized. do so.
-			$dbw = wfGetDb( DB_MASTER );
+			$dbw = wfGetDB( DB_MASTER );
 			$count = $dbr->selectField(
 				'revision', 'count(*)',
 				array( 'rev_user' => $uid ),
@@ -1004,7 +1022,7 @@ class User {
 			return $result;
 		}
 
-		global $wgRateLimits, $wgRateLimitsExcludedGroups;
+		global $wgRateLimits;
 		if( !isset( $wgRateLimits[$action] ) ) {
 			return false;
 		}
@@ -1196,11 +1214,13 @@ class User {
 				global $wgMemc;
 				$key = wfMemcKey( 'newtalk', 'ip', $this->getName() );
 				$newtalk = $wgMemc->get( $key );
-				if( $newtalk != "" ) {
+				if( strval( $newtalk ) !== '' ) {
 					$this->mNewtalk = (bool)$newtalk;
 				} else {
-					$this->mNewtalk = $this->checkNewtalk( 'user_ip', $this->getName() );
-					$wgMemc->set( $key, (int)$this->mNewtalk, time() + 1800 );
+					// Since we are caching this, make sure it is up to date by getting it
+					// from the master
+					$this->mNewtalk = $this->checkNewtalk( 'user_ip', $this->getName(), true );
+					$wgMemc->set( $key, (int)$this->mNewtalk, 1800 );
 				}
 			} else {
 				$this->mNewtalk = $this->checkNewtalk( 'user_id', $this->mId );
@@ -1227,18 +1247,22 @@ class User {
 
 		
 	/**
-	 * Perform a user_newtalk check on current slaves; if the memcached data
-	 * is funky we don't want newtalk state to get stuck on save, as that's
-	 * damn annoying.
-	 *
+	 * Perform a user_newtalk check, uncached. 
+	 * Use getNewtalk for a cached check.
+	 * 
 	 * @param string $field
 	 * @param mixed $id
+	 * @param bool $fromMaster True to fetch from the master, false for a slave
 	 * @return bool
 	 * @private
 	 */
-	function checkNewtalk( $field, $id ) {
-		$dbr = wfGetDB( DB_SLAVE );
-		$ok = $dbr->selectField( 'user_newtalk', $field,
+	function checkNewtalk( $field, $id, $fromMaster = false ) {
+		if ( $fromMaster ) {
+			$db = wfGetDB( DB_MASTER );
+		} else {
+			$db = wfGetDB( DB_SLAVE );
+		}
+		$ok = $db->selectField( 'user_newtalk', $field,
 			array( $field => $id ), __METHOD__ );
 		return $ok !== false;
 	}
@@ -1250,17 +1274,18 @@ class User {
 	 * @private
 	 */
 	function updateNewtalk( $field, $id ) {
-		if( $this->checkNewtalk( $field, $id ) ) {
-			wfDebug( __METHOD__." already set ($field, $id), ignoring\n" );
-			return false;
-		}
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->insert( 'user_newtalk',
 			array( $field => $id ),
 			__METHOD__,
 			'IGNORE' );
-		wfDebug( __METHOD__.": set on ($field, $id)\n" );
-		return true;
+		if ( $dbw->affectedRows() ) {
+			wfDebug( __METHOD__.": set on ($field, $id)\n" );
+			return true;
+		} else {
+			wfDebug( __METHOD__." already set ($field, $id)\n" );
+			return false;
+		}
 	}
 
 	/**
@@ -1270,16 +1295,17 @@ class User {
 	 * @private
 	 */
 	function deleteNewtalk( $field, $id ) {
-		if( !$this->checkNewtalk( $field, $id ) ) {
-			wfDebug( __METHOD__.": already gone ($field, $id), ignoring\n" );
-			return false;
-		}
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->delete( 'user_newtalk',
 			array( $field => $id ),
 			__METHOD__ );
-		wfDebug( __METHOD__.": killed on ($field, $id)\n" );
-		return true;
+		if ( $dbw->affectedRows() ) {
+			wfDebug( __METHOD__.": killed on ($field, $id)\n" );
+			return true;
+		} else {
+			wfDebug( __METHOD__.": already gone ($field, $id)\n" );
+			return false;
+		}
 	}
 
 	/**
@@ -1301,6 +1327,7 @@ class User {
 			$field = 'user_id';
 			$id = $this->getId();
 		}
+		global $wgMemc;
 
 		if( $val ) {
 			$changed = $this->updateNewtalk( $field, $id );
@@ -1308,20 +1335,13 @@ class User {
 			$changed = $this->deleteNewtalk( $field, $id );
 		}
 
-		if( $changed ) {
-			if( $this->isAnon() ) {
-				// Anons have a separate memcached space, since
-				// user records aren't kept for them.
-				global $wgMemc;
-				$key = wfMemcKey( 'newtalk', 'ip', $val );
-				$wgMemc->set( $key, $val ? 1 : 0 );
-			} else {
-				if( $val ) {
-					// Make sure the user page is watched, so a notification
-					// will be sent out if enabled.
-					$this->addWatch( $this->getTalkPage() );
-				}
-			}
+		if( $this->isAnon() ) {
+			// Anons have a separate memcached space, since
+			// user records aren't kept for them.
+			$key = wfMemcKey( 'newtalk', 'ip', $id );
+			$wgMemc->set( $key, $val ? 1 : 0, 1800 );
+		}
+		if ( $changed ) {
 			$this->invalidateCache();
 		}
 	}
@@ -1619,8 +1639,8 @@ class User {
 
 	/**
 	 * Get the list of implicit group memberships this user has.
-	 * This includes all explicit groups, plus 'user' if logged in
-	 * and '*' for all accounts.
+	 * This includes all explicit groups, plus 'user' if logged in,
+	 * '*' for all accounts and autopromoted groups
 	 * @param boolean $recache Don't use the cache
 	 * @return array of strings
 	 */
@@ -1631,23 +1651,12 @@ class User {
 			$this->mEffectiveGroups[] = '*';
 			if( $this->mId ) {
 				$this->mEffectiveGroups[] = 'user';
-				
-				global $wgAutoConfirmAge, $wgAutoConfirmCount;
 
-				$accountAge = time() - wfTimestampOrNull( TS_UNIX, $this->mRegistration );
-				if( $accountAge >= $wgAutoConfirmAge && $this->getEditCount() >= $wgAutoConfirmCount ) {
-					$this->mEffectiveGroups[] = 'autoconfirmed';
-				}
-				# Implicit group for users whose email addresses are confirmed
-				global $wgEmailAuthentication;
-				if( self::isValidEmailAddr( $this->mEmail ) ) {
-					if( $wgEmailAuthentication ) {
-						if( $this->mEmailAuthenticated )
-							$this->mEffectiveGroups[] = 'emailconfirmed';
-					} else {
-						$this->mEffectiveGroups[] = 'emailconfirmed';
-					}
-				}
+				$this->mEffectiveGroups = array_unique( array_merge(
+					$this->mEffectiveGroups,
+					Autopromote::getAutopromoteGroups( $this )
+				) );
+
 				# Hook for additional groups
 				wfRunHooks( 'UserEffectiveGroups', array( &$this, &$this->mEffectiveGroups ) );
 			}
@@ -1722,10 +1731,6 @@ class User {
 	 * @return bool
 	 */
 	function isLoggedIn() {
-		if( $this->mId === null and $this->mName !== null ) {
-			// Special-case optimization
-			return !self::isIP( $this->mName );
-		}
 		return $this->getID() != 0;
 	}
 
@@ -1893,7 +1898,7 @@ class User {
 					'wl_notificationtimestamp' => NULL
 				), array( /* WHERE */
 					'wl_user' => $currentUser
-				), 'UserMailer::clearAll'
+				), __METHOD__
 			);
 
 		# 	we also need to clear here the "you have new message" notification for the own user_talk page
@@ -1953,10 +1958,21 @@ class User {
 	}
 
 	/**
-	 * Logout user
-	 * Clears the cookies and session, resets the instance cache
+	 * Logout user.
 	 */
 	function logout() {
+		global $wgUser;
+		if( wfRunHooks( 'UserLogout', array(&$this) ) ) {
+			$this->doLogout();
+			wfRunHooks( 'UserLogoutComplete', array(&$wgUser) );
+		}
+	}
+
+	/**
+	 * Really logout user
+	 * Clears the cookies and session, resets the instance cache
+	 */
+	function doLogout() {
 		global $wgCookiePath, $wgCookieDomain, $wgCookieSecure, $wgCookiePrefix;
 		$this->clearInstanceCache( 'defaults' );
 
@@ -2002,11 +2018,11 @@ class User {
 
 
 	/**
-	 * Checks if a user with the given name exists, returns the ID
+	 * Checks if a user with the given name exists, returns the ID.
 	 */
 	function idForName() {
 		$s = trim( $this->getName() );
-		if ( 0 == strcmp( '', $s ) ) return 0;
+		if ( $s === '' ) return 0;
 
 		$dbr = wfGetDB( DB_SLAVE );
 		$id = $dbr->selectField( 'user', 'user_id', array( 'user_name' => $s ), __METHOD__ );
@@ -2252,6 +2268,9 @@ class User {
 		} elseif( $wgAuth->strict() ) {
 			/* Auth plugin doesn't allow local authentication */
 			return false;
+		} elseif( $wgAuth->strictUserAuth( $this->getName() ) ) {
+			/* Auth plugin doesn't allow local authentication for this user name */
+			return false;
 		}
 		$ep = $this->encryptPassword( $password );
 		if ( 0 == strcmp( $ep, $this->mPassword ) ) {
@@ -2366,25 +2385,18 @@ class User {
 	 *
 	 * @param string $subject
 	 * @param string $body
-	 * @param strong $from Optional from address; default $wgPasswordSender will be used otherwise.
+	 * @param string $from Optional from address; default $wgPasswordSender will be used otherwise.
 	 * @return mixed True on success, a WikiError object on failure.
 	 */
-	function sendMail( $subject, $body, $from = null ) {
+	function sendMail( $subject, $body, $from = null, $replyto = null ) {
 		if( is_null( $from ) ) {
 			global $wgPasswordSender;
 			$from = $wgPasswordSender;
 		}
 
-		require_once( 'UserMailer.php' );
 		$to = new MailAddress( $this );
 		$sender = new MailAddress( $from );
-		$error = userMailer( $to, $sender, $subject, $body );
-
-		if( $error == '' ) {
-			return true;
-		} else {
-			return new WikiError( $error );
-		}
+		return UserMailer::send( $to, $sender, $subject, $body, $replyto );
 	}
 
 	/**
@@ -2441,7 +2453,9 @@ class User {
 	 * @return bool
 	 */
 	function canSendEmail() {
-		return $this->isEmailConfirmed();
+		$canSend = $this->isEmailConfirmed();
+		wfRunHooks( 'UserCanSendEmail', array( &$this, &$canSend ) );
+		return $canSend;
 	}
 
 	/**
@@ -2450,7 +2464,7 @@ class User {
 	 * @return bool
 	 */
 	function canReceiveEmail() {
-		return $this->canSendEmail() && !$this->getOption( 'disablemail' );
+		return $this->isEmailConfirmed() && !$this->getOption( 'disablemail' );
 	}
 
 	/**
@@ -2573,11 +2587,9 @@ class User {
 	 * @return array
 	 */
 	public static function getImplicitGroups() {
-		static $groups = null;
-		if( !is_array( $groups ) ) {
-			$groups = array( '*', 'user', 'autoconfirmed', 'emailconfirmed' );
-			wfRunHooks( 'UserGetImplicitGroups', array( &$groups ) );
-		}
+		global $wgImplicitGroups;
+		$groups = $wgImplicitGroups;
+		wfRunHooks( 'UserGetImplicitGroups', array( &$groups ) );	#deprecated, use $wgImplictGroups instead
 		return $groups;
 	}
 
@@ -2684,5 +2696,6 @@ class User {
 		$this->invalidateCache();
 	}
 }
+
 
 

@@ -10,48 +10,53 @@ var sajax_request_type = "GET";
 */
 function sajax_debug(text) {
 	if (!sajax_debug_mode) return false;
-	
+
 	var e= document.getElementById('sajax_debug');
-	
+
 	if (!e) {
 		e= document.createElement("p");
 		e.className= 'sajax_debug';
 		e.id= 'sajax_debug';
-		
+
 		var b= document.getElementsByTagName("body")[0];
-		
+
 		if (b.firstChild) b.insertBefore(e, b.firstChild);
 		else b.appendChild(e);
 	}
-	
+
 	var m= document.createElement("div");
 	m.appendChild( document.createTextNode( text ) );
-	
+
 	e.appendChild( m );
-	
+
 	return true;
 }
 
 /**
-* compatibility wrapper for creating a new XMLHttpRequest object. 
+* compatibility wrapper for creating a new XMLHttpRequest object.
 */
 function sajax_init_object() {
 	sajax_debug("sajax_init_object() called..")
 	var A;
 	try {
-		A=new ActiveXObject("Msxml2.XMLHTTP");
+		// Try the new style before ActiveX so we don't
+		// unnecessarily trigger warnings in IE 7 when
+		// set to prompt about ActiveX usage
+		A = new XMLHttpRequest();
 	} catch (e) {
 		try {
-			A=new ActiveXObject("Microsoft.XMLHTTP");
-		} catch (oc) {
-			A=null;
+			A=new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (e) {
+			try {
+				A=new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (oc) {
+				A=null;
+			}
 		}
 	}
-	if(!A && typeof XMLHttpRequest != "undefined")
-		A = new XMLHttpRequest();
 	if (!A)
 		sajax_debug("Could not create connection object.");
-	
+
 	return A;
 }
 
@@ -75,7 +80,9 @@ function sajax_do_call(func_name, args, target) {
 	var i, x, n;
 	var uri;
 	var post_data;
-	uri = wgServer + wgScriptPath + "/index.php?action=ajax";
+	uri = wgServer +
+		((wgScript == null) ? (wgScriptPath + "/index.php") : wgScript) +
+		"?action=ajax";
 	if (sajax_request_type == "GET") {
 		if (uri.indexOf("?") == -1)
 			uri = uri + "?rs=" + encodeURIComponent(func_name);
@@ -95,7 +102,7 @@ function sajax_do_call(func_name, args, target) {
 		alert("AJAX not supported");
 		return false;
 	}
-	
+
 	try {
 		x.open(sajax_request_type, uri, true);
 	} catch (e) {
@@ -113,13 +120,13 @@ function sajax_do_call(func_name, args, target) {
 	x.onreadystatechange = function() {
 		if (x.readyState != 4)
 			return;
-			
+
 		sajax_debug("received (" + x.status + " " + x.statusText + ") " + x.responseText);
-		
+
 		//if (x.status != 200)
 		//	alert("Error: " + x.status + " " + x.statusText + ": " + x.responseText);
 		//else
-		
+
 		if ( typeof( target ) == 'function' ) {
 			target( x );
 		}
@@ -136,14 +143,14 @@ function sajax_do_call(func_name, args, target) {
 		else {
 			alert("bad target for sajax_do_call: not a function or object: " + target);
 		}
-		
+
 		return;
 	}
-	
+
 	sajax_debug(func_name + " uri = " + uri + " / post = " + post_data);
 	x.send(post_data);
 	sajax_debug(func_name + " waiting..");
 	delete x;
-	
+
 	return true;
 }

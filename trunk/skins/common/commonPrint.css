@@ -73,6 +73,9 @@ div.tleft {
     margin-right:0.5em;
     border-width: 0.5em 1.4em 0.8em 0;
 }
+img.thumbborder {
+	border: 1px solid #dddddd;
+}
 
 /* table standards */
 table.rimage {
@@ -117,7 +120,6 @@ ul {
 #content {
     background: none;
     border: none ! important;
-    font-size: 11pt;
     padding: 0 ! important;
     margin: 0 ! important;
 }
@@ -127,8 +129,7 @@ ul {
     border-top: 1px solid black;
 }
 
-h1, h2, h3, h4, h5, h6
-{
+h1, h2, h3, h4, h5, h6 {
 	font-weight: bold;
 }
 
@@ -284,5 +285,8 @@ td.diff-context {
     background:#eeeeee;
     font-size: smaller;
 }
-span.diffchange { color: silver; font-weight: bold; text-decoration: underline; }
-
+.diffchange {
+    color: silver;
+    font-weight: bold;
+    text-decoration: underline;
+}

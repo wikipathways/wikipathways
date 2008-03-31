@@ -52,7 +52,7 @@ function getPathwayOfTheDay( &$parser, $date ) {
 	} catch(Exception $e) {
 		$out = "Unable to get pathway of the day: {$e->getMessage()}";
 	}
-	return $out;
+	return array( $out, 'noparse' => false);
 }
 
 /**
