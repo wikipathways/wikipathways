@@ -63,8 +63,8 @@ class FeaturedPathway extends PathwayOfTheDay {
 	private $listPage;
 	
 	function __construct($id, $date, $listPage) {
-		parent::__construct($id, $date);
 		$this->listPage = $listPage;
+		parent::__construct($id, $date);
 	}
 	
 	/**
@@ -77,7 +77,7 @@ class FeaturedPathway extends PathwayOfTheDay {
 		if(count($pathwayList) == 0) {
 			throw new Exception("{$this->listPage} doesn't contain any valid pathway!");
 		}
-		return $pathwayList[rand(0, count($pathwayList) - 1)];
+		return $pathwayList[rand(0, count($pathwayList) - 1)]->getTitleObject()->getDbKey();
 	}
 }
 
