@@ -233,11 +233,13 @@ class EditApplet {
 	}
 	
 	function makeAppletObjectCall() {
+		global $wgScriptPath;
+		$site = SITE_URL;
 		$param = $this->getJsParameters();
 		$base = self::getAppletBase();
 		$keys = $param['keys'];
 		$values = $param['values'];
-		return "doApplet('{$this->idReplace}', 'applet', '$base', '{$this->mainClass}', '{$this->width}', '{$this->height}', {$keys}, {$values}, {$this->noresize});";
+		return "doApplet('{$this->idReplace}', 'applet', '$base', '{$this->mainClass}', '{$this->width}', '{$this->height}', {$keys}, {$values}, {$this->noresize}, '{$site}', '{$wgScriptPath}');";
 	}
 
 	static function getAppletBase() {

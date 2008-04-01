@@ -23,7 +23,7 @@ function getAppletObject(id) {
 }
 
 //Uses appletobject.js
-function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, noresize) {	
+function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, noresize, site_url, wgScriptPath) {	
 	var image = document.getElementById(idImg);
 	
 	appletObject = new Object();
@@ -59,13 +59,13 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 	image.appendChild(appletDiv);
 	
 	problems = document.createElement('a');
-	problems.href = 'http://www.wikipathways.org/index.php/Help:Known_problems';
+	problems.href = site_url + '/index.php?title=Help:Known_problems';
 	problems.innerHTML = 'not working?';
 	image.appendChild(problems);
 		
 	//Create resize hint
 	resize = document.createElement('div');
-	resize.innerHTML = '<img src="/skins/common/images/resize.png"/>';
+	resize.innerHTML = '<img src="' + wgScriptPath + '/skins/common/images/resize.png"/>';
 	resize.style.position = 'absolute';
 	resize.style.bottom = '0';
 	resize.style.right = '0';
