@@ -146,8 +146,6 @@ $wgUploadSizeWarning = 1024 * 1024 * 5;
 ## Better SVG converter
 /** Pick one of the above */
 $wgSVGConverter = 'inkscape';
-/** If not in the executable PATH, specify */
-#$wgSVGConverterPath = '/var/www/wikipathways/wpi/bin/batik';
 $wgSVGConverters['inkscape'] = '$path/inkscape -z -b white -w $width -f $input -e $output';
 
 ##$wgMimeDetectorCommand = "file -bi"; #This doesn't work for svg!!!
@@ -221,7 +219,7 @@ function abortOnBadDomain($user, $message) {
 $wgHooks['AbortNewAccount'][] = 'abortOnBadDomain';
 
 ##Debug
-$wgDebugLogFile = '/var/www/wikipathways/wpi/tmp/wikipathwaysdebug.txt';
+$wgDebugLogFile = WPI_SCRIPT_PATH . '/tmp/wikipathwaysdebug.txt';
 //$wgProfiling = true; //Set to true for debugging info
 
 ##Extensions
@@ -287,29 +285,6 @@ Isbndb account: thomas.kelder@bigcat.unimaas.nl / BigC0w~wiki
 */
 $isbndb_access_key = 'BR5539IJ'; 
 require_once('extensions/Biblio.php');
-
-/*
-################################################################
-# PageProtection extension
-set_include_path(get_include_path() . PATH_SEPARATOR . realpath('extensions/includes'));
-require_once("extensions/ExtensionFunctions.php");
-
-$wgCachePages   = false;
-$wgCacheEpoch   = 'date +%Y%m%d%H%M%S';
-$wgPEMsize      = 64;                 //default key size
-$wgPEMlite_size = 64;                  //lite key size
-$wgPEMdir       = '/var/www/wikipathways/extensions/PPP/key';  //storage for keys
-$wgPEMfile      = 'default.pem';        //default key's filename
-$wgPEMlite_file = 'lite.pem';           //lite key's filename
-
-$wgPEMold       = 'private.pem';        //old key's pathname (optional)
-                                        //if you've been using PageProtection
-# activate PageProtection extension
-require_once('extensions/PPP/PageProtectionPlus.php');
-*/
-#
-################################################################
-
 
 ##Cascading Style Sheets
 #Default is {$wgScriptPath}/skins
