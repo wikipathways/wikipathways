@@ -3,15 +3,38 @@
 $wgHooks['ParserBeforeStrip'][] = array('renderPathwayPage'); 	
 $wgHooks['BeforePageDisplay'][] = array('addPreloaderScript');
 function renderPathwayPage(&$parser, &$text, &$strip_state) {
+	global $wgUser;
+	
 	$title = $parser->getTitle();	
 	if(	$title->getNamespace() == NS_PATHWAY &&
 		preg_match("/^\s*\<\?xml/", $text)) 
 	{
 		$parser->disableCache();
-		$pathway = Pathway::newFromTitle($title);
-		$pathway->updateCache(FILETYPE_IMG); //In case the image page is removed
-		$page = new PathwayPage($pathway);
-		$text = $page->getContent();
+		
+		$oldId = $_REQUEST['oldid'];
+		
+		try {
+			$pathway = Pathway::newFromTitle($title);
+			if($oldId) {
+				$pathway->setActiveRevision($oldId);
+			}
+			$pathway->updateCache(FILETYPE_IMG); //In case the image page is removed
+			$page = new PathwayPage($pathway);
+			$text = $page->getContent();
+		} catch(Exception $e) { //Return error message on any exception
+			$text = <<<ERROR
+= Error rendering pathway page =
+This revision of the pathway probably contains invalid GPML code. If this happens to the most recent revision, try reverting
+the pathway using the pathway history displayed below or contact the site administrators (see [[WikiPathways:About]]) to resolve this problem.
+=== Pathway history ===
+<pathwayHistory></pathwayHistory>
+=== Error details ===
+<pre>
+{$e}
+</pre>
+ERROR;
+			
+		}
 	}
 	return true;
 }

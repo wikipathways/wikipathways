@@ -57,7 +57,8 @@ EOD;
 	$output .= "\n* There are '''{{NUMBEROFUSERS}}''' registered users";
 	//$output .= "\n* Active user [[Special:ContributionScores|statistics]]";
 
-		return $output;
+	$output = $parser->recursiveTagParse( $output );
+	return array( $output, 'isHTML' => true, 'noparse' => true, 'nowiki' => true );
 }
 
 function howManyPathways($species) {

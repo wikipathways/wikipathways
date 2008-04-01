@@ -296,7 +296,7 @@ class Pathway {
 		$gpmlTitle = $this->getTitleObject();
 		$gpmlRef = Revision::newFromTitle($gpmlTitle, $this->revision);
 		
-		return $gpmlRef == NULL ? "no gpml" : $gpmlRef->getText();
+		return $gpmlRef == NULL ? "" : $gpmlRef->getText();
 	}
 
 	/**
@@ -758,8 +758,10 @@ class Pathway {
 	
 	private function saveGpmlCache() {
 		$gpml = $this->getGpml();
-		$file = $this->getFileLocation(FILETYPE_GPML, false);
-		writeFile($file, $gpml);
+		if($gpml) { //Only write cache if there is GPML
+			$file = $this->getFileLocation(FILETYPE_GPML, false);
+			writeFile($file, $gpml);
+		}
 	}
 	
 	private function savePngCache() {

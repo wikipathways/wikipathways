@@ -260,6 +260,7 @@ require_once('wpi/extensions/DiffAppletPage/DiffAppletPage.php');
 require_once('wpi/extensions/RecentPathwayChanges/RecentPathwayChanges.php');
 require_once('wpi/extensions/ParserFunctions/ParserFunctions.php' );
 require_once('wpi/extensions/NamespacePermissions.php' );
+require_once('wpi/extensions/CheckGpmlOnSave.php' );
 
 require_once('wpi/extensions/recaptcha/ReCaptcha.php'); 
 
