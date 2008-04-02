@@ -127,6 +127,22 @@ $getPathwayList_docsig = array(
 	)
 );
 
+$getRecentChanges_sig = array (
+	array(
+		$xmlrpcArray,
+		$xmlrpcString
+	)
+);
+
+$getRecentChanges_doc = "Get a list of recently changed pathways";
+
+$getRecentChanges_docsig = array(
+	array(
+		"a list of names of recently changed pathways",
+		"a SQL timestamp cutoff"
+	)
+);
+
 //Definition of dispatch map
 $disp_map=array(
 		"WikiPathways.updatePathway" => 
@@ -154,6 +170,11 @@ $disp_map=array(
 			"signature" => $getPathwayList_sig,
 			"docstring" => $getPathwayList_doc,
 			"signature_docs" => $getPathwayList_docsig),
+		"WikiPathways.getRecentChanges" =>
+			array("function" => "getRecentChanges",
+			"signature" => $getRecentChanges_sig,
+			"docstring" => $getRecentChanges_doc,
+			"signature_docs" => $getRecentChanges_docsig),
 );
 
 //Setup the XML-RPC server
@@ -266,6 +287,45 @@ function login($name, $pass) {
 	} else {
 		return new xmlrpcresp(0, $xmlrpcerruser, "Wrong password");
 	}
+}
+
+function getRecentChanges($timestamp)
+{
+	global $xmlrpcerruser;
+	
+	//check safety of $timestamp, must be exactly 14 digits and nothing else.
+	if (!preg_match ("/^\d{14}$/", $timestamp))
+	{
+		return new xmlrpcresp(0, $xmlrpcerruser, "Invalid timestamp " . htmlentities ($timestamp));
+	}
+
+	$dbr =& wfGetDB( DB_SLAVE );
+	$forceclause = $dbr->useIndexClause("rc_timestamp");
+	$recentchanges = $dbr->tableName( 'recentchanges');
+
+	$sql = "SELECT  
+				rc_namespace, 
+				rc_title, 
+				MAX(rc_timestamp)
+			FROM $recentchanges $forceclause
+			WHERE 
+				rc_namespace = " . NS_PATHWAY . "
+				AND
+				rc_timestamp > '$timestamp'
+			GROUP BY rc_title
+			ORDER BY rc_timestamp DESC
+		";
+		
+	//~ wfDebug ("SQL: $sql");
+
+	$res = $dbr->query( $sql, "getRecentChanges" );
+
+	$titles = array();
+	while ($row = $dbr->fetchRow ($res))
+	{
+		$titles[] = $row['rc_title'];
+	}
+	return $titles;
 }
 
 //Non-rpc functions

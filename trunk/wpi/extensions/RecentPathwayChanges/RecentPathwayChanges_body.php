@@ -107,7 +107,7 @@ class RecentQueryPage extends QueryPage {
 			 	rc_title as title,
 				UNIX_TIMESTAMP(rc_timestamp) as unix_time,
 				rc_timestamp as value
-			FROM $recentchanges $foreclause 
+			FROM $recentchanges $forceclause 
 			WHERE rc_namespace = " . $this->namespace .
 			" AND rc_bot = 0
 			AND rc_minor = 0 "; 
