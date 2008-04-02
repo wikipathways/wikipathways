@@ -81,4 +81,62 @@ Martijn: Some ideas
 
 	Idem: Is a tag necessary for this? 
 
+== Additional Planning Ideas ==
+Some notes and ideas for the implementation:
+
+Martijn and I had a discussion about tags yesterday. We agreed that
+there needs to be a distinction between tags/attributes that should be
+stored in GPML and those that should be stored separately. 
+
+Here's a proposal:
+- Ontology: in GPML
+- Portal categories: not in GPML
+- Free tags: not in GPML
+- Curator tags: not in GPML
+
+One reason I don't want to store the last three tags in GPML because of
+efficiency. Tagging a pathway should be really quick and effortless,
+using an AJAX user interface (so no java applet or refresh of the
+pathway page, see citeulike and google reader for a good example). This
+is not possible when using GPML, because it needs a lot of processing
+(validation etc) and the whole GPML code should be updated in the
+database. The only disadvantage of not storing it in GPML could be that
+tagging events don't show up in the revision history, any tagging
+revision history should be implemented by ourselves. But that's a good
+point too, because I don't think tagging should be in there (it's
+technically not a change in the pathway). Another reason for not storing
+it in GPML is efficiency of queries. E.g. if you query all pathways with
+a given tag, you would need to fetch all GPML (for every pathway) and
+parse it one by one. You basically have to process the whole database to
+find something.
+
+The reason that I think we should store the ontology information in GPML
+is that this information is intrinsic to the pathway (like the pathway
+name and gene annotation). It can also be very useful information for
+offline applications of the pathway. And storing ontology annotation
+doesn't have to be as efficient as tagging, since it's less dynamic.
+
+I think we can cover the portal, free and curator tags with the same
+implementation. For example, portal categories could be tags of the form
+portal:portalname, approvement tags could be of the form
+approved:username. This is similar to the for:user tag in del.icio.us,
+which works great. The tagging mechanism is basically free. For the
+curator tags that require permissions, the username is checked
+afterwards to determine if it should be taken into account or not.
+	
+Concerning the implementation, I think a single table should be enough:
+
+Tag	
+*	name		//tag name
+*	pathway	//pathway id
+*	addedby	//the user who added the tag 
+	dateadded	//the date the tag was added
+
+
+For the user interface, we'll have to look into how to do asynchronous
+updates to the MW database (so without refreshing). I've seen some AJAX
+related code in the MW implementation, we should look into this. It will
+also be good to implement the stable pathway identifiers (RFC 2),
+otherwise we will need to update the complete tag pathway when renaming
+a pathway.
 
