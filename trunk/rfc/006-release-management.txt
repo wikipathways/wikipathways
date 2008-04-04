@@ -193,6 +193,74 @@ Updates to mediawiki are potentially disruptive. Therefore I propose to these ki
 on the test site first as well, and always do it before the feature freeze 
 so we still have some time for testing.
 
+Mediawiki does major updates quarterly, with a few point releases in between.
+
+This is an overview of the steps needed to update mediawiki:
+
+**************************************
+
+	Perform the update on a local copy. In this example, the following
+	directories are used:
+
+	wikipathways/trunk -> the wikipathways working copy
+	mediawiki-1.11.2 -> the mediawiki code of the version used in the
+	working copy
+	mediawiki-1.12.0 -> the new mediawiki code
+
+	The following steps were taken:
+	1. Create a diff of the changes between our code and the current
+	mediawiki version code
+
+		diff -c -r mediawiki-1.11.2/ wikipathways/trunk > 1.11_wp_changes.txt
+
+	2. Remove all files in the working copy, except for the svn files and
+	pass.php.
+
+		find -! -iwholename "*.svn*" -exec rm -I {} \;
+
+	3. Copy the new mediawiki version to the working copy
+
+		cp -R ../../mediawiki-1.12.0/* .
+
+	4. Restore the wikipathways files in the working copy
+	
+		svn update
+
+	There might be mediawiki files restored that are removed in the updated
+	mediawiki code. To identify these, look at the output from svn update
+	and remove any files that belong to mediawiki, using 'svn remove' (e.g.
+	files in includes/, language/)
+
+	5. Add all mediawiki files that are included in the update (using 'svn
+	add'), use:
+	
+		svn status
+
+	To check for files that are not in the repository (marked with ?).
+	Exceptions are the skins files common and wikipathways.
+
+	5. Apply our changes to the MediaWiki code
+	
+		patch -c -p1 < ../../1.11_wp_changes.txt
+
+	The output of patch will show if there were any conflicts. Manually
+	resolve conflicted files. You can use
+
+		find -iname "*.rej"
+
+	To find the conflicts
+
+	6. Update the MediaWiki database
+	* Comment out extensions in LocalSettings.php
+	* create AdminSettings.php
+	* run php maintenance/update.php
+	* remove AdminSettings.php
+	* restore LocalSettings.php
+
+	7. Recompile applets (wikipathways-dest, diffapplet)
+
+**************************************
+
 === summary ===
 
 So, in short:
