@@ -124,14 +124,14 @@ class BrowsePathwaysPage extends SpecialPage {
                 }
 		if ($pickCat == $allCat){
 			$pickedCat = '';
-                        // $arrCat = Pathway::getAvailableCategories();
-                        // asort($arrCat);
-                        // foreach ($arrCat as $cat) {
-                        //         $pickedCat .=  $cat."|";
-                        // }
-                        // $pickedCat[strlen($pickedCat)-1] = ' ';
-			//$category_pickedCat = $categoryCat.$pickedCat;
-			$category_pickedCat = '';
+                         $arrCat = Pathway::getAvailableCategories();
+                         asort($arrCat);
+                         foreach ($arrCat as $cat) {
+                                 $pickedCat .=  $cat."|";
+                         }
+                         $pickedCat[strlen($pickedCat)-1] = ' ';
+			$category_pickedCat = $categoryCat.$pickedCat;
+			//$category_pickedCat = '';
 		} else if ($pickCat == $none){
 			$categoryCat = 'notcategory=';
                         $arrCat = Pathway::getAvailableCategories();
