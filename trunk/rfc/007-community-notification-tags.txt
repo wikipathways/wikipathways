@@ -52,35 +52,39 @@ optimization.
  * Inappropriate edit (potentially false)
  * Incomplete information (lit ref missing)
  * Incomplete information (left blank)
-
-Martijn: Some ideas
  * missing gene / protein database references
  * missing metabolite database refereces
  * missing literature references
  * no interactions defined (i.e. no sticky edges)
  
 ==== Admin Tags ====
- * Community Approved
- 
-	Comment Martijn: Is it possible to attach tags to specific revisions? That would be really cool here.
-		Especially if you can easily find the latest verison of a Pathway that has been Approved.
-
+ * Community Approved (Comment Martijn: Is it possible to attach tags to specific revisions? 
+ 						That would be really cool here. Especially if you can easily find the 
+ 						latest verison of a Pathway that has been Approved.)
  * Scheduled for deletion... by date... contact admin
  * Featured pathway (addded to feature page list)
  
+ Tagging User Pages:
+ * Curator
+ * Admin
+ * User with particular rights/responsibilities 
+ 
 ==== Bot Tags =====
+This information comes directly from the current database or from scripted queries on
+GPML content. So, while some of the ideas below can be done now with a simple SQL
+query, the idea is that the bot would run the query and manage the tag on the pathway page
+
  * New Pathway
- 
- * Recently edited... date
- 
-	Is a tag necessary for this? The database already stores that information,
-	so a simple SQL query can pull that information out dynamically. Then we won't
-	have to 
-	
- * Not updated in over a year... last edit date
+ * Recently edited... date (from database)
+ * Not updated in over a year... last edit date (from database)
 
-	Idem: Is a tag necessary for this? 
-
+ Tagging User Pages:
+ * Active User (e.g., based on activity over past 7 days)
+ * Inactive User (e.g., not logged in for over 6 months)
+ * New User (e.g., first 7 days)
+ * Valued Contributor (e.g., X number of edits)
+ * Pathway Powerhouse (e.g., X number of new pathways)
+ 
 == Additional Planning Ideas ==
 Some notes and ideas for the implementation:
 
