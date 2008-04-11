@@ -67,7 +67,13 @@ optimization.
  Tagging User Pages:
  * Curator
  * Admin
- * User with particular rights/responsibilities 
+ * User with particular rights/responsibilities
+ * Specific user group (Comment Kristina: For Portals, maybe there could be a way to assign all
+ 						new users registered through a certain portal as being part of that community.
+ 						For example if somebody creates an account under the Plant portal, the users
+ 						would automatically be tagged as being part of the plant community. If there isn't
+ 						a way to do this automatically, users could choose from a drop-down list of 
+ 						appropriate tags during registration).
  
 ==== Bot Tags =====
 This information comes directly from the current database or from scripted queries on
