@@ -85,6 +85,7 @@ class Pathway {
 	public function setActiveRevision($revision) {
 		if($this->revision != $revision) {
 			$this->revision = $revision;
+			$this->pwData = null; //Invalidate loaded pathway data
 			$this->updateCache(); //Make sure the cache for this revision is up to date	
 		}
 	}
