@@ -161,7 +161,7 @@ class RecentQueryPage extends QueryPage {
 		$nlink = $skin->makeKnownLinkObj( $nt, $nl, 'action=history' );
 		*/
 
-		return wfSpecialList("(".$diffLink.") . . ".$plink. ": <b>".$date."</b> by <b>".$name."</b>","<i>".$comment."</i>");
+		return wfSpecialList("(".$diffLink.") . . ".$plink. ": <b>".$date."</b> by <b>".$name."</b>","<i>".$text."</i>");
 	}
 }
 ?>
