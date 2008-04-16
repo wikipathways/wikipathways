@@ -22,11 +22,10 @@ function wfPathwayInfo() {
         $wgParser->setFunctionHook( 'pathwayInfo', 'getPathwayInfo' );
 }
 
-function getPathwayInfo( &$parser, $pathway, $id, $type ) {
+function getPathwayInfo( &$parser, $pathway, $type ) {
 	$parser->disableCache();
 	try {
 		$pathway = Pathway::newFromTitle($pathway);
-		$pathway->setActiveRevision($id);
 		$info = new PathwayInfo($parser, $pathway);
 		if(method_exists($info, $type)) {
 			return $info->$type();
