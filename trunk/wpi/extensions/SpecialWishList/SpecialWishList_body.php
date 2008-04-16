@@ -317,10 +317,12 @@ HELP;
 		global $wgOut, $wgLang, $wgUser, $wgScriptPath;
 		$title = $wish->getTitle()->getText();
 		$pathway = $wish->getResolvedPathway();
-		$rev = $pathway->getFirstRevision();
+		if($pathway->exists()) {
+			$rev = $pathway->getFirstRevision();
+			$pwDate = self::getSortTimeDate($rev->getTimestamp());
+			$user = $wgUser->getSkin()->userLink( $rev->getUser(), $rev->getUserText() );
+		}
 		$resDate = self::getSortTimeDate($wish->getResolvedDate());
-		$pwDate = self::getSortTimeDate($rev->getTimestamp());
-		$user = $wgUser->getSkin()->userLink( $rev->getUser(), $rev->getUserText() );
 		if($wish->isResolved()) {
 			$wgOut->addHTML("<tr class='{$altrow2}'><td class='table-green-contentcell'>$title<td class='table-green-contentcell'>$resDate<td>");
 			$wgOut->addWikiText("[[{$pathway->getTitleObject()->getFullText()} | {$pathway->name()} ({$pathway->species()})]]");

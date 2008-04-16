@@ -389,7 +389,7 @@ class Pathway {
 	 * Get first revision for current title
 	 */
 	public function getFirstRevision() {
-		if(!$this->firstRevision) {
+		if($this->exists() && !$this->firstRevision) {
 			$revs = Revision::fetchAllRevisions($this->getTitleObject());
 			$revs->seek($revs->numRows() - 1);
 			$row = $revs->fetchRow();
