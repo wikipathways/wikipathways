@@ -180,27 +180,32 @@ $wgGroupPermissions[ '*' ][ 'ns102_read'] = true;
 $wgGroupPermissions[ 'user' ][ 'ns102_edit'] = true;
 $wgGroupPermissions[ 'user' ][ 'ns102_create'] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns102_move'] = true;
+$wgGroupPermissions[ 'sysop' ][ 'ns102_delete'] = true;
 $wgGroupPermissions[ '*' ][ 'ns103_read'] = true;
 $wgGroupPermissions[ 'user' ][ 'ns103_edit'] = true;
 $wgGroupPermissions[ 'user' ][ 'ns103_create'] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns103_move'] = true;
+$wgGroupPermissions[ 'sysop' ][ 'ns103_delete'] = true;
 $wgGroupPermissions[ '*' ][ 'ns104_read'] = true;
 $wgGroupPermissions[ 'user' ][ 'ns104_edit'] = true;
 $wgGroupPermissions[ 'user' ][ 'ns104_create'] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns104_move'] = true;
+$wgGroupPermissions[ 'sysop' ][ 'ns104_delete'] = true;
 $wgGroupPermissions[ '*' ][ 'ns105_read'] = true;
 $wgGroupPermissions[ 'user' ][ 'ns105_edit'] = true;
 $wgGroupPermissions[ 'user' ][ 'ns105_create'] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns105_move'] = true;
+$wgGroupPermissions[ 'sysop' ][ 'ns105_delete'] = true;
 $wgGroupPermissions[ '*' ][ 'ns106_read'] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns106_edit'] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns106_create'] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns106_move'] = true;
+$wgGroupPermissions[ 'sysop' ][ 'ns106_delete'] = true;
 $wgGroupPermissions[ '*' ][ 'ns107_read'] = true;
 $wgGroupPermissions[ 'user' ][ 'ns107_edit'] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns107_create'] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns107_move'] = true;
-
+$wgGroupPermissions[ 'sysop' ][ 'ns107_delete'] = true;
 //AP20071027 
 # Reject user creation from specific domains
 function abortOnBadDomain($user, $message) {
