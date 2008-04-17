@@ -212,7 +212,7 @@ HTML;
 		$wgOut->addWikiText("== Resolved items ==");
 		$wgOut->addHTML("<table class='prettytable sortable'><tbody>
 				<tr class='table-green-tableheadings'>
-				<td class='table-green-headercell'>Suggested pathway name<td class='table-green-headercell'>Resolved on date<td class='table-green-headercell'>Resolved by pathway name<td class='table-green-headercell'>Suggested on date<td class='table-green-headercell'>Suggested by user");
+				<td class='table-green-headercell'>Suggested pathway name<td class='table-green-headercell'>Suggested by user<td class='table-green-headercell'>Suggested on date<td class='table-green-headercell'>Resolved by pathway name<td class='table-green-headercell'>Resolved by user<td class='table-green-headercell'>Resolved on date");
 		$altrow2 = '';
 		foreach($wishes as $wish) {
 			if($wish->isResolved()) {
@@ -316,17 +316,19 @@ HELP;
 	function createResolvedRow($wish, $altrow2) {
 		global $wgOut, $wgLang, $wgUser, $wgScriptPath;
 		$title = $wish->getTitle()->getText();
+                $user = $wish->getRequestUser();
+                $user = $wgUser->getSkin()->userLink( $user, $user->getName());
 		$pathway = $wish->getResolvedPathway();
 		if($pathway->exists()) {
 			$rev = $pathway->getFirstRevision();
 			$pwDate = self::getSortTimeDate($rev->getTimestamp());
-			$user = $wgUser->getSkin()->userLink( $rev->getUser(), $rev->getUserText() );
+			$resUser = $wgUser->getSkin()->userLink( $rev->getUser(), $rev->getUserText() );
 		}
 		$resDate = self::getSortTimeDate($wish->getResolvedDate());
 		if($wish->isResolved()) {
-			$wgOut->addHTML("<tr class='{$altrow2}'><td class='table-green-contentcell'>$title<td class='table-green-contentcell'>$resDate<td>");
+			$wgOut->addHTML("<tr class='{$altrow2}'><td class='table-green-contentcell'>$title<td class='table-green-contentcell'>$user<td class='table-green-contentcell'>$pwDate<td>");
 			$wgOut->addWikiText("[[{$pathway->getTitleObject()->getFullText()} | {$pathway->name()} ({$pathway->species()})]]");
-			$wgOut->addHTML("<td class='table-green-contentcell'>$pwDate<td class='table-green-contentcell'>$user");
+			$wgOut->addHTML("<td class='table-green-contentcell'>$resUser<td class='table-green-contentcell'>$resDate");
 			if($wish->userCan('delete')) {
 				$wgOut->addHTML("<td class='table-green-contentcell'>" . $this->createButton("cancel.gif", "remove", "Remove this item", $wish->getId()));
 			}
