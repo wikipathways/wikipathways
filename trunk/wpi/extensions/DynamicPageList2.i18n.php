@@ -114,8 +114,9 @@ class DPL2_i18n
              * $1: wrong param value given by user
              * $2: default param value used instead by program
              */
+	     //AP20080416 removed 'WARNING' from no results message
             'dpl2_log_' . self::WARN_WRONGPARAM_INT => "WARNING: Wrong '$0' parameter: '$1'! Using default: '$2' (no limit). Help: <code>$0= <i>empty string</i> (no limit) | n</code>, with <code>n</code> a positive integer.",
-            'dpl2_log_' . self::WARN_NORESULTS => 'WARNING: No results!',
+            'dpl2_log_' . self::WARN_NORESULTS => 'No results!',
             'dpl2_log_' . self::WARN_CATOUTPUTBUTWRONGPARAMS => "WARNING: Add* parameters ('adduser', 'addeditdate', etc.)' and 'includepage' have no effect with 'mode=category'. Only the page namespace/title can be viewed in this mode.",
             /**
              * $0: 'headingmode' value given by user

@@ -3911,7 +3911,8 @@ class DPL2Logger {
 			/**
 			 * @todo add a DPL id to identify the DPL tag that generates the message, in case of multiple DPLs in the page
 			 */
-			return '<p>%DPL-' . ExtDynamicPageList2::VERSION . '-' .  wfMsg('dpl2_log_' . $msgid, $args) . '</p>';
+			//AP20080416: removed ugly text preceeding warning
+			return '<p>' .  wfMsg('dpl2_log_' . $msgid, $args) . '</p>';
 		}
 		return '';
 	}
