@@ -1,0 +1,28 @@
+== GPML indexing ==
+We need for an indexing interface for wikipathways, for:
+- queries (e.g. by interaction)
+- statistics (e.g. gene counts)
+- filtering (e.g. by species, title, number of genes, ontology)
+- listing pathways after rfc 2 is implemented (e.g. to display the titles in the browse page)
+
+A gene count statistic cache has already be implemented, but I think we need a more generic indexing mechanism for GPML. There are some generic XML solutions (like xml relational databases and query languages), we should look into those. 
+
+If they are not useful, we can create our own mechanism, it can't be really hard. We basically need a table that stores all gpml elements and their attributes in the MW database. Since gpml is almost flat, we could use two simple tables for this:
+
+Element
+	id		//unique identifier for the element
+	name		//the unique name of the element (e.g. DataNode)
+	text		//the text between the element tags
+
+Attribute
+	name			//the name of the attribute
+	value			//the value of the attribute
+	element_id		//the element to which this attribute
+belongs
+
+Any child elements that may occur can be concatenated to the parent elements to form a single name (e.g. Pathway.Graphics for the Graphics element of pathway).
+
+These tables should allow us to query individual GPML elements relatively easy. However, I'm not sure if it will be able to index derived information. For example, interactions are not stored as such in GPML, but derived from the GraphId/GraphRef attributes.
+
+We should brainstorm and discuss about this topic, it's a critical feature to implement if we want to extend the functionality of WikiPathways. Any ideas?
+
