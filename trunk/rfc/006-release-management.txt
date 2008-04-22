@@ -92,20 +92,18 @@ Likewise, there are milestone subprojects for pathvisio as well.
 
 === Page & layout data ===
 
-Since all data is copied in both sites, you have to make each change twice. This leads to the problem if 
-person A changes a page on the stable site, person B changes the same page on the test site, and then copies the page
-to the test site before A had the chance to copy to the test site. Changes of person A are lost.
+We've experienced that copying over releasing page & layout data together with the release is cumbersome. 
+So instead we will make changes directly to the stable site, possibly using the test site as a staging ground.
 
-The solution is very simple: we should all agree to make changes to the test site first, and always copy from the test site to the stable site, never in the other direction.
+* Make the change directly on the stable site
+** for most changes
 
-Whether the change is copied immediately or at the next sync is at your own descretion. For simple changes, such as typos, 
-the chance of regression is very small and they may be copied immediately.
+* Make the change on the test site first, then copy over to the main site
+** for changes that require review & discussion before going live
+** for changes that depend on features that are not yet available on the main site
 
-TODO: we should have a system to figure out which pages have changed and still need to be copied.
-AP: We could use the wiki history to track changes to the test site pages since since the last sync.  This could serve as the
-master checklist of changes: some may have already been copied over and some we might not want to copy over, but at least
-we'd have a complete list.  
-MI: Yes, using the recent changes page on the wiki is a good idea.
+In either case this is independent of the release cycle. If you make a change to the test site with
+the intention of copying over to the main site later, it is your responsibility to keep track of this.
 
 === User account data ===
 
@@ -114,10 +112,11 @@ should make two accounts. If you want to block a user on both sites, you have to
 users on the stable site is most important, of course. 
 The test site should have accounts for developers and beta testers only.
 
-AP:  Good point!  How should we go about removing the other accounts from the test site?  Delete? Block?  Make site editable
-only by SysOps?
-MI: I don't think we need to actively block them. 
-What I wanted to say is that we don't need to care about copying account info all the time.
+If there are a lot of blocked users, they might bias the site statistics. Once in a while, blocked users can be deleted.
+You can use e.g. this SQL statement
+	
+	DELETE user, ipblocks FROM user, ipblocks WHERE ipblocks.ipb_user =
+user.user_id;
 
 === applet code ===
 
@@ -251,11 +250,18 @@ This is an overview of the steps needed to update mediawiki:
 	To find the conflicts
 
 	6. Update the MediaWiki database
-	* Comment out extensions in LocalSettings.php
-	* create AdminSettings.php
+	
+	* Comment out extensions in LocalSettings.php:
+	
+	these two commands will be helpful:
+		sed -i "s/^.*require_once.*wpi.*\$/\#&/" LocalSettings.php
+		sed -i "s/^.*require_once.*extensions.*\$/\#&/" LocalSettings.php
+	  
+	* create AdminSettings.php. You need to fill out username and password for the wikipathways admin user.
+	
 	* run php maintenance/update.php
 	* remove AdminSettings.php
-	* restore LocalSettings.php
+	* restore LocalSettings.php (just revert back to the svn version)
 
 	7. Recompile applets (wikipathways-dest, diffapplet)
 
@@ -268,7 +274,7 @@ So, in short:
 						on test site                    on stable site
 ---------------------------------------------------------------------------------
 Pathway content     | may be reset at any time     | important, backed up daily
-other content data  | copy to stable any time      | never edit directly
+other content data  | copy to stable any time      | may edit directly
 user account data   | developers and testers,      | anybody, never sync
 				    | never sync                   | 
 applet code         | pathvisio/trunk              | sync after milestone, tags/milestone_x.0
