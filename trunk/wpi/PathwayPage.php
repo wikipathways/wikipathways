@@ -153,11 +153,20 @@ TEXT;
 	function categoryText() {
 		$categories = $this->pathway->getCategoryHandler()->getCategories();
 	
+		$species = Pathway::getAvailableSpecies();
+		
 		foreach($categories as $c) {
 			$cat = Title::newFromText($c, NS_CATEGORY);
 			$name = $cat->getText();
-			$link = $cat->getFullText();
-			$catlist .= "* [[:$link|$name]]\n";
+			if(in_array($name, $species)) {
+				$browseCat = '&browseCat=All+Categories';
+				$browse = "&browse=" . urlencode($name);
+			} else {
+				$browse = '&browse=All+Species';
+				$browseCat = "&browseCat=" . urlencode($name);
+			}
+			$link = SITE_URL . "/index.php?title=Special:BrowsePathwaysPage{$browse}{$browseCat}";
+			$catlist .= "* <span class='plainlinks'>[{$link} {$name}]</span>\n";
 		}
 		$button = $this->editButton('javascript:;', 'Edit categories', 'catEdit');
 		$title = $this->pathway->getTitleObject()->getText();
