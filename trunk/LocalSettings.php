@@ -264,7 +264,7 @@ require_once('wpi/extensions/RecentPathwayChanges/RecentPathwayChanges.php');
 require_once('wpi/extensions/ParserFunctions/ParserFunctions.php' );
 require_once('wpi/extensions/NamespacePermissions.php' );
 require_once('wpi/extensions/CheckGpmlOnSave.php' );
-
+require_once('wpi/extensions/CreateUserPage.php' );
 require_once('wpi/extensions/recaptcha/ReCaptcha.php'); 
 
 /* This shouldn't be in LocalSettings.php, since that's checked
