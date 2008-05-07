@@ -8,8 +8,8 @@ $wgHooks['AddNewAccount'][] = 'wfCreateUserPage';
 function wfCreateUserPage($user, $byEmail = false) {
 	global $wgLoadBalancer;
 	
+	//Create user page
 	$tempCall = "{{subst:Template:UserPage|{$user->getName()}|{$user->getRealName()}}}";
-	
 	$title = $user->getUserPage();
 	$userPage = new Article($title, 0);
 	$succ = true;
@@ -17,6 +17,16 @@ function wfCreateUserPage($user, $byEmail = false) {
 	if($succ) {
 		$wgLoadBalancer->commitAll();
 	}
-
+	
+	//Create talk page
+	$tempCall = "{{subst:Template:TalkPage|{$user->getName()}}}";
+	$title = $user->getTalkPage();
+	$userPage = new Article($title, 0);
+	$succ = true;
+	$succ =  $userPage->doEdit($tempCall, "Initial user page");
+	if($succ) {
+		$wgLoadBalancer->commitAll();
+	}
+	
 	return true;
 }
