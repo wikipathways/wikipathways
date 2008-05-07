@@ -289,6 +289,34 @@ class Pathway {
 	}
 	
 	/**
+	 * Find out if there exists a pathway that has a
+	 * case insensitive match with the name of this
+	 * pathway object. This method is necessary to perform
+	 * a case insensitive search on pathways, since MediaWiki
+	 * titles are case sensitive.
+	 * @return A title object representing the page title of
+	 * the found pathway in the proper case, or null if no
+	 * matching pathway was found
+	 */
+	public function findCaseInsensitive() {
+			$title = strtolower($this->getTitleObject()->getDbKey());
+			$dbr =& wfGetDB(DB_SLAVE);
+			$ns = NS_PATHWAY;
+			$query = "SELECT page_id FROM page
+					WHERE page_namespace = $ns 
+					AND page_is_redirect = 0 
+					AND LOWER(page_title) = '$title'";
+			$res = $dbr->query($query, __METHOD__);
+			$title = null;
+			if($res->numRows() > 0) {
+				$row = $dbr->fetchRow($res);
+				$title = Title::newFromID($row[0]);
+			}
+			$dbr->freeResult($res);
+			return $title;
+	}
+	
+	/**
 	 * Get the GPML code for this pathway (the active revision will be
 	 * used, see Pathway::getActiveRevision)
 	 */	 
