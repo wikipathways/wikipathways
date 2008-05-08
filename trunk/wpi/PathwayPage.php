@@ -196,10 +196,7 @@ TEXT;
 	}
 	
 	static function getDownloadURL($pathway, $type) {
-		if($pathway->getActiveRevision()) {
-			$oldid = "&oldid={$pathway->getActiveRevision()}";
-		}
-		return WPI_SCRIPT_URL . "?action=downloadFile&type=$type&pwTitle={$pathway->getTitleObject()->getFullText()}{$oldid}";
+		return WPI_SCRIPT_URL . "?action=downloadFile&type=$type&pwTitle={$pathway->getTitleObject()->getFullText()}";
 	}
 
 	static function editDropDown($pathway) {
