@@ -11,16 +11,13 @@ class PathwayData {
 	private $gpml;
 	private $interactions;
 	private $byGraphId;
-	private $revision;
 	
 	/**
 	 * Creates an instance of PathwayData, containing
 	 * the GPML code parsed as SimpleXml object
 	 * \param pathway	The pathway to get the data for
-	 * \param revision	The revision of the pathway (optional,
-	 * if not specified, the newest revision will be used)
 	 **/
-	function __construct($pathway, $revision = 0) {
+	function __construct($pathway) {
 		$this->pathway = $pathway;
 		$this->loadGpml();
 	}
@@ -152,9 +149,9 @@ class PathwayData {
 		}
 	}
 	
-	private function loadGpml($revision = 0) {
+	private function loadGpml() {
 		if(!$this->gpml) {
-			$gpml = $this->pathway->getGpml($revision);
+			$gpml = $this->pathway->getGpml();
 
 			$this->gpml = new SimpleXMLElement($gpml);
 
