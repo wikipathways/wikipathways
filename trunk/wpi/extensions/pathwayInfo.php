@@ -22,11 +22,10 @@ function wfPathwayInfo() {
         $wgParser->setFunctionHook( 'pathwayInfo', 'getPathwayInfo' );
 }
 
-function getPathwayInfo( &$parser, $pathway, $id, $type ) {
+function getPathwayInfo( &$parser, $pathway, $type ) {
 	$parser->disableCache();
 	try {
 		$pathway = Pathway::newFromTitle($pathway);
-		$pathway->setActiveRevision($id);
 		$info = new PathwayInfo($parser, $pathway);
 		if(method_exists($info, $type)) {
 			return $info->$type();
@@ -87,7 +86,6 @@ TABLE;
 		}
 		//Sort and iterate over all elements
 		sort($nodes);
-		$i = 0;
 		foreach($nodes as $datanode) {
 			$doShow = $i++ < $nrShow - 1 ? "" : "style='display:none'";
 			$table .= "<tr $doShow>";
@@ -98,7 +96,7 @@ TABLE;
 			$xref = $datanode->Xref;
 			$link = getXrefLink($xref);
 			if($link) {
-				$link = "<a href='$link'>{$xref['ID']} ({$xref['Database']})</a>";
+				$link = "<a href='$link'>{$xref[ID]} ({$xref[Database]})</a>";
 			} else {
 				$link = $xref['ID'];
 				if($xref['Database'] != '') {

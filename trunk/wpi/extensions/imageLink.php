@@ -1,4 +1,7 @@
 <?php
+
+define("JS_OPEN_EDITOR_APPLET", "JS_OPEN_EDITOR_APPLET");
+
 $wgExtensionFunctions[] = 'wfImageLink';
 $wgHooks['LanguageGetMagic'][]  = 'wfImageLink_Magic';
 
@@ -106,18 +109,19 @@ function renderImageLink( &$parser, $img, $width = 200, $align = '', $caption = 
                             $boxheight = intval( $height * $boxwidth / $width );
                     }
             }
-
             if ( $error ) {
                     $s .= htmlspecialchars( $error );
+                    $zoomicon = '';
             } elseif( !$img->exists() ) {
                     $s .= "Image does not exist";
+                    $zoomicon = '';
             } else {
                     $s .= '<a href="'.$href.'" class="internal" title="'.$alt.'">'.
                             '<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
                             'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
                             'longdesc="'.$href.'" class="thumbimage" /></a>';
             }
-            $s .= '  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
+            $s .= '  <div class="thumbcaption"'.$textalign.'>'.$zoomicon.$label."</div></div></div>";
             return str_replace("\n", ' ', $s);
             //return $s;
     }

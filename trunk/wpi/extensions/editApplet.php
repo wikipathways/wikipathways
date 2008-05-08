@@ -83,7 +83,6 @@ PRELOAD;
 			$loaderAdded = true;
 		}
 		**/
-		$scripts = '';
 		if(!$scriptsAdded) {
 			$scripts = scriptTag('', JS_SRC_PROTOTYPE) . scriptTag('', JS_SRC_RESIZE) . scriptTag('', JS_SRC_EDITAPPLET);
 			$scriptsAdded = true;

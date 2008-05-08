@@ -97,7 +97,7 @@ TEXT;
 			$text = nl2br($text);
 			$text = PathwayPage::formatPubMed($text);
 			if(!$text) continue;
-			$comments = "; " . $comment['Source'] . " : " . $text . "\n";
+			$comments .= "; " . $comment['Source'] . " : " . $text . "\n";
 		}
 		if($comments) {
 			$description .= "\n=== Comments ===\n<div id='comments'>\n$comments<div>";
@@ -142,7 +142,6 @@ TEXT;
 		//No edit button for now, show help on how to add bibliography instead
 		//$button = $this->editButton('javascript:;', 'Edit bibliography', 'bibEdit');
 		#&$parser, $idClick = 'direct', $idReplace = 'pwThumb', $new = '', $pwTitle = '', $type = 'editor'
-		$help = '';
 		if($wgUser->isLoggedIn()) {
 			$help = "{{Template:Help:LiteratureReferences}}";
 		}
@@ -156,7 +155,6 @@ TEXT;
 	
 		$species = Pathway::getAvailableSpecies();
 		
-		$catlist = '';
 		foreach($categories as $c) {
 			$cat = Title::newFromText($c, NS_CATEGORY);
 			$name = $cat->getText();
@@ -195,10 +193,7 @@ TEXT;
 	}
 	
 	static function getDownloadURL($pathway, $type) {
-		if($pathway->getActiveRevision()) {
-			$oldid = "&oldid={$pathway->getActiveRevision()}";
-		}
-		return WPI_SCRIPT_URL . "?action=downloadFile&type=$type&pwTitle={$pathway->getTitleObject()->getFullText()}{$oldid}";
+		return WPI_SCRIPT_URL . "?action=downloadFile&type=$type&pwTitle={$pathway->getTitleObject()->getFullText()}";
 	}
 
 	static function editDropDown($pathway) {
@@ -230,9 +225,11 @@ TEXT;
 		$cytoscape = "<li><a href='" . WPI_SCRIPT_URL . "?action=launchCytoscape&pwTitle=$pwTitle'>Open in Cytoscape</a></li>";
 		
 		foreach(array_keys($download) as $key) {
-			$downloadlist = "<li><a href='{$download[$key]}'>$key</a></li>";
+			$downloadlist .= "<li><a href='{$download[$key]}'>$key</a></li>";
 		}
 		
+		$drop = '<div style="float:right;">' . $drop . '</div>';
+		$drop = "<a href='\#' class='button'><span>$drop</span></a>";
 		$dropdown = <<<DROPDOWN
 <ul id="nav" name="nav">		
 <li><a href="#nogo2" class="button buttondown"><span>Download</span></a>

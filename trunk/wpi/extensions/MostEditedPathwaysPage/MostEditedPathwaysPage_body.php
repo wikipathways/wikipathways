@@ -1,6 +1,6 @@
 <?php
 require_once("QueryPage.php");
-require_once("wpi/wpi.php");
+require_once($wgScriptPath . "wpi/wpi.php");
 
 class MostEditedPathwaysPage extends SpecialPage
 {		

@@ -64,8 +64,6 @@ $wgDBprefix         = "";
 
 # Load passwords/usernames
 require('pass.php');
-# Load globals
-require_once('wpi/globals.php');
 
 # Schemas for Postgres
 $wgDBmwschema       = "mediawiki";

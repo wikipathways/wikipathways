@@ -85,7 +85,6 @@ class Pathway {
 	public function setActiveRevision($revision) {
 		if($this->revision != $revision) {
 			$this->revision = $revision;
-			$this->pwData = null; //Invalidate loaded pathway data
 			$this->updateCache(); //Make sure the cache for this revision is up to date	
 		}
 	}
@@ -378,7 +377,6 @@ class Pathway {
 	public function getFileTitle($fileType) {
 		$prefix = $this->getFilePrefix();
 		//Append revision number if it's not the most recent
-		$rev_stuffix = '';
 		if($this->revision) {
 			$rev_stuffix = "_" . $this->revision;
 		}

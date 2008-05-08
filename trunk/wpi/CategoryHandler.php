@@ -101,7 +101,7 @@ class CategoryHandler {
                                 $implicit_groupby as value
                            FROM $categorylinks
                            GROUP BY 1,2,3,4";
-                $res = $dbr->query($sqlCat);
+                $res = $dbr->query($sqlCat, get_class($this) . '::getAvailableCategories');
                 while ($obj =  $dbr->fetchObject( $res ) ) {
                         $cat = str_replace('_', ' ', $obj->title);
 			array_push($arrayCat, $cat);
