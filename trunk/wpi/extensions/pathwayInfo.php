@@ -86,6 +86,7 @@ TABLE;
 		}
 		//Sort and iterate over all elements
 		sort($nodes);
+		$i = 0;
 		foreach($nodes as $datanode) {
 			$doShow = $i++ < $nrShow - 1 ? "" : "style='display:none'";
 			$table .= "<tr $doShow>";
@@ -96,7 +97,7 @@ TABLE;
 			$xref = $datanode->Xref;
 			$link = getXrefLink($xref);
 			if($link) {
-				$link = "<a href='$link'>{$xref[ID]} ({$xref[Database]})</a>";
+				$link = "<a href='$link'>{$xref['ID']} ({$xref['Database']})</a>";
 			} else {
 				$link = $xref['ID'];
 				if($xref['Database'] != '') {

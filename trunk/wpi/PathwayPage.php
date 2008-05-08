@@ -86,6 +86,7 @@ TEXT;
 		$description .= "{{#editApplet:descEdit|descr|0|$title|description|0|250px}}\n";
 		
 		//Get additional comments
+		$comments = '';
 		foreach($this->data->getGpml()->Comment as $comment) {
 			if(	$comment['Source'] == COMMENT_WP_DESCRIPTION ||
 				$comment['Source'] == COMMENT_WP_CATEGORY)
@@ -142,6 +143,7 @@ TEXT;
 		//No edit button for now, show help on how to add bibliography instead
 		//$button = $this->editButton('javascript:;', 'Edit bibliography', 'bibEdit');
 		#&$parser, $idClick = 'direct', $idReplace = 'pwThumb', $new = '', $pwTitle = '', $type = 'editor'
+		$help = '';
 		if($wgUser->isLoggedIn()) {
 			$help = "{{Template:Help:LiteratureReferences}}";
 		}
@@ -155,6 +157,7 @@ TEXT;
 	
 		$species = Pathway::getAvailableSpecies();
 		
+		$catlist = '';
 		foreach($categories as $c) {
 			$cat = Title::newFromText($c, NS_CATEGORY);
 			$name = $cat->getText();
@@ -224,12 +227,11 @@ TEXT;
 		$pwTitle = $pathway->getTitleObject()->getFullText();
 		$cytoscape = "<li><a href='" . WPI_SCRIPT_URL . "?action=launchCytoscape&pwTitle=$pwTitle'>Open in Cytoscape</a></li>";
 		
+		$downloadlist = '';
 		foreach(array_keys($download) as $key) {
 			$downloadlist .= "<li><a href='{$download[$key]}'>$key</a></li>";
 		}
 		
-		$drop = '<div style="float:right;">' . $drop . '</div>';
-		$drop = "<a href='\#' class='button'><span>$drop</span></a>";
 		$dropdown = <<<DROPDOWN
 <ul id="nav" name="nav">		
 <li><a href="#nogo2" class="button buttondown"><span>Download</span></a>

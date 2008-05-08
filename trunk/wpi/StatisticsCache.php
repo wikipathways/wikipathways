@@ -135,9 +135,10 @@ class StatisticsCache
 		{
 			while (!feof($file)) 
 			{
-				$line = fgets($file);
-				$explodedLine = explode("\t", trim ($line));
-				$data[$explodedLine[0]] = $explodedLine[1];
+				if($line = trim(fgets($file))) {
+					$explodedLine = explode("\t", $line);
+					$data[$explodedLine[0]] = $explodedLine[1];
+				}
 			}
 		}
 		return $data;
