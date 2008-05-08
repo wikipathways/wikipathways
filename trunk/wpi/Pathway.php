@@ -377,6 +377,7 @@ class Pathway {
 	public function getFileTitle($fileType) {
 		$prefix = $this->getFilePrefix();
 		//Append revision number if it's not the most recent
+		$rev_stuffix = '';
 		if($this->revision) {
 			$rev_stuffix = "_" . $this->revision;
 		}
