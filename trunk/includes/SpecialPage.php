@@ -128,7 +128,6 @@ class SpecialPage
 		'Movepage'                  => array( 'UnlistedSpecialPage', 'Movepage' ),
 		'Blockme'                   => array( 'UnlistedSpecialPage', 'Blockme' ),
 		'Resetpass'                 => array( 'UnlistedSpecialPage', 'Resetpass' ),
-		'Booksources'               => array( 'SpecialPage', 'SpecialBookSources', 'block' ),
 		'Categories'                => array( 'SpecialPage', 'Categories', 'block' ),
 		'Export'                    => array( 'SpecialPage', 'Export', 'block' ),
 		'Version'                   => array( 'SpecialPage', 'Version', 'block' ),
@@ -145,7 +144,6 @@ class SpecialPage
 		'Listredirects'             => array( 'SpecialPage', 'Listredirects', 'block' ),
 		'Revisiondelete'            => array( 'UnlistedSpecialPage', 'Revisiondelete', 'deleterevision' ),
 		'Unusedtemplates'           => array( 'SpecialPage', 'Unusedtemplates', 'block' ),
-		'Randomredirect'            => array('SpecialPage', 'SpecialRandomredirect', 'block' ),
 		'Withoutinterwiki'          => array( 'SpecialPage', 'Withoutinterwiki', 'block' ),
 		'Filepath'                  => array( 'SpecialPage', 'Filepath', 'block' ),
 
