@@ -293,6 +293,11 @@ Isbndb account: thomas.kelder@bigcat.unimaas.nl / BigC0w~wiki
 $isbndb_access_key = 'BR5539IJ'; 
 require_once('extensions/Biblio.php');
 
+//Interwiki extension
+require_once('wpi/extensions/Interwiki/SpecialInterwiki.php');
+$wgGroupPermissions['*']['interwiki'] = false;
+$wgGroupPermissions['sysop']['interwiki'] = true;
+
 ##Cascading Style Sheets
 #Default is {$wgScriptPath}/skins
 
