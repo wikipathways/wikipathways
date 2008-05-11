@@ -451,8 +451,9 @@ div.floatleft p { font-style: italic; }
 /* thumbnails */
 div.thumb {
 	margin-bottom: .5em;
-	border-style: solid;
-	border-color: white;
+	border: none;
+	//border-style: solid;
+	//border-color: white;
 	width: auto;
 }
 div.thumbinner {
