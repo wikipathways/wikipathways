@@ -14,7 +14,7 @@ class Pathway {
 		'Drosophila melanogaster' => 'Dm',
 		'Caenorhabditis elegans' => 'Ce',
 		'Saccharomyces cerevisiae' => 'Sc',
-		'Danio rero' => 'Dr',
+		'Danio rerio' => 'Dr',
 	);
 	private static $spCode2Name; //TODO: complete species
 	
