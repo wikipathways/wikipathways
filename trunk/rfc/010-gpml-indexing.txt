@@ -26,3 +26,32 @@ These tables should allow us to query individual GPML elements relatively easy. 
 
 We should brainstorm and discuss about this topic, it's a critical feature to implement if we want to extend the functionality of WikiPathways. Any ideas?
 
+== Using Lucene ==
+Maybe it's a better idea to use Lucene, since this is a robust, scalable framework, that has everything we need. This would probably be better than building our own indexing from scratch.
+
+See http://lucene.apache.org/.
+
+An initial design of an indexer using Lucene, which consists of two parts:
+
+1. Indexer
+Create a java program that runs as deamon and updates the index periodically:
+1. Use XML-RPC to check recent changes
+2. Update the cache of the the changed pathways
+2. Update the index with the recently changed pathways
+
+The indexer tool caches a local copy of the most recent version of all pathways. We could use the code from the recent student project for this (does that already automatically update the cache based on recent changes?).
+
+The main reason I want to do this part in Java is that we can reuse a lot of code and we can use the synonym databases directly to enrich the index with cross-references.
+By using xml-rpc to get the pathways, we can even put the indexer on a dedicated machine that periodically copies over the updated index to the main server.
+
+TODO:
+- What is the performance of updating the index (e.g. how long does it take to update the index when a single pathway is changed). We need to know this for finetuning the poll interval of the indexer
+- We need to specify what we fields we want the index to contain.
+
+2. Searching
+Once we have a program that creates and updates the index files, we can build different interfaces for searching the wiki. Lucene has bindings to languages other than Java, which we will need. Examples of interfaces are:
+
+- XML-RPC: Update the xml-rpc script to contain methods like 'getPathwaysByGene(gene)'. We will need to query the Lucene indices from php. The php Zend framework provides this functionality:
+http://framework.zend.com/manual/en/zend.search.lucene.html#zend.search.lucene.introduction
+
+- Web page: We should create a search page on the wiki. We could use php for this, but maybe it's even easier to do it with the google web toolkit.
