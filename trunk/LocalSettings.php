@@ -232,6 +232,7 @@ $wgDebugLogFile = WPI_SCRIPT_PATH . '/tmp/wikipathwaysdebug.txt';
 ##Extensions
 require_once('extensions/analytics.php'); //Google Analytics support
 require_once('extensions/inputbox.php');
+require_once('extensions/GoogleGroups.php');
 //require_once('extensions/ParserFunctions.php');
 //require_once('wpi/extensions/redirectImage.php'); //Redirect all image pages to file
 require_once('wpi/extensions/PathwayOfTheDay.php');
