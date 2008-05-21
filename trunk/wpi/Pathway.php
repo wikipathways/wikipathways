@@ -518,14 +518,23 @@ class Pathway {
 			//Regex to fetch title from "* [[title|...]]"
 			// \*\ *\[\[(.*)\]\]
 			$title = preg_replace('/\*\ *\[\[(.*)\]\]/', '$1', $title);
-			try {
-				//If pathway creation works and the pathway exists, add to array
-				$pathway = Pathway::newFromTitle($title);
-				if(!is_null($pathway) && $pathway->exists()) {
-					$pathwayList[] = $pathway;
+			$title = Title::newFromText($title);
+			if($title != null) {
+				try {
+					$article = new Article($title);
+					//Follow redirects
+					if($article->isRedirect()) {
+						$redirect = $article->fetchContent();
+						$title = Title::newFromRedirect($redirect);
+					}
+					//If pathway creation works and the pathway exists, add to array
+					$pathway = Pathway::newFromTitle($title);
+					if(!is_null($pathway) && $pathway->exists()) {
+						$pathwayList[] = $pathway;
+					}
+				} catch(Exception $e) {
+					//Ignore the pathway
 				}
-			} catch(Exception $e) {
-				//Ignore the pathway
 			}
 		}
 		return $pathwayList;
