@@ -16,28 +16,32 @@ if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
 	$species = $_GET['species'];
 	$fileType = $_GET['fileType'];
 	$listPage = $_GET['listPage'];
-
+	$onlyCategorized = $_GET['onlyCategorized'];
 	if($species) {
-		batchDownload($species, $fileType, $listPage);
+		batchDownload($species, $fileType, $listPage, $onlyCategorized);
 	}
 }
 
 function createDownloadLinks($input, $argv, &$parser) {
 	$fileType = $argv['filetype'];
 	$listPage = $argv['listpage'];
+	$onlyCategorized = $argv['onlycategorized'];
 	if($listPage) {
 		$listParam = '&listPage=' . $listPage;
+	}
+	if($onlyCategorized) {
+		$onlyCategorizedParam = '&onlyCategorized=true';
 	}
 	
 	foreach(Pathway::getAvailableSpecies() as $species) {
 		$html .= tag('li', 
-					tag('a',$species,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType$listParam", 'target'=>'_new')));
+					tag('a',$species,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType$listParam$onlyCategorizedParam", 'target'=>'_new')));
 	}
 	$html = tag('ul', $html);
 	return $html;
 }
 
-function batchDownload($species, $fileType, $listPage = '') {
+function batchDownload($species, $fileType, $listPage = '', $onlyCategorized = false) {
 /*
 	if(!(
 		$fileType == FILETYPE_GPML ||
@@ -61,6 +65,23 @@ function batchDownload($species, $fileType, $listPage = '') {
 		$pathways = getPathways(array(
 			"page_title LIKE '$species%'"		
 		));
+	}
+	//Filter out non categorized pathways
+	if($onlyCategorized) {
+		$allCats = CategoryHandler::getAvailableCategories();
+		$allCats = str_replace(' ', '_', $allCats);
+		$filtered = array();
+		foreach($pathways as $p) {
+			$ch = $p->getCategoryHandler();
+			$cats = $ch->getCategories();
+			foreach($cats as $c) {
+				if(in_array($c, $allCats)) {
+					$filtered[] = $p;
+					break;
+				}
+			}
+		}
+		$pathways = $filtered;
 	}
 	doDownload($pathways, $fileType); //Exits script
 }
