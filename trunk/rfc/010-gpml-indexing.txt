@@ -5,9 +5,13 @@ We need for an indexing interface for wikipathways, for:
 - filtering (e.g. by species, title, number of genes, ontology)
 - listing pathways after rfc 2 is implemented (e.g. to display the titles in the browse page)
 
-A gene count statistic cache has already be implemented, but I think we need a more generic indexing mechanism for GPML. There are some generic XML solutions (like xml relational databases and query languages), we should look into those. 
+A gene count statistic cache has already be implemented, but I think we need a more generic 
+indexing mechanism for GPML. There are some generic XML solutions (like xml relational databases 
+and query languages), we should look into those. 
 
-If they are not useful, we can create our own mechanism, it can't be really hard. We basically need a table that stores all gpml elements and their attributes in the MW database. Since gpml is almost flat, we could use two simple tables for this:
+If they are not useful, we can create our own mechanism, it can't be really hard. We basically 
+need a table that stores all gpml elements and their attributes in the MW database. Since gpml 
+is almost flat, we could use two simple tables for this:
 
 Element
 	id		//unique identifier for the element
@@ -20,14 +24,37 @@ Attribute
 	element_id		//the element to which this attribute
 belongs
 
-Any child elements that may occur can be concatenated to the parent elements to form a single name (e.g. Pathway.Graphics for the Graphics element of pathway).
+Any child elements that may occur can be concatenated to the parent elements to form a single 
+name (e.g. Pathway.Graphics for the Graphics element of pathway).
 
-These tables should allow us to query individual GPML elements relatively easy. However, I'm not sure if it will be able to index derived information. For example, interactions are not stored as such in GPML, but derived from the GraphId/GraphRef attributes.
+These tables should allow us to query individual GPML elements relatively easy. However, I'm 
+not sure if it will be able to index derived information. For example, interactions are not 
+stored as such in GPML, but derived from the GraphId/GraphRef attributes.
 
-We should brainstorm and discuss about this topic, it's a critical feature to implement if we want to extend the functionality of WikiPathways. Any ideas?
+We should brainstorm and discuss about this topic, it's a critical feature to implement if we 
+want to extend the functionality of WikiPathways. Any ideas?
+
+== Queries to Support ==
+Here are few queries that we might want to support. These should help define the requirements
+for the tables and implementation:
+
+1. Web service method: getInteractions(speciesList, nodeList, nodeTypes, edgeTypes)
+This method would allow programs to extract out parts of pathways from entire archives. 
+For example: 
+* I want all inhibitory relationships from human = getInteractions(human, null, null, inhibitory)
+* I want all reactions involving TP53 and SRC = getInteractions(null, [TP53,SRC], null, null)
+* I want all reactions involving RNA from mouse = getInteractions(mouse, null, RNA, null)
+These methods could return snippets of GPML that could be viewed in Cytoscape, for example.
+Ideally, you could view the returned reactions as Groups based on node and edge types, such
+that all 'inhibitory' reactions between 'proteins' could be represented by a set of group nodes and 
+a single inhibition edge. Then data could be mapped to the all the children nodes and averaged up
+to the parent group node. Viewing genome/proteome data summarized on grouped interactions across
+all pathways would provide a very powerful perspective on the dataset, e.g., highlighting the 
+activation of classes of reactions.
 
 == Using Lucene ==
-Maybe it's a better idea to use Lucene, since this is a robust, scalable framework, that has everything we need. This would probably be better than building our own indexing from scratch.
+Maybe it's a better idea to use Lucene, since this is a robust, scalable framework, that has 
+everything we need. This would probably be better than building our own indexing from scratch.
 
 See http://lucene.apache.org/.
 
@@ -39,19 +66,28 @@ Create a java program that runs as deamon and updates the index periodically:
 2. Update the cache of the the changed pathways
 2. Update the index with the recently changed pathways
 
-The indexer tool caches a local copy of the most recent version of all pathways. We could use the code from the recent student project for this (does that already automatically update the cache based on recent changes?).
+The indexer tool caches a local copy of the most recent version of all pathways. We could use 
+the code from the recent student project for this (does that already automatically update the 
+cache based on recent changes?).
 
-The main reason I want to do this part in Java is that we can reuse a lot of code and we can use the synonym databases directly to enrich the index with cross-references.
-By using xml-rpc to get the pathways, we can even put the indexer on a dedicated machine that periodically copies over the updated index to the main server.
+The main reason I want to do this part in Java is that we can reuse a lot of code and we can 
+use the synonym databases directly to enrich the index with cross-references.
+By using xml-rpc to get the pathways, we can even put the indexer on a dedicated machine that 
+periodically copies over the updated index to the main server.
 
 TODO:
-- What is the performance of updating the index (e.g. how long does it take to update the index when a single pathway is changed). We need to know this for finetuning the poll interval of the indexer
+- What is the performance of updating the index (e.g. how long does it take to update the index 
+when a single pathway is changed). We need to know this for finetuning the poll interval of the indexer
 - We need to specify what we fields we want the index to contain.
 
 2. Searching
-Once we have a program that creates and updates the index files, we can build different interfaces for searching the wiki. Lucene has bindings to languages other than Java, which we will need. Examples of interfaces are:
+Once we have a program that creates and updates the index files, we can build different interfaces 
+for searching the wiki. Lucene has bindings to languages other than Java, which we will need. 
+Examples of interfaces are:
 
-- XML-RPC: Update the xml-rpc script to contain methods like 'getPathwaysByGene(gene)'. We will need to query the Lucene indices from php. The php Zend framework provides this functionality:
+- XML-RPC: Update the xml-rpc script to contain methods like 'getPathwaysByGene(gene)'. We will 
+need to query the Lucene indices from php. The php Zend framework provides this functionality:
 http://framework.zend.com/manual/en/zend.search.lucene.html#zend.search.lucene.introduction
 
-- Web page: We should create a search page on the wiki. We could use php for this, but maybe it's even easier to do it with the google web toolkit.
+- Web page: We should create a search page on the wiki. We could use php for this, but maybe it's 
+even easier to do it with the google web toolkit.
