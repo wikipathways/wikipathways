@@ -223,7 +223,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
     </td></tr>
     <tr align="left">
     <td>
-	<input type="checkbox" name="as_occt" value="title" checked>titles only
+	<input type="checkbox" name="as_occt" value="title">titles only
 	</td>
     </tr>
     </table>
