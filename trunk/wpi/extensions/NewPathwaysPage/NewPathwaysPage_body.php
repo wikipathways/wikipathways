@@ -52,8 +52,8 @@ class RCQueryPage extends QueryPage {
 		$recentchanges = $dbr->tableName( 'recentchanges');
 
 		return
-			"SELECT 'Newpathwaypages' as type,
-			        page_namespace as namespace,
+			"SELECT DISTINCT 'Newpathwaypages' as type,
+			        rc_namespace as namespace,
 			        page_title as title,
 				rc_user as user_id,
 				rc_user_text as utext,
@@ -62,7 +62,7 @@ class RCQueryPage extends QueryPage {
 			WHERE page_title=rc_title 
 			AND rc_new=1
 			AND rc_bot=0 
-			AND page_namespace=".NS_PATHWAY." ";	
+			AND rc_namespace=".NS_PATHWAY." ";	
 	}
 
 	function formatResult( $skin, $result ) {
