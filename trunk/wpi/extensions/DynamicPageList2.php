@@ -2337,16 +2337,12 @@ class ExtDynamicPageList2
                     // If cl_sortkey is null (uncategorized page), generate a sortkey in the usual way (full page name, underscores replaced with spaces).
                     // UTF-8 created problems with non-utf-8 MySQL databases
 					//see line 2011 (order method sortkey requires category
-/*					if (in_array('category',$aOrderMethods)) {
+					if (in_array('category',$aOrderMethods)) {
 						$sSqlSortkey = ", IFNULL(cl_head.cl_sortkey, REPLACE(REPLACE(CONCAT( IF(".$sPageTable.".page_namespace=0, '', CONCAT(" . $sSqlNsIdToText . ", ':')), ".$sPageTable.".page_title), '_', ' '),'♣','⣣')) ".$sOrderCollation." as sortkey";
 					}
 					else {
 						$sSqlSortkey = ", IFNULL(cl0.cl_sortkey, REPLACE(REPLACE(CONCAT( IF(".$sPageTable.".page_namespace=0, '', CONCAT(" . $sSqlNsIdToText . ", ':')), ".$sPageTable.".page_title), '_', ' '),'♣','⣣')) ".$sOrderCollation." as sortkey";
 					}
- */
-                              /**AP20070503*/
-                                $sSqlSortkey = ", IFNULL(cl_head.cl_sortkey, page_title) as sortkey";
- 
                     break;
                 case 'titlewithoutnamespace':
                     $sSqlSortkey = ", REPLACE(page_title,'♣','⣣') ".$sOrderCollation." as sortkey";
@@ -2362,19 +2358,16 @@ class ExtDynamicPageList2
                         foreach($aStrictNs as $iNs => $sNs)
                             $sSqlNsIdToText .= ' WHEN ' . intval( $iNs ) . " THEN " . $dbr->addQuotes( $sNs ) ;
                         $sSqlNsIdToText .= ' END';
- /*                       $sSqlSortkey = ", REPLACE(REPLACE(CONCAT( IF(pl_namespace=0, '', CONCAT(" . $sSqlNsIdToText . ", ':')), pl_title), '_', ' '),'♣','⣣') ".$sOrderCollation." as sortkey";
-*/                    }
+                        $sSqlSortkey = ", REPLACE(REPLACE(CONCAT( IF(pl_namespace=0, '', CONCAT(" . $sSqlNsIdToText . ", ':')), pl_title), '_', ' '),'♣','⣣') ".$sOrderCollation." as sortkey";
+                    }
                     else {
                         $sSqlNsIdToText = 'CASE '.$sPageTable.'.page_namespace';
                         foreach($aStrictNs as $iNs => $sNs)
                             $sSqlNsIdToText .= ' WHEN ' . intval( $iNs ) . " THEN " . $dbr->addQuotes( $sNs ) ;
                         $sSqlNsIdToText .= ' END';
                         // Generate sortkey like for category links. UTF-8 created problems with non-utf-8 MySQL databases
-/*                        $sSqlSortkey = ", REPLACE(REPLACE(CONCAT( IF(".$sPageTable.".page_namespace=0, '', CONCAT(" . $sSqlNsIdToText . ", ':')), ".$sPageTable.".page_title), '_', ' '),'♣','⣣') ".$sOrderCollation." as sortkey";
- */                   }
- 
-                               /**AP20070503*/
-                                $sSqlSortkey = ", page_title as sortkey";
+                        $sSqlSortkey = ", REPLACE(REPLACE(CONCAT( IF(".$sPageTable.".page_namespace=0, '', CONCAT(" . $sSqlNsIdToText . ", ':')), ".$sPageTable.".page_title), '_', ' '),'♣','⣣') ".$sOrderCollation." as sortkey";
+                   }
                      break;
                 case 'user':
                     $sSqlRevisionTable = $sRevisionTable . ', ';
@@ -2756,7 +2749,9 @@ class ExtDynamicPageList2
                         $sSqlWhere .= 'page_touched';
                         break;
                     case 'sortkey':
-                    case 'title':
+                    case 'title': //AP20080615: make sort case-insensitive
+                        $sSqlWhere .= 'UPPER(page_title)';
+                        break;
                     case 'pagesel':
                     case 'titlewithoutnamespace':
                         $sSqlWhere .= 'sortkey';
@@ -2789,7 +2784,10 @@ class ExtDynamicPageList2
             if ($sOrder == 'descending')	$sSqlWhere .= ' ) order by cl3.cl_to DESC';
             else							$sSqlWhere .= ' ) order by cl3.cl_to ASC';
         }
-    
+ 	
+	//AP20080615: debug
+	//echo ".$sSqlSelectFrom . $sSqlWhere.";
+
     // ###### PROCESS SQL QUERY ######
         if ($logger->iDebugLevel >=3) {
             //DEBUG: output SQL query 
