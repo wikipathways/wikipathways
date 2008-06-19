@@ -309,4 +309,8 @@ $wgShowExceptionDetails = true;
 $wgShowSQLErrors = true;
 
 $wgReadOnlyFile = "readonly.enable";
+
+//Increase recent changes retention time
+$wgRCMaxAge = 60 * 24 * 3600;
+
 ?>
