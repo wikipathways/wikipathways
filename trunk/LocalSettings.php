@@ -299,6 +299,9 @@ require_once('wpi/extensions/Interwiki/SpecialInterwiki.php');
 $wgGroupPermissions['*']['interwiki'] = false;
 $wgGroupPermissions['sysop']['interwiki'] = true;
 
+//Set enotif for watch page changes to true by default
+$wgDefaultUserOptions ['enotifwatchlistpages'] = 1;
+
 ##Cascading Style Sheets
 #Default is {$wgScriptPath}/skins
 
