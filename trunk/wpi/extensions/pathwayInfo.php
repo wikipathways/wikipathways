@@ -76,19 +76,19 @@ TABLE;
 		}
 		
 		//Create collapse button
-		$nrShow = 6;
+		$nrShow = 5;
 		$nrNodes = count($nodes);
 		if(count($nodes) > $nrShow) {
 			$expand = "<B>View all $nrNodes DataNodes</B>";
-			$collapse = "<B>View last " . ($nrShow - 1) . " DataNodes</B>";
+			$collapse = "<B>View last " . ($nrShow) . " DataNodes</B>";
 			$button = "<table><td width='51%'> <div onClick='toggleRows(\"dnTable\", this, \"$expand\", 
-				\"$collapse\", {$nrShow}, true)' style='cursor:pointer;color:#0000FF'>$expand<td width='45%'></table>";
+				\"$collapse\", " . ($nrShow + 1) . ", true)' style='cursor:pointer;color:#0000FF'>$expand<td width='45%'></table>";
 		}
 		//Sort and iterate over all elements
 		sort($nodes);
 		$i = 0;
 		foreach($nodes as $datanode) {
-			$doShow = $i++ < $nrShow - 1 ? "" : "style='display:none'";
+			$doShow = $i++ < $nrShow ? "" : "style='display:none'";
 			$table .= "<tr $doShow>";
 			$table .= '<td>' . $datanode['TextLabel'];
 			$table .= '<td>' . $datanode['Type'];
