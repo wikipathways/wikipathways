@@ -173,9 +173,9 @@ TEXT;
 		}
 		$button = $this->editButton('javascript:;', 'Edit categories', 'catEdit');
 		$title = $this->pathway->getTitleObject()->getText();
-		return "== Categories ==\n<div id='categories'>\n" .
+		return "== Categories ==\n<div id='catdiv'>\n" .
 			"<div style='float:right'>$button</div>\n" . 
-			"$catlist</div>\n{{#editApplet:catEdit|categories|0|$title|categories|0|250px}}";
+			"$catlist</div>\n{{#editApplet:catEdit|catdiv|0|$title|categories|0|250px}}";
 	}
 	
 	function editButton($href, $title, $id = '') {
