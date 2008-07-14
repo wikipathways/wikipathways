@@ -130,7 +130,7 @@ class SpecialPage
 		'Resetpass'                 => array( 'UnlistedSpecialPage', 'Resetpass' ),
 		'Categories'                => array( 'SpecialPage', 'Categories', 'block' ),
 		'Export'                    => array( 'SpecialPage', 'Export', 'block' ),
-		'Version'                   => array( 'SpecialPage', 'Version', 'block' ),
+		'Version'                   => array( 'SpecialPage', 'Version' ),
 		'Allmessages'               => array( 'SpecialPage', 'Allmessages', 'block' ),
 		'Log'                       => array( 'SpecialPage', 'Log', 'block' ),
 		'Blockip'                   => array( 'SpecialPage', 'Blockip', 'block', 'block' ),
