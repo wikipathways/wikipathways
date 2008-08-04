@@ -2,23 +2,31 @@
 $dir = getcwd();
 chdir("../");
 require_once('wpi.php');
+require_once('search.php');
 chdir($dir);
 
 $operations = array(
-	"getPathwayList", 
+	"listOrganisms",
+	"listPathways", 
 	"getPathway",
 	"getRecentChanges",
 	"login",
 	"getPathwayAs",
 	"updatePathway",
+	"findPathwaysByText",
+	"findPathwaysByXref",
+	
 );
 $opParams = array(
-	"getPathwayList" => "MIXED", 
+	"listOrganisms" => "MIXED",
+	"listPathways" => "MIXED", 
 	"getPathway" => "MIXED",
 	"getRecentChanges" => "MIXED",
 	"login" => "MIXED",
 	"getPathwayAs" => "MIXED",
 	"updatePathway" => "MIXED",
+	"findPathwaysByText" => "MIXED",
+	"findPathwaysByXref" => "MIXED",
 );
 
 $classmap = array(); //just let the engine know you prefer classmap mode
@@ -33,10 +41,18 @@ $svr = new WSService(array(
 $svr->reply();
 
 /**
+ * Get a list of all available organisms.
+ * @return array of string $organisms Array with the names of all supported organisms
+  **/
+function listOrganisms() {
+	return array("organisms" => Pathway::getAvailableSpecies());
+}
+
+/**
  * Get a list of all available pathways.
  * @return array of object WSPathwayInfo $pathways Array of pathway info objects
  **/
-function getPathwayList() {
+function listPathways() {
 	$pathways = Pathway::getAllPathways();
 	$objects = array();
 	foreach($pathways as $p) {
@@ -111,7 +127,7 @@ function updatePathway($pwName, $pwSpecies, $description, $gpml, $revision, $aut
  * Start a logged in session, using an existing WikiPathways account. 
  * This function will return an authentication code that can be used 
  * to excecute methods that need authentication (e.g. updatePathway)
- * @param string $name The username
+ * @param string $name The usernameset_include_path(get_include_path().PATH_SEPARATOR.realpath('../includes').PATH_SEPARATOR.realpath('../').PATH_SEPARATOR);
  * @param string $pass The password
  * @return string $auth The authentication code
  **/
@@ -206,6 +222,39 @@ function getRecentChanges($timestamp)
 	return array("pathways" => $objects);
 }
 
+/**
+ * Find pathways by a textual search.
+ * @param string $query The query, e.g. 'apoptosis'
+ * @param string $species Optional, limit the query by species. Leave
+ * blank to search on all species
+ * @return array of object WSSearchResult $result Array of WSSearchResult objects
+ **/
+function findPathwaysByText($query, $species = '') {
+	$objects = array();
+	$results = PathwayIndex::searchByText($query, $species);
+	foreach($results as $r) {
+		$objects[] = new WSSearchResult($r, array());
+	}
+	return array("result" => $objects);
+}
+
+/**
+ * Find pathways by a datanode xref.
+ * @param string $id The datanode identifier (e.g. 'P45985')
+ * @param string $code Optional, limit the query by database (e.g. 'S' for UniProt). Leave
+ * blank to search on all databases
+ * @return array of object WSSearchResult $result Array of WSSearchResult objects
+ **/
+function findPathwaysByXref($id, $code = '', $indirect = true) {
+	$xref = new XRef($id, $code);
+	$objects = array();
+	$results = PathwayIndex::searchByXref($xref, $indirect);
+	foreach($results as $r) {
+		$objects[] = new WSSearchResult($r, array(PathwayIndex::$f_graphId));
+	}
+	return array("result" => $objects);
+}
+
 //Non ws functions
 function authenticate($username, $token) {
 	global $wgUser, $wgAuth;
@@ -232,24 +281,81 @@ class WSPathwayInfo {
 		$this->species = $pathway->species();
 		$this->name = $pathway->name();
 		$this->url = $pathway->getTitleObject()->getFullURL();
+		
+		//Hack to make response valid in case of missing revision
+		if(!$this->revision) $this->revision = 0;
 	}
 	
 	/**
-	* @property string $url - the url to the pathway
+	* @var string $url - the url to the pathway
 	**/
 	public $url;
 	/**
-	* @property string $name - the pathway name
+	* @var string $name - the pathway name
 	**/
 	public $name;
 	/**
-	* @property string $species - the pathway species
+	* @var string $species - the pathway species
 	**/
 	public $species;
 	/**
-	* @property string $revision - the revision number
+	* @var string $revision - the revision number
 	**/
 	public $revision;
+}
+
+ /**
+ * @namespace http://www.wikipathways.org/webservice
+ */
+class WSSearchResult extends WSPathwayInfo {
+	/**
+	 * @param $searchHit an object of class SearchHit
+	 * @param $includeFields an array with the fields to include.
+	 * Leave 'null' to include all fields.
+	**/
+	function __construct($hit, $includeFields = null) {
+		parent::__construct($hit->getPathway());
+		$this->score = $hit->getScore();
+		if($includeFields === null) {
+			$includeFields = $hit->getDocument()->getFieldNames();
+		}
+		$this->fields = array();
+		$doc = $hit->getDocument();
+		foreach($includeFields as $fn) {
+			$this->fields[] = new WSIndexField($fn, $doc->getFieldValues($fn));
+		}
+	}
+	
+	/**
+	* @var double $score - the score of the search result
+	**/
+	public $score;
+
+	/**
+	* @var array of object WSIndexField $fields - the url to the pathway
+	**/
+	public $fields;
+}
+
+ /**
+ * @namespace http://www.wikipathways.org/webservice
+ */
+class WSIndexField {
+	function __construct($name, $values) {
+		$this->name = $name;
+		$this->values = $values;
+		$this->values = preg_replace("/\&/", "&amp;", $this->values);
+	}
+	
+	/**
+	* @var string $name - the name of the index field
+	**/
+	public $name;
+	
+	/**
+	* @var array of string - the value(s) of the field
+	**/
+	public $values;
 }
 
 /**
@@ -261,7 +367,7 @@ class WSPathway extends WSPathwayInfo {
 		$this->gpml = $pathway->getGPML();
 	}
 	/**
-	* @property string $gpml - the GPML code
+	* @var string $gpml - the GPML code
 	**/
 	public $gpml;
 }
@@ -271,14 +377,13 @@ class WSPathway extends WSPathwayInfo {
  **/
 class WSAuth {
 	/**
-	 * @property string $user The username
+	 * @var string $user The username
 	 **/
 	public $user;
 	
 	/**
-	 * @property string $key The authentication key
+	 * @var string $key The authentication key
 	 **/
 	public $key;
 }
-
 ?>
