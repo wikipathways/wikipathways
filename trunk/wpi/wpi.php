@@ -1,5 +1,6 @@
 <?php
 //Initialize MediaWiki
+set_include_path(get_include_path().PATH_SEPARATOR.realpath('includes'));
 set_include_path(get_include_path().PATH_SEPARATOR.realpath('../includes').PATH_SEPARATOR.realpath('../').PATH_SEPARATOR);
 $dir = getcwd();
 chdir("../"); //Ugly, but we need to change to the MediaWiki install dir to include these files, otherwise we'll get an error
