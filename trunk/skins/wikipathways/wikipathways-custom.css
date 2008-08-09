@@ -10,7 +10,11 @@
         margin-left:1em;
         margin-right:1em;
 }
-
+.helphint.redBg {
+        border-left: 10px solid #b22222; /* Red */
+	background-color: #fee;  /* Pink */
+	padding: 0.25em 0.5em;         /* 0.5em left/right */
+}
 
 .frontPagePanel {
 	font: inherit;
