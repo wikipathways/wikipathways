@@ -271,6 +271,10 @@ function authenticate($username, $token) {
 	}
 }
 
+function formatXml($xml) {
+	return preg_replace("/\&/", "&amp;", $xml);
+}
+
 //Class definitions
  /**
  * @namespace http://www.wikipathways.org/webservice
@@ -344,7 +348,7 @@ class WSIndexField {
 	function __construct($name, $values) {
 		$this->name = $name;
 		$this->values = $values;
-		$this->values = preg_replace("/\&/", "&amp;", $this->values);
+		$this->values = formatXml($this->values);
 	}
 	
 	/**
@@ -364,7 +368,7 @@ class WSIndexField {
 class WSPathway extends WSPathwayInfo {
 	function __construct($pathway) {
 		parent::__construct($pathway);
-		$this->gpml = $pathway->getGPML();
+		$this->gpml = formatXml($pathway->getGPML());
 	}
 	/**
 	* @var string $gpml - the GPML code
