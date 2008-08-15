@@ -118,25 +118,26 @@ TEXT;
 
 			$authors = $title = $source = $year = '';
 
+			//Format the citation ourselves
+			//Authors, title, source, year
+			foreach($xref->AUTHORS as $a) {
+				$authors .= "$a, ";
+			}
+
+			if($authors) $authors = substr($authors, 0, -2) . "; ";
+			if($xref->TITLE) $title = $xref->TITLE . "; ";
+			if($xref->SOURCE) $source = $xref->SOURCE;
+			if($xref->YEAR) $year = ", " . $xref->YEAR;
+			$out .= "# $authors''$title''$source$year";
+			
 			if((string)$xref->ID && (strtolower($xref->DB) == 'pubmed')) {
 				//We have a pubmed id, use biblio extension
-				$out .= "#$id $xref pmid=" . $xref->ID . "\n";
-			} else {
-				//Format the citation ourselves
-				//Authors, title, source, year
-				foreach($xref->AUTHORS as $a) {
-					$authors .= "$a, ";
-				}
-
-				if($authors) $authors = substr($authors, 0, -2) . "; ";
-				if($xref->TITLE) $title = $xref->TITLE . "; ";
-				if($xref->SOURCE) $source = $xref->SOURCE;
-				if($xref->YEAR) $year = ", " . $xref->YEAR;
-				$out .= "#$id $authors$title$source$year\n";
+				$out .= " - [http://www.ncbi.nlm.nih.gov/pubmed/" . $xref->ID . " PubMed]";
 			}
+			$out .= "\n";
 		}
 		if($out) {
-			$out = "<biblio>$out</biblio>\n";
+			
 		} else {
 			$out = "''No bibliography''\n";
 		}
