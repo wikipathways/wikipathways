@@ -1,0 +1,251 @@
+= RFC 007: MetaTags =
+
+We should implement a set of tags that users can post on any pathway, notifying the authors 
+and the community about incomplete data or the status of the work.  These are different from 
+the tags used in Wikipedia (explanation below). Some of these could be very brief, others
+could contain multiple sentences.
+
+We should also implement bots to manage some of the tags to automatically notify users of
+highlighted content, whether it might be 'new' or 'incomplete' or 'scheduled for deletion'.
+
+Note that, if we do this right, we can have a generic mediawiki plugin that is not specific to
+wikipathways at all.
+
+This RFC is targeted for M7.
+
+Use cases solved by metatags:
+
+* Private pathways
+* Reference pathways
+* Community curation + bot flags
+* portals (e.g. to specify that a pathway belongs to a portal)
+* Featured pathways
+(see end of this RFC for details on specific use cases)
+
+Use cases for pathway attributes (NOT solved by this rfc, this is a NON-GOAL for M7)
+
+* ontologies
+* tissue / organ / disease state
+	These should be stored inside GPML, like e.g. "organism" currently is.
+
+Use cases for personal tags (AKA del.icio.us tags, this is also a NON-GOAL for M7)
+
+This will require the ability to store multiple tags per pathway so that many users
+can use the same tag for a pathway. In that sense they are very different from metatags,
+so this will require a separate RFC.
+
+Also not solved by this RFC (martijn: ???)
+* User badges 
+
+== How WikiPedia does it ==
+
+http://en.wikipedia.org/wiki/Wikipedia:Template_messages/User_talk_namespace
+
+Wikipedia uses templates to define the contents of tags for a broad range of purposes. The
+templates are then simply referenced in any page by adding {{template_name}} to the text. Bots
+handle a significant portion of the template usage. Note that templates are referenced "in real time" 
+as each page is rendered, this is called transclusion. This can put a strain on the server. Wikipedia 
+recommends using substitution to remedy this. Substitution simply replaces the template reference 
+with the contents of the template into the target. Substitution can be implemented by simply
+preceding the the template name with 'subst:', e.g., {{subst:template_name}}.  When using substitution,
+you'll notice the contents of the template copied into the page when editing that page. This
+also effectively disconnects the template reference from the template. So, when the template is changed
+the change is NOT reflected in the target page. This is OK for simple or temporary tags, but not for
+templates like the ones that generate the header and footer of every Pathway Page, i.e., we want changes
+to those to be reflected in the target pages.
+
+== Why we won't use WikiPedia tags ==
+
+A wikipedia page is only used within wikipedia. They store tags in a page because it doesn't require
+a separate interface: the interface is the same text area that was already used for regular page text.
+
+For WikiPathways however, pathways can be downloaded as standalone entities for use in e.g. PathVisio.
+The pathway can stand on itself, but the tags only make sense within WikiPathways.
+Because of our very different interface, we'll have to program a separate interface for tags anyway.
+
+Another reason I don't want to store metatags in GPML because of
+efficiency. Tagging a pathway should be really quick and effortless,
+using an AJAX user interface (so no java applet or refresh of the
+pathway page, see citeulike and google reader for a good example). This
+is not possible when using GPML, because it needs a lot of processing
+(validation etc) and the whole GPML code should be updated in the
+database. The only disadvantage of not storing it in GPML could be that
+tagging events don't show up in the revision history, any tagging
+revision history should be implemented by ourselves. But that's a good
+point too, because I don't think tagging should be in there (it's
+technically not a change in the pathway). Another reason for not storing
+it in GPML is efficiency of queries. E.g. if you query all pathways with
+a given tag, you would need to fetch all GPML (for every pathway) and
+parse it one by one. You basically have to process the whole database to
+find something.
+
+The reason that I think we should store the ontology information in GPML
+is that this information is intrinsic to the pathway (like the pathway
+name and gene annotation). It can also be very useful information for
+offline applications of the pathway. And storing ontology annotation
+doesn't have to be as efficient as tagging, since it's less dynamic.
+
+== Implementation ==
+
+=== Database ===
+
+Concerning the implementation, I think a single table should be enough:
+
+/* Metatag database schema */
+CREATE TABLE tag (
+	-- Name of the tag
+	tag_name	varchar
+	
+	-- Contents of the tag
+	tag_text	varchar
+	
+	-- Id ofthe page that is tagged
+	page_id		int(8) UNSIGNED
+	
+	-- The revision of the page that is tagged
+	revision	int(8) UNSIGNED
+	
+	-- Id of the user that added the tag
+	user_add	int(5) UNSIGNED
+	
+	-- Id of the user that last modified the tag
+	user_mod	int(5)
+	
+	-- Timestamp of the tag creation
+	time_add	char(14)
+	
+	-- Timestamp of the last tag modification
+	time_mod	char(14)
+	
+	PRIMARY KEY (tag_name, page_id)
+)
+
+CREATE TABLE tag_history (
+	-- Name of the tag
+	tag_name	varchar
+	
+	-- Id of the page that is tagged
+	page_id		int(8) UNSIGNED
+	
+	-- Action that was taken
+	action		varchar
+	
+	-- The id of the user that performed the action
+	action_user	int(8)
+	
+	-- Timestamp of action
+	time		char(14)
+)
+
+I left out the table for tag permissions, since it applied to individual
+tags and what we really want is to set permissions on tag types.
+However, this is something we should discuss some more. Is it really
+necessary for community curation that some tag types can only be
+modified by admins? Or do we want to keep everything as open as
+possible?
+
+Alex:
+	As far as permissions go, I am fine with having all the tags open.  I
+	pressume this then excludes the bot tags that describe precise states, for
+	example, 'new pathway' or 'last updated ## months ago'.  These are covered
+	in the RFC, but also perhaps belong as a separate project from the
+	community, user-controlled, metatags.
+
+=== User interface ===
+
+We also did some thinking on the GUI for adding community curation tags.
+We can start out simple, by just providing a textfield where you can put
+tags in text form, e.g.:
+
+"proposed_deletion:reason=This is a test pathway"
+
+This is similar to the template call in Wikipedia and shouldn't be too
+hard to explain. The php code parses this text and stores the tags using
+the generic tag API. The tags are dynamically included on top of the
+page. The formatting can still be done using templates, with a template
+for each tag type. The php code that includes the tag simply includes a
+call to the template, with the right parameters taken from the tag text.
+This way, we are flexible in adding and removing community curation tag
+types and their formatting.
+
+== Implementation of use cases ==
+
+* Private pathways
+* Reference pathways
+* Community curation
+* Bot flags
+* User badges
+* portals (e.g. to specify that a pathway belongs to a portal)
+* Featured pathways
+
+=== private ===
+
+A private pathway tag will look like this:
+
+tag_name = private_pathway
+page_id = points to the pathway page that is private
+user_add = user who started the pathway and needs private access
+
+private_pathway:date=publication_date
+
+Pathways with this tag will not show up in the Browse page. 
+
+=== portals ===
+
+Portal categories could be tags of the form
+portal:portalname, 
+
+TODO...
+
+== Community Curation + Bot flags ==
+
+Proposed deletion:
+"proposed_deletion:date=deletion_date:reason=This is a test pathway"
+
+ * Inappropriate edit (potential vandalism)
+ * Inappropriate edit (potentially false)
+ * Incomplete information (left blank)
+ * Needs references (lit ref missing)
+ * Featured pathway (addded to feature page list)
+
+Some flags can be more easily added an examined by bots. This information comes 
+directly from scripted queries on GPML content. So the idea is that the bot would 
+run the query and add the metatag on the pathway page.
+
+However, there is no intrinsic difference between community curation metatags and bot metatags.
+It's just that some tags are easier to deal with for bots.
+
+ * New Pathway
+ * Recently edited... date (from database)
+ * Not updated in over a year... last edit date (from database)
+ * Hypothetical, not backed by published findings
+ * missing gene / protein database references
+ * missing metabolite database refereces
+ * missing literature references
+ * no interactions defined (i.e. no sticky edges)
+
+== Tagging User Pages aka Badges ==
+
+Martijn: these tags should only be available once we have a permission system in place. 
+Abandon for now???
+
+ * Active User (e.g., based on activity over past 7 days)
+ * Inactive User (e.g., not logged in for over 6 months)
+ * New User (e.g., first 7 days)
+ * Valued Contributor (e.g., X number of edits)
+ * Pathway Powerhouse (e.g., X number of new pathways)
+
+NB: the following tags will require special permissions to set,
+otherwise users will be able to upgrade their own account. We need to
+re-think whether tags are suitable for this.
+
+ * Curator
+ * Admin
+ * User with particular rights/responsibilities
+ * Specific user group (Comment Kristina: For Portals, maybe there could be a way to assign all
+ 						new users registered through a certain portal as being part of that community.
+ 						For example if somebody creates an account under the Plant portal, the users
+ 						would automatically be tagged as being part of the plant community. If there isn't
+ 						a way to do this automatically, users could choose from a drop-down list of 
+ 						appropriate tags during registration).
+ 
