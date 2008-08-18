@@ -13,29 +13,37 @@ wikipathways at all.
 
 This RFC is targeted for M7.
 
-Use cases solved by metatags:
+== Goals and NON-Goals ==
 
-* Private pathways
-* Reference pathways
-* Community curation + bot flags
-* portals (e.g. to specify that a pathway belongs to a portal)
-* Featured pathways
-(see end of this RFC for details on specific use cases)
+Use cases solved by metatags (Goal for M7):
+	* Private pathways
+	* Reference pathways
+	* Community curation + bot flags
+	* portals (e.g. to specify that a pathway belongs to a portal)
+	* Featured pathways
+	(see end of this RFC for details on specific use cases)
 
 Use cases for pathway attributes (NOT solved by this rfc, this is a NON-GOAL for M7)
+	* ontologies
+	* tissue / organ / disease state
+		These should be stored inside GPML, like e.g. "organism" currently is.
 
-* ontologies
-* tissue / organ / disease state
-	These should be stored inside GPML, like e.g. "organism" currently is.
+Personal tags (AKA del.icio.us tags, this is also a NON-GOAL for M7)
+	This will require the ability to store multiple tags per pathway so that many users
+	can use the same tag for a pathway. In that sense they are very different from metatags,
+	so this will require a separate RFC.
 
-Use cases for personal tags (AKA del.icio.us tags, this is also a NON-GOAL for M7)
+User badges  (NON-Goal for M7)
+	Since we're not going to add a permission scheme at this time, we can't do much user
+	tagging yet. See rfc 011-user-tags.txt
 
-This will require the ability to store multiple tags per pathway so that many users
-can use the same tag for a pathway. In that sense they are very different from metatags,
-so this will require a separate RFC.
-
-Also not solved by this RFC (martijn: ???)
-* User badges 
+database-state tags (NON-Goal for M7)
+	These are tags that can be calculated from other information in wikipathways, e.g. 
+	tags for pathways that haven't been updated in x amount of time or pathways that have been 
+	created in the last x days.
+	
+	This pretty much cached information, solves a different need and may not even be necessary
+	if the calculation can be done fast enough.
 
 == How WikiPedia does it ==
 
@@ -174,11 +182,10 @@ types and their formatting.
 * Reference pathways
 * Community curation
 * Bot flags
-* User badges
 * portals (e.g. to specify that a pathway belongs to a portal)
 * Featured pathways
 
-=== private ===
+=== Private pathways ===
 
 A private pathway tag will look like this:
 
@@ -215,37 +222,10 @@ run the query and add the metatag on the pathway page.
 However, there is no intrinsic difference between community curation metatags and bot metatags.
 It's just that some tags are easier to deal with for bots.
 
- * New Pathway
- * Recently edited... date (from database)
- * Not updated in over a year... last edit date (from database)
+ * New Pathway (TODO: what does this mean exactly???)
  * Hypothetical, not backed by published findings
  * missing gene / protein database references
  * missing metabolite database refereces
  * missing literature references
  * no interactions defined (i.e. no sticky edges)
 
-== Tagging User Pages aka Badges ==
-
-Martijn: these tags should only be available once we have a permission system in place. 
-Abandon for now???
-
- * Active User (e.g., based on activity over past 7 days)
- * Inactive User (e.g., not logged in for over 6 months)
- * New User (e.g., first 7 days)
- * Valued Contributor (e.g., X number of edits)
- * Pathway Powerhouse (e.g., X number of new pathways)
-
-NB: the following tags will require special permissions to set,
-otherwise users will be able to upgrade their own account. We need to
-re-think whether tags are suitable for this.
-
- * Curator
- * Admin
- * User with particular rights/responsibilities
- * Specific user group (Comment Kristina: For Portals, maybe there could be a way to assign all
- 						new users registered through a certain portal as being part of that community.
- 						For example if somebody creates an account under the Plant portal, the users
- 						would automatically be tagged as being part of the plant community. If there isn't
- 						a way to do this automatically, users could choose from a drop-down list of 
- 						appropriate tags during registration).
- 

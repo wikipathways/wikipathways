@@ -1,0 +1,22 @@
+These tags are partially implemented using the same system as rfc 007:metatags,
+but require a permission scheme to prevent people from assigning badges to themselves.
+
+
+== Tagging User Pages aka Badges ==
+
+ * Active User (e.g., based on activity over past 7 days)
+ * Inactive User (e.g., not logged in for over 6 months)
+ * New User (e.g., first 7 days)
+ * Valued Contributor (e.g., X number of edits)
+ * Pathway Powerhouse (e.g., X number of new pathways)
+
+ * Curator
+ * Admin
+ * User with particular rights/responsibilities
+ * Specific user group (Comment Kristina: For Portals, maybe there could be a way to assign all
+ 						new users registered through a certain portal as being part of that community.
+ 						For example if somebody creates an account under the Plant portal, the users
+ 						would automatically be tagged as being part of the plant community. If there isn't
+ 						a way to do this automatically, users could choose from a drop-down list of 
+ 						appropriate tags during registration).
+ 
