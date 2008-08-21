@@ -132,7 +132,7 @@
     <argument>-p</argument>
     <argument>cytoscape.filters.FilterPlugin</argument>
     <argument>-p</argument>
-    <argument>gpml.GpmlPlugin</argument>
+    <argument>org.pathvisio.cytoscape.GpmlPlugin</argument>
     <argument>-p</argument>
     <argument>cytoscape.bubbleRouter.BubbleRouterPlugin</argument>
     <!--ARG-->
