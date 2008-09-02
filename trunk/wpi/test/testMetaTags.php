@@ -9,7 +9,9 @@ chdir($dir);
 
 require_once("MetaTag.php");
 
-/* First read a tag */
+$starttime = wfTimestamp(TS_MW);
+
+/* First read a nonexisting tag */
 $title = Title::newFromText("Pathway:Homo sapiens:Sandbox");
 echo "Tagging {$title->getFullText()}\n<BR>";
 $tag = new MetaTag("MyTag:firsttag", $title->getArticleID());
@@ -41,6 +43,18 @@ echo "<pre>";
 var_dump($tag);
 echo "</pre>";
 
+/* Edit */
+$tag->setText("Edited text");
+$tag->save();
+
+echo "Edited tag text <BR>\n";
+
+/* Query by page */
+echo "Query tags for page {$title->getFullText()}\n<BR>";
+$tags = MetaTag::getTagsForPage($title->getArticleID());
+$nrTags = count($tags);
+echo "Page has $nrTags tags<BR>\n";
+
 /* Then delete */
 echo "Removing tag<BR>\n";
 $tag->remove();
@@ -55,4 +69,15 @@ echo "<pre>";
 var_dump($tag);
 echo "</pre>";
 
+/* Get tag history */
+echo "Recorded tag history:<BR>\n<TABLE>";
+
+$history = $tag->getHistory($starttime);
+foreach($history as $hr) {
+	echo "<TR>";
+	echo "<TD>" . $hr->getAction();
+	echo "<TD>" . $hr->getUser();
+	echo "<TD>" . $hr->getTime();
+}
+echo "</TABLE>";
 ?>

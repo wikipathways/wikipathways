@@ -2,10 +2,17 @@
 /* MetaTag API */
 
 /**
- * This class represents a single metatag
+ * This class represents a single metatag, providing support
+ * for reading and writing tags. This class also takes care of 
+ * updating the tag history.
  */
 class MetaTag {
+	public static $TAG_HISTORY_TABLE = "tag_history";
 	public static $TAG_TABLE = "tag";
+	
+	public static $ACTION_UPDATE = "update";
+	public static $ACTION_REMOVE = "remove";
+	public static $ACTION_CREATE = "create";
 	
 	private $exists = false;
 	
@@ -30,6 +37,28 @@ class MetaTag {
 		$this->name = $name;
 		$this->page_id = $page_id;
 		$this->loadFromDB();
+	}
+	
+	/**
+	 * Get all tags for the given page
+	 * @param $pageId The page id
+	 * @return An array of MetaTag objects
+	 */
+	public static function getTagsForPage($page_id) {
+		$tags = array();
+		
+		$dbr = wfGetDB( DB_SLAVE );
+		$res = $dbr->select(
+			self::$TAG_TABLE, 
+			array('tag_name'),
+			array('page_id' => $page_id)
+		);
+		while($row = $dbr->fetchObject( $res )) {
+			$tags[] = new MetaTag($row->tag_name, $page_id);
+		}
+		
+		$dbr->freeResult( $res );
+		return $tags;
 	}
 	
 	/**
@@ -100,10 +129,15 @@ class MetaTag {
 		$dbw->immediateBegin();
 
 		if($this->exists) {
+			$this->updateTimeStamps();
+			$this->updateUsers();
+		
 			$dbw->delete(
 				self::$TAG_TABLE,
 				array('tag_name' => $this->name, 'page_id' => $this->page_id)
 			);
+			
+			$this->writeHistory(self::$ACTION_REMOVE);
 		}
 		
 		$dbw->immediateCommit();
@@ -130,6 +164,10 @@ class MetaTag {
 				$values,
 				array('tag_name' => $this->name, 'page_id' => $this->page_id)
 			);
+			
+			$dbw->immediateCommit();
+			
+			$this->writeHistory(self::$ACTION_UPDATE);
 		} else {
 			$values['tag_name'] = $this->name;
 			$values['page_id'] = $this->page_id;
@@ -139,10 +177,32 @@ class MetaTag {
 				self::$TAG_TABLE,
 				$values
 			);
+			
+			$this->exists = true;
+			$dbw->immediateCommit();
+			
+			$this->writeHistory(self::$ACTION_CREATE);
 		}
 		
+
+	}
+	
+	private function writeHistory($action) {
+		$dbw =& wfGetDB(DB_MASTER);
+		$dbw->immediateBegin();
+
+		$dbw->insert(
+			self::$TAG_HISTORY_TABLE,
+			array(
+				'tag_name' => $this->name,
+				'page_id' => $this->page_id,
+				'action' => $action,
+				'action_user' => $this->user_mod,
+				'time' => $this->time_mod
+			)
+		);
+		
 		$dbw->immediateCommit();
-		$this->exists = true;
 	}
 	
 	private function updateUsers() {
@@ -239,15 +299,86 @@ class MetaTag {
 	public function getTimeMod() {
 		return $this->time_mod;
 	}
+	
+	/**
+	 * Get the tag history, starting at the given time
+	 * @param $fromTime A timestamp in the TS_MW format
+	 * @return An array of MetaTagHistoryRow objects
+	 */
+	public function getHistory($fromTime = '0') {
+		$dbr = wfGetDB( DB_SLAVE );
+		$tbl = self::$TAG_HISTORY_TABLE;
+		$res = $dbr->query(
+			"SELECT * FROM $tbl WHERE " .
+			"tag_name = '{$this->name}' AND page_id = {$this->page_id} " .
+			"AND time >= $fromTime ORDER BY time"
+		);
+		
+		$history = array();
+		while($row = $dbr->fetchObject( $res )) {
+			$history[] = new MetaTagHistoryRow($this, $row);
+		}
+		
+		$dbr->freeResult( $res );
+		return $history;
+	}
 }
 
 class MetaTagException extends Exception {
 	private $tag;
 	
 	public function __construct($tag, $msg) {
+		parent::__construct($msg);
 		$this->tag = $tag;
 	}
 	
 	public function getTag() { return $tag; }
 }
+
+/**
+ * Represent a row in the tag history table.
+ */
+class MetaTagHistoryRow {
+	private $tag;
+	private $action;
+	private $user;
+	private $time;
+	
+	function __construct($tag, $dbRow) {
+		$this->tag = $tag;
+		$this->action = $dbRow->action;
+		$this->user = $dbRow->action_user;
+		$this->time = $dbRow->time;
+	}
+	
+	/**
+	 * Get the action that was performed on the tag
+	 */
+	public function getAction() {
+		return $this->action;
+	}
+	
+	/**
+	 * Get the id of the user that performed the action
+	 */
+	public function getUser() {
+		return $this->user;
+	}
+	
+	/**
+	 * Get the time the action was performed
+	 */
+	public function getTime() {
+		return $this->time;
+	}
+	
+	/**
+	 * Get the object that represent the tag this
+	 * history row applies to
+	 */
+	public function getTag() {
+		return $this->tag;
+	}
+}
+
 ?>
