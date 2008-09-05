@@ -64,13 +64,28 @@ class PathwayPage {
 	function getContent() {	
 		$text = <<<TEXT
 {{Template:PathwayPage:Top}}
-
+{$this->curationTags()}
 {$this->descriptionText()}
 {$this->bibliographyText()}
 {$this->categoryText()}
 {{Template:PathwayPage:Bottom}}
 TEXT;
 		return $text;
+	}
+	
+	function curationTags() {
+		$button = $this->editButton(
+			'javascript:CurationTags.editTags();', 
+			'Edit curation tags', 
+			'tagEdit'
+		);
+		$description = $this->data->getWikiDescription();
+		if(!$description) {
+			$description = "<I>No description</I>";
+		}
+		$tags = "== Curation Tags ==\n" .
+			"<CurationTags></CurationTags>";
+		return $tags;
 	}
 	
 	function descriptionText() {

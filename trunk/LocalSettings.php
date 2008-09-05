@@ -93,6 +93,9 @@ $wgImageMagickConvertCommand = "/usr/bin/convert";
 ## this, if it's not already uncommented:
 # $wgHashedUploadDirectory = false;
 
+## Enable AJAX
+$wgUseAjax = true;
+
 ## If you have the appropriate support software installed
 ## you can enable inline LaTeX equations:
 $wgUseTeX           = false;
@@ -269,6 +272,7 @@ require_once('wpi/extensions/NamespacePermissions.php' );
 require_once('wpi/extensions/CheckGpmlOnSave.php' );
 require_once('wpi/extensions/CreateUserPage.php' );
 require_once('wpi/extensions/recaptcha/ReCaptcha.php'); 
+require_once('wpi/extensions/CurationTags/CurationTags.php');
 
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!

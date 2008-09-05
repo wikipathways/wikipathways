@@ -2,20 +2,37 @@
 ** Custom CSS code for the WikiPathways skin (additional to the MonoBook based main.css
 */
 
-
-/*****
-* Panels for frontpage
-******/
 .helphint {
         margin-left:1em;
         margin-right:1em;
 }
-.helphint.redBg {
-        border-left: 10px solid #b22222; /* Red */
+.tag.redBg {
+	border-left: 10px solid #b22222; /* Red */
 	background-color: #fee;  /* Pink */
 	padding: 0.25em 0.5em;         /* 0.5em left/right */
 }
 
+.tag.yellowBg {
+	border-left: 10px solid #ffff00;
+	background-color: #ffffff;
+	padding: 0.25em 0.5em;
+}
+
+.tag.greenBg {
+	border-left: 10px solid #00cc00;
+	background-color: #f5fff5;
+	padding: 0.25em 0.5em;
+}
+
+.tag.blueBg {
+	border-left: 10px solid #3300cc;
+	background-color: #f5faff;
+	padding: 0.25em 0.5em;
+}
+
+/*****
+* Panels for frontpage
+******/
 .frontPagePanel {
 	font: inherit;
 }
