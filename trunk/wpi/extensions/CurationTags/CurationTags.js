@@ -157,11 +157,7 @@ CurationTags.createToolDivContent = function() {
 }
 
 CurationTags.newTag = function() {
-	CurationTags.showEditDiv('', '', false);
-}
-
-CurationTags.newRevisionTag = function() {
-	CurationTags.showEditDiv('', '', CurationTags.pageRevision);
+	CurationTags.showEditDiv();
 }
 
 CurationTags.applyNewTag = function() {
@@ -213,6 +209,7 @@ CurationTags.removeTagCallback = function(xhr) {
 		if(elm) {
 			CurationTags.displayDiv.removeChild(elm);
 			CurationTags.tagElements[tagName] = false;
+			CurationTags.tagData[tagName] = false;
 		} else {
 			CurationTags.showError("Element for tag '" + tagName + "' not found");
 		}
@@ -244,12 +241,18 @@ CurationTags.hideEditDiv = function() {
 	CurationTags.editDiv.style.display = "none";
 }
 
-CurationTags.showEditDiv = function(tagName, tagText, revision) {
+CurationTags.showEditDiv = function(tagName) {
 	//Remove old edit content
 	CurationTags.hideEditDiv();
 	
 	var select = "<SELECT id='tag_name'>";
 	select += "<OPTION value=''></OPTION>";
+	
+	var tagData = CurationTags.tagData[tagName];
+	var tagText = "";
+	if(tagData) {
+		tagText = tagData.text;
+	}
 	
 	var tagDefArray = CurationTags.tagDefinitions;
 	var currTagDef = false;
@@ -399,8 +402,7 @@ CurationTags.loadTagCallback = function(xhr) {
 					"href='javascript:CurationTags.removeTag(\"" + tagName + "\")'>" +
 					"<IMG src='" + CurationTags.extensionPath + "/cancel.png'/></A>";
 				edit = "<A title='Edit' " +
-					"href='javascript:CurationTags.showEditDiv(\"" + tagName + "\", \"" +
-					tagText + "\", \"" + tagRevision + "\")'>" +
+					"href='javascript:CurationTags.showEditDiv(\"" + tagName + "\")'>" +
 					"<IMG src='" + CurationTags.extensionPath + "/edit.png'/></A>";
 				btns.innerHTML = remove + edit;
 				elm.appendChild(btns);
