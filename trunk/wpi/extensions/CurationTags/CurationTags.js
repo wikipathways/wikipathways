@@ -150,12 +150,9 @@ CurationTags.createToolDivContent = function() {
 		newTag = "<TD><A title='New tag' " +
 		"href='javascript:CurationTags.newTag()'>" +
 		"<IMG src='" + CurationTags.extensionPath + "/new.png'/></A>";
-		newRevisionTag = "<TD><A title='New tag for this revision' " +
-		"href='javascript:CurationTags.newRevisionTag()'>" +
-		"<IMG src='" + CurationTags.extensionPath + "/newrevision.png'/></A>";
 	}
 	CurationTags.toolDiv.innerHTML = 
-	"<TABLE><TR>" + newTag + newRevisionTag + helpTag +
+	"<TABLE><TR>" + newTag + helpTag +
 	"</TABLE>";
 }
 
@@ -170,7 +167,6 @@ CurationTags.newRevisionTag = function() {
 CurationTags.applyNewTag = function() {
 	var nameBox = document.getElementById("tag_name");
 	var textBox = document.getElementById("tag_text");
-	var revBox = document.getElementById("tag_revision");
 	
 	if(!nameBox || !textBox) {
 		CurationTags.showError("Couldn't find edit elements");
@@ -179,8 +175,13 @@ CurationTags.applyNewTag = function() {
 	
 	var tagName = nameBox.value;
 	var tagText = textBox.value;
-	var tagRev = revBox ? revBox.value : false;
+	var tagRev = "";
 	
+	var tagDef = CurationTags.tagDefinitions[tagName];
+	if(tagDef && tagDef.revision) {
+		tagRev = CurationTags.pageRevision;
+	}
+		
 	if(!tagName) {
 		CurationTags.showError("Tag name is empty");
 		return;
@@ -247,44 +248,39 @@ CurationTags.showEditDiv = function(tagName, tagText, revision) {
 	//Remove old edit content
 	CurationTags.hideEditDiv();
 	
-	var useRev = revision && revision != "false";
-
 	var select = "<SELECT id='tag_name'>";
 	select += "<OPTION value=''></OPTION>";
 	
 	var tagDefArray = CurationTags.tagDefinitions;
+	var currTagDef = false;
+	
 	for(tn in tagDefArray) {
 		var tagDef = tagDefArray[tn];
-		if(useRev == tagDef.revision) {
-			var value = "value='" + tagDef.name + "'";
-			var selected = "";
-			if(String(tagDef.name) == String(tagName)) {
-				selected = "selected='true'";
-			}
-			var option = "<OPTION " + selected + value + ">" + 
-				tagDef.displayName + "</OPTION>";
-			select += option;
+		var value = "value='" + tagDef.name + "'";
+		var selected = "";
+		if(String(tagDef.name) == String(tagName)) {
+			selected = "selected='true'";
+			currTagDef = tagDef;
 		}
+		var option = "<OPTION " + selected + value + ">" + 
+			tagDef.displayName + "</OPTION>";
+		select += option;
 	}
 	select += "</SELECT>";
 	
+	var useRev = currTagDef && currTagDef.revision;
+		
 	var nameBox = "<TR><TD>Select tag:<TD>" + select;
 		
 	var textBox = "<TR><TD>Tag text:" +
 		"<TD><textarea id='tag_text' cols='40' rows='5'>" + tagText + "</textarea>";
-	var revBox = "";
-	if(useRev) {
-		revBox = "<TR><TD>Revision:" + 
-			"<TD><input id='tag_revision' type='hidden' size='10' value='" + 
-			revision + "'></input>" + revision;
-	}
 	
 	var buttons = "<TR align='right'><TD colspan='2'>" +
 		"<A href='javascript:CurationTags.applyNewTag()' title='Apply'>" +
 		"<IMG src='" + CurationTags.extensionPath + "/apply.png'/></A>" +
 		"<A href='javascript:CurationTags.cancelNewTag()' title='Cancel'>" +
 		"<IMG src='" + CurationTags.extensionPath + "/cancel.png'/></A>";
-	var html = "<TABLE>" + nameBox + textBox + revBox + buttons +"</TABLE>";
+	var html = "<TABLE>" + nameBox + textBox + buttons +"</TABLE>";
 	CurationTags.editDiv.innerHTML = html;
 	CurationTags.editDiv.style.display = "";
 	
