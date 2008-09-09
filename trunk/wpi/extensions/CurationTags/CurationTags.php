@@ -53,6 +53,12 @@ function displayCurationTags($input, $argv, &$parser) {
 
 class CurationTagsAjax {
 	public static $TAG_LIST_PAGE = "CurationTagsDefinition";
+	/**
+	 * Tags with this prefix will be recognized
+	 * as curation tags. Other tags will be ignored
+	 * by this API.
+	 */
+	public static $TAG_PREFIX = "Curation:";
 	
 	/**
 	 * Get the tag names for the given page.
@@ -66,9 +72,13 @@ class CurationTagsAjax {
 		$doc->appendChild($root);
 		
 		foreach($tags as $t) {
-			$e = $doc->createElement("Name");
-			$e->appendChild($doc->createTextNode($t->getName()));
-			$root->appendChild($e);
+			$expr = "/^Curation:/"; //Only select curation tags
+			$tagName = $t->getName();
+			if(preg_match($expr, $tagName)) {
+				$e = $doc->createElement("Name");
+				$e->appendChild($doc->createTextNode($t->getName()));
+				$root->appendChild($e);
+			}
 		}
 		
 		$resp = new AjaxResponse(trim($doc->saveXML()));
