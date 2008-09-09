@@ -372,6 +372,7 @@ CurationTags.loadTagCallback = function(xhr) {
 		}
 		
 		var elm = CurationTags.tagElements[tagName];
+		var tagContent = document.getElementById("tagContent_" + tagName);
 		
 		if(!elm) { //New tag
 			var elm = document.createElement("div");
@@ -389,6 +390,26 @@ CurationTags.loadTagCallback = function(xhr) {
 			CurationTags.tagElements[tagName] = elm;
 			//Add to display panel
 			CurationTags.displayDiv.appendChild(elm);
+			
+			if(CurationTags.mayEdit) {
+				var btns = document.createElement("div");
+				btns.id = "tagBtns_" + tagName;
+				btns.className = "tagbuttons transparent";
+				remove = "<A title='Remove' " +
+					"href='javascript:CurationTags.removeTag(\"" + tagName + "\")'>" +
+					"<IMG src='" + CurationTags.extensionPath + "/cancel.png'/></A>";
+				edit = "<A title='Edit' " +
+					"href='javascript:CurationTags.showEditDiv(\"" + tagName + "\", \"" +
+					tagText + "\", \"" + tagRevision + "\")'>" +
+					"<IMG src='" + CurationTags.extensionPath + "/edit.png'/></A>";
+				btns.innerHTML = remove + edit;
+				elm.appendChild(btns);
+			}
+			
+			tagContent = document.createElement("div");
+			tagContent.className = "tagcontents";
+			tagContent.id = "tagContent_" + tagName;
+			elm.appendChild(tagContent);
 		}
 		
 		tagd = {};
@@ -397,26 +418,7 @@ CurationTags.loadTagCallback = function(xhr) {
 		tagd.text = tagText;
 		CurationTags.tagData[tagName] = tagd;
 		
-		if(CurationTags.mayEdit) {
-			var btns = document.createElement("div");
-			btns.id = "tagBtns_" + tagName;
-			btns.className = "tagbuttons transparent";
-			remove = "<A title='Remove' " +
-				"href='javascript:CurationTags.removeTag(\"" + tagName + "\")'>" +
-				"<IMG src='" + CurationTags.extensionPath + "/cancel.png'/></A>";
-			edit = "<A title='Edit' " +
-				"href='javascript:CurationTags.showEditDiv(\"" + tagName + "\", \"" +
-				tagText + "\", \"" + tagRevision + "\")'>" +
-				"<IMG src='" + CurationTags.extensionPath + "/edit.png'/></A>";
-			btns.innerHTML = remove + edit;
-			elm.appendChild(btns);
-		}
-
-		var tagDiv = document.createElement("div");
-		tagDiv.className = "tagcontents";
-		tagDiv.innerHTML = html;
-		
-		elm.appendChild(tagDiv);
+		tagContent.innerHTML = html;
 		
 		CurationTags.refreshNoTagsMsg();
 	}
