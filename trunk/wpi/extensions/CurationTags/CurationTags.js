@@ -360,10 +360,6 @@ CurationTags.loadTagCallback = function(xhr) {
 		
 		if(!tagRevision) {
 			tagRevision = false;
-		} else { //Only load this tag when it has the same revision
-			if(tagRevision != CurationTags.pageRevision) {
-				return;
-			}
 		}
 
 		var root = xml.documentElement;
