@@ -8,11 +8,14 @@ $wgHooks['AbortMove'][] = 'checkMoveAllowed';$wgHooks['SpecialMovepageAfterMove
  * return error message if not
  */
 function checkMoveAllowed($oldtitle, $newtitle, $usser, &$error) {
-	try {
-		$pwNew = Pathway::newFromTitle($newtitle);
-	} catch(Exception $e) {
-		$error = $e->getMessage();
-		return false;
+	if($oldtitle->getNamespace() == NS_PATHWAY ||
+	 	$newtitle->getNamespace() == NS_PATHWAY) {
+		try {
+			$pwNew = Pathway::newFromTitle($newtitle);
+		} catch(Exception $e) {
+			$error = $e->getMessage();
+			return false;
+		}
 	}
 	return true;
 }
