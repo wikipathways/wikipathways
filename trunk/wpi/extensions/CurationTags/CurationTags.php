@@ -10,6 +10,7 @@ $wgAjaxExportList[] = "CurationTagsAjax::getTagData";
 $wgAjaxExportList[] = "CurationTagsAjax::saveTag";
 $wgAjaxExportList[] = "CurationTagsAjax::removeTag";
 $wgAjaxExportList[] = "CurationTagsAjax::getAvailableTags";
+$wgAjaxExportList[] = "CurationTagsAjax::getTagHistory";
 
 $wgExtensionFunctions[] = "wfCurationTags";
 
@@ -72,9 +73,7 @@ class CurationTagsAjax {
 		$doc->appendChild($root);
 		
 		foreach($tags as $t) {
-			$expr = "/^Curation:/"; //Only select curation tags
-			$tagName = $t->getName();
-			if(preg_match($expr, $tagName)) {
+			if(self::isCurationTag($t->getName())) {
 				$e = $doc->createElement("Name");
 				$e->appendChild($doc->createTextNode($t->getName()));
 				$root->appendChild($e);
@@ -84,6 +83,11 @@ class CurationTagsAjax {
 		$resp = new AjaxResponse(trim($doc->saveXML()));
 		$resp->setContentType("text/xml");
 		return $resp;
+	}
+	
+	public static function isCurationTag($tagName) {
+		$expr = "/^Curation:/";
+		return preg_match($expr, $tagName);
 	}
 	
 	/**
@@ -134,6 +138,56 @@ class CurationTagsAjax {
 		$root->appendChild($doc->createTextNode($name));
 		$doc->appendChild($root);
 		
+		$resp = new AjaxResponse(trim($doc->saveXML()));
+		$resp->setContentType("text/xml");
+		return $resp;
+	}
+	
+	/**
+	 * Get the tag history for the given page.
+	 * @param $pageId The page id
+	 * @param $fromTime An optional cutoff, if provided, only
+	 * history entries after this time will be returned.
+	 * @return An xml encoded response containing the history:
+	 * <History fromTime='timestamp'>
+	 * 		<HistoryRow tagName = 'tagname' ...(other history attributes)/>
+	 *		...
+	 * </History>
+	 */
+	public static function getTagHistory($pageId, $fromTime = '0') {
+		global $wgLang, $wgUser;
+		
+		$hist = MetaTag::getHistoryForPage($pageId, $fromTime);
+
+		$doc = new DOMDocument();
+		$root = $doc->createElement("History");
+		$doc->appendChild($root);
+		
+		foreach($hist as $h) {
+			if(self::isCurationTag($h->getTagName())) {
+				$elm = $doc->createElement("HistoryRow");
+				$elm->setAttribute('tag_name', $h->getTagName());
+				$elm->setAttribute('page_id', $h->getPageId());
+				$elm->setAttribute('action', $h->getAction());
+				$elm->setAttribute('user', $h->getUser());
+				$elm->setAttribute('time', $h->getTime());
+				
+				$timeText = $wgLang->timeanddate($h->getTime());
+				$elm->setAttribute('timeText', $timeText);
+				
+				$uid = $h->getUser();
+				$nm = $uid;
+				$u = User::newFromId($uid);
+				if($u) {
+					$nm = $u->getName();
+				}
+				$userText = $wgUser->getSkin()->userLink($uid, $nm);
+				$elm->setAttribute('userText', $userText);
+				
+				$root->appendChild($elm);
+			}
+		}
+
 		$resp = new AjaxResponse(trim($doc->saveXML()));
 		$resp->setContentType("text/xml");
 		return $resp;

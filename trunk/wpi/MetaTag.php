@@ -306,19 +306,30 @@ class MetaTag {
 	 * @return An array of MetaTagHistoryRow objects
 	 */
 	public function getHistory($fromTime = '0') {
-		$dbr = wfGetDB( DB_SLAVE );
-		$tbl = self::$TAG_HISTORY_TABLE;
-		$res = $dbr->query(
-			"SELECT * FROM $tbl WHERE " .
-			"tag_name = '{$this->name}' AND page_id = {$this->page_id} " .
-			"AND time >= $fromTime ORDER BY time"
-		);
+		return self::queryHistory($this->page_id, $this->name, $fromTime);
+	}
+	
+	public static function getHistoryForPage($pageId, $fromTime = '0') {
+		return self::queryHistory($pageId, false, $fromTime);
+	}
+	
+	private static function queryHistory($pageId, $tagName, $fromTime = '0') {
 		
-		$history = array();
-		while($row = $dbr->fetchObject( $res )) {
-			$history[] = new MetaTagHistoryRow($this, $row);
+		$nameWhere = '';
+		if($tagName) {
+			$nameWhere = "'{$tagName}' AND";
 		}
 		
+		$dbr = wfGetDB( DB_SLAVE );
+		$tbl = self::$TAG_HISTORY_TABLE;
+		$query = "SELECT * FROM $tbl WHERE " .
+			"$nameWhere page_id = {$pageId} " .
+			"AND time >= $fromTime ORDER BY time DESC";
+		$res = $dbr->query($query);
+		$history = array();
+		while($row = $dbr->fetchObject( $res )) {
+			$history[] = new MetaTagHistoryRow($row);
+		}
 		$dbr->freeResult( $res );
 		return $history;
 	}
@@ -339,13 +350,15 @@ class MetaTagException extends Exception {
  * Represent a row in the tag history table.
  */
 class MetaTagHistoryRow {
-	private $tag;
+	private $tag_name;
+	private $page_id;
 	private $action;
 	private $user;
 	private $time;
 	
-	function __construct($tag, $dbRow) {
-		$this->tag = $tag;
+	function __construct($dbRow) {
+		$this->tag_name = $dbRow->tag_name;
+		$this->page_id = $dbRow->page_id;
 		$this->action = $dbRow->action;
 		$this->user = $dbRow->action_user;
 		$this->time = $dbRow->time;
@@ -373,11 +386,17 @@ class MetaTagHistoryRow {
 	}
 	
 	/**
-	 * Get the object that represent the tag this
-	 * history row applies to
+	 * Get the tag name
 	 */
-	public function getTag() {
-		return $this->tag;
+	public function getTagName() {
+		return $this->tag_name;
+	}
+	
+	/**
+	 * Get the page id the tag applies to
+	 */
+	public function getPageId() {
+		return $this->page_id;
 	}
 }
 

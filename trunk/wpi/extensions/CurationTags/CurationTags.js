@@ -74,6 +74,13 @@ CurationTags.insertDiv = function(elementId, pageId) {
 	CurationTags.editDiv.style.display = "none";
 	CurationTags.contentDiv.appendChild(CurationTags.editDiv);
 	
+	//Container to show history
+	CurationTags.histDiv = document.createElement("div");
+	CurationTags.histDiv.id = "tagHist";
+	CurationTags.histDiv.className = "taghist";
+	CurationTags.histDiv.style.display = "none";
+	CurationTags.contentDiv.appendChild(CurationTags.histDiv);
+	
 	//Container to display toolbar
 	CurationTags.toolDiv = document.createElement("div");
 	CurationTags.toolDiv.className = "tagtool";
@@ -142,6 +149,10 @@ CurationTags.createToolDivContent = function() {
 	var helpTag = "<TD><A title='Show help page' " +
 		"href='" + CurationTags.helpLink + "' target='_blank'>" +
 		"<IMG src='" + CurationTags.extensionPath + "/help.png'/></A>";
+	
+	var histTag = "<TD><A title='Show history' id='showHistBtn'" +
+		"href='javascript:CurationTags.showHistory()'>" +
+		"<IMG src='" + CurationTags.extensionPath + "/history.png'/></A>";
 		
 	var newTag = "";
 	var newRevisionTag = "";
@@ -152,7 +163,7 @@ CurationTags.createToolDivContent = function() {
 		"<IMG src='" + CurationTags.extensionPath + "/new.png'/></A>";
 	}
 	CurationTags.toolDiv.innerHTML = 
-	"<TABLE><TR>" + newTag + helpTag +
+	"<TABLE><TR>" + newTag + helpTag + histTag +
 	"</TABLE>";
 }
 
@@ -239,6 +250,53 @@ CurationTags.saveTagCallback = function(xhr) {
 CurationTags.hideEditDiv = function() {
 	CurationTags.editDiv.innerHTML = "";
 	CurationTags.editDiv.style.display = "none";
+}
+
+CurationTags.showHistory = function() {
+	CurationTags.showProgress();
+	sajax_do_call(
+		"CurationTagsAjax::getTagHistory", 
+		[CurationTags.pageId, "0"], 
+		CurationTags.loadHistoryCallback
+	);
+}
+
+CurationTags.hideHistory = function() {
+	CurationTags.histDiv.style.display = "none";
+}
+
+CurationTags.loadHistoryCallback = function(xhr) {
+	if(CurationTags.checkResponse(xhr)) {
+		CurationTags.histDiv.innerHTML = ""; //Clear old contents
+		
+		var xml = CurationTags.getRequestXML(xhr);
+		var nodes = xml.getElementsByTagName("HistoryRow");
+		
+		var tbl = "<B>Tag history</B>" +
+			" - <A href='javascript:CurationTags.hideHistory();'>" +
+			"close</A><DIV class='taghistscroll'>" + 
+			"<TABLE class='taghisttable'><TBODY>";
+		
+		for(i=0;i<nodes.length;i++) {
+			var tagName = nodes[i].getAttribute("tag_name");
+			var displayName = tagName;
+			var tagDef = CurationTags.tagDefinitions[tagName];
+			if(tagDef) {
+				displayName = tagDef.displayName;
+			}
+			var time = nodes[i].getAttribute("timeText");
+			var user = nodes[i].getAttribute("userText");
+			var action = nodes[i].getAttribute("action");
+			tbl += "<TR><TD>" + time + ": <TD>" + user +
+				" " + action + "d<I> " + displayName + "</I> tag";
+		}
+		tbl += "</TBODY></TABLE></DIV>";
+		CurationTags.histDiv.innerHTML = tbl;
+		CurationTags.histDiv.style.display = "";
+		sortables_init();
+	}
+	
+	CurationTags.hideProgress();
 }
 
 CurationTags.showEditDiv = function(tagName) {

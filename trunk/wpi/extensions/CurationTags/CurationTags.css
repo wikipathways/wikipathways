@@ -45,6 +45,23 @@ div.tagdisplay {
 
 }
 
+div.taghistscroll {
+	border: 1px solid #E6EBFF;
+	overflow: auto;
+	height: 10em;
+	background-color: #FFFFFF;
+}
+
+div.taghisttable {
+	
+}
+
+div.taghist {
+	margin-top: 1em;
+	border: 1px solid #666666;
+	background-color: #DDDDDD;
+}
+
 div.tagbuttons {
 	z-index:500;
 	float: right;
