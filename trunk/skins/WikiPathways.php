@@ -100,7 +100,6 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
 		
 		<?php print Skin::makeGlobalVariablesScript( $this->data ); ?>
-                
 		<script type="<?php $this->text('jsmimetype') ?>" src="<?php $this->text('stylepath' ) ?>/common/wikibits.js?<?php echo $GLOBALS['wgStyleVersion'] ?>"><!-- wikibits js --></script>
 <?php	if($this->data['jsvarurl'  ]) { ?>
 		<script type="<?php $this->text('jsmimetype') ?>" src="<?php $this->text('jsvarurl'  ) ?>"><!-- site js --></script>
@@ -129,7 +128,20 @@ class WikiPathwaysTemplate extends QuickTemplate {
 	<div id="content">
 		<a name="top" id="top"></a>
 		<?php if($this->data['sitenotice']) { ?><div id="siteNotice"><?php $this->html('sitenotice') ?></div><?php } ?>
-		<h1 class="firstHeading"><?php $this->data['displaytitle']!=""?$this->html('title'):$this->text('title') ?></h1>
+		<h1 class="firstHeading"><?php 
+		/** TK: set custom title for pathway pages **/
+		$ns = $wgTitle->getNameSpace();
+		if($ns == NS_PATHWAY) {
+			try {
+				$p = Pathway::newFromTitle($wgTitle);
+				echo htmlspecialchars($p->name() . " (" . $p->species() . ")");
+			} catch(Exception $e) { //Fallback on default behavior
+				$this->data['displaytitle']!=""?$this->html('title'):$this->text('title');
+			}
+		} else { //Default behavior
+			$this->data['displaytitle']!=""?$this->html('title'):$this->text('title');
+		}
+		?></h1>
 		<div id="bodyContent">
 			<h3 id="siteSub"><?php $this->msg('tagline') ?></h3>
 			<div id="contentSub"><?php $this->html('subtitle') ?></div>
