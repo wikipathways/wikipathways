@@ -48,6 +48,10 @@ $wgEnableUserEmail  = true;
 $wgEmergencyContact = "webmaster@localhost";
 $wgPasswordSender = "webmaster@localhost";
 
+## Turn of httponly cookies, otherwise the applet will not
+## have access to the authentication cookies
+$wgCookieHttpOnly = false;
+
 ## For a detailed description of the following switches see
 ## http://meta.wikimedia.org/Enotif and http://meta.wikimedia.org/Eauthent
 ## There are many more options for fine tuning available see
