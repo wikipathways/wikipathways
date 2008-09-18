@@ -277,6 +277,7 @@ require_once('wpi/extensions/CheckGpmlOnSave.php' );
 require_once('wpi/extensions/CreateUserPage.php' );
 require_once('wpi/extensions/recaptcha/ReCaptcha.php'); 
 require_once('wpi/extensions/CurationTags/CurationTags.php');
+require_once('wpi/extensions/AuthorInfo/AuthorInfo.php');
 
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!
