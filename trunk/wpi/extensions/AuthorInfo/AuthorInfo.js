@@ -46,7 +46,7 @@ AuthorInfo.loadAuthorsCallback = function(xhr) {
 		var elements = xml.getElementsByTagName("Author");
 		
 		var showAll = AuthorInfo.lastLimit <= 0 ||
-			elements.length == AuthorInfo.lastLimit;
+			elements.length <= AuthorInfo.lastLimit;
 			
 		var html = "<span class='author'>";
 		var end = showAll ? elements.length : elements.length - 1;
