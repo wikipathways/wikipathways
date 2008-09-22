@@ -451,7 +451,7 @@ class Pathway {
 	 * \param description A description of the changes
 	 */
 	public function updatePathway($gpmlData, $description) {
-		global $wgLoadBalancer, $wgUser;
+		global $wgUser;
 		
 		//First validate the gpml
 		if($error = self::validateGpml($gpmlData)) {
@@ -473,7 +473,7 @@ class Pathway {
 		if(wfReadOnly()) {
 			throw new Exception("Database is read-only");
 		}
-		
+
 		$gpmlArticle = new Article($gpmlTitle, 0);	//Force update from the newest version
 		if(!$gpmlTitle->exists()) {
 			//This is a new pathway, add the author to the watch list
@@ -483,8 +483,6 @@ class Pathway {
 		$succ = true;
 		$succ =  $gpmlArticle->doEdit($gpmlData, $description);
 		if($succ) {
-			$wgLoadBalancer->commitAll();
-		
 			//Update category links
 			$this->updateCategories();
 			//Update cache
