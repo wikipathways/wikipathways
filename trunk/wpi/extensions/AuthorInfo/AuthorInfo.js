@@ -35,7 +35,7 @@ AuthorInfo.loadAuthors = function(limit) {
 	
 	sajax_do_call(
 		"jsGetAuthors",
-		[AuthorInfo.pageId, limit + 1, false],
+		[AuthorInfo.pageId, parseInt(limit) + 1, false],
 		AuthorInfo.loadAuthorsCallback
 	);
 }
