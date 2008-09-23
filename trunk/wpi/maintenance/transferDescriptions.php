@@ -38,7 +38,7 @@ while( $row = $dbr->fetchRow( $res )) {
 }
 
 function transferToGpml($title, $description) {
-	global $doit, $wgLoadBalancer;
+	global $doit;
 	
 	$description = htmlentities($description);
 	
@@ -65,7 +65,6 @@ function transferToGpml($title, $description) {
 		} else {
 			echo "UPDATE FAILED<BR>\n";
 		}
-		$wgLoadBalancer->commitAll();
 	}
 }
 ?>

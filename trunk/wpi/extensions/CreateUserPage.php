@@ -6,17 +6,12 @@ require_once('wpi/wpi.php');
 $wgHooks['AddNewAccount'][] = 'wfCreateUserPage';
 
 function wfCreateUserPage($user, $byEmail = false) {
-	global $wgLoadBalancer;
-	
 	//Create user page
 	$tempCall = "{{subst:Template:UserPage|{$user->getName()}|{$user->getRealName()}}}";
 	$title = $user->getUserPage();
 	$userPage = new Article($title, 0);
 	$succ = true;
 	$succ =  $userPage->doEdit($tempCall, "Initial user page");
-	if($succ) {
-		$wgLoadBalancer->commitAll();
-	}
 	
 	//Create talk page
 	$tempCall = "{{subst:Template:TalkPage|{$user->getName()}}}";
@@ -24,9 +19,6 @@ function wfCreateUserPage($user, $byEmail = false) {
 	$userPage = new Article($title, 0);
 	$succ = true;
 	$succ =  $userPage->doEdit($tempCall, "Initial user page");
-	if($succ) {
-		$wgLoadBalancer->commitAll();
-	}
 	
 	return true;
 }

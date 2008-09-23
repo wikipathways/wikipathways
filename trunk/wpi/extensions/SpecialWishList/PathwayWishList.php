@@ -91,8 +91,6 @@ class Wish {
 	}
 	
 	static function createNewWish($name, $comments) {
-		global $wgLoadBalancer;
-		
 		if(!$name) throw new Exception("Please fill in the pathway name");
 
 		$title = Title::newFromText($name, NS_WISHLIST);
@@ -115,8 +113,6 @@ class Wish {
 		if(!succ) {
 			throw new Exception("Unable to create article $name");
 		}
-		//Commit the changes
-		$wgLoadBalancer->commitAll();
 		
 		$wishArticle->doWatch();
 		
@@ -124,8 +120,6 @@ class Wish {
 	}
 	
 	function vote($userId) {
-		global $wgLoadBalancer;
-		
 		if(!$this->userCan('vote')) {
 			throw new Exception("You have no permissions to vote");
 		}
@@ -139,8 +133,6 @@ class Wish {
 	}
 	
 	function unvote($userId) {
-		global $wgLoadBalancer;
-		
 		if(!$this->userCan('unvote')) {
 			throw new Exception("You have no permissions to remove a vote");
 		}
@@ -154,7 +146,6 @@ class Wish {
 	}
 	
 	private function saveVotes($votes) {
-		global $wgLoadBalancer;
 		//Save the votes to the talk page
 		$voteText = implode("\n", $votes);
 		$voteText = "<!--VOTES\n{$voteText}\n-->";
@@ -162,7 +153,6 @@ class Wish {
 		if(!succ) {
 			throw new Exception("Unable to update votes for $name");
 		}
-		$wgLoadBalancer->commitAll();
 		$this->votes = ''; //clear vote cache
 	}
 	
@@ -233,7 +223,6 @@ class Wish {
 	}
 	
 	function markResolved($pathway) {
-		global $wgLoadBalancer;
 		//#REDIRECT [[pagename]]
 		if(!$this->userCan('resolve')) {
 			throw new Exception("You have no permissions to resolve this item");
@@ -241,7 +230,6 @@ class Wish {
 		
 		$this->article->doEdit("#REDIRECT [[{$pathway->getTitleObject()->getFullText()}]]",
 					"Resolved wishlist item {$this->getTitle()->getText()}");
-		$wgLoadBalancer->commitAll();		
 	}
 	
 	private function getFirstRevision() {

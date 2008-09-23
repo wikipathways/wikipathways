@@ -38,7 +38,7 @@ while( $row = $dbr->fetchRow( $res )) {
 }
 
 function transferToGpml($title, $category) {
-	global $doit, $wgLoadBalancer;
+	global $doit;
 	
 	$pathway = Pathway::newFromTitle($title);
 	$title = $pathway->getFileTitle(FILETYPE_GPML);
@@ -63,7 +63,6 @@ function transferToGpml($title, $category) {
 		} else {
 			echo "UPDATE FAILED<BR>\n";
 		}
-		$wgLoadBalancer->commitAll();
 	}
 }
 ?>

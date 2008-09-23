@@ -597,36 +597,31 @@ class Pathway {
 	 * Delete this pathway (MediaWiki pages and cache)
 	 */
 	public function delete() {
-		global $wgLoadBalancer;
 		wfDebug("Deleting pathway" . $this->getTitleObject()->getFullText() . "\n");
 		$reason = 'Deleted pathway';
 		$title = $this->getTitleObject();
 		Pathway::deleteArticle($title, $reason);
 		//Clean up SVG page
 		$this->clearCache(null, true);
-		$wgLoadBalancer->commitAll();
 	}
 
 	private function deleteImagePage($reason) {
-		global $wgLoadBalancer;
 		$title = $this->getFileTitle(FILETYPE_IMG);
 		Pathway::deleteArticle($title, $reason);
 		$img = new Image($title);
 		$img->delete($reason);
-		$wgLoadBalancer->commitAll();
 	}
 
 	/**
 	 * Delete a MediaWiki article
 	 */
 	public static function deleteArticle($title, $reason='not specified') {
-		global $wgUser, $wgLoadBalancer;
+		global $wgUser;
 		
 		$article = new Article($title);
 		
 		if (wfRunHooks('ArticleDelete', array(&$this, &$wgUser, &$reason))) {
 			$article->doDeleteArticle($reason);
-			$wgLoadBalancer->commitAll();
 			wfRunHooks('ArticleDeleteComplete', array(&$this, &$wgUser, $reason));
 		}
 	}
@@ -834,7 +829,7 @@ class Pathway {
 	## Assumes $saveName is already checked to be a valid Title
 	//TODO: run hooks
 	static function saveFileToWiki( $fileName, $saveName, $description ) {
-		global $wgLoadBalancer, $wgUser, $wgParser;
+		global $wgUser, $wgParser;
 		
 		wfDebug("========= UPLOADING FILE FOR WIKIPATHWAYS ==========\n");
 		wfDebug("=== IN: $fileName\n=== OUT: $saveName\n");
@@ -887,8 +882,6 @@ class Pathway {
 		if(!$success) {
 			throw new Exception( "Couldn't create description page" );
 		}
-
-		$wgLoadBalancer->commitAll();
 
 		//Dirty hack: set wgParser title back to original after uploading image,
 		//because mediawiki sets it to the image page

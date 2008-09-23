@@ -37,5 +37,4 @@ function deleteByExtension($ext) {
 	$dbr->freeResult( $res );
 }
 
-$wgLoadBalancer->commitAll();
 ?>

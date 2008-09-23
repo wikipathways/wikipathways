@@ -2,8 +2,6 @@
 
 require_once("Maintenance.php");
 
-global $wgLoadBalancer;
-
 //Iterate over users
 $dbr =& wfGetDB(DB_SLAVE);
 
@@ -18,7 +16,6 @@ while( $row = $dbr->fetchRow( $res )) {
 		if($doit) {
 			$user->setOption('enotifwatchlistpages', 1);
 			$user->saveSettings();
-			$wgLoadBalancer->commitAll();
 		}
 	}
 }

@@ -20,9 +20,6 @@ while($row = $dbr->fetchRow($res)) {
 				$userPage = new Article($userPageTitle, 0);
 				$succ = true;
 				$succ =  $userPage->doEdit($tempCall, "Initial user page");
-				if($succ) {
-					$wgLoadBalancer->commitAll();
-				}
 			}
 		}
 		if(!$userTalkTitle->exists()) {
@@ -33,9 +30,6 @@ while($row = $dbr->fetchRow($res)) {
 				$userPage = new Article($userTalkTitle, 0);
 				$succ = true;
 				$succ =  $userPage->doEdit($tempCall, "Initial user page");
-				if($succ) {
-					$wgLoadBalancer->commitAll();
-				}
 			}
 		}
 	} catch(Exception $e) {
