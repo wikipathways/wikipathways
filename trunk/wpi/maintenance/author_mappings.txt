@@ -1,0 +1,63 @@
+Caroline F. Thorn		C.F.Thorn	Caroline F. Thorn
+Andrew Kwa		A.Kwa	Andrew Kwa
+Andrew Kwa and Manny Ramirez		A.Kwa;M.Ramirez	Andrew Kwa;Manny Ramirez
+Diabetes Genome Anatomy Project Investigators		M.Patti	Mary-Elizabeth Patti
+Meredith Braymer		M.Braymer	Meredith Braymer
+Adapted from KEGG by Lynn M. Ferrante		L.M.Ferrante	Lynn M. Ferrante
+IOB, PandeyLab		A.Pandey	Akhilesh Pandey
+cBio MSKCC, IOB, PandeyLab		A.Pandey	Akhilesh Pandey
+Jessica Heckman		J.Heckman	Jessica Heckman
+Alexander C. Zambon and Beth Lawlor		A.C.Zambon; B.Lawlor	Alexander C. Zambon;Beth Lawlor
+Alexander Pico	AlexanderPico		
+Thomas Kelder (Adapted from science slides)	Thomas		
+Joanna Fong, Nathalie Cotte and Nathan Salomonis	Nsalomonis	J.Fong;N.Cotte	Joanna Fong;Nathalie Cotte
+Susan Coort	Susan		
+Alexander C. Zambon		A.C.Zambon	Alexander C. Zambon
+Adapted from KEGG	Nsalomonis;BruceConklin		
+Michael Lieberman and Ned Mantei		M.Lieberman;N.Mantei	Michael Lieberman;Ned Mantei
+Alex Zambon		A.C.Zambon	Alexander C. Zambon
+Nathan Salomonis	Nsalomonis		
+Nathan Salomonis and Manny Ramirez	Nsalomonis	M.Ramirez	Manny Ramirez
+Adapted from Biocarta by Sebastien Burel		S.Burel	Sebastien Burel
+David Koren, Kam Dahlquist	Kdahlquist	D.Koren	David Koren
+Kam Dahlquist	Kdahlquist		Kam Dahlquist
+Kam Dahlquist, Meredith Braymer	Kdahlquist	M.Braymer	Meredith Braymer
+Kam Dahlquist and Manny Ramirez	Kdahlquist	M.Ramirez	Manny Ramirez
+Kristina Hanspers	Khanspers		
+Charles Redfern, Nathan Salomonis and Chris Evelo	Nsalomonis;Evelo	C.Redfern	Charles Redfern
+Charles Redfern, NathanSalomonis and Chris Evelo	Nsalomonis;Evelo	C.Redfern	Charles Redfern
+Chris Evelo et al.	Evelo		
+Kam Dahlquist and Chris Evelo et al.	Kdahlquist;Evelo		
+Anita Chow		A.Chow	Anita Chow
+Anita Chow and Manny Ramirez		A.Chow;M.Ramirez	Anita Chow;Manny Ramirez
+Charlie Redfern, Nathan Salomonis, Bruce Conklin	Nsalomonis;BruceConklin	C.Redfern	Charles Redfern
+Charles Redfern, Nathan Salomonis, Bruce Conklin	Nsalomonis;BruceConklin	C.Redfern	Charles Redfern
+Michael Lieberman		M.Lieberman	Michael Lieberman
+Nathan Salomonis and Michael Lieberman	Nsalomonis	M.Lieberman	Michael Lieberman
+Michael Lieberman and Nathan Salomonis	Nsalomonis;Bconklin	M.Lieberman	Michael Lieberman
+Nick Fidelman, Kam Dahlquist	Kdahlquist	N.Fidelman	Nick Fidelman
+Adapted from GPCRDB (Horn et al., 1998)	Nsalomonis;BruceConklin		
+Ismael Reyes		I.Reyes	Ismael Reyes
+Nick Fidelman		N.Fidelman	Nick Fidelman
+Nick Fidelman and Manny Ramirez		N.Fidelman;M.Ramirez	Nick Fidelman;Manny Ramirez
+Adapted from Diabetes Genome Anatomy Project	Nsalomonis;BruceConklin		
+Nick Fidelman, Kam Dahlquist and Manny Ramirez	Kdahlquist	N.Fidelman;M.Ramirez	Nick Fidelman;Manny Ramirez
+Nathan Salomonis and Ismael Reyes	Nsalomonis	I.Reyes	Ismael Reyes
+Adapted from KEGG by Sebastien Burel		S.Burel	Sebastien Burel
+Niradiz Reyes.		N.Reyes	Niradiz Reyes
+Joanna S. Fong and Nathan Salomonis	Nsalomonis	J.S.Fong	Joanna S. Fong
+Austin J. Carolo		A.J.Carolo	Austin J. Carolo
+Ellen Tuninsky		E.Tuninsky	Ellen Tuninsky
+Ellen Tuninsky and Manny Ramirez		E.Tuninsky;M.Ramirez	Ellen Tuninsky;Manny Ramirez
+Dr. Izhar Ben-Shlomo, Dr. Aaron Hsueh		I.BenShlomo;A.Hsueh	Izhar Ben-Shlomo;Aaron Hsueh
+Niradiz Reyes and Ismael Reyes		N.Reyes;I.Reyes	Niradiz Reyes;Ismael Reyes
+Adapted by Nathan Salomonis	Nsalomonis		
+Scott Doniger		S.Doniger	Scott Doniger
+Scott Doniger and Manny Ramirez		S.Doniger;M.Ramirez	Scott Doniger;Manny Ramirez
+GenMAPP	Nsalomonis;BruceConklin		
+PharmGKB	Nsalomonis;BruceConklin		
+Joanna Fong and Nathan Salomonis	Nsalomonis	J.Fong	Joanna Fong
+Niradiz Reyes		N.Reyes	Niradiz Reyes
+Nurit Gal		N.Gal	Nurit Gal
+Nurit Gal and Manny Ramirez		N.Gal;M.Ramirez	Nurit Gal;Manny Ramirez
+Michael Lieberman and Manny Ramirez		M.Lieberman;M.Ramirez	Michael Lieberman;Manny Ramirez
