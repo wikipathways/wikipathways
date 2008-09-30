@@ -2,7 +2,11 @@
 $dir = getcwd();
 chdir("../");
 require_once('wpi.php');
-require_once('search.php');
+try {
+	require_once('search.php');
+} catch(Exception $e) {
+	wfDebug("Webservice: Unable to connect to lucene index!\n");
+}
 chdir($dir);
 
 $operations = array(
@@ -15,6 +19,9 @@ $operations = array(
 	"updatePathway",
 	"findPathwaysByText",
 	"findPathwaysByXref",
+	"removeCurationTag",
+	"saveCurationTag",
+	"getCurationTags",
 	
 );
 $opParams = array(
@@ -27,6 +34,9 @@ $opParams = array(
 	"updatePathway" => "MIXED",
 	"findPathwaysByText" => "MIXED",
 	"findPathwaysByXref" => "MIXED",
+	"removeCurationTag" => "MIXED",
+	"saveCurationTag" => "MIXED",
+	"getCurationTags"=> "MIXED",
 );
 
 $classmap = array(); //just let the engine know you prefer classmap mode
@@ -65,7 +75,7 @@ function listPathways() {
  * Get the GPML code for a pathway
  * @param string $pwName The pathway name
  * @param string $pwSpecies The pathway species
- * @param integer $revision The revision number of the pathway (use 0 for most recent)
+ * @param int $revision The revision number of the pathway (use 0 for most recent)
  * @return object WSPathway $pathway The pathway
  **/
 function getPathway($pwName, $pwSpecies, $revision = 0) {
@@ -156,7 +166,7 @@ function login($name, $pass) {
  * 'svg', 'png' or 'txt'
  * @param string $pwName The pathway name
  * @param string $pwSpecies The pathway species
- * @param integer $revision The revision number of the pathway (use 0 for most recent)
+ * @param int $revision The revision number of the pathway (use 0 for most recent)
  * @return base64Binary $data The converted file data (base64 encoded)
  **/
 function getPathwayAs($fileType, $pwName, $pwSpecies, $revision = 0) {
@@ -253,6 +263,78 @@ function findPathwaysByXref($id, $code = '', $indirect = true) {
 		$objects[] = new WSSearchResult($r, array(PathwayIndex::$f_graphId));
 	}
 	return array("result" => $objects);
+}
+
+/**
+ * Apply a curation tag to a pahtway. This operation will
+ * overwrite any existing tag with the same name.
+ * @param string $pwName The name of the pathway
+ * @param string $pwSpecies The species of the pathway
+ * @param string $tagName The name of the tag to apply
+ * @param string $tagText The tag text (optional)
+ * @param int $revision The revision this tag applies to
+ * @param object WSAuth $auth The authentication info
+ * @return boolean $success
+ */
+function saveCurationTag($pwName, $pwSpecies, $tagName, $text, $revision, $auth) {
+	if($auth) {
+		authenticate($auth['user'], $auth['key']);
+	}
+	
+	try {
+		$pathway = new Pathway($pwName, $pwSpecies);
+		if($pathway->exists()) {
+			$pageId = $pathway->getTitleObject()->getArticleId();
+			CurationTag::saveTag($pageId, $tagName, $text, $revision);
+		}
+	} catch(Exception $e) {
+		wfDebug("ERROR: $e");
+		throw new WSFault("Receiver", $e);
+	}
+	return array("success" => true);
+}
+
+/**
+ * Remove a curation tag from a pathway.
+ * @param string $pwName The name of the pathway
+ * @param string $pwSpecies The species of the pathway
+ * @param string $tagName The name of the tag to apply
+ * @param object WSAuth $auth The authentication data
+ * @return boolean $success
+ **/
+function removeCurationTag($pwName, $pwSpecies, $tagName, $auth) {
+	if($auth) {
+		authenticate($auth['user'], $auth['key']);
+	}
+	
+	try {
+		$pathway = new Pathway($pwName, $pwSpecies);
+		if($pathway->exists()) {
+			$pageId = $pathway->getTitleObject()->getArticleId();
+			CurationTag::removeTag($tagName, $pageId);
+		}
+	} catch(Exception $e) {
+		wfDebug("ERROR: $e");
+		throw new WSFault("Receiver", $e);
+	}
+	return array("success" => true);
+}
+
+/**
+ * Get all curation tags for the given pathway.
+ * @param string $pwName The name of the pathway
+ * @param string $pwSpecies The species of the pathway
+ * @return array of object WSCurationTag $tags The curation tags.
+ **/
+function getCurationTags($pwName, $pwSpecies) {
+	$pw = new Pathway($pwName, $pwSpecies);
+	$pageId = $pw->getTitleObject()->getArticleId();
+	$tags = CurationTag::getCurationTags($pageId);
+	$wstags = array();
+	foreach($tags as $t) {
+		$wstags[] = new WSCurationTag($t);
+	}
+	return array("tags" => $wstags);
 }
 
 //Non ws functions
@@ -389,5 +471,57 @@ class WSAuth {
 	 * @var string $key The authentication key
 	 **/
 	public $key;
+}
+
+/**
+ * @namespace http://www.wikipathways.org/webservice
+ **/
+class WSCurationTag {
+	public function __construct($metatag) {
+		$this->name = $metatag->getName();
+		$this->displayName = CurationTag::getDisplayName($this->name);
+		$this->pathway = new WSPathwayInfo(
+			Pathway::newFromTitle(Title::newFromId($metatag->getPageId()))
+		);
+		$this->revision = $metatag->getPageRevision();
+		$this->text = $metatag->getText();
+		$this->timeModified = $metatag->getTimeMod();
+		$this->userModified = User::newFromId($metatag->getUserMod())->getName();
+	}
+	
+	/**
+	 * @var string $name The internal tag name
+	 **/
+	public $name;
+	
+	/**
+	 * @var string $displayName The display name of the tag
+	 */
+	public $displayName;
+	
+	/**
+	 * @var object WSPathwayInfo $pathway The pathway this tag applies to
+	 */
+	public $pathway;
+	
+	/**
+	 *@var string $revision The revision this tag applies to. '0' is used for tags that apply to all revisions.
+	 */
+	public $revision;
+	
+	/**
+	 *@var string $text The tag text.
+	 */
+	public $text;
+	
+	/**
+	 *@var long $timeModified The timestamp of the last modified date
+	 */
+	public $timeModified;
+	
+	/**
+	 *@var string $userModified The username of the user that last modified the tag
+	 */
+	public $userModified;
 }
 ?>
