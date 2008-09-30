@@ -22,7 +22,7 @@ $operations = array(
 	"removeCurationTag",
 	"saveCurationTag",
 	"getCurationTags",
-	
+	"getColoredPathway",
 );
 $opParams = array(
 	"listOrganisms" => "MIXED",
@@ -37,6 +37,7 @@ $opParams = array(
 	"removeCurationTag" => "MIXED",
 	"saveCurationTag" => "MIXED",
 	"getCurationTags"=> "MIXED",
+	"getColoredPathway" => "MIXED",
 );
 
 $classmap = array(); //just let the engine know you prefer classmap mode
@@ -335,6 +336,51 @@ function getCurationTags($pwName, $pwSpecies) {
 		$wstags[] = new WSCurationTag($t);
 	}
 	return array("tags" => $wstags);
+}
+
+/**
+ * Get a colored image version of the pahtway.
+ * @param string $pwName The name of the pathway
+ * @param string $pwSpecies The species of the pathway
+ * @param string $revision The revision of the pathway (use '0' for most recent)
+ * @param array of string $graphId An array with graphIds of the objects to color
+ * @param array of string $color An array with colors of the objects (should be the same length as $graphId)
+ * @param string $fileType The image type (One of 'svg', 'pdf' or 'png').
+ * @return base64Binary $data The image data (base64 encoded)
+ **/
+function getColoredPathway($pwName, $pwSpecies, $revision, $graphId, $color, $fileType) {
+	try {
+		$p = new Pathway($pwName, $pwSpecies);
+		$p->setActiveRevision($revision);
+		$gpmlFile = realpath($p->getFileLocation(FILETYPE_GPML));
+		
+		$outFile = WPI_TMP_PATH . "/" . $p->getTitleObject()->getDbKey() . '.' . $fileType;
+
+		if(count($color) != count($graphId)) {
+			throw new Exception("Number of colors doesn't match number of graphIds");
+		}
+		$colorArg = '';
+		for($i = 0; $i < count($color); $i++) {
+			$colorArg .= " -c '{$graphId[$i]}' '{$color[$i]}'";
+		}
+		
+		$basePath = WPI_SCRIPT_PATH;
+		$cmd = "java -jar $basePath/bin/pathvisio_color_exporter.jar '$gpmlFile' '$outFile' $colorArg 2>&1";
+		wfDebug("COLOR EXPORTER: $cmd\n");
+		exec($cmd, $output, $status);
+		
+		foreach ($output as $line) {
+			$msg .= $line . "\n";
+		}
+		if($status != 0 ) {
+			throw new Exception("Unable to convert to $outFile:\nStatus:$status\nMessage:$msg");
+		}
+		$data = file_get_contents($outFile);
+		$data = base64_encode($data);
+	} catch(Exception $e) {
+		throw new WSFault("Receiver", "Unable to get pathway: " . $e);
+	}
+	return array("data" => $data);
 }
 
 //Non ws functions
