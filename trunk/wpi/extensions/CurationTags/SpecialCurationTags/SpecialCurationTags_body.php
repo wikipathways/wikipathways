@@ -18,7 +18,7 @@ class SpecialCurationTags extends SpecialPage {
 			
 			$nr = count($pages);
 			$wgOut->addWikiText(
-				"The table below shoes all $nr pathways that are tagged with curation tag: " .
+				"The table below shows all $nr pathways that are tagged with curation tag: " .
 				"'''$disp'''. "
 			);
 			$wgOut->addHTML("<p><a href='$url'>back</a></p>");
