@@ -119,8 +119,38 @@ class CurationTag {
 	}
 	
 	/**
+	 * Get the description for the given tag name
+	 */
+	public static function getDescription($tagname) {
+		$xpath = 'Tag[@name="' . $tagname . '"]/@description';
+		$dn = self::getTagDefinition()->xpath($xpath);
+		return $dn ? (string)$dn[0]['description'] : '';
+	}
+	
+	/**
+	 * Get the names of all available curation tags.
+	 */
+	public static function getTagNames() {
+		$xpath = 'Tag/@name';
+		$dn = self::getTagDefinition()->xpath($xpath);
+		$names = array();
+		foreach($dn as $e) $names[] = $e['name'];
+		return $names;
+	}
+	
+	/**
+	 * Get all pages that have the given curation tag.
+	 * @param $name The tag name
+	 * @return An array with page ids
+	 */ 
+	public static function getPagesForTag($tagname) {
+		return MetaTag::getPagesForTag($tagname);
+	}
+	
+	/**
 	 * Get the SimpleXML representation of the tag definition
-	 * XML.
+	 * X		$dn = self::getTagDefinition()->xpath($xpath);
+		return $dn ? (string)$dn[0]['displayName'] : $tagname;ML.
 	 **/
 	public static function getTagDefinition() {
 		if(!self::$tagDefinition) {

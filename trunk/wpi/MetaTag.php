@@ -62,6 +62,28 @@ class MetaTag {
 	}
 	
 	/**
+	 * Get all pages that have the given tag.
+	 * @param $name The tag name
+	 * @return An array with page ids
+	 */
+	public static function getPagesForTag($name) {
+		$pages = array();
+		
+		$dbr = wfGetDB( DB_SLAVE );
+		$res = $dbr->select(
+			self::$TAG_TABLE, 
+			array('page_id'),
+			array('tag_name' => $name)
+		);
+		while($row = $dbr->fetchObject( $res )) {
+			$pages[] = $row->page_id;
+		}
+		
+		$dbr->freeResult( $res );
+		return $pages;
+	}
+	
+	/**
 	 * Attempts to load the tag information
 	 * from the database if the tag exists
 	 */
