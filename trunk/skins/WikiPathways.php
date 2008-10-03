@@ -199,7 +199,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
 <?php 			foreach($cont as $key => $val) { ?>
 				<li id="<?php echo Sanitizer::escapeId($val['id']) ?>"<?php
 					if ( $val['active'] ) { ?> class="active" <?php }
-				?>><a href="<?php echo htmlspecialchars($val['href']) ?>"><?php echo htmlspecialchars($val['text']) ?></a></li>
+				?>><a href="<?php echo htmlspecialchars($val['href']) ?>"><?php echo htmlspecialchars(ucfirst($val['text'])) ?></a></li>
 <?php			} ?>
 			</ul>
 		</div>
