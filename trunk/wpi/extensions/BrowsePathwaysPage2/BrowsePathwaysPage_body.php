@@ -201,7 +201,7 @@ function namespaceForm ( $namespace = NS_PATHWAY, $pick, $pickCat ) {
 	/**
 	 * Species Selection
  	 */
-                $speciesselect = "\n<select name='browse' class='namespaceselector'>\n";
+                $speciesselect = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
 
 		$arr = Pathway::getAvailableSpecies();
 		asort($arr);
@@ -236,7 +236,7 @@ function namespaceForm ( $namespace = NS_PATHWAY, $pick, $pickCat ) {
 	/**
 	 * Category Selection
 	 */
-	        $catselect = "\n<select name='browseCat' class='namespaceselector'>\n";
+	        $catselect = "\n<select onchange='this.form.submit()' name='browseCat' class='namespaceselector'>\n";
 
 		$arrCat = Pathway::getAvailableCategories();
 		asort($arrCat);
@@ -267,8 +267,7 @@ function namespaceForm ( $namespace = NS_PATHWAY, $pick, $pickCat ) {
 
                 $catselect .= "</select>\n";
 
-
-	$submitbutton = '<input type="submit" value="Go" name="pick" />';
+	$submitbutton = '<noscript><input type="submit" value="Go" name="pick" /></noscript>';
 
 	$out = "<form method='get' action='{$wgScript}'>";
 	$out .= '<input type="hidden" name="title" value="'.$t->getPrefixedText().'" />';
