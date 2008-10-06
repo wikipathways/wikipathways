@@ -17,8 +17,10 @@ if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
 	$fileType = $_GET['fileType'];
 	$listPage = $_GET['listPage'];
 	$onlyCategorized = $_GET['onlyCategorized'];
+	$tag = $_GET['tag'];
+	
 	if($species) {
-		batchDownload($species, $fileType, $listPage, $onlyCategorized);
+		batchDownload($species, $fileType, $listPage, $onlyCategorized, $tag);
 	}
 }
 
@@ -26,22 +28,27 @@ function createDownloadLinks($input, $argv, &$parser) {
 	$fileType = $argv['filetype'];
 	$listPage = $argv['listpage'];
 	$onlyCategorized = $argv['onlycategorized'];
+	$tag = $argv['tag'];
+	
 	if($listPage) {
 		$listParam = '&listPage=' . $listPage;
 	}
 	if($onlyCategorized) {
 		$onlyCategorizedParam = '&onlyCategorized=true';
 	}
+	if($tag) {
+		$tagParam = "&tag=$tag";
+	}
 	
 	foreach(Pathway::getAvailableSpecies() as $species) {
 		$html .= tag('li', 
-					tag('a',$species,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType$listParam$onlyCategorizedParam", 'target'=>'_new')));
+					tag('a',$species,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType$listParam$onlyCategorizedParam$tagParam", 'target'=>'_new')));
 	}
 	$html = tag('ul', $html);
 	return $html;
 }
 
-function batchDownload($species, $fileType, $listPage = '', $onlyCategorized = false) {
+function batchDownload($species, $fileType, $listPage = '', $onlyCategorized = false, $tag = '') {
 /*
 	if(!(
 		$fileType == FILETYPE_GPML ||
@@ -79,6 +86,17 @@ function batchDownload($species, $fileType, $listPage = '', $onlyCategorized = f
 					$filtered[] = $p;
 					break;
 				}
+			}
+		}
+		$pathways = $filtered;
+	}
+	if($tag) {
+		$filtered = array();
+		$pages = MetaTag::getPagesForTag($tag);
+		
+		foreach($pathways as $p) {
+			if(in_array($p->getTitleObject()->getArticleId(), $pages)) {
+				$filtered[] = $p;
 			}
 		}
 		$pathways = $filtered;
