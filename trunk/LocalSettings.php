@@ -215,6 +215,10 @@ $wgGroupPermissions[ 'user' ][ 'ns107_edit'] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns107_create'] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns107_move'] = true;
 $wgGroupPermissions[ 'sysop' ][ 'ns107_delete'] = true;
+$wgGroupPermissions['usersnoop'   ]['usersnoop'] = true;
+$wgGroupPermissions['sysop'       ]['usersnoop'] = true;
+$wgGroupPermissions['bureaucrat'  ]['usersnoop'] = true;
+
 //AP20071027 
 # Reject user creation from specific domains
 function abortOnBadDomain($user, $message) {
@@ -277,6 +281,7 @@ require_once('wpi/extensions/CheckGpmlOnSave.php' );
 require_once('wpi/extensions/CreateUserPage.php' );
 require_once('wpi/extensions/recaptcha/ReCaptcha.php'); 
 require_once('wpi/extensions/CurationTags/CurationTags.php');
+require_once('wpi/extensions/UserSnoop.php');
 require_once('wpi/extensions/AuthorInfo/AuthorInfo.php');
 require_once('wpi/extensions/CurationTags/SpecialCurationTags/SpecialCurationTags.php');
 
