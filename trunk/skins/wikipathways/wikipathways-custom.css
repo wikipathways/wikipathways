@@ -30,6 +30,12 @@
 	padding: 0.25em 0.5em;
 }
 
+.tag.greyBg {
+	border-left: 10px solid #A7A7A7;
+	background-color: #F1F1F1;
+	padding: 0.25em 0.5em;
+}
+
 /*****
 * Panels for frontpage
 ******/
