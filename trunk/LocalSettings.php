@@ -97,6 +97,9 @@ $wgImageMagickConvertCommand = "/usr/bin/convert";
 ## this, if it's not already uncommented:
 # $wgHashedUploadDirectory = false;
 
+## User ID for UserLoginLog extension
+$wgServerUser = 101;
+
 ## Enable AJAX
 $wgUseAjax = true;
 
@@ -284,6 +287,7 @@ require_once('wpi/extensions/CurationTags/CurationTags.php');
 require_once('wpi/extensions/UserSnoop.php');
 require_once('wpi/extensions/AuthorInfo/AuthorInfo.php');
 require_once('wpi/extensions/CurationTags/SpecialCurationTags/SpecialCurationTags.php');
+require_once('wpi/extensions/UserLoginLog/UserLoginLog.php');
 
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!
