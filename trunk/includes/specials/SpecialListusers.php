@@ -101,7 +101,11 @@ class UsersPager extends AlphabeticPager {
 			$groups = '';
 		}
 
-		$item = wfSpecialList( $name, $groups );
+		//AP20081006 - replaced group info with links to User_snoop
+		$snoop = Title::makeTitle( NS_SPECIAL, 'User_snoop');
+		$snooplink = $this->getSkin()->makeKnownLinkObj( $snoop, 'info', wfArrayToCGI( array('username' => $row->user_name)), '','','');
+		
+		$item = wfSpecialList( $name, $snooplink);
 		wfRunHooks( 'SpecialListusersFormatRow', array( &$item, $row ) );
 		return "<li>{$item}</li>";
 	}
