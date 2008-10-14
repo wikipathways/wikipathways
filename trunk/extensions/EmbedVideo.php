@@ -138,7 +138,7 @@ class EmbedVideo {
      
         # Build URL and output embedded flash object
         //AP20081013
-	$ratio = 480 / 385;
+	$ratio = 480 / 397;
         $width = 480;
         
         if ($params['width']!==null) {
@@ -203,7 +203,7 @@ $wgEmbedVideoServiceList = array(
         'url' => 'http://flash.revver.com/player/1.0/player.swf?mediaId=$1'
     ),
     'youtube' => array(
-        'url'=>'http://www.youtube.com/v/$1&fmt=18'
+        'url'=>'http://www.youtube.com/v/$1&ap=%2526fmt%3D18'
     )
 );
 
