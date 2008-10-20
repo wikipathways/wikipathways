@@ -288,6 +288,8 @@ require_once('wpi/extensions/UserSnoop.php');
 require_once('wpi/extensions/AuthorInfo/AuthorInfo.php');
 require_once('wpi/extensions/CurationTags/SpecialCurationTags/SpecialCurationTags.php');
 require_once('wpi/extensions/UserLoginLog/UserLoginLog.php');
+require_once('extensions/LiquidThreads/LiquidThreads.php');
+require_once('extensions/SocialRewarding/SocialRewarding.php');
 
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!
