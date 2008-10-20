@@ -1,0 +1,98 @@
+== SocialRewarding extension for MediaWiki ==
+
+Version: 0.9
+Date: 2007-09-03
+
+Copyright (C) 2007 Bernhard Hoisl <berni@hoisl.com>
+
+This package is the SocialRewarding extension for MediaWiki. The
+focus is laid on generating benefits for users in order to
+achieve a higher contribution rate in a wiki system. Therefore,
+social rewarding mechanisms are implemented to reward people
+contributing to an online community. In an online community
+social rewarding is in the majority of cases based on
+accentuation of the most active members. For example, ranking
+of users' activities ("top contributors"). In this extension
+four techniques has been designed: "Amount of References", "Most
+Viewed Articles", "Rating of Articles" and a "Recommender
+System". An in-depth explanation of social rewarding methods,
+there design principles, and a technical description can be
+found in the document named "SocialRewardingDocumentation.pdf"
+which is included in the package and should be located in the
+same directory as the extension.
+
+The SocialRewarding extension is licensed under the terms of the
+GNU General Public License, version 2 or later (see
+http://www.fsf.org/licenses/gpl.html). You should have received
+a copy of the GNU General Public License along with this program
+(have a look at file "SocialRewardingCOPYING").
+
+
+== Installation requirements ==
+
+* A web-server (extension was tested on Apache 2.0.54).
+* MediaWiki 1.6 or higher (extension was tested with 1.6.0,
+  1.6.7, 1.7.1 and 1.10.0; with some little adaptations the
+  extension should work on older versions, too).
+* PHP 4.3 or higher; 5.x is recommended (extension was tested
+  with PHP 4.3.5 and 5.1.4). If you use a PHP version prior 5
+  social rewarding method "Amount of References" is disabled
+  automatically because of a nonexistent SOAP interface.
+* A MySQL server 4.0 or higher (extension was tested with MySQL
+  4.0.18).
+
+The SocialRewarding extension was developed on Apache 2.0.54 with
+MediaWiki 1.6.7 and 1.10.0 respectively, PHP 5.1.4, and
+MySQL 4.0.18.
+
+The extension may work with older software products, but then
+it can be that not all features are available. However, to
+minimize problems it is recommended that you always use the
+latest stable release of all software products.
+
+For security reasons please turn register_globals = Off in your
+php.ini. Neither MediaWiki nor the SocialRewarding extension
+need register_globals to be enabled.
+
+
+== Installation ==
+
+* Download a copy of the zipped SocialRewarding package.
+* Unpack all files to the extension directory of your MediaWiki
+  installation (e.g. [MediaWikiPath]/extensions/SocialRewarding/).
+* To activate the SocialRewarding extension in MediaWiki you have
+  to edit your [MediaWikiPath]/LocalSettings.php. Insert the
+  following at the end of the file:
+  require_once("extensions/SocialRewarding/SocialRewarding.php");
+* Configure the SocialRewarding package by editing the file 
+  SocialRewardingConfigDetail.php or SocialRewardingConfigShort.php
+  depending wether you would like to have a detailed or only a
+  short description of the configuration parameters. To enable one
+  of the configuration files you have to edit the file
+  SocialRewarding.php and un-/comment lines 43 or 44 where the
+  short and the long version of the configuration files are loaded.
+  The short version is loaded by default. Be sure to have your
+  copy of the SocialRewarding extension configured correctly before
+  moving on to the next step.
+* For setting up social rewarding method Amount of References you
+  have to obtain a license key from http://www.google.com/apis to
+  be able to use Google's SOAP Search API (beta). The license key
+  has to be inserted into the variable
+  $SocialRewarding["references"]["googleKey"] in your configuration
+  file.
+* Now start your favorite web-browser and navigate to the
+  installation script. The URL should be something like
+  http://www.YourWebServer.org/MediaWiki/index.php/
+  Special:SocialRewardingInstall.
+  Alternatively, you can also reach the installation page if you
+  browse the special pages of your MediaWiki and click on the link
+  called "Social Rewarding: Installation".
+* If you get an error while trying to reach the installation
+  special page you probably have to copy all special pages of this
+  package to the [MediaWikiPath]/includes/ directory. To identify
+  special pages they are all starting with
+  "SpecialSocialRewarding".
+* Follow the instructions on the installation page. After you
+  completed the installation successfully your SocialRewarding
+  extension should work.
+
