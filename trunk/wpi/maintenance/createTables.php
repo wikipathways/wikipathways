@@ -21,6 +21,16 @@ $dbw->sourceFile(realpath('./metatags.sql'), false, 'printSql');
 
 $dbw->immediateCommit();
 
+/* Tables for LiquidThreads */
+echo "*** Creating tables for LiquidThreads ***\n";
+
+$dbw =& wfGetDB(DB_MASTER);
+$dbw->immediateBegin();
+
+
+$dbw->sourceFile(realpath('./lqt.sql'), false, 'printSql');
+
+$dbw->immediateCommit();
 
 function printSql($txt) {
 	echo "SQL> $txt\n";
