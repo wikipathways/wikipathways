@@ -32,6 +32,17 @@ $dbw->sourceFile(realpath('./lqt.sql'), false, 'printSql');
 
 $dbw->immediateCommit();
 
+/* Tables for SocialRewarding */
+echo "*** Creating tables for SocialRewarding ***\n";
+
+$dbw =& wfGetDB(DB_MASTER);
+$dbw->immediateBegin();
+
+
+$dbw->sourceFile(realpath('./SocialRewardingTables.sql'), false, 'printSql');
+
+$dbw->immediateCommit();
+
 function printSql($txt) {
 	echo "SQL> $txt\n";
 }
