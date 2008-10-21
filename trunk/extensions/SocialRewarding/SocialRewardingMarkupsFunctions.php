@@ -202,7 +202,7 @@ function SocialRewardingRatingOfArticlesMarkup($text, $arg) {
 
 	$output = "
 		<form action = $action method=get>
-			<input type=hidden name=title value='$title_text'>
+			<input type=hidden name=title value='Pathway:$title_text'>
 			<input type=hidden name=SocialRewardingRating value=true>
 			<table height=20 valign=center>
 				<tr>
@@ -211,9 +211,6 @@ function SocialRewardingRatingOfArticlesMarkup($text, $arg) {
 					</td>
 					<td>
 						$radio
-					</td>
-					<td>
-						Point(s)
 					</td>
 						$comment
 					<td>
@@ -362,18 +359,18 @@ function SocialRewardingRecommendMarkup($text, $arg) {
 				if (is_object($revision)) {
 					$title = $revision->getTitle();
 					$titleText = $title->getText();
-					$outputAdd = $skin->makeLink($titleText, $titleText, "oldid=$key");
+					$outputAdd = $skin->makeLink("Pathway:$titleText", $titleText, "oldid=$key");
 				}
 			} else if ($method == "article") {
 				$title = Title::newFromID($key);
 				$titleText = $title->getText();
-				$outputAdd = $skin->makeLink($titleText, $titleText);
+				$outputAdd = $skin->makeLink("Pathway:$titleText", $titleText);
 			}
 
 			if ($arg["rank"] == "true" && $SocialRewarding["recommend"]["markupStdRank"] == true) {
 				$output .= "$i. ";
 			}
-			$output .= $outputAdd;
+			$output .= "  $outputAdd";
 			if ($arg["points"] == "true" && $SocialRewarding["recommend"]["markupStdPoints"] == true) {
 				$output .= " (" . round($val, $SocialRewarding["reward"]["round"]) . ")";
 			}

@@ -251,6 +251,23 @@ class RewardRecommend extends Reward {
 		}
 	}
 
+        /**
+         * Exclude articles which are *not* pathway pages.
+         *
+         * @access private
+         * @param array &$recommend Recommended list
+         */
+        function excludeNonPathwayArticles(&$recommend) {
+                if (is_array($recommend)) {
+                        foreach($recommend as $key => $val) {
+				$revision = Revision::newFromId($key);
+			        if (!(preg_match('/Pathway\:/', $revision->getTitle()))){
+                                        unset($recommend[$key]);
+                                }
+                        }
+                }
+        }
+
 
 	/**
 	 * Load all recommended revisions for all authors.
@@ -335,6 +352,9 @@ class RewardRecommend extends Reward {
 				$this->excludeUsersVisitedArticles($recommend, $this->data[$key]);
 			}
 
+                        // Exclude non-pathway articles
+                                $this->excludeNonPathwayArticles($recommend);
+			
 			// Exclude articles where user is author
 			if ($this->SocialRewarding["recommend"]["excludeUsersArticles"] == true) {
 				$this->excludeUsersArticles($key, $recommend);

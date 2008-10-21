@@ -194,11 +194,11 @@ class SpecialSocialRewardingRecommenderSystem {
 							$revision = Revision::newFromId($key2);
 							$title = $revision->getTitle();
 							$titleText = $title->getText();
-							$outputAdd = $skin->makeLink($titleText, "[R$key2] $titleText", "oldid=$key2");
+							$outputAdd = $skin->makeLink("Pathway:$titleText", "[R$key2] $titleText", "oldid=$key2");
 						} else if ($_GET["sr_recommend"] == 2) {
 							$title = Title::newFromID($key2);
 							$titleText = $title->getText();
-							$outputAdd = $skin->makeLink($titleText, $titleText);
+							$outputAdd = $skin->makeLink("Pathway:$titleText", $titleText);
 						} else {
 							$outputAdd = $skin->makeLink("User:$key2", $key2);
 						}

@@ -933,14 +933,14 @@ $SocialRewarding["recommend"]["reduceRecommendation"]	= 5;
  * Exclude user's visited articles?
  */
 
-$SocialRewarding["recommend"]["excludeVisitedArticles"]	= true;
+$SocialRewarding["recommend"]["excludeVisitedArticles"]	= false;
 
 
 /**
  * Exclude articles where user is author?
  */
 
-$SocialRewarding["recommend"]["excludeUsersArticles"]	= true;
+$SocialRewarding["recommend"]["excludeUsersArticles"]	= false;
 
 
 /**
@@ -950,7 +950,7 @@ $SocialRewarding["recommend"]["excludeUsersArticles"]	= true;
  * "<SocialRewardingRecommend> Text </SocialRewardingRecommend>".
  */
 
-$SocialRewarding["recommend"]["markupStdMessage"]	= "Other interesting pathways:";
+$SocialRewarding["recommend"]["markupStdMessage"]	= "";
 
 
 /**

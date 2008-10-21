@@ -53,7 +53,17 @@ function SocialRewardingMostViewed($article) {
 		$userID = $wgUser->idFromName($title);
 	}
 
-	if ($rev_id != 0 && $userID == 0) {
+	// Filter out Sandbox revisions
+	$sandbox = 'false';
+	$revision = Revision::newFromId($rev_id);
+	if ($revision instanceof Revision){
+	$title = $revision->getTitle()->getText();
+        if (preg_match('/Sandbox/', $title)){
+		$sandbox = 'true';
+	}
+	}
+
+	if ($rev_id != 0 && $userID == 0 && $sandbox == 'false') {
 		$dbr =& wfGetDB(DB_SLAVE);
 		extract($dbr->tableNames("revision", "page"));
 		$mostViewedTable = $dbr->tableName($SocialRewarding["DB"]["viewedArticles"]);
@@ -547,44 +557,49 @@ function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMin
 
 	// Check if revision exists, because otherwise getText() will throw an error
 	if (is_object($revision)) {
-		$revisionText = $revision->getText();
+//		$revisionText = $revision->getText();
 
 		$rs = $dbr->query("SELECT * FROM $table WHERE rev_id = $rev_id");
 		if ($dbr->numRows($rs) == 0) {
 
-			// Get section text if searching for links is limited to sections in the config file
-			if ($SocialRewarding["references"]["textMode"] == "section") {
-				$sectionDelimiter = SocialRewardingTokString($SocialRewarding["references"]["textSection"], $SocialRewarding["reward"]["delimiter"]);
-				$delimiter = $SocialRewarding["references"]["textDelimiter"];
-				foreach ($sectionDelimiter as $key => $val) {
-					$sectionDelimiter[$key] = "$delimiter $val $delimiter";
-				}
-
-				$i = 0;
-				while (($sectionText = Article::getSection($revisionText, $i)) != "") {
-					foreach ($sectionDelimiter as $key => $val) {
-						if (ereg($val, $sectionText)) {
-							$text .= $sectionText;
-						}
-					}
-					$i++;
-				}
-			} else {
-				$text = $revisionText;
-			}
+//			// Get section text if searching for links is limited to sections in the config file
+//			if ($SocialRewarding["references"]["textMode"] == "section") {
+//				$sectionDelimiter = SocialRewardingTokString($SocialRewarding["references"]["textSection"], $SocialRewarding["reward"]["delimiter"]);
+//				$delimiter = $SocialRewarding["references"]["textDelimiter"];
+//				foreach ($sectionDelimiter as $key => $val) {
+//					$sectionDelimiter[$key] = "$delimiter $val $delimiter";
+//				}
+//
+//				$i = 0;
+//				while (($sectionText = Article::getSection($revisionText, $i)) != "") {
+//					foreach ($sectionDelimiter as $key => $val) {
+//						if (ereg($val, $sectionText)) {
+//							$text .= $sectionText;
+//						}
+//					}
+//					$i++;
+//				}
+//			} else {
+//				$text = $revisionText;
+//			}
 
 			$i = 0;
 
-			$split_text = explode($SocialRewarding["references"]["linkStart"], $text);
+//			$split_text = explode($SocialRewarding["references"]["linkStart"], $text);
 
-			$linkStart = $SocialRewarding["references"]["linkStart"];
-			$linkDelimiter = $SocialRewarding["references"]["linkDelimiter"];
-			if ($SocialRewarding["references"]["googleWholeDomain"] == true ) {
-				$linkDelimiter .= "/";
-			}
+			//AP20081020  custom way to split text and count links
+			$pathway = Pathway::newFromTitle($revision->getTitle());
+			$text = $pathway->getGpml(); 
+			$split_text = explode('PublicationXRef xmlns', $text);
+
+//			$linkStart = $SocialRewarding["references"]["linkStart"];
+//			$linkDelimiter = $SocialRewarding["references"]["linkDelimiter"];
+//			if ($SocialRewarding["references"]["googleWholeDomain"] == true ) {
+//				$linkDelimiter .= "/";
+//			}
 
 			foreach($split_text as $key => $val) {
-				$links[$i] = $linkStart . strtok($val, $linkDelimiter);
+//				$links[$i] = $linkStart . strtok($val, $linkDelimiter);
 				$i++;
 			}
 
@@ -592,35 +607,39 @@ function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMin
 			$countLink = 0;
 			$countSelfLink = 0;
 
-			if (count($links) > 1) {
-				$google = new GoogleSearch();
-			}
+//			if (count($links) > 1) {
+//				$google = new GoogleSearch();
+//			}
 
-			for ($i = 1; $i < count($links); $i++) {
-				if ($SocialRewarding["references"]["siteSizeFactor"] == true) {
-					if ($SocialRewarding["references"]["stripWWW"] == true) {
-						$link = str_replace("www.", "", $links[$i]);
-					} else {
-						$link = $links[$i];
-					}
-					$google->doSearch($link, "size");
-					$countSize += $google->getCount();
-				}
-				if ($SocialRewarding["references"]["siteLinkFactor"] == true) {
-					$google->doSearch($links[$i], "link");
-					$countLink += $google->getCount();
-				}
-			}
+//			for ($i = 1; $i < count($links); $i++) {
+//				if ($SocialRewarding["references"]["siteSizeFactor"] == true) {
+//					if ($SocialRewarding["references"]["stripWWW"] == true) {
+//						$link = str_replace("www.", "", $links[$i]);
+//					} else {
+//						$link = $links[$i];
+//					}
+//					$google->doSearch($link, "size");
+//					$countSize += $google->getCount();
+//				}
+//				if ($SocialRewarding["references"]["siteLinkFactor"] == true) {
+//					$google->doSearch($links[$i], "link");
+//					$countLink += $google->getCount();
+//				}
+//			}
 
-			if ($SocialRewarding["references"]["siteSelfLinkFactor"] == true) {
-				if (!$google) {
-					$google = new GoogleSearch();
-				}
-				$google->doSearch(SocialRewardingGetURL(), "link");
-				$countSelfLink += $google->getCount();
-			}
+//			if ($SocialRewarding["references"]["siteSelfLinkFactor"] == true) {
+//				if (!$google) {
+//					$google = new GoogleSearch();
+//				}
+//				$google->doSearch(SocialRewardingGetURL(), "link");
+//				$countSelfLink += $google->getCount();
+//			}
 
-			$count = count($links) - 1;
+//			$count = count($links) - 1;
+
+			//AP20081020 new definitions of count and countSelfLink
+			$count = $i - 1;
+			$countSelfLink = $count;
 
 			// Only insert data in table if at least one factor is activated
 			if ($SocialRewarding["references"]["siteSizeFactor"] == true || $SocialRewarding["references"]["siteLinkFactor"] == true || $SocialRewarding["references"]["siteSelfLinkFactor"] == true) {
