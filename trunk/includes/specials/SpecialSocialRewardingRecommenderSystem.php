@@ -96,10 +96,10 @@ class SpecialSocialRewardingRecommenderSystem {
 					</tr>
 					<tr>
 						<td>
-							<input type=radio name=sr_recommend value=1"; if ($_GET["sr_recommend"] == 1 || !$_GET["sr_recommend"]) $output .= " checked"; $output .= "> Recommended revisions
+							<input type=radio name=sr_recommend value=1"; if ($_GET["sr_recommend"] == 1) $output .= " checked"; $output .= "> Recommended revisions
 						</td>
 						<td colspan=2>
-							<input type=radio name=sr_recommend value=2"; if ($_GET["sr_recommend"] == 2) $output .= " checked"; $output .= "> Recommended articles
+							<input type=radio name=sr_recommend value=2"; if ($_GET["sr_recommend"] == 2 || !$_GET["sr_recommend"]) $output .= " checked"; $output .= "> Recommended articles
 						</td>
 					</tr>
 					<tr>
@@ -166,10 +166,10 @@ class SpecialSocialRewardingRecommenderSystem {
 
 		$output .= "<ol start=1 class=special>";
 
-		if (!$_GET["sr_recommend"] || $_GET["sr_recommend"] == 1) {
+		if ($_GET["sr_recommend"] == 1) {
 			$recommend->loadRecommendedRevisionsData();
 			$recommendMethod = $recommend->recommendRevision;
-		} else if ($_GET["sr_recommend"] == 2) {
+		} else if (!$_GET["sr_recommend"] || $_GET["sr_recommend"] == 2) {
 			$recommend->loadRecommendedArticlesData();
 			$recommendMethod = $recommend->recommendArticle;
 		} else if ($_GET["sr_recommend"] == 3) {
@@ -190,12 +190,12 @@ class SpecialSocialRewardingRecommenderSystem {
 						$i++;
 						unset($outputAdd);
 
-						if (!$_GET["sr_recommend"] || $_GET["sr_recommend"] == 1) {
+						if ($_GET["sr_recommend"] == 1) {
 							$revision = Revision::newFromId($key2);
 							$title = $revision->getTitle();
 							$titleText = $title->getText();
 							$outputAdd = $skin->makeLink("Pathway:$titleText", "[R$key2] $titleText", "oldid=$key2");
-						} else if ($_GET["sr_recommend"] == 2) {
+						} else if (!$_GET["sr_recommend"] || $_GET["sr_recommend"] == 2) {
 							$title = Title::newFromID($key2);
 							$titleText = $title->getText();
 							$outputAdd = $skin->makeLink("Pathway:$titleText", $titleText);
