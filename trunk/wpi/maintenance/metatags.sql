@@ -1,4 +1,4 @@
-CREATE TABLE tag (
+CREATE TABLE IF NOT EXISTS tag (
 	-- Name of the tag
 	tag_name	varchar(255),
 	
@@ -26,7 +26,7 @@ CREATE TABLE tag (
 	PRIMARY KEY (tag_name, page_id)
 );
 
-CREATE TABLE tag_history (
+CREATE TABLE IF NOT EXISTS tag_history (
 	-- Name of the tag
 	tag_name	varchar(255),
 	
