@@ -1,4 +1,4 @@
-CREATE TABLE /*$wgDBprefix*/thread (
+CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/thread (
   thread_id int(8) unsigned NOT NULL auto_increment,
   thread_root int(8) unsigned UNIQUE NOT NULL,
   thread_ancestor int(8) unsigned NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE /*$wgDBprefix*/thread (
   INDEX thread_summary_page (thread_summary_page)
 ) /*$wgDBTableOptions*/;
 
-CREATE TABLE /*$wgDBprefix*/historical_thread (
+CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/historical_thread (
   -- Note that many hthreads can share an id, which is the same as the id
   -- of the live thread. It is only the id/revision combo which must be unique.
   hthread_id int(8) unsigned NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE /*$wgDBprefix*/historical_thread (
   PRIMARY KEY hthread_id_revision (hthread_id, hthread_revision)
 ) /*$wgDBTableOptions*/;
 
-CREATE TABLE /*$wgDBprefix*/user_message_state (
+CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/user_message_state (
   ums_user int unsigned NOT NULL,
   ums_thread int(8) unsigned NOT NULL,
   ums_read_timestamp varbinary(14),

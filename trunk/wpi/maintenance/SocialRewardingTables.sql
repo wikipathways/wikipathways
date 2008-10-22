@@ -112,6 +112,8 @@ CREATE TABLE IF NOT EXISTS sr__visitrevision (
   KEY rev_id (rev_id,user_id)
 ) TYPE=MyISAM;
 
+# --------------------------------------------------------
+
 
 /**
  * DDL for table "sr__recommend"
