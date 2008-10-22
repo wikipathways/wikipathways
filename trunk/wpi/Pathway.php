@@ -548,7 +548,7 @@ class Pathway {
 		if(!$xml) {
 			return "Error: no valid XML provided\n$gpml";
 		}
-		if(!$xml->schemaValidate(WPI_SCRIPT_PATH . "/bin/GPML.xsd")) {
+		if(!$xml->schemaValidate(WPI_SCRIPT_PATH . "/bin/GPML2007.xsd")) {
 			$error = libxml_get_last_error();
 			$return  = $gpml[$error->line - 1] . "\n";
 			$return .= str_repeat('-', $error->column) . "^\n";
