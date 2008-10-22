@@ -18,6 +18,7 @@ $dbw->immediateBegin();
 
 
 $dbw->sourceFile(realpath('./metatags.sql'), false, 'printSql');
+$dbw->sourceFile(realpath('./usersnoop.sql'), false, 'printSql');
 
 $dbw->immediateCommit();
 
