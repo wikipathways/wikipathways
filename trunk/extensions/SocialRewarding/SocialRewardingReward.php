@@ -295,6 +295,8 @@ class Reward {
 				$revision.rev_id = $text.old_id
 			AND
 				$revision.rev_page = $page.page_id
+			AND
+				rev_user_text != \"MaintBot\"
 		";
 
 		// Limit time interval
