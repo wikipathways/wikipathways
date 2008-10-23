@@ -123,6 +123,16 @@ function SocialRewardingNow() {
  */
 function SocialRewardingGetRevID() {
 	global $mediaWiki, $wgTitle;
+	
+	/* TK20081023
+	 * $mediawiki is not defined if MW is not called from index.php, see:
+	 * http://www.mediawiki.org/wiki/Manual:$mediaWiki
+	 * By checking this first, we prevent crashes for the api.php, xml-rpc and soap webservice.
+	 */
+	if(!$mediawiki) {
+		return 0;
+	}
+	
 	$article = $mediaWiki->articleFromTitle($wgTitle);
 	if ($article) {
 		return $article->getRevIdFetched();
