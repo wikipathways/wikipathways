@@ -76,7 +76,7 @@ require_once("SocialRewardingRewardManage.php");
  */
 
 $path[] = "$IP/" . $SocialRewarding["reward"]["extensionPath"];
-set_include_path( implode( PATH_SEPARATOR, $path ) );
+set_include_path( get_include_path() . PATH_SEPARATOR . implode( PATH_SEPARATOR, $path ) );
 
 
 ?>

@@ -1,9 +1,11 @@
 <?php
 //Initialize MediaWiki
-set_include_path(get_include_path().PATH_SEPARATOR.realpath('includes'));
-set_include_path(get_include_path().PATH_SEPARATOR.realpath('../includes').PATH_SEPARATOR.realpath('../').PATH_SEPARATOR);
+$wpiDir = dirname(realpath(__FILE__));
+set_include_path(get_include_path() . PATH_SEPARATOR . $wpiDir);
+set_include_path(get_include_path().PATH_SEPARATOR.realpath("$wpiDir/includes"));
+set_include_path(get_include_path().PATH_SEPARATOR.realpath("$wpiDir/../includes").PATH_SEPARATOR.realpath("$dir/../").PATH_SEPARATOR);
 $dir = getcwd();
-chdir("../"); //Ugly, but we need to change to the MediaWiki install dir to include these files, otherwise we'll get an error
+chdir($wpiDir . "/../"); //Ugly, but we need to change to the MediaWiki install dir to include these files, otherwise we'll get an error
 require_once ( 'WebStart.php');
 require_once( 'Wiki.php' );
 chdir($dir);

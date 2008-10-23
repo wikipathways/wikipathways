@@ -1,6 +1,5 @@
 <?php
-$dir = getcwd();
-chdir("../");
+chdir(dirname(realpath(__FILE__)) . "/../");
 require_once('wpi.php');
 try {
 	require_once('search.php');
