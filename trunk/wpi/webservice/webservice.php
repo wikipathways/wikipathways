@@ -80,7 +80,7 @@ function listPathways() {
  **/
 function getPathway($pwName, $pwSpecies, $revision = 0) {
 	try {
-		$pathway = new Pathway($pwName, $pwSpecies);
+		$pathway = Pathway::newFromName($pwName, $pwSpecies);
 		$pwi = new WSPathway($pathway);
 		return array("pathway" => $pwi);
 	} catch(Exception $e) {
@@ -108,7 +108,7 @@ function updatePathway($pwName, $pwSpecies, $description, $gpml, $revision, $aut
 			authenticate($auth['user'], $auth['key']);
 		}
 
-		$pathway = new Pathway($pwName, $pwSpecies);
+		$pathway = Pathway::newFromName($pwName, $pwSpecies);
 		//Only update if the given revision is the newest
 		//Or if this is a new pathway
 		if(!$pathway->exists() || $revision == $pathway->getLatestRevision()) {
@@ -171,7 +171,7 @@ function login($name, $pass) {
  **/
 function getPathwayAs($fileType, $pwName, $pwSpecies, $revision = 0) {
 	try {
-		$p = new Pathway($pwName, $pwSpecies);
+		$p = Pathway::newFromName($pwName, $pwSpecies);
 		$p->setActiveRevision($revision);
 		$data = file_get_contents($p->getFileLocation($fileType));
 		$data = base64_encode($data);
@@ -282,7 +282,7 @@ function saveCurationTag($pwName, $pwSpecies, $tagName, $text, $revision, $auth)
 	}
 	
 	try {
-		$pathway = new Pathway($pwName, $pwSpecies);
+		$pathway = Pathway::newFromName($pwName, $pwSpecies);
 		if($pathway->exists()) {
 			$pageId = $pathway->getTitleObject()->getArticleId();
 			CurationTag::saveTag($pageId, $tagName, $text, $revision);
@@ -308,7 +308,7 @@ function removeCurationTag($pwName, $pwSpecies, $tagName, $auth) {
 	}
 	
 	try {
-		$pathway = new Pathway($pwName, $pwSpecies);
+		$pathway = Pathway::newFromName($pwName, $pwSpecies);
 		if($pathway->exists()) {
 			$pageId = $pathway->getTitleObject()->getArticleId();
 			CurationTag::removeTag($tagName, $pageId);
@@ -327,7 +327,7 @@ function removeCurationTag($pwName, $pwSpecies, $tagName, $auth) {
  * @return array of object WSCurationTag $tags The curation tags.
  **/
 function getCurationTags($pwName, $pwSpecies) {
-	$pw = new Pathway($pwName, $pwSpecies);
+	$pw = Pathway::newFromName($pwName, $pwSpecies);
 	$pageId = $pw->getTitleObject()->getArticleId();
 	$tags = CurationTag::getCurationTags($pageId);
 	$wstags = array();
@@ -349,7 +349,7 @@ function getCurationTags($pwName, $pwSpecies) {
  **/
 function getColoredPathway($pwName, $pwSpecies, $revision, $graphId, $color, $fileType) {
 	try {
-		$p = new Pathway($pwName, $pwSpecies);
+		$p = Pathway::newFromName($pwName, $pwSpecies);
 		$p->setActiveRevision($revision);
 		$gpmlFile = realpath($p->getFileLocation(FILETYPE_GPML));
 		

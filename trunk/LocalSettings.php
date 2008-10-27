@@ -272,6 +272,7 @@ require_once('wpi/extensions/BrowsePathwaysPage2/BrowsePathwaysPage.php');
 require_once('wpi/extensions/editApplet.php');
 require_once('wpi/extensions/listPathways.php');
 require_once('wpi/extensions/movePathway.php');
+require_once('wpi/extensions/deletePathway.php');
 require_once('wpi/batchDownload.php');
 require_once('wpi/PathwayPage.php');
 require_once('wpi/extensions/SpecialWishList/SpecialWishList.php');
@@ -290,6 +291,8 @@ require_once('wpi/extensions/CurationTags/SpecialCurationTags/SpecialCurationTag
 require_once('wpi/extensions/UserLoginLog/UserLoginLog.php');
 require_once('extensions/LiquidThreads/LiquidThreads.php');
 require_once('extensions/SocialRewarding/SocialRewarding.php');
+require_once('wpi/extensions/MarkDeprecated/MarkDeprecated.php');
+require_once('wpi/extensions/ShowError/ShowError.php');
 
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!

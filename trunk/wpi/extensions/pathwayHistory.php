@@ -12,6 +12,7 @@ function wfPathwayHistory() {
 }
 
 function history( $input, $argv, &$parser ) {
+	$parser->disableCache();
 	try {
 		$pathway = Pathway::newFromTitle($parser->mTitle);
 		return getHistory($pathway);
@@ -80,8 +81,7 @@ function historyLine($pathway, $row, $nr, $counter = '', $cur = false, $firstInL
 
 	$date = $wgLang->timeanddate( $rev->getTimestamp(), true );
 	$user = $wgUser->getSkin()->userLink( $rev->getUser(), $rev->getUserText() );
-	$descr = $rev->getComment();
-	
+	$descr = htmlentities($rev->getComment());
 	return array('diff'=>$diff, 'rev'=>$revert, 'view'=>$view, 'date'=>$date, 'user'=>$user, 'descr'=>$descr, 'id'=>$rev->getId());
 }
         

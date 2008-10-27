@@ -25,18 +25,47 @@ class MetaTag {
 	private $time_add;
 	private $time_mod;
 	
+	private $storeHistory = true;
+	private $permissions = array('edit');
+	
 	/**
 	 * Create a new metatag object
 	 * @param $name The tag name
 	 * @param $page_id The id of the page that will be tagged
 	 */
 	public function __construct($name, $page_id) {
-		if(!$name) throw new MetaTagException("Name can't be empty");
-		if(!$page_id) throw new MetaTagException("Page id can't be empty");
+		if(!$name) throw new MetaTagException($this, "Name can't be empty");
+		if(!$page_id) throw new MetaTagException($this, "Page id can't be empty");
 		
 		$this->name = $name;
 		$this->page_id = $page_id;
 		$this->loadFromDB();
+	}
+	
+	/**
+	 * Specify whether a history should be stored when modifying this tag. Set to false to disable
+	 * storing history.
+	 * By default, a history record is stored upon saving and removing, but this can
+	 * be disabled for better performance if a tag history is not needed 
+	 * (e.g. if the tag is only used for caching data).
+	 */
+	public function setUseHistory($history) {
+		$this->storeHistory = $history;
+	}
+	
+	/**
+	 * Set the permissions to check before saving the tag.
+	 * Default permission that is checked is 'edit'.
+	 * @param $action The action (e.g. 'edit', or 'delete') or an array
+	 * of actions that the current user must have permission for
+	 * to write the tag.
+	 */
+	public function setPermissions($actions) {
+		if(is_array($actions)) {
+			$this->permissions = $actions;
+		} else {
+			$this->permissions = array($actions);
+		}
 	}
 	
 	/**
@@ -136,11 +165,12 @@ class MetaTag {
 		//Check valid page and user permissions
 		$title = Title::newFromID($this->page_id);
 		if($title) {
-			if($title->userCan('edit')) {
-				return true;
-			} else {
-				return false;
+			$can = true;
+			foreach($this->permissions as $action) {
+				$can = $can && $title->userCan($action);
+				if(!$can) break; //Stop checking once one action returns false
 			}
+			return $can;
 		} else {
 			throw new MetaTagException($this, "Unable to create title object");
 		}
@@ -210,6 +240,8 @@ class MetaTag {
 	}
 	
 	private function writeHistory($action) {
+		if(!$this->storeHistory) return;
+		
 		$dbw =& wfGetDB(DB_MASTER);
 		$dbw->immediateBegin();
 
@@ -360,7 +392,7 @@ class MetaTag {
 class MetaTagException extends Exception {
 	private $tag;
 	
-	public function __construct($tag, $msg) {
+	public function __construct($tag, $msg = '') {
 		parent::__construct($msg);
 		$this->tag = $tag;
 	}

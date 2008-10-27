@@ -97,8 +97,8 @@ TEXT;
 		}
 		$description = "== Description ==\n<div id='descr'>" .
 			"<div style='float:right'>$button</div>\n" . $description . "</div>\n";
-		$title = $this->pathway->getTitleObject()->getText();
-		$description .= "{{#editApplet:descEdit|descr|0|$title|description|0|250px}}\n";
+		$id = $this->pathway->getIdentifier();
+		$description .= "{{#editApplet:descEdit|descr|0|$id|description|0|250px}}\n";
 		
 		//Get additional comments
 		$comments = '';
@@ -188,10 +188,10 @@ TEXT;
 			$catlist .= "* <span class='plainlinks'>[{$link} {$name}]</span>\n";
 		}
 		$button = $this->editButton('javascript:;', 'Edit categories', 'catEdit');
-		$title = $this->pathway->getTitleObject()->getText();
+		$title = $this->pathway->getIdentifier();
 		return "== Categories ==\n<div id='catdiv'>\n" .
 			"<div style='float:right'>$button</div>\n" . 
-			"$catlist</div>\n{{#editApplet:catEdit|catdiv|0|$title|categories|0|250px}}";
+			"$catlist</div>\n{{#editApplet:catEdit|catdiv|0|$id|categories|0|250px}}";
 	}
 	
 	function editButton($href, $title, $id = '') {

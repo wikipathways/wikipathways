@@ -26,6 +26,10 @@ function getPathwayInfo( &$parser, $pathway, $type ) {
 	$parser->disableCache();
 	try {
 		$pathway = Pathway::newFromTitle($pathway);
+		$oldid = $_REQUEST['oldid'];
+		if($oldid) {
+			$pathway->setActiveRevision($oldid);
+		}
 		$info = new PathwayInfo($parser, $pathway);
 		if(method_exists($info, $type)) {
 			return $info->$type();

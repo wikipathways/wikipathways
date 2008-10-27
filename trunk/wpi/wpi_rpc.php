@@ -14,12 +14,12 @@ require("wpi.php");
 $updatePathway_sig=array(
 	array(
 		$xmlrpcInt, 
-		$xmlrpcString, $xmlrpcString, $xmlrpcString, $xmlrpcBase64,
+		$xmlrpcString, $xmlrpcString, $xmlrpcBase64,
 		$xmlrpcInt
 	),
 	array(
 		$xmlrpcBoolean,
-		$xmlrpcString, $xmlrpcString, $xmlrpcString, $xmlrpcBase64, 
+		$xmlrpcString, $xmlrpcString, $xmlrpcBase64, 
 		$xmlrpcInt, $xmlrpcStruct
 	),
 );
@@ -37,11 +37,43 @@ $updatePathway_docsig = array(
 	),
 	array(
 		"The newest revision number when the update was successful, 0 otherwise",
-		"The pathway name (e.g. Apoptosis)",
-		"The pathway species (e.g. Human)",
+		"The pathway identifier",
 		"Description of the modifications",
 		"The updated GPML data (base64 encoded)",
 		"The revision id on which the updated GPML is based",
+		"The authentication data, a struct with the key/value pairs:" .
+		"<BR>'user', the username<BR>'token', the authentication token"
+	)
+);
+
+$createPathway_sig=array(
+	array(
+		$xmlrpcStruct, 
+		$xmlrpcString, $xmlrpcBase64,
+	),
+	array(
+		$xmlrpcStruct,
+		$xmlrpcString, $xmlrpcBase64, 
+		$xmlrpcStruct
+	),
+);
+
+$createPathway_doc= "Create a new pathway on wikipathways.";
+
+$createPathway_docsig = array(
+	array(
+		"A struct with the key/value pairs:" . 
+		"<BR>'id', the pathway id<BR>'revision', the newest revision number<BR>" .
+		"'url', the url to the pathway page",
+		"Description of the modifications",
+		"The GPML data (base64 encoded)",
+	),
+	array(
+		"A struct with the key/value pairs:" . 
+		"<BR>'id', the pathway id<BR>'revision', the newest revision number<BR>" .
+		"'url', the url to the pathway page",
+		"Description of the modifications",
+		"The GPML data (base64 encoded)",
 		"The authentication data, a struct with the key/value pairs:" .
 		"<BR>'user', the username<BR>'token', the authentication token"
 	)
@@ -67,10 +99,10 @@ $convertPathway_docsig = array(
 $getPathway_sig = array(
 	array(
 		$xmlrpcStruct,
-		$xmlrpcString, $xmlrpcString),
+		$xmlrpcString),
 	array(
 		$xmlrpcStruct,
-		$xmlrpcString, $xmlrpcString, $xmlrpcInt),
+		$xmlrpcString, $xmlrpcInt),
 );
 
 $getPathway_doc = "Get the GPML code for a pathway";
@@ -80,15 +112,13 @@ $getPathway_docsig = array(
 		"A struct containing the following key/value pairs:<dl>" .
 		"<dt>gpml<dd>The GPML code (base64 encoded)" .
 		"<dt>revision<dd>The revision id of the returned GPML",
-		"The pathway name (e.g. Apoptosis)",
-		"The pathway species (e.g. Human)"
+		"The pathway identifier"
 	),
 	array(
 		"A struct containing the following key/value pairs:<dl>" .
 		"<dt>gpml<dd>The GPML code (base64 encoded)" .
 		"<dt>revision<dd>The revision id of the returned GPML",
-		"The pathway name (e.g. Apoptosis)",
-		"The pathway species (e.g. Human)",
+		"The pathway identifier",
 		"The revision id (use '0' for current revision)"
 	)
 );
@@ -150,6 +180,11 @@ $disp_map=array(
 			"signature" => $updatePathway_sig,
 			"docstring" => $updatePathway_doc,
 			"signature_docs" => $updatePathway_docsig),
+		"WikiPathways.createPathway" => 
+			array("function" => "createPathway",
+			"signature" => $createPathway_sig,
+			"docstring" => $createPathway_doc,
+			"signature_docs" => $createPathway_docsig),
 		"WikiPathways.convertPathway" =>
 			array("function" => "convertPathway",
 			"signature" => $convertPathway_sig,
@@ -193,7 +228,7 @@ function getPathwayList() {
 	return $titles;
 }
 
-function updatePathway($pwName, $pwSpecies, $description, $gpmlData, $revision, $auth = NULL) {
+function updatePathway($id, $description, $gpmlData, $revision, $auth = NULL) {
 	global $xmlrpcerruser, $wgUser;
 	
 	//Authenticate first, if token is provided
@@ -206,20 +241,51 @@ function updatePathway($pwName, $pwSpecies, $description, $gpmlData, $revision, 
 	}
 		
 	$resp = 0;
+	
 	try {
-		$pathway = new Pathway($pwName, $pwSpecies);
+		$pathway = new Pathway($id);
 		//Only update if the given revision is the newest
 		//Or if this is a new pathway
 		if(!$pathway->exists() || $revision == $pathway->getLatestRevision()) {
 			$pathway->updatePathway($gpmlData, $description);
 			$resp = $pathway->getLatestRevision();
 		} else {
+		wfDebug("REVISION: $revision , " . $pathway->getLatestRevision());
 			$resp = new xmlrpcresp(0, $xmlrpcerruser,
 				"Revision out of date: your GPML code originates from " .
 				"an old revision. This means somebody else modified the pathway " .
 				"since you downloaded it. Please apply your changes on the newest version"
 			);
 		}
+	} catch(Exception $e) {
+		wfDebug("XML-RPC ERROR: $e");
+		$resp = new xmlrpcresp(0, $xmlrpcerruser, $e);
+	}
+	ob_clean(); //Clean the output buffer, so nothing is printed before the xml response
+	return $resp;
+}
+
+function createPathway($description, $gpmlData, $auth = NULL) {
+	global $xmlrpcerruser, $wgUser;
+	
+	//Authenticate first, if token is provided
+	if($auth) {
+		try {
+			authenticate($auth['user'], $auth['token']);
+		} catch(Exception $e) {
+			return new xmlrpcresp(0, $xmlrpcerruser, $e);
+		}
+	}
+		
+	$resp = 0;
+	
+	try {
+		$pathway = Pathway::createNewPathway($gpmlData, $description);
+		$resp = array(
+			"id" => $pathway->getIdentifier(),
+			"url" => $pathway->getTitleObject()->getFullUrl(),
+			"revision" => $pathway->getLatestRevision()
+		);
 	} catch(Exception $e) {
 		wfDebug("XML-RPC ERROR: $e");
 		$resp = new xmlrpcresp(0, $xmlrpcerruser, $e);
@@ -254,11 +320,11 @@ function convertPathway($gpmlData64, $fileType) {
 	return $imgData64;
 }
 
-function getPathway($pwName, $pwSpecies, $revision = 0) {
+function getPathway($id, $revision = 0) {
 	global $xmlrpcerruser;
 	
 	try {
-		$pathway = new Pathway($pwName, $pwSpecies);
+		$pathway = new Pathway($id);
 		$revision = $pathway->getLatestRevision();
 		$gpmlData64 = base64_encode($pathway->getGPML());
 		ob_clean();

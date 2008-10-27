@@ -80,9 +80,13 @@ class CategoryHandler {
 	}
 	
 	private function getGpmlCategories() {
-		$cats = $this->pathway->getPathwayData()->getWikiCategories();
-		array_push($cats, $this->pathway->species());
-		return $cats;
+		if($this->pathway->isDeprecated()) {
+			return array();
+		} else {
+			$cats = $this->pathway->getPathwayData()->getWikiCategories();
+			array_push($cats, $this->pathway->species());
+			return $cats;
+		}
 	}
 	
 	/**

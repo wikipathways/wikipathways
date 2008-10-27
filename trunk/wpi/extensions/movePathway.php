@@ -1,28 +1,27 @@
 <?php
 require_once('wpi/wpi.php');
 
-$wgHooks['AbortMove'][] = 'checkMoveAllowed';$wgHooks['SpecialMovepageAfterMove'][] = 'movePathwayPages';
-
 /**
- * Handles actions before move: check if the pathway name is valid and
- * return error message if not
+ * Disables move for pathway pages.
+ * TODO: Disable this hook for running script to transfer to stable ids
  */
-function checkMoveAllowed($oldtitle, $newtitle, $usser, &$error) {
+$wgHooks['AbortMove'][] = 'checkMoveAllowed';
+
+function checkMoveAllowed($oldtitle, $newtitle, $user, &$error) {
 	if($oldtitle->getNamespace() == NS_PATHWAY ||
 	 	$newtitle->getNamespace() == NS_PATHWAY) {
-		try {
-			$pwNew = Pathway::newFromTitle($newtitle);
-		} catch(Exception $e) {
-			$error = $e->getMessage();
-			return false;
-		}
+	 	$error = "Pathway pages can't be moved, rename the pathway in the editor instead.";
+		return false;
 	}
 	return true;
 }
 
 /**
  * Handles actions needed after moving a page in the pathway namespace
+ * TODO: This can be removed after the stable identifiers are in place
  */
+$wgHooks['SpecialMovepageAfterMove'][] = 'movePathwayPages';
+
 function movePathwayPages(&$movePageForm , &$ot , &$nt) {
 	if($ot->getNamespace() == NS_PATHWAY) {
 		$pwOld = Pathway::newFromTitle($ot);		

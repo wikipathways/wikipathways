@@ -8,7 +8,9 @@ $wgHooks['ArticleSave'][] = 'wfCheckGpml';
 $wgHooks['ArticleSaveComplete'][] = 'wfUpdateAfterSave';
 
 function wfCheckGpml(&$article, &$user, &$text, &$summary, $minor, $watch, $sectionanchor, &$flags) {
-	if($article->getTitle()->getNamespace() == NS_PATHWAY) {
+	global $wpiDisableValidation; //Flag that can be set to disable validation
+	
+	if(!$wpiDisableValidation && $article->getTitle()->getNamespace() == NS_PATHWAY) {
 		if($error = Pathway::validateGpml($text)) {
 			return "<h1>Invalid GPML</h1><p><code>$error</code>";
 		}

@@ -59,12 +59,22 @@ function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $n
 	}
 	
 	try {
-		if(!$pwTitle) {
-			$pathway = Pathway::newFromTitle($parser->mTitle);
+		if($new) { //Pathway title contains species:name
+			$editApplet = new EditApplet(null, $main, $idReplace, $idClick, $width, $height, $noresize, $param);
+			$title = split(':', $pwTitle);
+			$editApplet->setPathwayName(array_pop($title));
+			$editApplet->setPathwaySpecies(array_pop($title));
 		} else {
-			$pathway = Pathway::newFromTitle($pwTitle);
+			if($title == null) {
+				//Check if the title is a pathway before continuing
+				if($parser->mTitle->getNamespace() != NS_PATHWAY) {
+					return "";
+				}
+				$title = $parser->mTitle->getDbKey();
+			}
+			$editApplet = new EditApplet($title, $main, $idReplace, $idClick, $width, $height, $noresize, $param);
 		}
-		$editApplet = new EditApplet($pathway, $main, $idReplace, $idClick, $new, $width, $height, $noresize, $param);
+		
 		$appletCode = $editApplet->makeAppletFunctionCall();
 		$jardir = $wgScriptPath . '/wpi/applet';
 		
@@ -120,7 +130,9 @@ function increase_version($old) {
 
 
 class EditApplet {
-	private $pathway;
+	private $pathwayId;
+	private $pathwayName;
+	private $pathwaySpecies;
 	private $mainClass;
 	private $idReplace;
 	private $idClick;
@@ -129,18 +141,21 @@ class EditApplet {
 	private $param;
 	private $noresize;
 
-	function __construct($pathway, $mainClass, $idReplace, $idClick, $isNew, $width, $height, $noresize, $param = array()) {
-		$this->pathway = $pathway;
+	function __construct($pathwayId, $mainClass, $idReplace, $idClick, $width, $height, $noresize, $param = array()) {
+		$this->pathwayId = $pathwayId;
 		$this->mainClass = $mainClass;
 		$this->idReplace = $idReplace;
 		$this->idClick = $idClick;
-		$this->isNew = $isNew;
+		$this->isNew = $pathwayId ? false : true;
 		$this->width = $width;
 		$this->height = $height;
 		$this->param = $param;
 		$this->noresize = $noresize;
 	}
 
+	function setPathwayName($name) { $this->pathwayName = $name; }
+	function setPathwaySpecies($species) { $this->pathwaySpecies = $species; }
+	
 	private static $version_string = false;
 	private	static $archive_string = false;
 	
@@ -193,12 +208,18 @@ class EditApplet {
 		return array("archive"=>self::$archive_string, "version"=>self::$version_string);
 	}
 	
-	static function getParameterArray($pathway, $new = 0, $param = array()) {
+	static function getParameterArray($pathwayId, $pathwayName, $pathwaySpecies, $param = array()) {
 		global $wgUser;
-		if($new) {
-			$pwUrl = $pathway->getTitleObject()->getFullURL();
-		} else {
+		
+		if($pathwayId) {
+			$pathway = new Pathway($pathwayId);
+			$revision = $pathway->getLatestRevision();
+			$pathwaySpecies = $pathway->getSpecies();
+			$pathwayName = $pathway->getName();
 			$pwUrl = $pathway->getFileURL(FILETYPE_GPML);
+		} else {
+			$revision = 0;
+			$pwUrl = '';
 		}
 
 		$cache = self::getCacheParameters();
@@ -207,13 +228,15 @@ class EditApplet {
 				
 		$args = array(
 			'rpcUrl' => WPI_URL . "/wpi_rpc.php",
-			'pwName' =>     $pathway->name(),
-			'pwSpecies' => $pathway->species(),
+			'pwId' => $pathwayId,
+			'pwName' => $pathwayName,
+			'pwSpecies' => $pathwaySpecies,
 			'pwUrl' => $pwUrl,
 			'cache_archive' => $archive_string,
 			'cache_version' => $version_string,
 			'gdb_server' => $_SERVER['HTTP_HOST'],
-			'revision' => $new ? '0' : $pathway->getLatestRevision()
+			'revision' => $revision,
+			'siteUrl' => SITE_URL
 		);
 
 		if($wgUser && $wgUser->isLoggedIn()) {
@@ -227,7 +250,7 @@ class EditApplet {
 	}
 	
 	function getJsParameters() {
-		$args = self::getParameterArray($this->pathway, $this->isNew, $this->param);
+		$args = self::getParameterArray($this->pathwayId, $this->pathwayName, $this->pathwaySpecies, $this->param);
 		$keys = createJsArray(array_keys($args));
 		$values = createJsArray(array_values($args));
 		return array('keys' => $keys, 'values' => $values); 

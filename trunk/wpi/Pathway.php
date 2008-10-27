@@ -2,11 +2,14 @@
 require_once('PathwayData.php');
 require_once('CategoryHandler.php');
 require_once('StatisticsCache.php');
+require_once('MetaDataCache.php');
 
 /**
 Class that represents a Pathway on WikiPathways
 **/
 class Pathway {
+	public static $ID_PREFIX = 'WP';
+	
 	private static $spName2Code = array(
 		'Homo sapiens' => 'Hs', 
 		'Rattus norvegicus' => 'Rn', 
@@ -24,21 +27,42 @@ class Pathway {
 				FILETYPE_PNG => FILETYPE_IMG
 	);
 
-	private $pwName;
-	private $pwSpecies;
+	private $pwPageTitle; //The title object for the pathway page
+	private $id; //The pathway identifier
 	
 	private $pwData; //The PathwayData for this pathway
 	private $pwCategories; //The CategoryHandler for this pathway
 	private $firstRevision; //The first revision of the pathway article
 	private $revision; //The active revision for this instance (0 = current by default)
+	private $metaDataCache; //The MetaDataCache object that handles the cached title/species
+	
+	/**
+	 * Constructor for this class.
+	 * @param $id The pathway identifier (NOTE: during the transition phase to stable identifiers,
+	 * this will be the page title without namespace prefix).
+	*/
+	function __construct($id, $updateCache = false) {
+		wfDebug("Creating pathway: $id\n");
+		if(!$id) throw new Exception("id argument missing in constructor for Pathway");
 
+		$this->pwPageTitle = Title::newFromText($id, NS_PATHWAY);
+		$this->id = $this->pwPageTitle->getDbKey();
+		
+		if($updateCache) $this->updateCache();
+	}
+	
+	public function getIdentifier() {
+		return $this->id;
+	}
+	
 	/**
 	 Constructor for this class.
 	 \param name The name of the pathway (without namespace and species prefix!)
 	 \param species The species (full name, e.g. Human)
 	 \param updateCache Whether the cache should be updated if needed
+	 @deprecated This constructor will be removed after the transision to stable identifiers.
 	*/
-	function __construct($name, $species, $updateCache = false) {
+	public static function newFromName($name, $species, $updateCache = false) {
 		wfDebug("Creating pathway: $name, $species\n");
 		if(!$name) throw new Exception("name argument missing in constructor for Pathway");
 		if(!$species) throw new Exception("species argument missing in constructor for Pathway");
@@ -52,12 +76,9 @@ class Pathway {
 			throw new Exception("Illegal character '" . $matches[0] . "' in pathway name");
 		}
 		
-		$this->pwName = $name;
-		$this->pwSpecies = $species;
-		
-		if($updateCache) $this->updateCache();
+		return self::newFromTitle("$species:$name", $checkCache);
 	}
-		
+	
 	/**
 	 * Get the active revision in the modification
 	 * history for this instance. The active revision
@@ -96,6 +117,10 @@ class Pathway {
 	 * data stored in the GPML
 	 */
 	public function getPathwayData() {
+		//Return null when deprecated and not querying an older revision
+		if($this->isDeprecated(false, $this->getActiveRevision())) {
+			return null;
+		}
 		//Only create when asked for (performance)
 		if(!$this->pwData) {
 			$this->pwData = new PathwayData($this);
@@ -112,6 +137,23 @@ class Pathway {
 			$this->pwCategories = new CategoryHandler($this);
 		}
 		return $this->pwCategories;
+	}
+	
+	/**
+	 * Get the MetaDataCache object for this pathway
+	 */
+	private function getMetaDataCache() {
+		if(!$this->metaDataCache) {
+			$this->metaDataCache = new MetaDataCache($this);
+		}
+		return $this->metaDataCache;
+	}
+	
+	/**
+	 * Forces a reload of the cached metadata.
+	 */
+	private function invalidateMetaDataCache() {
+		$this->metaDataCache = null;
 	}
 	
 	/**
@@ -136,9 +178,9 @@ class Pathway {
 		while( $row = $dbr->fetchRow( $res )) {
 			try {
 				$pathway = Pathway::newFromTitle($row[0]);
+				if($pathway->isDeprecated()) continue; //Skip deprecated pathways
 				$allPathways[
-					strtolower($pathway->name()) . ':' . 
-					strtolower($pathway->species())] = $pathway;
+					$pathway->getIdentifier()] = $pathway;
 			} catch(Exception $e) {
 				wfDebug(__METHOD__ . ": Unable to add pathway to list: $e");			
 			}
@@ -162,17 +204,9 @@ class Pathway {
 	*/
 	public function newFromTitle($title, $checkCache = false) {
 		if($title instanceof Title) {
-			$title = $title->getFullText();
+			$title = $title->getText();
 		}
-		
-		$name = Pathway::nameFromTitle($title);
-		$species = Pathway::speciesFromTitle($title);
-		$code = Pathway::$spName2Code[$species]; //Check whether this is a valid species
-		if($name && $code) {
-			return new Pathway($name, $species, $checkCache);
-		} else {
-			throw new Exception("Couldn't parse pathway article title: $title");
-		}
+		return new Pathway($title, $checkCache);
 	}
 	
 	/**
@@ -190,7 +224,7 @@ class Pathway {
 			$name = $regs[2];
 		}
 		if(!$name || !$species) throw new Exception("Couldn't parse file title: $title");
-		return new Pathway($name, $species, $checkCache);
+		return self::newFromTitle("$species:$name", $checkCache);
 	}
 	
 	/**
@@ -205,7 +239,7 @@ class Pathway {
 	 */
 	public function getTitleObject() {
 		//wfDebug("TITLE OBJECT:" . $this->species() . ":" . $this->name() . "\n");
-		return Title::newFromText($this->species() . ':' . $this->name(), NS_PATHWAY);
+		return $this->pwPageTitle;
 	}
 	
 	/**
@@ -247,38 +281,70 @@ class Pathway {
 	 * Get or set the pathway name (without namespace or species prefix)
 	 * \param name changes the name to this value if not null
 	 * \return the name of the pathway
+	 * @deprecated use #getName instead! Name can only be set by editing the GPML.
 	 */
 	public function name($name = NULL) {
 		if($name) {
-			$this->pwName = $name;
+			throw new Exception("Species can only be set by editing GPML");
 		}
-		return $this->pwName;
+		return $this->getName();
 	}
 	
 	/**
-	 * Get the pathway name (without namespace or species prefix)
+	 * Temporary function used during the transition
+	 * to stable identifiers. This method does not return
+	 * the cached name, but the name as it is in the pathway page title
+	 */
+	public function getNameFromTitle() {
+		return self::nameFromTitle($this->getTitleObject());
+	}
+	
+	/**
+	 * Temporary function used during the transition
+	 * to stable identifiers. This method does not return
+	 * the cached species, but the species as it is in the pathway page title
+	 */
+	public function getSpeciesFromTitle() {
+		return self::speciesFromTitle($this->getTitleObject());
+	}
+	
+	/**
+	 * Get the pathway name (without namespace or species prefix).
+	 * This method will not load the GPML, but use the
+	 * metadata cache for performance.
 	 */
 	public function getName($textForm = true) {
-		return Pathway::nameFromTitle($this->getTitleObject()->getText());
+		return $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_NAME);
+		//return Pathway::nameFromTitle($this->getTitleObject()->getText());
+	}
+	
+	/**
+	 * Get the species for this pathway.
+	 * This method will not load the GPML, but use the
+	 * metadata cache for performance.
+	 */
+	public function getSpecies() {
+		return $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_ORGANISM);
 	}
 	
 	/**
 	 * Get or set the pathway species
 	 * \param species changes the species to this value if not null
 	 * \return the species of the pathway
+	 * @deprecated use #getSpecies instead! Species can only be set by editing the GPML.
 	 */
 	public function species($species = NULL) {
 		if($species) {
-			$this->pwSpecies = $species;
+			throw new Exception("Species can only be set by editing GPML");
 		}
-		return $this->pwSpecies;
+		return $this->getSpecies();
 	}
 	
 	/**
 	 * Get the species code (abbrevated species name, e.g. Hs for Human)
 	 */
 	public function getSpeciesCode() {
-		return Pathway::$spName2Code[$this->pwSpecies];
+		return Pathway::$spName2Code[$this->getSpecies()];
 	}
 
 	/**
@@ -377,13 +443,13 @@ class Pathway {
 	 * Currently articles exist for FILETYPE_IMG (.svg articles in the NS_IMAGE namespace)
 	 */
 	public function getFileTitle($fileType) {
-		$prefix = $this->getFilePrefix();
 		//Append revision number if it's not the most recent
 		$rev_stuffix = '';
 		if($this->revision) {
 			$rev_stuffix = "_" . $this->revision;
 		}
-		$title = Title::newFromText( "{$prefix}{$rev_stuffix}." . $fileType, NS_IMAGE );
+		
+		$title = Title::newFromText( "{$this->getIdentifier()}{$rev_stuffix}." . $fileType, NS_IMAGE );
 		if(!$title) {
 			throw new Exception("Invalid file title for pathway " + $fileName);
 		}
@@ -403,7 +469,7 @@ class Pathway {
 	 * filtered out (e.g. Hs_Apoptosis for Human:Apoptosis)
 	 */
 	public function getFilePrefix() {
-		$prefix = $this->getSpeciesCode() . "_" . $this->pwName;
+		$prefix = $this->getSpeciesCode() . "_" . $this->getName();
 		/*
 		 * Filter out illegal characters, and try to make a legible name
 		 * out of it. We'll strip some silently that Title would die on.
@@ -446,6 +512,48 @@ class Pathway {
 	}
 
 	/**
+	 * Creates a new pathway on the wiki. A unique identifier will be generated for the pathway.
+	 * @param $gpmlData The GPML code for the pathway
+	 * @return The Pathway object for the created pathway
+	 */
+	public static function createNewPathway($gpmlData, $description = "New pathway") {
+		$id = self::generateUniqueId();
+		$pathway = new Pathway($id, false);
+		if($pathway->exists()) {
+			throw new Exception("Unable to generate unique id, $id already exists");
+		}
+		$pathway->updatePathway($gpmlData, $description);
+		$pathway = new Pathway($id);
+		return $pathway;
+	}
+	
+	private static function generateUniqueId() {
+		//Get the highest identifier
+		$dbr = wfGetDB( DB_SLAVE );
+		$ns = NS_PATHWAY;
+		$prefix = self::$ID_PREFIX;
+		$query = "SELECT page_title FROM page " .
+			"WHERE page_namespace =$ns " .
+			"AND page_is_redirect =0 " .
+			"AND page_title LIKE '{$prefix}_%' " .
+			"ORDER BY length(page_title) DESC, page_title DESC " .
+			"LIMIT 0 , 1 ";
+		$res = $dbr->query($query);
+		$row = $dbr->fetchObject( $res );
+		if($row) {
+			$lastid = $row->page_title;
+		} else {
+			$lastid = Pathway::$ID_PREFIX . "0";
+		}
+		$dbr->freeResult( $res );
+		
+		$lastidNum = substr($lastid, 2);
+		$newidNum = $lastidNum + 1;
+		$newid = Pathway::$ID_PREFIX . $newidNum;
+		return $newid;
+	}
+	
+	/**
 	 * Update the pathway with the given GPML code
 	 * \param gpmlData The GPML code that contains the updated pathway data
 	 * \param description A description of the changes
@@ -485,9 +593,11 @@ class Pathway {
 		if($succ) {
 			//Update category links
 			$this->updateCategories();
-			//Update cache
+			//Update file cache
 			$this->updateCache();
-
+			//Update metadata cache
+			$this->invalidateMetaDataCache();
+			
 			//Calculate number of unique genes for given species
 			// and update file with stored values
 			StatisticsCache::updateUniqueGenesCache ($this->speciesFromTitle($gpmlTitle->getFullText()));
@@ -592,19 +702,85 @@ class Pathway {
 			throw new Exception("Unable to get gpml content");
 		}
 	}
-		
+	
 	/**
-	 * Delete this pathway (MediaWiki pages and cache)
+	 * Check whether this pathway is deprecated.
+	 * @param $useCache Set to false to use actual page text to
+	 * check if the pathway is deprecated. If true or not specified,
+	 * the cache will be used.
+	 * @param $activeRevision Set to true if you want to check if the
+	 * given revision was deprecated (not the newest revision).
+	 **/	
+	public function isDeprecated($useCache = true, $revision = '') {
+		if($useCache && !$revision) {
+			$deprev = $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_DEPRECATED);
+			if($deprev) {
+				$rev = $this->getActiveRevision();
+				if($rev == 0 || $rev == $deprev) return true;
+			}
+			return false;
+		} else {
+			if(!$revision) $revision = $this->getLatestRevision();
+			$text = Revision::newFromId($revision)->getText();
+			return substr($text, 0, 12) == "{{deprecated";
+		}
+	}
+	
+	/**
+	 * Delete this pathway. The pathway will not really deleted,
+	 * instead, the pathway page will be marked as deprecated.
+	 * @deprecated Use 'markDeprecated()' instead. 
 	 */
-	public function delete() {
-		wfDebug("Deleting pathway" . $this->getTitleObject()->getFullText() . "\n");
-		$reason = 'Deleted pathway';
+	public function delete($reason = "") {
 		$title = $this->getTitleObject();
-		Pathway::deleteArticle($title, $reason);
-		//Clean up SVG page
-		$this->clearCache(null, true);
+		wfDebug("Deleting pathway" . $title->getFullText() . "\n");
+		$this->markDeprecated($reason);
 	}
 
+	/**
+	 * Mark the pathway as deprecated. This means the pathway contents (GPML) will be
+	 * erased, however the pathway page will remain and marked as deprecated.
+	 * Cached metadata, such as species and name can still be accessed.
+	 **/
+	public function markDeprecated($reason = "") {
+		global $wgUser;
+		if($this->isDeprecated(false)) return; //Already deprecated, nothing to do
+		
+		//Check permissions
+		if(is_null($wgUser) || !$wgUser->isLoggedIn()) {
+			throw new Exception("User is not logged in");
+		}
+		if($wgUser->isBlocked()) {
+			throw new Exception("User is blocked");
+		}
+		if(!$this->getTitleObject()->userCan('delete')) {
+			throw new Exception("User doesn't have permissions to mark this pathway as deprecated");
+		}
+		if(wfReadOnly()) {
+			throw new Exception("Database is read-only");
+		}
+
+		$article = new Article($this->getTitleObject(), 0);
+		global $wpiDisableValidation; //Temporarily disable GPML validation hook
+		$wpiDisableValidation = true;
+		
+		$succ =  $article->doEdit("{{deprecated|$reason}}", "Marked deprecated: " . $reason);
+		if($succ) {
+			//Remove from categories
+			$this->updateCategories();
+			//Update metadata cache
+			$this->invalidateMetaDataCache();
+			//Calculate number of unique genes for given species
+			// and update file with stored values
+			StatisticsCache::updateUniqueGenesCache($this->getSpecies());
+			
+			//Clean up file cache
+			$this->clearCache(null, true);
+		} else {
+			throw new Exception("Unable to mark pathway deprecated, are you logged in?");
+		}
+	}
+	
 	private function deleteImagePage($reason) {
 		$title = $this->getFileTitle(FILETYPE_IMG);
 		Pathway::deleteArticle($title, $reason);
@@ -633,7 +809,7 @@ class Pathway {
 	public function updateCategories() {
 		$this->getCategoryHandler()->setGpmlCategories();
 	}
-			
+	
 	/**
 	 * Checks whether the cached files are up-to-data and updates them
 	 * if neccesary
@@ -642,6 +818,11 @@ class Pathway {
 	 */
 	public function updateCache($fileType = null) {
 		wfDebug("updateCache called for filetype $fileType\n");
+		//Make sure to update GPML cache first
+		if(!$fileType == FILETYPE_GPML) {
+			$this->updateCache(FILETYPE_GPML);
+		}
+		
 		if(!$fileType) { //Update all
 			foreach($this->fileTypes as $type) {
 				$this->updateCache($type);

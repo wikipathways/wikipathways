@@ -30,6 +30,20 @@ class PathwayData {
 	}
 	
 	/**
+	 * Gets the name of the pathway, as stored in GPML
+	 */
+	function getName() {
+		return (string)$this->gpml["Name"];
+	}
+	
+	/**
+	 * Gets the organism of the pathway, as stored in GPML
+	 */
+	function getOrganism() {
+		return (string)$this->gpml["Organism"];
+	}
+	
+	/**
 	 * Gets the interactions
 	 * \return an array of instances of the Interaction class
 	 */

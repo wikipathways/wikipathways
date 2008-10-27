@@ -51,6 +51,15 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		// Suppress warnings to prevent notices about missing indexes in $this->data
 		wfSuppressWarnings();
 
+		//If we have a pathway page, create a pathway object first
+		if($wgTitle->getNamespace() == NS_PATHWAY) {
+			try {
+				$pathway = Pathway::newFromTitle($wgTitle);
+			} catch(Exception $e) {
+				wgLog("Unable to create pathway object for WikiPathways skin");
+			}
+		}
+		
 /** AP20070421
  *		//Remove edit tab for pathways
  *		if($wgTitle->getNameSpace() == 100) {
@@ -74,6 +83,19 @@ class WikiPathwaysTemplate extends QuickTemplate {
 				unset($actions['move']);
 			}
 		}
+		//Modify delete tab to deprecate
+		if($pathway && $this->data['content_actions']['delete']) {
+			if($pathway->isDeprecated()) {
+				//Remove delete tab if already deprecated
+				unset($this->data['content_actions']['delete']);
+			} else {
+				//Use default delete action, but rename
+				$this->data['content_actions']['delete']['text'] = 'Mark deprecated';
+				$this->data['content_actions']['delete']['href'] = 
+					SITE_URL . '/index.php?title=Special:MarkDeprecated&id=' . $pathway->getIdentifier();
+			}
+		}
+		
 		if($wgTitle->getNameSpace() == NS_PATHWAY || NS_PATHWAY_TALK || NS_IMAGE) {
 			$actions = $this->data['content_actions'];
 			$this->data['content_actions'] = $actions;
@@ -131,10 +153,9 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		<h1 class="firstHeading"><?php 
 		/** TK: set custom title for pathway pages **/
 		$ns = $wgTitle->getNameSpace();
-		if($ns == NS_PATHWAY) {
+		if($pathway) {
 			try {
-				$p = Pathway::newFromTitle($wgTitle);
-				echo htmlspecialchars($p->name() . " (" . $p->species() . ")");
+				echo htmlspecialchars($pathway->getName() . " (" . $pathway->getSpecies() . ")");
 			} catch(Exception $e) { //Fallback on default behavior
 				$this->data['displaytitle']!=""?$this->html('title'):$this->text('title');
 			}

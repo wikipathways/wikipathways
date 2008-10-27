@@ -1,56 +1,62 @@
 <?php
-//Initialize MediaWiki
-$wpiDir = dirname(realpath(__FILE__));
-set_include_path(get_include_path() . PATH_SEPARATOR . $wpiDir);
-set_include_path(get_include_path().PATH_SEPARATOR.realpath("$wpiDir/includes"));
-set_include_path(get_include_path().PATH_SEPARATOR.realpath("$wpiDir/../includes").PATH_SEPARATOR.realpath("$dir/../").PATH_SEPARATOR);
-$dir = getcwd();
-chdir($wpiDir . "/../"); //Ugly, but we need to change to the MediaWiki install dir to include these files, otherwise we'll get an error
-require_once ( 'WebStart.php');
-require_once( 'Wiki.php' );
-chdir($dir);
 
-require_once('globals.php');
-require_once( 'Pathway.php' );
-require_once('MimeTypes.php' );
+try {
+	//Initialize MediaWiki
+	$wpiDir = dirname(realpath(__FILE__));
+	set_include_path(get_include_path() . PATH_SEPARATOR . $wpiDir);
+	set_include_path(get_include_path().PATH_SEPARATOR.realpath("$wpiDir/includes"));
+	set_include_path(get_include_path().PATH_SEPARATOR.realpath("$wpiDir/../includes").PATH_SEPARATOR.realpath("$dir/../").PATH_SEPARATOR);
+	$dir = getcwd();
+	chdir($wpiDir . "/../"); //Ugly, but we need to change to the MediaWiki install dir to include these files, otherwise we'll get an error
+	require_once ( 'WebStart.php');
+	require_once( 'Wiki.php' );
+	chdir($dir);
 
-//Parse HTTP request (only if script is directly called!)
-if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
-$action = $_GET['action'];
-$pwTitle = $_GET['pwTitle'];
-$oldId = $_GET['oldid'];
-if($pwTitle) {
+	require_once('globals.php');
+	require_once( 'Pathway.php' );
+	require_once('MimeTypes.php' );
+
+	//Parse HTTP request (only if script is directly called!)
+	if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
+	$action = $_GET['action'];
+	$pwTitle = $_GET['pwTitle'];
+	$oldId = $_GET['oldid'];
+
+	switch($action) {
+		case 'launchPathVisio':
+			$ignore = $_GET['ignoreWarning'];
+			launchPathVisio(createPathwayObject($pwTitle, $oldId), $ignore);
+			break;
+		case 'launchCytoscape':
+			launchCytoscape(createPathwayObject($pwTitle, $oldId));
+			break;
+		case 'launchGenMappConverter':
+			launchGenMappConverter(createPathwayObject($pwTitle, $oldId));
+			break;
+		case 'downloadFile':
+			downloadFile($_GET['type'], $pwTitle);
+			break;
+		case 'revert':
+			revert($pwTitle, $oldId);
+			break;
+		case 'delete':
+			delete($pwTitle);
+			break;
+		}
+	}
+} catch(Exception $e) {
+	//Redirect to special page that reports the error
+	ob_clean();
+	header("Location: " . SITE_URL . "index.php?title=Special:ShowError&error=" . urlencode($e));
+	exit;
+}
+
+function createPathwayObject($pwTitle, $oldid) {
 	$pathway = Pathway::newFromTitle($pwTitle);
 	if($oldId) {
 		$pathway->setActiveRevision($oldId);
 	}
-}
-switch($action) {
-	case 'launchPathVisio':
-		$ignore = $_GET['ignoreWarning'];
-		launchPathVisio($pathway, $ignore);
-		break;
-	case 'launchCytoscape':
-		launchCytoscape($pathway);
-		break;
-	case 'launchGenMappConverter':
-		launchGenMappConverter($pathway);
-		break;
-	case 'downloadFile':
-		downloadFile($_GET['type'], $pwTitle);
-		break;
-	case 'revert':
-		revert($pwTitle, $oldId);
-		break;
-	case 'new':
-		$pathway = new Pathway($_GET['pwName'], $_GET['pwSpecies'], false);
-		$ignore = $_GET['ignoreWarning'];
-		launchPathVisio($pathway, $ignore, true);
-		break;
-	case 'delete':
-		delete($pwTitle);
-		break;
-	}
+	return $pathway;
 }
 
 function delete($title) {
@@ -99,61 +105,6 @@ function launchCytoscape($pathway) {
 	$webstart = str_replace(" <!--ARG-->", $arg, $webstart);
 	$webstart = str_replace("CODE_BASE", WPI_URL . "/bin/cytoscape/", $webstart);
 	sendWebstart($webstart, $pathway->name(), "cytoscape.jnlp");//This exits script
-}
-
-function launchPathVisio($pathway, $ignore = null, $new = false) {
-	global $wgUser;
-		
-	$webstart = file_get_contents(WPI_SCRIPT_PATH . "/applet/wikipathways.jnlp");
-	$arg .= createJnlpArg("-RPC_URL", "http://" . $_SERVER['HTTP_HOST'] . "/wpi/wpi_rpc.php");
-	$arg .= createJnlpArg("-PW_NAME", $pathway->name());
-	$arg .= createJnlpArg("-PW_SPECIES", $pathway->species());
-	if($new) {
-		$arg .= createJnlpArg("-PW_URL", $pathway->getTitleObject()->getFullURL());
-	} else {
-		$arg .= createJnlpArg("-PW_URL", $pathway->getFileURL(FILETYPE_GPML));
-	}
-	if($wgUser && $wgUser->isLoggedIn()) {
-		$arg .= createJnlpArg("-USER", $wgUser->getRealName());
-	}
-	if($new) {
-		$arg .= createJnlpArg("-PW_NEW", "1");
-	}
-	$webstart = str_replace("<!--ARG-->", $arg, $webstart);
-
-	$msg = null;
-	if( $wgUser->isLoggedIn() ) {
-		if( $wgUser->isBlocked() ) {
-			$msg = "Warning: your user account is blocked!";
-		}
-	} else {
-		$msg = "Warning: you are not logged in! You will not be able to save modifications to WikiPathways.org.";
-	}
-	if($msg && !$ignore) { //If $msg is not null, then we have an error
-		$name = $pathway->name();
-		$url = $pathway->getFullURL();
-		$title = $pathway->getTitleObject()->getPartialURL();
-		$jnlp = $wpiScript . "?action=launchPathVisio&pwTitle=$title&ignoreWarning=1";
-		$script = 
-<<<JS
-<html>
-<body>
-<p>Back to <a href={$url}>{$name}</a></p>
-<script type="text/javascript">
-var view = confirm("{$msg} You will not be able to save modifications to WikiPathways.org.\\n\\nDo you still want to open the pathway?");
-if(view) {
-window.location="{$jnlp}";
-} else {
-history.go(-1);
-}
-</script>
-</body>
-</html>
-JS;
-		echo($script);
-		exit;
-	}
-	sendWebstart($webstart, $pathway->name());//This exits script
 }
 
 function sendWebstart($webstart, $tmpname, $filename = "wikipathways.jnlp") {
