@@ -764,7 +764,7 @@ class Pathway {
 			$msg .= $line . "\n";
 		}
 		if($status != 0 ) {
-			throw new Exception("Unable to convert to $outFile:\nStatus:$status\nMessage:$msg");
+			throw new Exception("Unable to convert to $outFile:\n<BR>Status:$status\n<BR>Message:$msg\n<BR>Command:$cmd<BR>");
 		}
 		return true;
 	} 
@@ -847,48 +847,9 @@ class Pathway {
 		
 		$localFile = wfLocalFile($saveName);
 		$localFile->upload($fileName, $description, "");
-/*
-		# Move the file to the proper directory
-		$dest = wfLocalFile( $saveName )->getPath();
-		$archive = wfImageArchiveDir( $saveName );
-		if ( !is_dir( $dest ) ) wfMkdirParents( $dest );
-		if ( !is_dir( $archive ) ) wfMkdirParents( $archive );
-
-		$toFile = $dest;
-		if( is_file( $toFile) ) {
-			$oldVersion = gmdate( 'YmdHis' ) . "!{$saveName}";
-			$success = rename($toFile, "{$archive}/{$oldVersion}");
-			if(!$success) {
-				throw new Exception( 
-					"Unable to rename file $olddVersion to {$archive}/{$oldVersion}" );
-			}
-		}
-		$success = rename($fileName, $toFile);
-		if(!$success) {
-			throw new Exception( "Unable to rename file $fileName to $toFile" );
-		}
-		chmod($toFile, 0644);
-		
-		# Update the image page
-		$img = Image::newFromName( $saveName );
-		
-		$success = Pathway::recordUpload( $img, $oldVersion,
-			                           $description,
-			                           wfMsgHtml( 'license' ),
-			                           "", //Copyright
-			                           $fileName,
-			                           FALSE ); //Watchthis
-	                    
-		if(!$success) {
-			throw new Exception( "Couldn't create description page" );
-		}
-
 		//Dirty hack: set wgParser title back to original after uploading image,
 		//because mediawiki sets it to the image page
 		$wgParser->mTitle = $oldTitle;
-		
-		return $toFile; # return the saved file
-		*/
 	}
 	
 	/**
