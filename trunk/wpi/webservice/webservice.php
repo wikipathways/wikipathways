@@ -73,14 +73,13 @@ function listPathways() {
 
 /**
  * Get the GPML code for a pathway
- * @param string $pwName The pathway name
- * @param string $pwSpecies The pathway species
+ * @param string $pwId The pathway identifier
  * @param int $revision The revision number of the pathway (use 0 for most recent)
  * @return object WSPathway $pathway The pathway
  **/
-function getPathway($pwName, $pwSpecies, $revision = 0) {
+function getPathway($pwId, $revision = 0) {
 	try {
-		$pathway = Pathway::newFromName($pwName, $pwSpecies);
+		$pathway = new Pathway($pwId);
 		$pwi = new WSPathway($pathway);
 		return array("pathway" => $pwi);
 	} catch(Exception $e) {
@@ -91,15 +90,14 @@ function getPathway($pwName, $pwSpecies, $revision = 0) {
 
 /**
  * Update the GPML code of a pathway on the wiki
- * @param string $pwName The name of the pathway
- * @param string $pwSpecies The species of the pathway
+ * @param string $pwId The pathway identifier
  * @param string $description A description of the modifications
  * @param string $gpml The updated GPML code
  * @param int $revision The revision the GPML code is based on
  * @param object WSAuth $auth The authentication info
  * @return boolean $success Whether the update was successful
  **/
-function updatePathway($pwName, $pwSpecies, $description, $gpml, $revision, $auth = NULL) {
+function updatePathway($pwId, $description, $gpml, $revision, $auth = NULL) {
 	global $wgUser;
 	
 	try {
@@ -108,7 +106,7 @@ function updatePathway($pwName, $pwSpecies, $description, $gpml, $revision, $aut
 			authenticate($auth['user'], $auth['key']);
 		}
 
-		$pathway = Pathway::newFromName($pwName, $pwSpecies);
+		$pathway = new Pathway($pwId);
 		//Only update if the given revision is the newest
 		//Or if this is a new pathway
 		if(!$pathway->exists() || $revision == $pathway->getLatestRevision()) {
@@ -164,14 +162,13 @@ function login($name, $pass) {
  * Download a pathway in the specified file format.
  * @param string $fileType The file type to convert to, e.g.
  * 'svg', 'png' or 'txt'
- * @param string $pwName The pathway name
- * @param string $pwSpecies The pathway species
+ * @param string $pwId The pathway identifier
  * @param int $revision The revision number of the pathway (use 0 for most recent)
  * @return base64Binary $data The converted file data (base64 encoded)
  **/
-function getPathwayAs($fileType, $pwName, $pwSpecies, $revision = 0) {
+function getPathwayAs($fileType, $pwId, $revision = 0) {
 	try {
-		$p = Pathway::newFromName($pwName, $pwSpecies);
+		$p = new Pathway($pwId);
 		$p->setActiveRevision($revision);
 		$data = file_get_contents($p->getFileLocation($fileType));
 		$data = base64_encode($data);
@@ -268,21 +265,20 @@ function findPathwaysByXref($id, $code = '', $indirect = true) {
 /**
  * Apply a curation tag to a pahtway. This operation will
  * overwrite any existing tag with the same name.
- * @param string $pwName The name of the pathway
- * @param string $pwSpecies The species of the pathway
+ * @param string $pwId The pathway identifier
  * @param string $tagName The name of the tag to apply
  * @param string $tagText The tag text (optional)
  * @param int $revision The revision this tag applies to
  * @param object WSAuth $auth The authentication info
  * @return boolean $success
  */
-function saveCurationTag($pwName, $pwSpecies, $tagName, $text, $revision, $auth) {
+function saveCurationTag($pwId, $tagName, $text, $revision, $auth) {
 	if($auth) {
 		authenticate($auth['user'], $auth['key']);
 	}
 	
 	try {
-		$pathway = Pathway::newFromName($pwName, $pwSpecies);
+		$pathway = new Pathway($pwId);
 		if($pathway->exists()) {
 			$pageId = $pathway->getTitleObject()->getArticleId();
 			CurationTag::saveTag($pageId, $tagName, $text, $revision);
@@ -296,19 +292,18 @@ function saveCurationTag($pwName, $pwSpecies, $tagName, $text, $revision, $auth)
 
 /**
  * Remove a curation tag from a pathway.
- * @param string $pwName The name of the pathway
- * @param string $pwSpecies The species of the pathway
+ * @param string $pwId The pathway identifier
  * @param string $tagName The name of the tag to apply
  * @param object WSAuth $auth The authentication data
  * @return boolean $success
  **/
-function removeCurationTag($pwName, $pwSpecies, $tagName, $auth) {
+function removeCurationTag($pwId, $tagName, $auth) {
 	if($auth) {
 		authenticate($auth['user'], $auth['key']);
 	}
 	
 	try {
-		$pathway = Pathway::newFromName($pwName, $pwSpecies);
+		$pathway = new Pathway($pwId);
 		if($pathway->exists()) {
 			$pageId = $pathway->getTitleObject()->getArticleId();
 			CurationTag::removeTag($tagName, $pageId);
@@ -322,12 +317,11 @@ function removeCurationTag($pwName, $pwSpecies, $tagName, $auth) {
 
 /**
  * Get all curation tags for the given pathway.
- * @param string $pwName The name of the pathway
- * @param string $pwSpecies The species of the pathway
+ * @param string $pwId The pathway identifier
  * @return array of object WSCurationTag $tags The curation tags.
  **/
-function getCurationTags($pwName, $pwSpecies) {
-	$pw = Pathway::newFromName($pwName, $pwSpecies);
+function getCurationTags($pwId) {
+	$pw = new Pathway($pwId);
 	$pageId = $pw->getTitleObject()->getArticleId();
 	$tags = CurationTag::getCurationTags($pageId);
 	$wstags = array();
@@ -339,17 +333,16 @@ function getCurationTags($pwName, $pwSpecies) {
 
 /**
  * Get a colored image version of the pahtway.
- * @param string $pwName The name of the pathway
- * @param string $pwSpecies The species of the pathway
+ * @param string $pwId The pathway identifier
  * @param string $revision The revision of the pathway (use '0' for most recent)
  * @param array of string $graphId An array with graphIds of the objects to color
  * @param array of string $color An array with colors of the objects (should be the same length as $graphId)
  * @param string $fileType The image type (One of 'svg', 'pdf' or 'png').
  * @return base64Binary $data The image data (base64 encoded)
  **/
-function getColoredPathway($pwName, $pwSpecies, $revision, $graphId, $color, $fileType) {
+function getColoredPathway($pwId, $revision, $graphId, $color, $fileType) {
 	try {
-		$p = Pathway::newFromName($pwName, $pwSpecies);
+		$p = new Pathway($pwId);
 		$p->setActiveRevision($revision);
 		$gpmlFile = realpath($p->getFileLocation(FILETYPE_GPML));
 		
@@ -408,6 +401,7 @@ function formatXml($xml) {
  */
 class WSPathwayInfo {
 	function __construct($pathway) {
+		$this->id = $pathway->getIdentifier();
 		$this->revision = $pathway->getLatestRevision();
 		$this->species = $pathway->species();
 		$this->name = $pathway->name();
@@ -416,6 +410,11 @@ class WSPathwayInfo {
 		//Hack to make response valid in case of missing revision
 		if(!$this->revision) $this->revision = 0;
 	}
+	
+	/**
+	 * @var string $id - the pathway identifier
+	 */
+	public $id;
 	
 	/**
 	* @var string $url - the url to the pathway
