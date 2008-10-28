@@ -712,6 +712,9 @@ class Pathway {
 	 * given revision was deprecated (not the newest revision).
 	 **/	
 	public function isDeprecated($useCache = true, $revision = '') {
+		if(!$this->exists()) {
+			return false;
+		}
 		if($useCache && !$revision) {
 			$deprev = $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_DEPRECATED);
 			if($deprev) {
