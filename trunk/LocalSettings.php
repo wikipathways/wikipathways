@@ -293,6 +293,7 @@ require_once('extensions/LiquidThreads/LiquidThreads.php');
 require_once('extensions/SocialRewarding/SocialRewarding.php');
 require_once('wpi/extensions/MarkDeprecated/MarkDeprecated.php');
 require_once('wpi/extensions/ShowError/ShowError.php');
+require_once('wpi/extensions/pathwayParserFunctions.php');
 
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!
