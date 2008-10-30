@@ -220,7 +220,9 @@ function getRecentChanges($timestamp)
 		try {
 				$ts = $row['rc_title'];
 			$p = Pathway::newFromTitle($ts);
-			$objects[] = new WSPathwayInfo($p);
+			if(!$p->getTitleObject()->isRedirect()) {
+				$objects[] = new WSPathwayInfo($p);			
+			}
 		} catch(Exception $e) {
 			wfDebug("Unable to create pathway object for recent changes: $e");
 		}
@@ -404,7 +406,7 @@ class WSPathwayInfo {
 		$this->id = $pathway->getIdentifier();
 		$this->revision = $pathway->getLatestRevision();
 		$this->species = $pathway->species();
-		$this->name = $pathway->name();
+		$this->name = formatXml($pathway->name());
 		$this->url = $pathway->getTitleObject()->getFullURL();
 		
 		//Hack to make response valid in case of missing revision
