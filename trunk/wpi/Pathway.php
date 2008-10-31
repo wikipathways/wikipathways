@@ -206,6 +206,15 @@ class Pathway {
 		if($title instanceof Title) {
 			$title = $title->getText();
 		}
+		
+		//Remove url and namespace from title
+		$match = array();
+		$exists = preg_match("/" . self::$ID_PREFIX . "\d+/", $title, $match);
+		if(!$exists) {
+			throw new Exception("Couldn't parse pathway identifier from title " . $title);
+		}
+		$title = $match[0];
+		
 		return new Pathway($title, $checkCache);
 	}
 	
