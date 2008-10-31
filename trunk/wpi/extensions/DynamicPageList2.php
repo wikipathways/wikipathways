@@ -2870,8 +2870,10 @@ class ExtDynamicPageList2
             // do not allow access to protected Namespaces
             // if (count($wgNonincludableNamespaces)>0 && in_array($pageNamespace,$wgNonincludableNamespaces) ) continue;
             // we should produce an error message if debug >= 3
-            
-            $title = Title::makeTitle($pageNamespace, $pageTitle);
+
+            $pathway = Pathway::newFromTitle($pageTitle);
+            $title = Title::makeTitle( $pageNamespace, $pathway->getSpecies().":".$pathway->getName() );
+            $id = Title::makeTitle($pageNamespace, $pageTitle);
             
             // block recursion: avoid to show the page which contains the DPL statement as part of the result
             if ($bSkipThisPage && ($title->getNamespace() == $wgTitle->getNamespace() && 
@@ -2905,7 +2907,7 @@ class ExtDynamicPageList2
 			$titleSpecies = array_shift($parts); 
 			$titleText = array_shift($parts);
 		}
-		$articleLink = $sk->makeKnownLinkObj( $title, htmlspecialchars( $titleText)); // $wgContLang->convert( $sTitleText ) ) );
+		$articleLink = $sk->makeKnownLinkObj( $id, htmlspecialchars( $titleText)); // $wgContLang->convert( $sTitleText ) ) );
 		$dplArticle->mLink = $articleLink;
             
             //get first char used for category-style output

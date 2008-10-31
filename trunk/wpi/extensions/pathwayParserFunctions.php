@@ -17,19 +17,27 @@ function pathwayParserFunctions_Magic(&$magicWords, $langCode) {
 }
 
 function pp_pathwayName(&$parser, $id = '') {
-	if(!$id) {
-		$id = $parser->mTitle->getDbKey();
+	try {
+		if(!$id) {
+			$id = $parser->mTitle->getDbKey();
+		}
+		$p = Pathway::newFromTitle($id);
+		return $p->getName();
+	} catch(Exception $e) {
+		return "ERROR: Couldn't create pathway '$id'\n" . $e;
 	}
-	$p = new Pathway($id);
-	return $p->getName();
 }
 
 function pp_pathwaySpecies(&$parser, $id = '') {
-	if(!$id) {
-		$id = $parser->mTitle->getDbKey();
+	try {
+		if(!$id) {
+			$id = $parser->mTitle->getDbKey();
+		}
+		$p = Pathway::newFromTitle($id);
+		return $p->getName();
+	} catch(Exception $e) {
+		return "ERROR: Couldn't create pathway '$id'\n" . $e;
 	}
-	$p = new Pathway($id);
-	return $p->getName();
 }
 ?>
 

@@ -135,10 +135,16 @@ class RecentQueryPage extends QueryPage {
 		$name = $skin->makeLinkObj( $userPage, htmlspecialchars( $userPage->getText() ) );
 		$date = date('d F Y', $result->unix_time);
 		$comment = ($result->rc_comment ? $result->rc_comment : "no comment");
-		$title = Title::makeTitle( NS_PATHWAY, $result->title ); 
+		$titleName = $result->title;
+		try {
+                	$pathway = Pathway::newFromTitle($result->title);
+			$titleName = $pathway->getSpecies().":".$pathway->getName();
+		} catch(Exception $e) {}
+                $title = Title::makeTitle( $result->namespace, $titleName );
+                $id = Title::makeTitle( $result->namespace, $result->title );
 
 		$this->message['hist'] = wfMsgExt( 'hist', array( 'escape'));
-		$histLink = $skin->makeKnownLinkObj($title, $this->message['hist'],
+		$histLink = $skin->makeKnownLinkObj($id, $this->message['hist'],
 				wfArrayToCGI( array(
                                 'curid' => $result->rc_cur_id,
 				'action' => 'history')));
@@ -149,11 +155,11 @@ class RecentQueryPage extends QueryPage {
                 } else {
                         $diffLink = "<a href='" . SITE_URL . 
                         	"/index.php?title=Special:DiffAppletPage&old={$result->rc_last_oldid}&new={$result->rc_this_oldid}" .
-                        	"&pwTitle={$title->getFullText()}'>diff</a>";
+                        	"&pwTitle={$id->getFullText()}'>diff</a>";
 		}
 
 		$text = $wgContLang->convert($result->rc_comment);
-		$plink = $skin->makeKnownLinkObj( $title, htmlspecialchars( $wgContLang->convert($title->getBaseText())) );
+		$plink = $skin->makeKnownLinkObj( $id, htmlspecialchars( $wgContLang->convert($title->getBaseText())) );
 
 		/* Not link to history for now, later on link to our own pathway history
 		$nl = wfMsgExt( 'nrevisions', array( 'parsemag', 'escape'),

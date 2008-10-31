@@ -77,13 +77,11 @@ class PathwayQueryPage extends QueryPage {
 
 	function formatResult( $skin, $result ) {
 		global $wgLang, $wgContLang;
-
-/**AP20070508 */
-		$title = Title::makeTitle( NS_PATHWAY, $result->title ); 
-		
+                $pathway = Pathway::newFromTitle($result->title);
+                $title = Title::makeTitle( $result->namespace, $pathway->getSpecies().":".$pathway->getName() );
+                $id = Title::makeTitle( $result->namespace, $result->title );
 		$text = $wgContLang->convert("$result->value revisions");
-
-		$plink = $skin->makeKnownLinkObj( $title, htmlspecialchars( $wgContLang->convert($title->getBaseText())) );
+		$plink = $skin->makeKnownLinkObj( $id, htmlspecialchars( $wgContLang->convert($title->getBaseText())) );
 
 		/* Not link to history for now, later on link to our own pathway history
 		$nl = wfMsgExt( 'nrevisions', array( 'parsemag', 'escape'),

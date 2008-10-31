@@ -65,7 +65,8 @@ class PPQueryPage extends QueryPage {
 		global $wgLang, $wgContLang;
 		$pathway = Pathway::newFromTitle($result->title);
 		$title = Title::makeTitle( $result->namespace, $pathway->getSpecies().":".$pathway->getName() );
-		$link = $skin->makeKnownLinkObj( $title, htmlspecialchars( $wgContLang->convert( $title->getBaseText() ) ) );
+                $id = Title::makeTitle( $result->namespace, $result->title );
+		$link = $skin->makeKnownLinkObj( $id, htmlspecialchars( $wgContLang->convert( $title->getBaseText() ) ) );
 		$nv = wfMsgExt( 'nviews', array( 'parsemag', 'escape'),
 			$wgLang->formatNum( $result->value ) );
 		return wfSpecialList($link, $nv);
