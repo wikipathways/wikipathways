@@ -61,7 +61,9 @@ function displayCurationTags($input, $argv, &$parser) {
 	$title = $parser->getTitle();
 	$mayEdit = $title->userCan('edit') ? true : false;
 	$revision = $parser->getRevisionId();
-	
+	if(!$revision) {
+		$parser->mTitle->getLatestRevId();
+	}
 	$helpLink = Title::newFromText("CurationTags", NS_HELP)->getFullURL();
 	
 	//Add javascript
