@@ -457,10 +457,9 @@ class Pathway {
 		if($this->revision) {
 			$rev_stuffix = "_" . $this->revision;
 		}
-		
 		$title = Title::newFromText( "{$this->getIdentifier()}{$rev_stuffix}." . $fileType, NS_IMAGE );
 		if(!$title) {
-			throw new Exception("Invalid file title for pathway " + $fileName);
+			throw new Exception("Invalid file title for pathway " . $fileName);
 		}
 		return $title;
 	}

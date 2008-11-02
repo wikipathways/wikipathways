@@ -57,7 +57,6 @@ function batchDownload($species, $fileType, $listPage = '', $onlyCategorized = f
 		throw new Exception("Invalid file type: $fileType");
 	}
 */
-	$species = str_replace(' ', '_', $species);
 	if($listPage) {
 		$allpws = getPathwaysByList($listPage);
 		$pathways = array();
@@ -69,9 +68,14 @@ function batchDownload($species, $fileType, $listPage = '', $onlyCategorized = f
 			}
 		}
 	} else {
-		$pathways = getPathways(array(
-			"page_title LIKE '$species%'"		
-		));
+		$pathways = Pathway::getAllPathways();
+		$filtered = array();
+		foreach($pathways as $p) {  //Filter by species
+			if($p->getSpecies() == $species) {
+				$filtered[] = $p;
+			}
+		}
+		$pathways = $filtered;
 	}
 	//Filter out non categorized pathways
 	if($onlyCategorized) {
@@ -93,9 +97,14 @@ function batchDownload($species, $fileType, $listPage = '', $onlyCategorized = f
 	if($tag) {
 		$filtered = array();
 		$pages = MetaTag::getPagesForTag($tag);
-		
 		foreach($pathways as $p) {
-			if(in_array($p->getTitleObject()->getArticleId(), $pages)) {
+			$id = $p->getTitleObject()->getArticleId();
+			if(in_array($id, $pages)) {
+				$tag = new MetaTag($tag, $id);
+				$rev = $tag->getPageRevision();
+				if($rev) {
+					$p->setActiveRevision($rev);
+				}
 				$filtered[] = $p;
 			}
 		}
@@ -114,18 +123,18 @@ function getPathways($conditions = array()) {
 		array(
 			'page_namespace' => NS_PATHWAY,
 			'page_is_redirect' => 0,
-			"page_title != 'Human:Sandbox'"
+			"page_title LIKE 'WP%'"
 		)
 	);
 	$dbr =& wfGetDB( DB_SLAVE );
 	$res = $dbr->select( 'page',
-		array( 'page_namespace', 'page_title', 'page_is_redirect' ),
+		array( 'page_title' ),
 		$conditions
 	);
 
 	$pathways = array();
 	while($s = $dbr->fetchObject( $res ) ) {
-			$t = Title::makeTitle( $s->page_namespace, $s->page_title );
+			$t = $s->page_title;
 			try {
 				$pw = Pathway::newFromTitle($t);
 				$pw->registerFileType($fileType);
@@ -141,7 +150,9 @@ function doDownload($pathways, $fileType) {
 	ob_start();
 	
 	if(is_null($pathways) || count($pathways) == 0) {
-		exit("<H1>Unable process download</H1><P>There are no pathways available</P>");
+		$e = "'''Unable process download:''' No pathways matching your criteria";
+		header("Location: " . SITE_URL . "index.php?title=Special:ShowError&error=" . urlencode($e));
+		exit();
 	}
 	
 /*	$zip = new zipfile();
