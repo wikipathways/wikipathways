@@ -1,7 +1,7 @@
 <?php
-class MarkDeprecated extends SpecialPage {
-	function MarkDeprecated() {
-		SpecialPage::SpecialPage("MarkDeprecated");
+class DeletePathway extends SpecialPage {
+	function DeletePathway() {
+		SpecialPage::SpecialPage("DeletePathway");
 		self::loadMessages();
 	}
 
@@ -20,18 +20,18 @@ class MarkDeprecated extends SpecialPage {
 		$reason = $_REQUEST['reason'];
 		
 		if($_REQUEST['doit']) {
-			$pathway->markDeprecated($reason);
+			$pathway->delete($reason);
 			header("Location: {$pathway->getTitleObject()->getFullUrl()}");
 			exit;
 		} else {
 			//Show a form
-			$descr = wfMsgForContent( 'deprecated_descr' );
+			$descr = wfMsgForContent( 'deletepathway_descr' );
 			$descr = str_replace("[[PATHWAY]]" , 
 				"<B><A href='{$pathway->getTitleObject()->getFullURL()}'>" .
 				"{$pathway->getName()} ({$pathway->getSpecies()})</A></B>",
 				$descr
 			);
-			$wgOut->addHTML($descr);
+			$wgOut->addHTML("<P>" . $descr . "</P>");
 			$url = SITE_URL . '/index.php';
 			
 			$form = <<<HTML
@@ -40,8 +40,8 @@ class MarkDeprecated extends SpecialPage {
 	<TD>Reason:
 	<TD><INPUT name="reason" type="text">$reason</INPUT>
 	<INPUT type="hidden" name="id" value="{$id}"
-	<INPUT type="hidden" name="title" value="Special:MarkDeprecated"/>
-	<TD><INPUT name="doit" type="submit" value="Mark deprecated"/>
+	<INPUT type="hidden" name="title" value="Special:DeletePathway"/>
+	<TD><INPUT name="doit" type="submit" value="Delete"/>
 	</TBODY></TABLE>
 </FORM>
 HTML;
@@ -55,7 +55,7 @@ HTML;
 		if ( $messagesLoaded ) return true;
 		$messagesLoaded = true;
 
-		require( dirname( __FILE__ ) . '/MarkDeprecated.i18n.php' );
+		require( dirname( __FILE__ ) . '/DeletePathway.i18n.php' );
 		foreach ( $allMessages as $lang => $langMessages ) {
 			$wgMessageCache->addMessages( $langMessages, $lang );
 		}

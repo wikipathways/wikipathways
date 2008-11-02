@@ -95,7 +95,7 @@ class Pathway {
 	 * of this pathway
 	 **/
 	public function getLatestRevision() {
-		return $this->getTitleObject()->getLatestRevID();
+		return Title::newFromText($this->getIdentifier(), NS_PATHWAY)->getLatestRevID();
 	}
 	
 	/**
@@ -117,8 +117,8 @@ class Pathway {
 	 * data stored in the GPML
 	 */
 	public function getPathwayData() {
-		//Return null when deprecated and not querying an older revision
-		if($this->isDeprecated(false, $this->getActiveRevision())) {
+		//Return null when deleted and not querying an older revision
+		if($this->isDeleted(false, $this->getActiveRevision())) {
 			return null;
 		}
 		//Only create when asked for (performance)
@@ -150,12 +150,13 @@ class Pathway {
 	}
 	
 	/**
-	 * Forces a reload of the cached metadata.
+	 * Forces a reload of the cached metadata on the next
+	 * time a cached value is queried.
 	 */
 	private function invalidateMetaDataCache() {
 		$this->metaDataCache = null;
 	}
-	
+		
 	/**
 	 Convert a species code to a species name (e.g. Hs to Human)
 	*/	
@@ -178,7 +179,7 @@ class Pathway {
 		while( $row = $dbr->fetchRow( $res )) {
 			try {
 				$pathway = Pathway::newFromTitle($row[0]);
-				if($pathway->isDeprecated()) continue; //Skip deprecated pathways
+				if($pathway->isDeleted()) continue; //Skip deleted pathways
 				$allPathways[
 					$pathway->getIdentifier()] = $pathway;
 			} catch(Exception $e) {
@@ -599,12 +600,12 @@ class Pathway {
 		$succ = true;
 		$succ =  $gpmlArticle->doEdit($gpmlData, $description);
 		if($succ) {
+			//Update metadata cache
+			$this->invalidateMetaDataCache();
 			//Update category links
 			$this->updateCategories();
 			//Update file cache
 			$this->updateCache();
-			//Update metadata cache
-			$this->invalidateMetaDataCache();
 			
 			//Calculate number of unique genes for given species
 			// and update file with stored values
@@ -712,19 +713,19 @@ class Pathway {
 	}
 	
 	/**
-	 * Check whether this pathway is deprecated.
+	 * Check whether this pathway is marked as deleted.
 	 * @param $useCache Set to false to use actual page text to
-	 * check if the pathway is deprecated. If true or not specified,
+	 * check if the pathway is deleted. If true or not specified,
 	 * the cache will be used.
-	 * @param $activeRevision Set to true if you want to check if the
-	 * given revision was deprecated (not the newest revision).
+	 * @param $revision Set to true if you want to check if the
+	 * given revision is a deletion mark (not the newest revision).
 	 **/	
-	public function isDeprecated($useCache = true, $revision = '') {
+	public function isDeleted($useCache = true, $revision = '') {
 		if(!$this->exists()) {
 			return false;
 		}
 		if($useCache && !$revision) {
-			$deprev = $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_DEPRECATED);
+			$deprev = $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_DELETED);
 			if($deprev) {
 				$rev = $this->getActiveRevision();
 				if($rev == 0 || $rev == $deprev) return true;
@@ -733,29 +734,19 @@ class Pathway {
 		} else {
 			if(!$revision) $revision = $this->getLatestRevision();
 			$text = Revision::newFromId($revision)->getText();
-			return substr($text, 0, 12) == "{{deprecated";
+			wfDebug("\n$text\n");
+			return substr($text, 0, 9) == "{{deleted";
 		}
 	}
 	
 	/**
 	 * Delete this pathway. The pathway will not really deleted,
-	 * instead, the pathway page will be marked as deprecated.
-	 * @deprecated Use 'markDeprecated()' instead. 
+	 * instead, the pathway page will be marked as deleted by replacing the GPML
+	 * with a deletion mark.
 	 */
 	public function delete($reason = "") {
-		$title = $this->getTitleObject();
-		wfDebug("Deleting pathway" . $title->getFullText() . "\n");
-		$this->markDeprecated($reason);
-	}
-
-	/**
-	 * Mark the pathway as deprecated. This means the pathway contents (GPML) will be
-	 * erased, however the pathway page will remain and marked as deprecated.
-	 * Cached metadata, such as species and name can still be accessed.
-	 **/
-	public function markDeprecated($reason = "") {
 		global $wgUser;
-		if($this->isDeprecated(false)) return; //Already deprecated, nothing to do
+		if($this->isDeleted(false)) return; //Already deleted, nothing to do
 		
 		//Check permissions
 		if(is_null($wgUser) || !$wgUser->isLoggedIn()) {
@@ -765,7 +756,7 @@ class Pathway {
 			throw new Exception("User is blocked");
 		}
 		if(!$this->getTitleObject()->userCan('delete')) {
-			throw new Exception("User doesn't have permissions to mark this pathway as deprecated");
+			throw new Exception("User doesn't have permissions to mark this pathway as deleted");
 		}
 		if(wfReadOnly()) {
 			throw new Exception("Database is read-only");
@@ -775,7 +766,7 @@ class Pathway {
 		global $wpiDisableValidation; //Temporarily disable GPML validation hook
 		$wpiDisableValidation = true;
 		
-		$succ =  $article->doEdit("{{deprecated|$reason}}", "Marked deprecated: " . $reason);
+		$succ =  $article->doEdit("{{deleted|$reason}}", "Deleted pathway: " . $reason);
 		if($succ) {
 			//Remove from categories
 			$this->updateCategories();
@@ -788,7 +779,7 @@ class Pathway {
 			//Clean up file cache
 			$this->clearCache(null, true);
 		} else {
-			throw new Exception("Unable to mark pathway deprecated, are you logged in?");
+			throw new Exception("Unable to mark pathway deleted, are you logged in?");
 		}
 	}
 	
@@ -956,6 +947,8 @@ class Pathway {
 			$msg .= $line . "\n";
 		}
 		if($status != 0 ) {
+			//Remove cached GPML file
+			unlink($gpmlFile);
 			throw new Exception("Unable to convert to $outFile:\n<BR>Status:$status\n<BR>Message:$msg\n<BR>Command:$cmd<BR>");
 		}
 		return true;

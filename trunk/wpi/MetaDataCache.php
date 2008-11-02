@@ -10,7 +10,7 @@
 		private static $TAG_PREFIX = "cache-";
 		public static $FIELD_NAME = "name";
 		public static $FIELD_ORGANISM = "organism";
-		public static $FIELD_DEPRECATED = "deprecated";
+		public static $FIELD_DELETED = "deleted";
 		
 		private $fields;
 		private $pathway;
@@ -30,7 +30,7 @@
 			$this->fields = array(
 				self::$FIELD_NAME,
 				self::$FIELD_ORGANISM,
-				self::$FIELD_DEPRECATED,
+				self::$FIELD_DELETED,
 			);
 			$this->load();
 			$this->updateCache(); //Update the cache if necessary
@@ -54,20 +54,20 @@
 		public function updateCache() {
 			if(!$this->isValid()) {
 				$text = Revision::newFromId($this->pathway->getLatestRevision())->getText();
-				if($this->pathway->isDeprecated(false)) {
+				if($this->pathway->isDeleted(false)) {
 					//leave the old cached values the same
 					//but update to set modified timestamp
 					$this->doUpdate(self::$FIELD_NAME, $this->getValue(self::$FIELD_NAME));
 					$this->doUpdate(self::$FIELD_ORGANISM, $this->getValue(self::$FIELD_ORGANISM));
-					//Set deprecated to true
-					$this->doUpdate(self::$FIELD_DEPRECATED, $this->pathway->getLatestRevision());
+					//Set deleted to true
+					$this->doUpdate(self::$FIELD_DELETED, $this->pathway->getLatestRevision());
 				} else {
 					$title = $this->pathway->getPathwayData()->getName();
 					$org = $this->pathway->getPathwayData()->getOrganism();
 					
 					$this->doUpdate(self::$FIELD_NAME, $title);
 					$this->doUpdate(self::$FIELD_ORGANISM, $org);
-					$this->doDelete(self::$FIELD_DEPRECATED);
+					$this->doDelete(self::$FIELD_DELETED);
 				}
 			}
 		}

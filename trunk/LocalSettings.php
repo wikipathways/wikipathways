@@ -291,7 +291,7 @@ require_once('wpi/extensions/CurationTags/SpecialCurationTags/SpecialCurationTag
 require_once('wpi/extensions/UserLoginLog/UserLoginLog.php');
 require_once('extensions/LiquidThreads/LiquidThreads.php');
 require_once('extensions/SocialRewarding/SocialRewarding.php');
-require_once('wpi/extensions/MarkDeprecated/MarkDeprecated.php');
+require_once('wpi/extensions/DeletePathway/DeletePathway.php');
 require_once('wpi/extensions/ShowError/ShowError.php');
 require_once('wpi/extensions/pathwayParserFunctions.php');
 

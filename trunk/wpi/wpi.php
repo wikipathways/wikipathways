@@ -47,7 +47,7 @@ try {
 } catch(Exception $e) {
 	//Redirect to special page that reports the error
 	ob_clean();
-	header("Location: " . SITE_URL . "index.php?title=Special:ShowError&error=" . urlencode($e));
+	header("Location: " . SITE_URL . "index.php?title=Special:ShowError&error=" . urlencode($e->getMessage()));
 	exit;
 }
 

@@ -80,7 +80,7 @@ class CategoryHandler {
 	}
 	
 	private function getGpmlCategories() {
-		if($this->pathway->isDeprecated()) {
+		if($this->pathway->isDeleted()) {
 			return array();
 		} else {
 			$cats = $this->pathway->getPathwayData()->getWikiCategories();

@@ -83,16 +83,16 @@ class WikiPathwaysTemplate extends QuickTemplate {
 				unset($actions['move']);
 			}
 		}
-		//Modify delete tab to deprecate
+		//Modify delete tab to use custom deletion for pathways
 		if($pathway && $this->data['content_actions']['delete']) {
-			if($pathway->isDeprecated()) {
-				//Remove delete tab if already deprecated
+			if($pathway->isDeleted()) {
+				//Remove delete tab if already deleted
 				unset($this->data['content_actions']['delete']);
 			} else {
 				//Use default delete action, but rename
-				$this->data['content_actions']['delete']['text'] = 'Mark deprecated';
+				$this->data['content_actions']['delete']['text'] = 'delete';
 				$this->data['content_actions']['delete']['href'] = 
-					SITE_URL . '/index.php?title=Special:MarkDeprecated&id=' . $pathway->getIdentifier();
+					SITE_URL . '/index.php?title=Special:DeletePathway&id=' . $pathway->getIdentifier();
 			}
 		}
 		
