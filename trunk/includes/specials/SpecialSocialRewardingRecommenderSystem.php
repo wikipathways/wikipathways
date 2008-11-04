@@ -193,12 +193,14 @@ class SpecialSocialRewardingRecommenderSystem {
 						if ($_GET["sr_recommend"] == 1) {
 							$revision = Revision::newFromId($key2);
 							$title = $revision->getTitle();
-							$titleText = $title->getText();
-							$outputAdd = $skin->makeLink("Pathway:$titleText", "[R$key2] $titleText", "oldid=$key2");
+							$title = $title->getText();
+							$titleText = SocialRewardingDisplayTitle($title);
+							$outputAdd = $skin->makeLink("Pathway:$title", "[R$key2] $titleText", "oldid=$key2");
 						} else if (!$_GET["sr_recommend"] || $_GET["sr_recommend"] == 2) {
 							$title = Title::newFromID($key2);
-							$titleText = $title->getText();
-							$outputAdd = $skin->makeLink("Pathway:$titleText", $titleText);
+							$title = $title->getText();
+							$titleText = SocialRewardingDisplayTitle($title);
+							$outputAdd = $skin->makeLink("Pathway:$title", $titleText);
 						} else {
 							$outputAdd = $skin->makeLink("User:$key2", $key2);
 						}

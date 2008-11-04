@@ -358,13 +358,15 @@ function SocialRewardingRecommendMarkup($text, $arg) {
 				$revision = Revision::newFromId($key);
 				if (is_object($revision)) {
 					$title = $revision->getTitle();
-					$titleText = $title->getText();
-					$outputAdd = $skin->makeLink("Pathway:$titleText", $titleText, "oldid=$key");
+					$title = $title->getText();
+					$titleText = SocialRewardingDisplayTitle($title);
+					$outputAdd = $skin->makeLink("Pathway:$title", $titleText, "oldid=$key");
 				}
 			} else if ($method == "article") {
 				$title = Title::newFromID($key);
-				$titleText = $title->getText();
-				$outputAdd = $skin->makeLink("Pathway:$titleText", $titleText);
+				$title = $title->getText();
+				$titleText = SocialRewardingDisplayTitle($title);
+				$outputAdd = $skin->makeLink("Pathway:$title", $titleText);
 			}
 
 			if ($arg["rank"] == "true" && $SocialRewarding["recommend"]["markupStdRank"] == true) {
