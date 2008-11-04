@@ -2,7 +2,7 @@
 require_once("wpi/wpi.php");
 
 class CreatePathwayPage extends SpecialPage
-{		
+{
         function CreatePathwayPage() {
                 SpecialPage::SpecialPage("CreatePathwayPage");
                 self::loadMessages();
@@ -24,11 +24,36 @@ class CreatePathwayPage extends SpecialPage
 			create an account first!");
 			return;
 		}
+		
+		$pwName = $_GET['pwName'];
+		$pwSpecies = $_GET['pwSpecies'];
+		$override = $_GET['override'];
+		
 		if($_GET['create'] == '1') { //Submit button pressed
-			$this->startEditor($_GET['pwName'], $_GET['pwSpecies']);
+			//Check for pathways with the same name and species
+			$exist = Pathway::getPathwaysByName($pwName, $pwSpecies);
+			if(count($exist) > 0 && !$override) {
+				//Print warning
+				$pre = "A pathway";
+				if(count($exist) > 1) {
+					$pre = "Pathways";
+				}
+				$wgOut->addWikiText("== Warning ==\n<font color='red'>$pre with the name '$pwName' already exist on WikiPathways:</font>\n");
+				foreach($exist as $p) {
+					$wgOut->addWikiText(
+						"* [[Pathway:" . $p->getIdentifier() . "|" . $p->getName() . " (" . $p->getSpecies() . ")]]"
+					);
+				}
+				$wgOut->addWikiText("'''You may consider editing the existing pathway instead of creating a new one.'''\n");
+				$wgOut->addWikiText("'''If you still want to create a new pathway, please use a unique name.'''\n");
+				$wgOut->addWikiText("----\n");
+				$this->showForm($pwName, $pwSpecies, true);
+			} else {
+				$this->startEditor($pwName, $pwSpecies);
+			}
 		} else {
 			$this->showForm();
-		}        }
+		}	}
 
 	function startEditor($pwName, $pwSpecies) {
 		global $wgRequest, $wgOut, $wpiScriptURL;		
@@ -41,14 +66,7 @@ class CreatePathwayPage extends SpecialPage
 			$wgOut->addHTML("<B>Please specify a species for the pathway<BR>$backlink</B>");
 			return;
 		}
-
 		try {
-		/* TODO: warn if pathways with the same name exist
-			if($exist = $pathway->findCaseInsensitive()) { //Error, the pathway already exists
-				$wgOut->addWikiText("<B>The pathway already exists, please edit [[{$exist->getFullText()}]]</B>");
-				return;
-			}
-		*/
 			$wgOut->addHTML("<div id='applet'></div>");
 			$pwTitle = "$pwName:$pwSpecies";
 			$wgOut->addWikiText("{{#editApplet:direct|applet|true|$pwTitle}}");
@@ -58,7 +76,7 @@ class CreatePathwayPage extends SpecialPage
 		}
 	}
 
-	function showForm() {
+	function showForm($pwName = '', $pwSpecies = '', $override = '') {
 		global $wgRequest, $wgOut, $wpiScriptURL;
 		$html = tag('p', 'To create a new pathway on WikiPathways, specify the pathway name and species 
 				and then click "create pathway" to start the pathway editor.<br>'
@@ -66,15 +84,20 @@ class CreatePathwayPage extends SpecialPage
 		$html .= "	<input type='hidden' name='create' value='1'>
 				<input type='hidden' name='title' value='Special:CreatePathwayPage'>
 				<td>Pathway name:
-				<td><input type='text' name='pwName'>
+				<td><input type='text' name='pwName' value='$pwName'>
 				<tr><td>Species:<td>
 				<select name='pwSpecies'>";
 		$species = Pathway::getAvailableSpecies();
+		if(!$pwSpecies) {
+			$pwSpecies = $species[0];
+		}
 		foreach($species as $sp) {
-			$html .= "<option value='$sp'" . (!$selected ? ' selected' : '') . ">$sp";
-			$selected = true;
+			$html .= "<option value='$sp'" . ($sp == $pwSpecies ? ' selected' : '') . ">$sp";
 		}
 		$html .= '</select>';
+		if($override) {
+			$html .= "<input type='hidden' name='override' value='1'>";
+		}
 		$html = tag('table', $html);
 		$html .= tag('input', "", array('type'=>'submit', 'value'=>'Create pathway'));
 		$html = tag('form', $html, array('action'=> SITE_URL . '/index.php', 'method'=>'get'));

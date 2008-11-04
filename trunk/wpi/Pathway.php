@@ -238,6 +238,24 @@ class Pathway {
 	}
 	
 	/**
+	 * Get all pathways with the given name and species (optional).
+	 * @param $name The name to match
+	 * @param $species The species to match, leave blank to include all species
+	 * @returns A list of pathway objects for the pathways that match the name/species
+	 */
+	public function getPathwaysByName($name, $species = '') {
+		$pages = MetaDataCache::getPagesByCache(MetaDataCache::$FIELD_NAME, $name);
+		$pathways = array();
+		foreach($pages as $page_id) {
+			$pathway = Pathway::newFromTitle(Title::newFromId($page_id));
+			if(!$species || $pathway->getSpecies() == $species) {
+				$pathways[] = $pathway;
+			}
+		}
+		return $pathways;
+	}
+	
+	/**
 	 * Get the full url to the pathway page
 	*/
 	public function getFullURL() {

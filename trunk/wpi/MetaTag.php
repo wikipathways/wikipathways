@@ -93,17 +93,35 @@ class MetaTag {
 	/**
 	 * Get all pages that have the given tag.
 	 * @param $name The tag name
+	 * @param $text The tag text (optional)
+	 * @param $case If true, use case sensitive search for tag text (default is true)
 	 * @return An array with page ids
 	 */
-	public static function getPagesForTag($name) {
+	public static function getPagesForTag($name, $text = false, $case = true) {
 		$pages = array();
 		
+		$name = mysql_real_escape_string($name);
+
+		$where = array('tag_name' => $name);
+		if($text !== false) {
+			$text_field = "tag_text";
+			if(!$case) {
+				$text = strtolower($text);
+				$text_field = "LOWER($text_field)";
+			}
+			$text = mysql_real_escape_string($text);
+			$text = " AND $text_field = '$text' ";
+		}
+		
 		$dbr = wfGetDB( DB_SLAVE );
-		$res = $dbr->select(
-			self::$TAG_TABLE, 
-			array('page_id'),
-			array('tag_name' => $name)
-		);
+		
+		$query = 
+			"SELECT page_id FROM " . self::$TAG_TABLE . 
+			" WHERE tag_name = '$name' " .
+			$text;
+		
+		wfDebug(__METHOD__ . ": $query\n");
+		$res = $dbr->query($query);
 		while($row = $dbr->fetchObject( $res )) {
 			$pages[] = $row->page_id;
 		}

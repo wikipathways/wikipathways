@@ -119,5 +119,14 @@
 			if(!$tag) throw new IllegalArgumentException("No cache for field " . $field);
 			return $tag->getText();
 		}
+		
+		/**
+		 * Get all pages that have the given value for a cache field
+		 * @param $field The cache field
+		 * @param $value The value to search for
+		 **/
+		public static function getPagesByCache($field, $value) {
+			return MetaTag::getPagesForTag(self::createTagname($field), $value);
+		}
 	}
 ?>
