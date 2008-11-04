@@ -1350,8 +1350,9 @@ class ExtDynamicPageList2
                     foreach($aParams as $sParam) {
                         $sParam=trim($sParam);
                         if($sParam == '') { // include uncategorized pages (special value: empty string)
-                            $bIncludeUncat = true;
-                            $aCategories[] = '';
+		 	//AP20081103 Don't include uncategorized in 'All categories' just ignore this case.
+                            //$bIncludeUncat = true;
+                            //$aCategories[] = '';
                         } else {
                             if ($sParam[0]=='*') {
                                 $sParamList = explode('|',self::getSubcategories(substr($sParam,1),$sPageTable));
