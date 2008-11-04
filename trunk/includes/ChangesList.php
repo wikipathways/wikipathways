@@ -178,14 +178,20 @@ class ChangesList {
 		# Article link
 		# If it's a new article, there is no diff link, but if it hasn't been
 		# patrolled yet, we need to give users a way to do so
+		if (preg_match("/^Pathway/", $rc->getTitle()->getNsText())){ 
+			$pathway = Pathway::newFromTitle($rc->getTitle());
+                	$title = Title::makeTitle( $rc->getTitle()->getNsText(), $pathway->getSpecies().":".$pathway->getName() );
+		} else {
+			$title = '';
+		}
 		$params = ( $unpatrolled && $rc->mAttribs['rc_type'] == RC_NEW )
 			? 'rcid='.$rc->mAttribs['rc_id']
 			: '';
 		if( $this->isDeleted($rc,Revision::DELETED_TEXT) ) {
-			$articlelink = $this->skin->makeKnownLinkObj( $rc->getTitle(), '', $params );
+			$articlelink = $this->skin->makeKnownLinkObj( $rc->getTitle(), $title, $params );
 			$articlelink = '<span class="history-deleted">'.$articlelink.'</span>';
 		} else {
-		    $articlelink = ' '. $this->skin->makeKnownLinkObj( $rc->getTitle(), '', $params );
+		    $articlelink = ' '. $this->skin->makeKnownLinkObj( $rc->getTitle(), $title, $params );
 		}
 		if( $watched )
 			$articlelink = "<strong class=\"mw-watched\">{$articlelink}</strong>";

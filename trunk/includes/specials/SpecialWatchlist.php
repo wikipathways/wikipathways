@@ -189,6 +189,7 @@ function wfSpecialWatchlist( $par ) {
 	  WHERE wl_user=$uid
 	  AND wl_namespace=rc_namespace
 	  AND wl_title=rc_title
+	  AND page_is_redirect = 0
 	  $andcutoff
 	  $andLatest
 	  $andHideOwn
