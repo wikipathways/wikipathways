@@ -169,8 +169,12 @@ function SocialRewardingTokString($string, $delimiter) {
  * @return String Title text
  */
 function SocialRewardingDisplayTitle($DBtitle) {
-	$t = Title::newFromDBkey($DBtitle);
-	return $t->getText();
+        $pathway = Pathway::newFromTitle($DBtitle);
+        $t = $pathway->getSpecies().":".$pathway->getName();
+	return $t;
+
+//	$t = Title::newFromDBkey($DBtitle);
+//	return $t->getText();
 }
 
 
