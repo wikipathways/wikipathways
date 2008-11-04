@@ -57,7 +57,6 @@ class PPQueryPage extends QueryPage {
 			        page_counter as value
 			FROM $page
 			WHERE page_namespace=".NS_PATHWAY." 
-			AND page_title NOT LIKE '%Sandbox%'
 			AND page_is_redirect=0";
 	}
 

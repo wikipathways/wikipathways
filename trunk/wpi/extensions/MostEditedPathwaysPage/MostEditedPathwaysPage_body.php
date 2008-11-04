@@ -68,7 +68,6 @@ class PathwayQueryPage extends QueryPage {
 			FROM $revision
 			JOIN $page ON page_id = rev_page
 			WHERE page_namespace = " . $this->namespace . "
-			AND page_title NOT LIKE '%Sandbox%'
 			AND page_is_redirect = 0
 			GROUP BY 1,2,3
 			HAVING COUNT(*) > 1
