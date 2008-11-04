@@ -30,7 +30,8 @@
  * Activate markups if social rewarding methods are enabled.
  */
 
-if ($SocialRewarding["reward"]["active"] == true) {
+#Global switch on markups. Turned off in config file to prevent clobbering GPML code
+if ($SocialRewarding["reward"]["autoMarkup"] == true) {
 
 	if ($SocialRewarding["references"]["active"] == true) {
 		$wgExtensionFunctions[] = "wfSocialRewardingReferencesMarkup";
@@ -40,18 +41,16 @@ if ($SocialRewarding["reward"]["active"] == true) {
 			'author' => 'Bernhard Hoisl'
 		);
 
-
 		/**
 		 * Function to set markup "SocialRewardingReferences".
 		 *
 		 * @access private
-		 */
+		*/
 		function wfSocialRewardingReferencesMarkup() {
 			global $wgParser;
 			$wgParser->setHook("SocialRewardingReferences", "SocialRewardingReferencesMarkup");
 		}
 	}
-
 
 	if ($SocialRewarding["viewed"]["active"] == true) {
 		$wgExtensionFunctions[] = "wfSocialRewardingMostViewedArticlesMarkup";
@@ -112,7 +111,9 @@ if ($SocialRewarding["reward"]["active"] == true) {
 			$wgParser->setHook("SocialRewardingRatingPoints", "SocialRewardingRatingPointsMarkup");
 		}
 	}
+}
 
+	#Separated RecommendMarkup to allow markups on user pages
 
 	if ($SocialRewarding["recommend"]["active"] == true) {
 		$wgExtensionFunctions[] = "wfSocialRewardingRecommendMarkup";
@@ -134,6 +135,6 @@ if ($SocialRewarding["reward"]["active"] == true) {
 		}
 	}
 
-}
+
 
 ?>
