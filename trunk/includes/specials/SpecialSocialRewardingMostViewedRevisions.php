@@ -94,16 +94,16 @@ class SpecialSocialRewardingMostViewedRevisions extends PageQueryPage {
 				$page
 			WHERE
 				" . $dbr->tableName($SocialRewarding["DB"]["viewedArticles"]) . ".rev_id = $revision.rev_id AND
-				rev_page = page_id AND page_is_redirect = 0
+				rev_page = page_id AND page_is_redirect = 0 AND page_namespace = 102
 			";
 
-		if ($_GET["sr_select"]) {
+	/**	if ($_GET["sr_select"]) {
 			if ($_GET["sr_select"] == "zero") {
 				$_GET["sr_select"] = 0;
 			}
 			$sql.=" AND page_namespace LIKE '" . $_GET["sr_select"] . "' ";
 		}
-
+	*/
 		return $sql;
 	}
 
@@ -150,9 +150,7 @@ class SpecialSocialRewardingMostViewedRevisions extends PageQueryPage {
 				<input type=hidden name=offset value='" . $_GET["offset"] . "'>
 				Select
 				<select name=sr_select>
-					<option value=%"; if ($_GET["sr_select"]=="all" || !$_GET["sr_select"]) $output.=" selected"; $output.=">all</option>
-					<option value=zero"; if ($_GET["sr_select"]=="zero") $output.=" selected"; $output.=">articles</option>
-					<option value=2"; if ($_GET["sr_select"]=="2") $output.=" selected"; $output.=">user-pages</option>
+					<option value=102"; if ($_GET["sr_select"]=="102" || !$_GET["sr_select"]) $output.=" selected"; $output.=">pathways</option>
 				</select>
 				order by
 				<select name=sr_orderby>
@@ -210,7 +208,7 @@ class SpecialSocialRewardingMostViewedRevisions extends PageQueryPage {
 		}
 
 		$titleText = SocialRewardingDisplayTitle($result->title);
-		$output = $skin->makeLink($addUser.$result->title, "[R" . $result->rev_id . "] $addUser$titleText", "oldid=" . $result->rev_id, " (" . $result->value . " " . $SocialRewarding["viewed"]["countMethod"] . ") $author$comma$date");
+		$output = $skin->makeLink($addUser.$result->title, "[R" . $result->rev_id . "] $titleText", "oldid=" . $result->rev_id, " (" . $result->value . " " . $SocialRewarding["viewed"]["countMethod"] . ") $author$comma$date");
 
 		return $output;
 	}

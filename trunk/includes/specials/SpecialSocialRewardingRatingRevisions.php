@@ -211,7 +211,7 @@ class SpecialSocialRewardingRatingRevisions extends PageQueryPage {
 		}
 
 		$titleText = SocialRewardingDisplayTitle($result->title);
-		$output = $skin->makeLink($addUser.$result->title, "[R" . $result->rev_id . "] $addUser$titleText", "oldid=" . $result->rev_id, " (" . $result->value . " points) $author$comma$date");
+		$output = $skin->makeLink($addUser.$result->title, "[R" . $result->rev_id . "] $titleText", "oldid=" . $result->rev_id, " (" . $result->value . " points) $author$comma$date");
 
 		return $output;
 	}

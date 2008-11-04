@@ -219,7 +219,7 @@ class SpecialSocialRewardingRatingArticles extends PageQueryPage {
 		}
 
 		$titleText = SocialRewardingDisplayTitle($result->title);
-		$output = $skin->makeLink($addUser.$result->title, "$addUser$titleText", "", " (" . $result->value . " points) $length$comma$author");
+		$output = $skin->makeLink($addUser.$result->title, $titleText, "", " (" . $result->value . " points) $length$comma$author");
 
 		return $output;
 	}

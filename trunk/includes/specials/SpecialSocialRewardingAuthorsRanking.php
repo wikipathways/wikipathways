@@ -80,11 +80,11 @@ class SpecialSocialRewardingAuthorsRanking {
 		$output = "
 			<form action=" . $action . " method=get>
 				<input type=hidden name=title value='" . $_GET["title"] . "'>
-				<input type=checkbox name=sr_stars checked=checked"; if ($_GET["sr_stars"]) $output.=" checked"; $output.="> Show stars
+				<input type=checkbox name=sr_stars "; if ($_GET["sr_stars"]) $output.=" checked"; $output.="> Show stars
 				&nbsp;&nbsp;&nbsp;
 				<input type=checkbox name=sr_sparklines"; if ($_GET["sr_sparklines"]) $output.=" checked"; $output.="> Show sparklines
 				&nbsp;&nbsp;&nbsp;
-				<input type=checkbox name=sr_points checked=checked"; if ($_GET["sr_points"]) $output.=" checked"; $output.="> Show scores
+				<input type=checkbox name=sr_points"; if ($_GET["sr_points"]) $output.=" checked"; $output.="> Show scores
 				&nbsp;&nbsp;&nbsp;
 		";
 
@@ -92,11 +92,11 @@ class SpecialSocialRewardingAuthorsRanking {
 		if ($SocialRewarding["reward"]["cache"] == false) {
 			$output .= "
 				<br>
-				<input type=checkbox name=sr_references checked=checked"; if ($_GET["sr_references"]) $output.=" checked"; $output.="> Amount of References
+				<input type=checkbox name=sr_references "; if ($_GET["sr_references"]) $output.=" checked"; $output.="> Amount of References
 				&nbsp;&nbsp;&nbsp;
-				<input type=checkbox name=sr_rating checked=checked"; if ($_GET["sr_rating"]) $output.=" checked"; $output.="> Rating of Articles
+				<input type=checkbox name=sr_rating"; if ($_GET["sr_rating"]) $output.=" checked"; $output.="> Rating of Articles
 				&nbsp;&nbsp;&nbsp;
-				<input type=checkbox name=sr_viewed checked=checked"; if ($_GET["sr_viewed"]) $output.=" checked"; $output.="> Most Viewed Articles
+				<input type=checkbox name=sr_viewed "; if ($_GET["sr_viewed"]) $output.=" checked"; $output.="> Most Viewed Articles
 				&nbsp;&nbsp;&nbsp;
 			";
 		}
