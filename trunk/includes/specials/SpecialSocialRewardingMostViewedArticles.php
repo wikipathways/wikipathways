@@ -92,7 +92,7 @@ class SpecialSocialRewardingMostViewedArticles extends PageQueryPage {
 				$page
 			WHERE
 				" . $dbr->tableName($SocialRewarding["DB"]["viewedArticles"]) . ".rev_id = $revision.rev_id AND
-				rev_page = page_id
+				rev_page = page_id AND page_is_redirect = 0
 		";
 
 		if ($_GET["sr_select"]) {
