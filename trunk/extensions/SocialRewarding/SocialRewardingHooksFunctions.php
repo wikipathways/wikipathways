@@ -53,16 +53,6 @@ function SocialRewardingMostViewed($article) {
 		$userID = $wgUser->idFromName($title);
 	}
 
-	// Filter out Sandbox revisions
-	$sandbox = 'false';
-	$revision = Revision::newFromId($rev_id);
-	if ($revision instanceof Revision){
-	$title = $revision->getTitle()->getText();
-        if (preg_match('/Sandbox/', $title)){
-		$sandbox = 'true';
-	}
-	}
-
 	if ($rev_id != 0 && $userID == 0 && $sandbox == 'false') {
 		$dbr =& wfGetDB(DB_SLAVE);
 		extract($dbr->tableNames("revision", "page"));

@@ -63,6 +63,7 @@ class PathwayQueryPage extends QueryPage {
 			SELECT
 				'Mostrevisions' as type,
 				page_namespace as namespace,
+				page_id as id,
 				page_title as title,
 				COUNT(*) as value
 			FROM $revision
@@ -76,6 +77,10 @@ class PathwayQueryPage extends QueryPage {
 
 	function formatResult( $skin, $result ) {
 		global $wgLang, $wgContLang;
+		$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
+		if (in_array($result->id, $taggedIds)){ 
+			return null;
+		}
                 $pathway = Pathway::newFromTitle($result->title);
                 $title = Title::makeTitle( $result->namespace, $pathway->getSpecies().":".$pathway->getName() );
                 $id = Title::makeTitle( $result->namespace, $result->title );

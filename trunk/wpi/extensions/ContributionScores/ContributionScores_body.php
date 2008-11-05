@@ -57,7 +57,7 @@ class ContributionScores extends IncludableSpecialPage
 				$sqlWhere .= "WHERE ";
 			}
 			$sqlWhere .= "rev_user NOT IN (SELECT ug_user FROM {$userGroupTable} WHERE ug_group='bot') ";
-			$sqlWhere .= " AND page_namespace = {$namespace} AND page_title != 'Homo_sapiens:Sandbox'";
+			$sqlWhere .= " AND page_namespace = {$namespace} ";
 		}
 
 		$sqlMostPages = "SELECT rev_user, 
