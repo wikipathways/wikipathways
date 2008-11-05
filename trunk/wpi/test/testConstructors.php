@@ -20,6 +20,14 @@ $pathway = Pathway::newFromTitle("http://www.wikipathways.org/index.php/Pathway:
 testConstructed($pathway);
 echo("OK<BR>\n");
 
+$pathway = Pathway::newFromTitle("Pathway:WP566");
+testConstructed($pathway);
+echo("OK<BR>\n");
+
+$pathway = Pathway::newFromTitle("WP566");
+testConstructed($pathway);
+echo("OK<BR>\n");
+
 try {
 	$pathway = Pathway::newFromTitle("http://www.wikipathways.org/index.php/Pathway");
 	//Should throw exception, fail if it end up here
@@ -29,7 +37,7 @@ try {
 }
 
 function testConstructed($pathway) {
-	if(!$pathway->exists()) {
+	if(!$pathway->getName()) {
 		var_dump($pathway);
 		throw new Exception("Pathway doesn't exist");
 	}
