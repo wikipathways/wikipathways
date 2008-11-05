@@ -54,6 +54,7 @@ class PPQueryPage extends QueryPage {
 			"SELECT 'Popularpages' as type,
 			        page_namespace as namespace,
 			        page_title as title,
+				page_id as id,
 			        page_counter as value
 			FROM $page
 			WHERE page_namespace=".NS_PATHWAY." 
@@ -62,6 +63,10 @@ class PPQueryPage extends QueryPage {
 
 	function formatResult( $skin, $result ) {
 		global $wgLang, $wgContLang;
+		$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
+		if (in_array($result->id, $taggedIds)){ 
+			return null;
+		}
 		$pathway = Pathway::newFromTitle($result->title);
 		$title = Title::makeTitle( $result->namespace, $pathway->getSpecies().":".$pathway->getName() );
                 $id = Title::makeTitle( $result->namespace, $result->title );
