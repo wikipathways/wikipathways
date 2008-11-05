@@ -124,7 +124,7 @@ class MetaTag {
 		$res = $dbr->query($query);
 		while($row = $dbr->fetchObject( $res )) {
 			$title = Title::newFromId($row->page_id);
-			if($title->isRedirect() || $title->isDeleted()) {
+			if(!$title || $title->isRedirect() || $title->isDeleted()) {
 				continue; //Skip redirects and deleted
 			}
 			$pages[] = $row->page_id;
