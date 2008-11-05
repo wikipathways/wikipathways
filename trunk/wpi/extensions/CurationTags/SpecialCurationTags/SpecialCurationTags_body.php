@@ -30,6 +30,8 @@ class SpecialCurationTags extends SpecialPage {
 					$t = Title::newFromId($pageId);
 					if($t->getNamespace() == NS_PATHWAY) {
 						$p = Pathway::newFromTitle($t);
+						if($p->isDeleted()) continue; //Skip deleted pathways
+						
 						$wgOut->addHTML(
 							"<tr><td><a href='{$p->getFullUrl()}'>{$p->name()}</a><td>{$p->species()}"
 						);
