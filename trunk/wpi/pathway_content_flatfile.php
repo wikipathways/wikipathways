@@ -53,8 +53,9 @@ if($restrictSpecies) {
 }
 
 //Exclude Sandbox pathway
-$name = $all_pathways[$pathway]->getName();
-if ($name == 'Sandbox')	continue;
+$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
+$page_id = $all_pathways[$pathway]->getPageIdDB();
+if (in_array($page_id, $taggedIds)) continue;
 try {
 $xml = $all_pathways[$pathway]->getPathwayData();  
 $gpml = $xml->getGpml();
@@ -71,6 +72,7 @@ perlChop($categories);
 
 // Print pathways data
 if ($outputFormat =='html'){
+$name = $all_pathways[$pathway]->getName();
 print "<tr><td>".$name."<td>".$species."<td>".$categories."&nbsp<td>".$url."<td>".$modTime."<td>".$lastRevision."<td>".$author."&nbsp<td>";
 }
 elseif ($outputFormat == 'excel'){

@@ -55,6 +55,13 @@ class Pathway {
 		return $this->id;
 	}
 	
+	public function getPageIdDB() {
+		$dbr = wfGetDB( DB_SLAVE );
+		$query = "SELECT page_id FROM `page` WHERE page_title = '$id' AND page_namespace = 102";
+		$res = $dbr->query($query);
+		return $res->page_id;
+	}
+
 	/**
 	 Constructor for this class.
 	 \param name The name of the pathway (without namespace and species prefix!)
