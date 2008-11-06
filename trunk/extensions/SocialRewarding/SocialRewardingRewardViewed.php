@@ -108,6 +108,9 @@ class RewardViewed extends Reward {
 	function loadSum() {
 		extract($this->dbr->tableNames("revision", "page"));
 
+	        //exclude Tutorial pathways        
+		$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');        
+		$taggedIds = implode(",",$taggedIds);
 		$sum = 0;
 		$sql = "SELECT
 				SUM(rev_counter)
@@ -117,7 +120,7 @@ class RewardViewed extends Reward {
 				$page
 			WHERE
 				" . $this->dbr->tableName($this->SocialRewarding["DB"]["viewedArticles"]) . ".rev_id = $revision.rev_id AND
-				rev_page = page_id
+				rev_page = page_id AND find_in_set(page_id, '" . $taggedIds . "') < 1
 			";
 
 		switch($this->SocialRewarding["viewed"]["calcBasis"]) {

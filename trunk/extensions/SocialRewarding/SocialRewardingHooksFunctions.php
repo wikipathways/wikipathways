@@ -53,7 +53,7 @@ function SocialRewardingMostViewed($article) {
 		$userID = $wgUser->idFromName($title);
 	}
 
-	if ($rev_id != 0 && $userID == 0 && $sandbox == 'false') {
+	if ($rev_id != 0 && $userID == 0) {
 		$dbr =& wfGetDB(DB_SLAVE);
 		extract($dbr->tableNames("revision", "page"));
 		$mostViewedTable = $dbr->tableName($SocialRewarding["DB"]["viewedArticles"]);
