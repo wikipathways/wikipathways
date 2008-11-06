@@ -87,7 +87,8 @@ class SpecialSocialRewardingMostViewedRevisions extends PageQueryPage {
 				rev_counter AS value,
 				$revision.rev_id AS rev_id,
 				rev_user_text AS user,
-				rev_timestamp AS timestamp
+				rev_timestamp AS timestamp,
+				page_id AS id
 			FROM
 				" . $dbr->tableName($SocialRewarding["DB"]["viewedArticles"]) . ",
 				$revision,
@@ -187,6 +188,12 @@ class SpecialSocialRewardingMostViewedRevisions extends PageQueryPage {
 	function formatResult($skin, $result) {
 		global $wgUser, $wgLang;
 		global $SocialRewarding;
+
+                //exclude Tutorial pathways from list
+                $taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
+                if (in_array($result->id, $taggedIds)){
+                        return null;
+                }
 
 		$userID = $wgUser->idFromName($result->title);
 

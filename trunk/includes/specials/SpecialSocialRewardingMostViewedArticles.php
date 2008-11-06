@@ -85,7 +85,7 @@ class SpecialSocialRewardingMostViewedArticles extends PageQueryPage {
 				page_title AS title,
 				SUM(rev_counter) AS value,
 				page_len AS length,
-				page_id
+				page_id AS id
 			FROM
 				" . $dbr->tableName($SocialRewarding["DB"]["viewedArticles"]) . ",
 				$revision,
@@ -186,6 +186,11 @@ class SpecialSocialRewardingMostViewedArticles extends PageQueryPage {
 	function formatResult($skin, $result) {
 		global $SocialRewarding;
 
+		//exclude Tutorial pathways from list
+		$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
+		if (in_array($result->id, $taggedIds)){ 
+			return null;
+		}
 
 		if ($result->namespace == $SocialRewarding["reward"]["calcBasisUserPagesNS"]) {
 			$addUser = "User:";
