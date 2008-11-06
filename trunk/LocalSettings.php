@@ -294,6 +294,7 @@ require_once('extensions/SocialRewarding/SocialRewarding.php');
 require_once('wpi/extensions/DeletePathway/DeletePathway.php');
 require_once('wpi/extensions/ShowError/ShowError.php');
 require_once('wpi/extensions/pathwayParserFunctions.php');
+require_once('extensions/UserMerge/UserMerge.php');
 
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!
@@ -323,6 +324,9 @@ require_once('extensions/Biblio.php');
 require_once('wpi/extensions/Interwiki/SpecialInterwiki.php');
 $wgGroupPermissions['*']['interwiki'] = false;
 $wgGroupPermissions['sysop']['interwiki'] = true;
+
+//UserMerge settings
+$wgGroupPermissions['bureaucrat']['usermerge'] = true;
 
 //Set enotif for watch page changes to true by default
 $wgDefaultUserOptions ['enotifwatchlistpages'] = 1;
