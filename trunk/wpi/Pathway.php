@@ -57,9 +57,12 @@ class Pathway {
 	
 	public function getPageIdDB() {
 		$dbr = wfGetDB( DB_SLAVE );
-		$query = "SELECT page_id FROM `page` WHERE page_title = '$id' AND page_namespace = 102";
+		$query = "SELECT page_id FROM `page` WHERE page_title = '$this->id' AND page_namespace = 102";
 		$res = $dbr->query($query);
-		return $res->page_id;
+		while ($row = $dbr->fetchRow($res)){
+			$page_id = $row["page_id"];
+		}
+		return $page_id;
 	}
 
 	/**
