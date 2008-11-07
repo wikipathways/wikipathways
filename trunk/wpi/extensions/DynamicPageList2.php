@@ -2841,11 +2841,46 @@ class ExtDynamicPageList2
             }
         }
     
-        
-        $iArticle = 0;
+
+	//First, redo the sort on the results based on pathway name and not stable id
+	$sortedResults = array();
+	while( $row = $dbr->fetchObject ( $res ) ) {
+		if ($acceptOpenReferences) {
+                // existing PAGE TITLE
+                $pageNamespace = $row->pl_namespace;
+                $pageTitle     = $row->pl_title;
+ 		}
+            	else {
+                // maybe non-existing title
+                $pageNamespace = $row->page_namespace;
+                $pageTitle     = $row->page_title;
+            	}
+           	
+		$pathway = Pathway::newFromTitle($pageTitle);
+            	$title = $pathway->getSpecies().":".$pathway->getName();
+                $pick = 'Human';
+                if (isset($_GET["browse"])){
+                        $pick = $_GET["browse"];
+                }
+                if($pick != 'All Species'){
+                        $title = $pathway->getName();
+                }
+		$row->pathwayName = $title;
+		array_push($sortedResults, $row);
+						
+	}
+        $pathwayName = array();
+	foreach ($sortedResults AS $row) {
+		array_push($pathwayName,  $row->pathwayName);
+	}
+ 	$pathwayName = array_map('strtolower', $pathwayName);
+	array_multisort( $pathwayName, SORT_ASC, $sortedResults);
+
+       $iArticle = 0;
     
-        while( $row = $dbr->fetchObject ( $res ) ) {
-            $iArticle++;
+      //  while( $row = $dbr->fetchObject ( $res ) ) {
+         foreach ($sortedResults AS $row){
+	    $iArticle++;
 
             // in random mode skip articles which were not chosen
             if (isset($iRandomCount) && !isset($pick[$iArticle]))  continue;
@@ -2872,9 +2907,7 @@ class ExtDynamicPageList2
             // if (count($wgNonincludableNamespaces)>0 && in_array($pageNamespace,$wgNonincludableNamespaces) ) continue;
             // we should produce an error message if debug >= 3
 
-            $pathway = Pathway::newFromTitle($pageTitle);
-            $title = Title::makeTitle( $pageNamespace, $pathway->getSpecies().":".$pathway->getName() );
-            $id = Title::makeTitle($pageNamespace, $pageTitle);
+            $title = Title::makeTitle($pageNamespace, $pageTitle);
             
             // block recursion: avoid to show the page which contains the DPL statement as part of the result
             if ($bSkipThisPage && ($title->getNamespace() == $wgTitle->getNamespace() && 
@@ -2894,21 +2927,7 @@ class ExtDynamicPageList2
             if ($bShowNamespace)
                 //Adapted from Title::getPrefixedText()
                 $sTitleText = str_replace( '_', ' ', $title->prefix($sTitleText) );
-		//AP20070710 - Produce short pathway title when species is specified
-		$titleText = $wgContLang->convert( $sTitleText);
-		$pick = 'Human';
-		if (isset($_GET["browse"])){
-                        $pick = $_GET["browse"];
-		}
-		if(preg_match('/\:/', $titleText) && $pick != 'All Species'){
-			$parts = explode(':', $titleText);
-			if(count($parts) < 1){
-				throw new Exception("Invalid pathway article title: $titleText");
-                	}
-			$titleSpecies = array_shift($parts); 
-			$titleText = array_shift($parts);
-		}
-		$articleLink = $sk->makeKnownLinkObj( $id, htmlspecialchars( $titleText)); // $wgContLang->convert( $sTitleText ) ) );
+		$articleLink = $sk->makeKnownLinkObj( $title, htmlspecialchars( $row->pathwayName)); // $wgContLang->convert( $sTitleText ) ) );
 		$dplArticle->mLink = $articleLink;
             
             //get first char used for category-style output
