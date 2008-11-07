@@ -157,7 +157,12 @@ class ContribsPager extends ReverseChronologicalPager {
 		$rev = new Revision( $row );
 
 		$page = Title::makeTitle( $row->page_namespace, $row->page_title );
-		$link = $sk->makeKnownLinkObj( $page );
+                $name = $page->getText();
+		if ($row->page_namespace == 102){
+			$pathway = Pathway::newFromTitle($row->page_title );
+			$name = $pathway->getSpecies() .":". $pathway->getName();
+		}
+		$link = $sk->makeKnownLinkObj( $page, $name );
 		$difftext = $topmarktext = '';
 		if( $row->rev_id == $row->page_latest ) {
 			$topmarktext .= '<strong>' . $this->messages['uctop'] . '</strong>';
