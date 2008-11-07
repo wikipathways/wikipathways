@@ -178,7 +178,7 @@ class ChangesList {
 		# Article link
 		# If it's a new article, there is no diff link, but if it hasn't been
 		# patrolled yet, we need to give users a way to do so
-		if (preg_match("/^Pathway/", $rc->getTitle()->getNsText())){ 
+		if ($rc->getTitle()->getNamespace() == NS_PATHWAY){ 
 			$pathway = Pathway::newFromTitle($rc->getTitle());
                 	$title = Title::makeTitle( $rc->getTitle()->getNsText(), $pathway->getSpecies().":".$pathway->getName() );
 		} else {
