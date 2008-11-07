@@ -158,7 +158,7 @@ class ContribsPager extends ReverseChronologicalPager {
 
 		$page = Title::makeTitle( $row->page_namespace, $row->page_title );
                 $name = $page->getText();
-		if ($row->page_namespace == 102){
+		if ($row->page_namespace == NS_PATHWAY){
 			$pathway = Pathway::newFromTitle($row->page_title );
 			$name = $pathway->getSpecies() .":". $pathway->getName();
 		}
