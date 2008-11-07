@@ -205,7 +205,7 @@ class SpecialSocialRewardingMostViewedArticles extends PageQueryPage {
 		if ($_GET["sr_author"]) {
 			$dbr =& wfGetDB(DB_SLAVE);
 			extract($dbr->tableNames("revision"));
-			$rs = $dbr->query("SELECT rev_user_text as author FROM $revision WHERE rev_page = " . $result->page_id . " GROUP BY author");
+			$rs = $dbr->query("SELECT rev_user_text as author FROM $revision WHERE rev_page = " . $result->id . " GROUP BY author");
 			$num = $dbr->numRows($rs);
 
 			$author = "<i>Author(s): ";
