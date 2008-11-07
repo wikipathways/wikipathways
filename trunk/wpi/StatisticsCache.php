@@ -67,6 +67,7 @@ class StatisticsCache
 						|| $xref[Database] == 'FlyBase'
 						|| $xref[Database] == 'WormBase'
 						|| $xref[Database] == 'SGD'
+						|| $xref[Database] == 'TAIR'
 						){
 							array_push($geneList, $xref[ID]);
 						}
