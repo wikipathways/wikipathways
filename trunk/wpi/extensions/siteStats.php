@@ -34,7 +34,9 @@ function wfSiteStats_Magic( &$magicWords, $langCode ) {
 }
 
 function getSiteStats( &$parser, $tableAttr ) {
-	$nrPathways = count(Pathway::getAllPathways());
+	global $pathwaysPerSpecies;
+	$nrPathways = initializePathwayCount();
+	//$nrPathways = count(Pathway::getAllPathways());
 	$output = "* There are '''{$nrPathways}''' pathways";
 	$table = <<<EOD
 
@@ -42,7 +44,7 @@ function getSiteStats( &$parser, $tableAttr ) {
 {| align="center" $tableAttr
 EOD;
 	foreach(Pathway::getAvailableSpecies() as $species) {
-		$nr = howManyPathways($species);
+		$nr =$pathwaysPerSpecies{$species};
 		$genes = StatisticsCache::howManyUniqueGenes($species);
 		$table .= <<<EOD
 
@@ -61,15 +63,17 @@ EOD;
 	return array( $output, 'isHTML' => true, 'noparse' => true, 'nowiki' => true );
 }
 
-function howManyPathways($species) {
-	$dbr =& wfGetDB(DB_SLAVE);
-	//Fetch number of pathways for this species
-	$species = Title::newFromText($species);
-	$species = $species->getDbKey();
-	$res = $dbr->query("SELECT COUNT(*) FROM page WHERE page_namespace=" . NS_PATHWAY . " AND page_title LIKE '$species%' AND page_is_redirect = 0");
-	$row = $dbr->fetchRow($res);
-	$dbr->freeResult($res);
-	return $row[0];
+function initializePathwayCount(){
+	global $pathwaysPerSpecies;
+	$dbr = wfGetDB( DB_SLAVE );
+	$res = $dbr->query("SELECT page_title FROM page WHERE page_namespace=" . NS_PATHWAY . " AND page_is_redirect = 0");
+	$pathwaysPerSpecies = array();
+	while ($row = $dbr->fetchRow($res)){
+		$pathway = Pathway::newFromTitle($row["page_title"]);
+		$species = $pathway->getSpecies();
+		$pathwaysPerSpecies{$species} += 1;			
+	}
+	return $dbr->numRows($res);
 }
 
 function getSpecies() {
