@@ -294,6 +294,9 @@ class Pathway {
 		return CategoryHandler::getAvailableCategories(false);
 	}
 	
+	/**
+         * @deprecated this won't work with stable IDs
+         */
 	private static function nameFromTitle($title) {
 		$parts = explode(':', $title);
 
@@ -303,6 +306,9 @@ class Pathway {
 		return array_pop($parts);
 	}
 
+	/**
+	 * @deprecated this won't work with stable IDs
+	 */
 	private static function speciesFromTitle($title) {
 		$parts = explode(':', $title);
 
@@ -560,9 +566,8 @@ class Pathway {
 			throw new Exception("Unable to generate unique id, $id already exists");
 		}
 		$pathway->updatePathway($gpmlData, $description);
-		StatisticsCache::updatePathwaysCache();
-		StatisticsCache::updateUniqueGenesCache($this->getSpecies());
 		$pathway = new Pathway($id);
+		StatisticsCache::updatePathwaysCache();
 		return $pathway;
 	}
 	
@@ -640,7 +645,6 @@ class Pathway {
 			//Calculate number of unique genes for given species
 			// and update file with stored values
 			StatisticsCache::updateUniqueGenesCache ($this->getSpecies());
-
 		} else {
 			throw new Exception("Unable to save GPML, are you logged in?");
 		}
