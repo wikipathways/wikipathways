@@ -120,6 +120,7 @@ class StatisticsCache
         	$pathwaysPerSpecies = array();
         	while ($row = $dbr->fetchRow($res)){
                 	$pathway = Pathway::newFromTitle($row["page_title"]);
+			if ($pathway->isDeleted()) continue; //skip deleted pathways
 			$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
 			$page_id = $pathway->getPageIdDB();
 			if (in_array($page_id, $taggedIds)) continue; // skip Tutorial pathways

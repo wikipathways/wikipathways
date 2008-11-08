@@ -560,6 +560,8 @@ class Pathway {
 			throw new Exception("Unable to generate unique id, $id already exists");
 		}
 		$pathway->updatePathway($gpmlData, $description);
+		StatisticsCache::updatePathwaysCache();
+		StatisticsCache::updateUniqueGenesCache($this->getSpecies());
 		$pathway = new Pathway($id);
 		return $pathway;
 	}
@@ -637,7 +639,7 @@ class Pathway {
 			
 			//Calculate number of unique genes for given species
 			// and update file with stored values
-			StatisticsCache::updateUniqueGenesCache ($this->speciesFromTitle($gpmlTitle->getFullText()));
+			StatisticsCache::updateUniqueGenesCache ($this->getSpecies());
 
 		} else {
 			throw new Exception("Unable to save GPML, are you logged in?");
@@ -803,6 +805,7 @@ class Pathway {
 			//Calculate number of unique genes for given species
 			// and update file with stored values
 			StatisticsCache::updateUniqueGenesCache($this->getSpecies());
+			StatisticsCache::updatePathwaysCache();
 			
 			//Clean up file cache
 			$this->clearCache(null, true);
