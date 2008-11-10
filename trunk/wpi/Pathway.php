@@ -691,6 +691,11 @@ class Pathway {
 		return $pathwayList;
 	}
 	
+	static $gpmlSchemas = array(
+		"http://genmapp.org/GPML/2007" => "GPML2007.xsd",
+		"http://genmapp.org/GPML/2008a" => "GPML.xsd",
+	);
+	
 	/**
 	 * Validates the GPML code and returns the error if it's invalid
 	 * @return <code>null</code> if the GPML is valid, the error if it's invalid
@@ -701,7 +706,14 @@ class Pathway {
 		if(!$xml) {
 			return "Error: no valid XML provided\n$gpml";
 		}
-		if(!$xml->schemaValidate(WPI_SCRIPT_PATH . "/bin/GPML.xsd")) {
+		
+		$ns = $xml->firstChild->getAttribute('xmlns');
+		$schema = self::$gpmlSchemas[$ns];
+		if(!$schema) {
+			return "Error: no xsd found for $ns\n$gpml";
+		}
+		
+		if(!$xml->schemaValidate(WPI_SCRIPT_PATH . "/bin/$schema")) {
 			$error = libxml_get_last_error();
 			$return  = $gpml[$error->line - 1] . "\n";
 			$return .= str_repeat('-', $error->column) . "^\n";
