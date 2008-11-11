@@ -95,6 +95,9 @@ function curationTagChanged($tag) {
 		$enotif = new TagChangeNotification($taghist);
 		$enotif->notifyOnTagChange();
 	}
+	if($tag->getName() == 'Curation:Tutorial'){
+		StatisticsCache::updatePathwaysCache();
+	}
 }
 
 /**
