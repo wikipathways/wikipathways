@@ -216,7 +216,6 @@ class MetaTag {
 		
 		$dbw->immediateCommit();
 		$this->exists = false;
-		StatisticsCache::updatePathwaysCache();
 	}
 	
 	private function doWriteToDB() {
@@ -258,7 +257,6 @@ class MetaTag {
 			
 			$this->writeHistory(self::$ACTION_CREATE);
 		}
- 		StatisticsCache::updatePathwaysCache();
 
 
 	}
