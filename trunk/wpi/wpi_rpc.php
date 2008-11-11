@@ -301,7 +301,7 @@ function convertPathway($gpmlData64, $fileType) {
 	$gpmlFile = tempnam(WPI_TMP_PATH, "gpml");
 	writeFile($gpmlFile, $gpmlData);
 	$imgFile = tempnam(WPI_TMP_PATH, $fileType) . ".$fileType";
-	$cmd = "java -jar bin/pathvisio_core.jar $gpmlFile $imgFile 2>&1";
+	$cmd = "cd " . WPI_SCRIPT_PATH . "; java -jar bin/pathvisio_core.jar $gpmlFile $imgFile 2>&1";
 	wfDebug($cmd);
 	exec($cmd, $output, $status);
 	
