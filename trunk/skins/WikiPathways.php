@@ -108,7 +108,14 @@ class WikiPathwaysTemplate extends QuickTemplate {
 	<head>
 		<meta http-equiv="Content-Type" content="<?php $this->text('mimetype') ?>; charset=<?php $this->text('charset') ?>" />
 		<?php $this->html('headlinks') ?>
-		<title><?php $this->text('pagetitle') ?></title>
+		<title><?php
+			if($pathway) {
+				global $wgSitename;
+				echo $pathway->getName() . "(". $pathway->getSpecies() . ") - " . $wgSitename;
+			} else {
+				echo $this->text('pagetitle');
+			}
+		?></title>
 		<style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "<?php $this->text('stylepath') ?>/<?php $this->text('stylename') ?>/main.css?<?php echo $GLOBALS['wgStyleVersion'] ?>"; /*]]>*/</style>
 		<!-- TK: Import custom style -->
 		<style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "<?php $this->text('stylepath') ?>/<?php $this->text('stylename') ?>/wikipathways-custom.css?<?php echo $GLOBALS['wgStyleVersion'] ?>"; /*]]>*/</style>
