@@ -78,10 +78,10 @@ class WikiPathwaysTemplate extends QuickTemplate {
 	                        unset($actions['history']); //Also remove history tab
 	                        $this->data['content_actions'] = $actions;
 			}
-			//If not sysop, remove move button on pathway/gpml/image pages
-			if($ns == NS_PATHWAY || $ns == NS_GPML || $ns == NS_IMAGE || $ns == NS_PATHWAY_TALK) {
-				unset($actions['move']);
-			}
+		}
+		//Remove move button on pathway pages
+		if($ns == NS_PATHWAY || $ns == NS_PATHWAY_TALK) {
+			unset($this->data['content_actions']['move']);
 		}
 		//Modify delete tab to use custom deletion for pathways
 		if($pathway && $this->data['content_actions']['delete']) {
