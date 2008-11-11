@@ -74,7 +74,10 @@ class PathwayData {
 		$categories = array();
 		foreach($this->gpml->Comment as $comment) {
 			if($comment['Source'] == COMMENT_WP_CATEGORY) {
-				array_push($categories, trim((string)$comment));
+				$cat = trim((string)$comment);
+				if($cat) { //Ignore empty category comments
+					array_push($categories, $cat);
+				}
 			}
 		}
 		return $categories;

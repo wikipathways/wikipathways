@@ -72,7 +72,9 @@ class CategoryHandler {
 		$dbr = wfGetDB( DB_SLAVE );
 		$res = $dbr->select( "categorylinks", array("cl_to"), array("cl_from" => $id));
 		while( $row = $dbr->fetchRow( $res )) {
-			array_push($categories, $row[0]);
+			if($row[0]) {
+				array_push($categories, $row[0]);
+			}
 		}
 		$dbr->freeResult($res);
 		return $categories;
@@ -108,7 +110,9 @@ class CategoryHandler {
                 $res = $dbr->query($sqlCat);
                 while ($obj =  $dbr->fetchObject( $res ) ) {
                         $cat = str_replace('_', ' ', $obj->title);
-			array_push($arrayCat, $cat);
+                        if($cat) {
+					array_push($arrayCat, $cat);
+			}
 		}
 		//Exclude species if needed
 		if(!$includeSpecies) { 

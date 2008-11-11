@@ -176,6 +176,8 @@ TEXT;
 		$catlist = '';
 		foreach($categories as $c) {
 			$cat = Title::newFromText($c, NS_CATEGORY);
+			if(!$cat) continue; //Prevent error when empty category is introduced in GPML
+			
 			$name = $cat->getText();
 			if(in_array($name, $species)) {
 				$browseCat = '&browseCat=All+Categories';
