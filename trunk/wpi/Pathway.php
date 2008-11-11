@@ -780,7 +780,6 @@ class Pathway {
 		} else {
 			if(!$revision) $revision = $this->getLatestRevision();
 			$text = Revision::newFromId($revision)->getText();
-			wfDebug("\n$text\n");
 			return substr($text, 0, 9) == "{{deleted";
 		}
 	}
