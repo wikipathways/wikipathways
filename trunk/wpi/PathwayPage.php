@@ -199,7 +199,7 @@ TEXT;
 	function editButton($href, $title, $id = '') {
 		global $wgUser, $wgTitle;
 		# Check permissions
-		if( $wgUser->isLoggedIn() && $wgTitle->userCan('edit')) {
+		if( $wgUser->isLoggedIn() && $wgTitle && $wgTitle->userCan('edit')) {
 			$label = 'edit';
 		} else {
 			/*
