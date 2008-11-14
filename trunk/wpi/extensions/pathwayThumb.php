@@ -68,6 +68,9 @@ function createEditCaption($pathway) {
 		if(wfReadOnly()) {
 			$hrefbtn = "";
 			$label = "Database locked";				
+		} else if(!$pathway->getTitleObject()->userCan('edit')) {
+			$hrefbtn = "";
+			$label = "Editing is disabled";
 		} else {
 			$hrefbtn = "javascript:;";
 			$label = "Edit pathway";
