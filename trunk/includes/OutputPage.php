@@ -1272,7 +1272,14 @@ class OutputPage {
 	 */
 	public function addReturnTo( $title ) {
 		global $wgUser;
-		$link = wfMsg( 'returnto', $wgUser->getSkin()->makeLinkObj( $title ) );
+		if($title && $title->getNamespace() == NS_PATHWAY) {
+			$p = Pathway::newFromTitle($title);
+			$pn = "{$p->getName()} ({$p->getSpecies()})";
+			$link = "<a href='{$title->getFullUrl()}' title=$pn>$pn</a>";
+		} else {
+			$link = $wgUser->getSkin()->makeLinkObj( $title );
+		}
+		$link = wfMsg( 'returnto',  $link);
 		$this->addHtml( "<p>{$link}</p>\n" );
 	}
 
