@@ -56,7 +56,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
 			try {
 				$pathway = Pathway::newFromTitle($wgTitle);
 			} catch(Exception $e) {
-				wgLog("Unable to create pathway object for WikiPathways skin");
+				wfDebug("Unable to create pathway object for WikiPathways skin");
 			}
 		}
 		
