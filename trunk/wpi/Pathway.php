@@ -153,7 +153,7 @@ class Pathway {
 	 * Get the MetaDataCache object for this pathway
 	 */
 	private function getMetaDataCache() {
-		if(!$this->metaDataCache) {
+		if(!$this->metaDataCache &&  $this->exists()) {
 			$this->metaDataCache = new MetaDataCache($this);
 		}
 		return $this->metaDataCache;
@@ -358,8 +358,11 @@ class Pathway {
 	 * metadata cache for performance.
 	 */
 	public function getName($textForm = true) {
-		return $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_NAME);
-		//return Pathway::nameFromTitle($this->getTitleObject()->getText());
+		if($this->exists()) { //Only use cache if this pathway exists
+			return $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_NAME);
+		} else {
+			return "";
+		}
 	}
 	
 	/**
@@ -368,7 +371,11 @@ class Pathway {
 	 * metadata cache for performance.
 	 */
 	public function getSpecies() {
-		return $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_ORGANISM);
+		if($this->exists()) { //Only use cache if this pathway exists
+			return $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_ORGANISM);
+		} else {
+			return "";
+		}
 	}
 	
 	/**

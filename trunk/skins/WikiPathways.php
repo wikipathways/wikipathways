@@ -55,6 +55,9 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		if($wgTitle->getNamespace() == NS_PATHWAY) {
 			try {
 				$pathway = Pathway::newFromTitle($wgTitle);
+				if(!$pathway->exists()) {
+					$pathway = null; //Handle as normal page if pathway doesn't exist
+				}
 			} catch(Exception $e) {
 				wfDebug("Unable to create pathway object for WikiPathways skin");
 			}
