@@ -619,7 +619,7 @@ $SocialRewarding["references"]["markupSelfLinkStdText"]	= "$4 links are pointing
  * Set automatic "Amount of References" markup active?
  */
 
-$SocialRewarding["references"]["autoMarkup"]		= true;
+$SocialRewarding["references"]["autoMarkup"]		= false;
 
 
 
@@ -846,7 +846,7 @@ $SocialRewarding["viewed"]["calcBasisCorrection"]	= true;
  * Set automatic "Most Viewed Articles" markup active?
  */
 
-$SocialRewarding["viewed"]["autoMarkup"]		= true;
+$SocialRewarding["viewed"]["autoMarkup"]		= false;
 
 
 
