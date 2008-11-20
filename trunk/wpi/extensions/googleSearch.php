@@ -76,7 +76,6 @@ function renderGoogleCoop($input) {
   </script>
   <script type="text/javascript" src="http://www.google.com/afsonline/show_afs_search.js"></script>
 
-//AP200801014
 <script type="text/javascript">
   var googleSearchFrame = document.getElementsByName("googleSearchFrame");
   if (googleSearchFrame[0]) {
