@@ -544,6 +544,10 @@ function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMin
 	}
 
 	$revision = Revision::newFromID($rev_id);
+	$namespace = $revision->getTitle()->getNamespace();
+	if ($namespace != 102) { //only count references on pathway pages
+		return 0;
+	}
 
 	// Check if revision exists, because otherwise getText() will throw an error
 	if (is_object($revision)) {
