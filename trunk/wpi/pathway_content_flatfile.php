@@ -69,11 +69,11 @@ foreach ($catArray as $cat){
 	$categories .= $cat.",";
 }
 perlChop($categories);
+$name = $all_pathways[$pathway]->getName();
 
 // Print pathways data
 if ($outputFormat =='html'){
-$name = $all_pathways[$pathway]->getName();
-print "<tr><td>".$name."</td><td>".$species."</td><td>".$categories."&nbsp</td><td>".$url."</td><td>".$modTime."</td><td>".$lastRevision."</td><td>".$author."&nbsp</td><td>";
+	print "<tr><td>".$name."</td><td>".$species."</td><td>".$categories."&nbsp</td><td>".$url."</td><td>".$modTime."</td><td>".$lastRevision."</td><td>".$author."&nbsp</td><td>";
 }
 elseif ($outputFormat == 'excel'){
 	//TODO
