@@ -530,14 +530,14 @@ function SocialRewardingRatingCommentManual($comment, $user, $points) {
  * @return boolean Inserted data
  */
 function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMinor, $wIsWatch, $wSection, $rev_id = 0) {
-	global $wgTitle, $mediaWiki;
+	global $wgTitle;
 	global $SocialRewarding;
 
 	$dbw =& wfGetDB(DB_MASTER);
 	$dbr =& wfGetDB(DB_SLAVE);
 	$table = $dbr->tableName($SocialRewarding["DB"]["references"]);
 
-	$article = $mediaWiki->articleFromTitle($wgTitle);
+	$article = new Article($wgTitle);
 
 	if ($article->getLatest() > 0) {
 		$rev_id = $article->getLatest();
