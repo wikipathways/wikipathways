@@ -165,7 +165,13 @@ class PathwayOfTheDay {
 			$this->brandNewDay();
 		}
 		try {
-			$pathway = Pathway::newFromTitle(Title::newFromText($this->todaysPw, NS_PATHWAY));
+			$pathway = Pathway::newFromTitle($this->todaysPw);
+			//Check for deletion and fetch other pathway if the
+			//current one doesn't exist anymore
+			if(!$pathway->exists() || $pathway->isDeleted()) {
+				$this->brandNewDay();
+				$pathway = Pathway::newFromTitle($this->todaysPw);
+			}
 		} catch(Exception $e) {
 			//Fallback to default pathway
 			$pathway = Pathway::newFromTitle("Pathway:Homo sapiens:Apoptosis");
