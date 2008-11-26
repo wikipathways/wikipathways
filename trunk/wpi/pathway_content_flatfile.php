@@ -19,16 +19,16 @@ if(!$outputFormat){
 //NOTE: Model Organism Databases = HUGO, MGI, RGD, ZFIN, FlyBase, WormBase, SGD
 if ($outputFormat =='html'){
 print "<html><table border=1 cellpadding=3>
-<tr bgcolor=\"#CCCCFF\" font><td>Pathway Name<td>Organism<td>Gene Ontology<td>Url to WikiPathways<td>Last Changed<td>Last Revision<td>Author<td>Count
-	<td>Entrez Gene
-	<td>Ensembl
-	<td>SwissProt
-	<td>UniGene
-	<td>RefSeq
-	<td>MOD
-	<td>PubChem
-	<td>CAS
-	<td>ChEBI</tr>\n";
+<tr bgcolor=\"#CCCCFF\" font><td>Pathway Name</td><td>Organism</td><td>Gene Ontology</td><td>Url to WikiPathways</td><td>Last Changed</td><td>Last Revision</td><td>Author</td><td>Count</td>
+	<td>Entrez Gene</td>
+	<td>Ensembl</td>
+	<td>SwissProt</td>
+	<td>UniGene</td>
+	<td>RefSeq</td>
+	<td>MOD</td>
+	<td>PubChem</td>
+	<td>CAS</td>
+	<td>ChEBI</td></tr>\n";
 }
 elseif ($outputFormat == 'excel'){
 	//TODO (see Pear module for spreadsheet writer)
@@ -73,7 +73,7 @@ perlChop($categories);
 // Print pathways data
 if ($outputFormat =='html'){
 $name = $all_pathways[$pathway]->getName();
-print "<tr><td>".$name."<td>".$species."<td>".$categories."&nbsp<td>".$url."<td>".$modTime."<td>".$lastRevision."<td>".$author."&nbsp<td>";
+print "<tr><td>".$name."</td><td>".$species."</td><td>".$categories."&nbsp</td><td>".$url."</td><td>".$modTime."</td><td>".$lastRevision."</td><td>".$author."&nbsp</td><td>";
 }
 elseif ($outputFormat == 'excel'){
 	//TODO
@@ -152,15 +152,15 @@ if ($outputFormat =='html'){
 	//append with space character toprovide for empty cells in html table 
 	print $count
 	."<td>".$L_list."&nbsp"
-	."<td>".$En_list."&nbsp"
-        ."<td>".$S_list."&nbsp"
-        ."<td>".$U_list."&nbsp"
-        ."<td>".$Q_list."&nbsp"
-        ."<td>".$MOD_list."&nbsp"
-        ."<td>".$Pc_list."&nbsp"
-        ."<td>".$CAS_list."&nbsp"
-        ."<td>".$Che_list."&nbsp"
-        ."</tr>";
+	."</td><td>".$En_list."&nbsp"
+        ."</td><td>".$S_list."&nbsp"
+        ."</td><td>".$U_list."&nbsp"
+        ."</td><td>".$Q_list."&nbsp"
+        ."</td><td>".$MOD_list."&nbsp"
+        ."</td><td>".$Pc_list."&nbsp"
+        ."</td><td>".$CAS_list."&nbsp"
+        ."</td><td>".$Che_list."&nbsp"
+        ."</td></tr>";
 }
 elseif ($outputFormat == 'excel'){
 	//TODO
