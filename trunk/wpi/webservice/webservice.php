@@ -105,7 +105,7 @@ function updatePathway($pwId, $description, $gpml, $revision, $auth = NULL) {
 	try {
 		//Authenticate first, if token is provided
 		if($auth) {
-			authenticate($auth['user'], $auth['key']);
+			authenticate($auth['user'], $auth['key'], true);
 		}
 
 		$pathway = new Pathway($pwId);
@@ -292,7 +292,7 @@ function findInteractions($query) {
  */
 function saveCurationTag($pwId, $tagName, $text, $revision, $auth) {
 	if($auth) {
-		authenticate($auth['user'], $auth['key']);
+		authenticate($auth['user'], $auth['key'], true);
 	}
 	
 	try {
@@ -317,7 +317,7 @@ function saveCurationTag($pwId, $tagName, $text, $revision, $auth) {
  **/
 function removeCurationTag($pwId, $tagName, $auth) {
 	if($auth) {
-		authenticate($auth['user'], $auth['key']);
+		authenticate($auth['user'], $auth['key'], true);
 	}
 	
 	try {
@@ -394,7 +394,7 @@ function getColoredPathway($pwId, $revision, $graphId, $color, $fileType) {
 }
 
 //Non ws functions
-function authenticate($username, $token) {
+function authenticate($username, $token, $write = false) {
 	global $wgUser, $wgAuth;
 	$user = User::newFromName( $username );
 	if( is_null($user) || $user->getID() == 0) {
@@ -406,6 +406,13 @@ function authenticate($username, $token) {
 		$wgUser = $user;
 	} else {
 		throw new WSFault("Sender", "Wrong authentication token");
+	}
+	if($write) { //Also check for write access
+		$rights = $user->getRights();
+		if(!in_array('webservice_write', $rights)) {
+			throw new WSFault("Sender", "Account doesn't have write access for the web service. \n".
+			"Contact the site administrator to request write permissions.");
+		}
 	}
 }
 

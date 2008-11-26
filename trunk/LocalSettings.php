@@ -222,6 +222,8 @@ $wgGroupPermissions['usersnoop'   ]['usersnoop'] = true;
 $wgGroupPermissions['sysop'       ]['usersnoop'] = true;
 $wgGroupPermissions['bureaucrat'  ]['usersnoop'] = true;
 
+$wgGroupPermissions['webservice']['webservice_write'] = true;
+
 //AP20071027 
 # Reject user creation from specific domains
 function abortOnBadDomain($user, $message) {
