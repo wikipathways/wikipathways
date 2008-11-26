@@ -72,6 +72,20 @@ class PathwayIndex {
 		return self::hitsToResults($hits);
 	}
 	
+	public static function searchInteractions($query) {
+		$results = array();
+		$query = self::queryToAllFields(
+			$query,
+			array(
+				self::$f_right,
+				self::$f_left,
+				self::$f_mediator
+			)
+		);
+		$hits = self::$index->find($query);
+		return self::hitsToResults($hits);
+	}
+	
 	private static function hitsToResults($hits) {
 		$results = array();
 		foreach($hits as $hit) {
@@ -103,6 +117,9 @@ class PathwayIndex {
 	static $f_x_id = 'x.id';
 	static $f_x_id_database = 'x.id.database';
 	static $f_graphId = 'graphId';
+	static $f_left = 'left';
+	static $f_right = 'right';
+	static $f_mediator = 'mediator';
 }
 
 class SearchHit {

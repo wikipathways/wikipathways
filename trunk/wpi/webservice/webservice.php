@@ -22,6 +22,7 @@ $operations = array(
 	"saveCurationTag",
 	"getCurationTags",
 	"getColoredPathway",
+	"findInteractions",
 );
 $opParams = array(
 	"listOrganisms" => "MIXED",
@@ -37,6 +38,7 @@ $opParams = array(
 	"saveCurationTag" => "MIXED",
 	"getCurationTags"=> "MIXED",
 	"getColoredPathway" => "MIXED",
+	"findInteractions" => "MIXED",
 );
 
 $classmap = array(); //just let the engine know you prefer classmap mode
@@ -260,6 +262,20 @@ function findPathwaysByXref($id, $code = '', $indirect = true) {
 	$results = PathwayIndex::searchByXref($xref, $indirect);
 	foreach($results as $r) {
 		$objects[] = new WSSearchResult($r, array(PathwayIndex::$f_graphId));
+	}
+	return array("result" => $objects);
+}
+
+/**
+ * Find interactions.
+ * @param string $query The name of an entity to find interactions for (e.g. 'P53')
+ * @return array of object WSSearchResult $result Array of WSSearchResult objects
+ **/
+function findInteractions($query) {
+	$objects = array();
+	$results= PathwayIndex::searchInteractions($query);
+	foreach($results as $r) {
+		$objects[] = new WSSearchResult($r);
 	}
 	return array("result" => $objects);
 }
