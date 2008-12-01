@@ -43,11 +43,35 @@ $opParams = array(
 
 $classmap = array(); //just let the engine know you prefer classmap mode
 
+$restmap = array(
+	"listOrganisms" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "listOrganisms"
+	),
+	"listPathways" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "listPathways"
+	),
+	"findPathwaysByXref" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "findPathwaysByXref/id/{id}/code/{code}"
+	),
+	"findPathwaysByText" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "findPathwaysByText/query/{query}/species/{species}"
+	),
+	"findInteractions" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "findInteractions/query/{query}"
+	),
+);
+
 $svr = new WSService(array(
 	"operations" => $operations,
 	"classmap" => $classmap,
 	"opParams" => $opParams,
 	"serviceName" => "WikiPathways",
+	"RESTMapping" => $restmap,
 ));
 
 $svr->reply();
