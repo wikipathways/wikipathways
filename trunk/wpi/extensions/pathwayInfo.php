@@ -19,10 +19,10 @@ $wgHooks['LanguageGetMagic'][]  = 'wfPathwayInfo_Magic';
 
 function wfPathwayInfo() {
         global $wgParser;
-        $wgParser->setFunctionHook( 'pathwayInfo', 'getPathwayInfo' );
+        $wgParser->setFunctionHook( 'pathwayInfo', 'getPathwayInfoText' );
 }
 
-function getPathwayInfo( &$parser, $pathway, $type ) {
+function getPathwayInfoText( &$parser, $pathway, $type ) {
 	$parser->disableCache();
 	try {
 		$pathway = Pathway::newFromTitle($pathway);

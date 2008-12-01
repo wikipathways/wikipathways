@@ -12,6 +12,7 @@ $operations = array(
 	"listOrganisms",
 	"listPathways", 
 	"getPathway",
+	"getPathwayInfo",
 	"getRecentChanges",
 	"login",
 	"getPathwayAs",
@@ -28,6 +29,7 @@ $opParams = array(
 	"listOrganisms" => "MIXED",
 	"listPathways" => "MIXED", 
 	"getPathway" => "MIXED",
+	"getPathwayInfo" => "MIXED",
 	"getRecentChanges" => "MIXED",
 	"login" => "MIXED",
 	"getPathwayAs" => "MIXED",
@@ -44,6 +46,10 @@ $opParams = array(
 $classmap = array(); //just let the engine know you prefer classmap mode
 
 $restmap = array(
+	"getPathwayInfo" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getPathwayInfo/id/{pwId}"
+	),
 	"listOrganisms" => array(
 		"HTTPMethod" =>"GET",
 		"RESTLocation" => "listOrganisms"
@@ -110,6 +116,23 @@ function getPathway($pwId, $revision = 0) {
 		return array("pathway" => $pwi);
 	} catch(Exception $e) {
 		wfDebug("ERROR: $e");
+		throw new WSFault("Receiver", $e);
+	}
+}
+
+/**
+ * Get some general info about the pathway, such as the name, species
+ * and latest revision
+ * @param string $pwId The pathway identifier
+ * @return object WSPathwayInfo $pathwayInfo The pathway info
+ **/
+function getPathwayInfo($pwId) {
+	try {
+		$pathway = new Pathway($pwId);
+		$pwi = new WSPathwayInfo($pathway);
+		return array("pathwayInfo" => $pwi);
+	} catch(Exception $e) {
+		wfDebug(__METHOD__ . " (ERROR): $e\n");
 		throw new WSFault("Receiver", $e);
 	}
 }
