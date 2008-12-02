@@ -114,7 +114,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		<title><?php
 			if($pathway) {
 				global $wgSitename;
-				echo $pathway->getName() . "(". $pathway->getSpecies() . ") - " . $wgSitename;
+				echo $pathway->getName() . " (". $pathway->getSpecies() . ") - " . $wgSitename;
 			} else {
 				echo $this->text('pagetitle');
 			}
