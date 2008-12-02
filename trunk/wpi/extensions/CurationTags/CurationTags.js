@@ -317,6 +317,11 @@ CurationTags.showEditDiv = function(tagName) {
 	
 	for(tn in tagDefArray) {
 		var tagDef = tagDefArray[tn];
+		//Skip the tag if we pressed the 'new' button
+		//and it already exists
+		if(!tagName && CurationTags.tagData[tn]) {
+			continue;
+		}
 		var value = "value='" + tagDef.name + "'";
 		var selected = "";
 		if(String(tagDef.name) == String(tagName)) {
