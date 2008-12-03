@@ -9,7 +9,7 @@ but require a permission scheme to prevent people from assigning badges to thems
  * New User (e.g., first 7 days)
  * Valued Contributor (e.g., X number of edits)
  * Pathway Powerhouse (e.g., X number of new pathways)
-
+ * See http://stackoverflow.com/badges
  * Curator
  * Admin
  * User with particular rights/responsibilities
