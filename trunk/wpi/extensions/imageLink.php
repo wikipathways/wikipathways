@@ -14,12 +14,12 @@ function wfImageLink_Magic( &$magicWords, $langCode ) {
 
 /** Modifies from pathwayThumb.php
  * Insert arbitrary images as thumbnail links to any SPECIAL, PATHWAY or MAIN page.
- * Parameters: image filename, display width, horizonal alignment, caption, namespace (special, pathway or main (default)), species (used for pathways), page title, tooltip.
- * Usage: Special page example: {{#imgLink:Wishlist_thumb_200.jpg|200|center|Wish list page|special||SpecialWishList|Wish list}}
- *        Pathway page example: {{#imgLink:Sandbox_thumb_200.jpg|200|center|Sandbox page|pathway|Human|Sandbox|Sandbox}}
- *        Main page example: {{#imgLink:Download_all_thumb_200.jpg|200|center|Download page|||Download_Pathways|Download pathways}}
+ * Parameters: image filename, display width, horizonal alignment, caption, namespace (special, pathway or main (default)), page title (stable id for pathways, e.g., WP274), tooltip.
+ * Usage: Special page example: {{#imgLink:Wishlist_thumb_200.jpg|200|center|Wish list page|special|SpecialWishList|Wish list}}
+ *        Pathway page example: {{#imgLink:Sandbox_thumb_200.jpg|200|center|Sandbox page|pathway|WP274|Sandbox}}
+ *        Main page example: {{#imgLink:Download_all_thumb_200.jpg|200|center|Download page||Download_Pathways|Download pathways}}
  */
-function renderImageLink( &$parser, $img, $width = 200, $align = '', $caption = '', $namespace = '', $species = '', $pagetitle = '', $tooltip = '', $id='imglink') {      
+function renderImageLink( &$parser, $img, $width = 200, $align = '', $caption = '', $namespace = '', $pagetitle = '', $tooltip = '', $id='imglink') {      
 	global $wgUser;
 	$parser->disableCache();
       try {
@@ -28,7 +28,7 @@ function renderImageLink( &$parser, $img, $width = 200, $align = '', $caption = 
                                                                 //we would rather parse wikitext, let me know if
                                                                 //you know a way to do that (TK)
 
-                $output = makeImageLinkObj($img, $caption, $namespace, $species, $pagetitle, $tooltip, $align, $id, $width);
+                $output = makeImageLinkObj($img, $caption, $namespace, $pagetitle, $tooltip, $align, $id, $width);
 
         } catch(Exception $e) {
                 return "invalid image link: $e";
@@ -41,7 +41,7 @@ function renderImageLink( &$parser, $img, $width = 200, $align = '', $caption = 
         * Make HTML for a thumbnail including image, border and caption
         * $img is an Image object
         */
-    function makeImageLinkObj( $img, $label = '', $namespace = '', $species = '', $pagetitle = '', $alt, $align = 'right', $id = 'thumb', $boxwidth = 180, $boxheight=false, $framed=false ) {
+    function makeImageLinkObj( $img, $label = '', $namespace = '', $pagetitle = '', $alt, $align = 'right', $id = 'thumb', $boxwidth = 180, $boxheight=false, $framed=false ) {
             global $wgStylePath, $wgContLang;
 
             $img = new Image(Title::makeTitleSafe( NS_IMAGE, $img ));
@@ -54,7 +54,7 @@ function renderImageLink( &$parser, $img, $width = 200, $align = '', $caption = 
 			$href = Title::newFromText($pagetitle, NS_SPECIAL)->getFullUrl();
 			break;
 		case 'pathway':
-			$href = Title::newFromText($species . ':' . $pagetitle, NS_PATHWAY)->getFullUrl();
+			$href = Title::newFromText($pagetitle, NS_PATHWAY)->getFullUrl();
 			break;
 		default:
 			$href = Title::newFromText($pagetitle, NS_MAIN)->getFullUrl();
