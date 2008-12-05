@@ -144,7 +144,7 @@ function getXrefLink($xref) {
 	
 	switch($db) {
 	case 'Ensembl':
-		return "http://www.ensembl.org/Homo_sapiens/searchview?species=all&idx=Gene&q=" . $id;
+		return "http://www.ensembl.org/Homo_sapiens/Gene/Summary?g=" . $id;
 	case 'Entrez Gene':
 		return "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=full_report&list_uids=" . $id;
 	case 'SwissProt':
@@ -175,7 +175,7 @@ function getXrefLink($xref) {
 	case 'WormBase':
 		return "http://www.wormbase.org/db/gene/gene?name=$id";
 	case 'Affy':
-		return "http://www.ensembl.org/Homo_sapiens/featureview?type=OligoProbe;id=$id";
+		return "http://www.ensembl.org/Homo_sapiens/Search/Summary?species=all;idx=;q=$id";
 	case 'EMBL':
 		return "http://www.ebi.ac.uk/cgi-bin/emblfetch?style=html&id=$id";
 	case 'HUGO':
