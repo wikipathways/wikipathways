@@ -199,8 +199,11 @@ CurationTags.applyNewTag = function() {
 	CurationTags.showProgress();
 }
 
-CurationTags.cancelNewTag = function() {
+CurationTags.cancelNewTag = function(tagName) {
 	CurationTags.hideEditDiv();
+	if(tagName) {
+		CurationTags.scrollToElement(CurationTags.tagElements[tagName]);
+	}
 }
 
 CurationTags.removeTag = function(tagName) {
@@ -344,11 +347,14 @@ CurationTags.showEditDiv = function(tagName) {
 	var buttons = "<TR align='right'><TD colspan='2'>" +
 		"<A href='javascript:CurationTags.applyNewTag()' title='Apply'>" +
 		"<IMG src='" + CurationTags.extensionPath + "/apply.png'/></A>" +
-		"<A href='javascript:CurationTags.cancelNewTag()' title='Cancel'>" +
+		"<A href='javascript:CurationTags.cancelNewTag(\"" + tagName + "\")' title='Cancel'>" +
 		"<IMG src='" + CurationTags.extensionPath + "/cancel.png'/></A>";
 	var html = "<TABLE>" + nameBox + textBox + buttons +"</TABLE>";
 	CurationTags.editDiv.innerHTML = html;
 	CurationTags.editDiv.style.display = "";
+	if(tagName) {
+		CurationTags.scrollToElement(CurationTags.editDiv);
+	}
 	
 	document.getElementById("tag_name").onchange = CurationTags.refreshEditValues; 
 }
@@ -378,6 +384,7 @@ CurationTags.refreshEditValues = function() {
 CurationTags.refresh = function(tagName) {
 	if(tagName) {
 		CurationTags.loadTag(tagName);
+		CurationTags.scrollToElement(CurationTags.tagElements[tagName]);
 	} else {
 		CurationTags.displayDiv.innerHTML = "";
 		CurationTags.loadTags();
@@ -533,6 +540,19 @@ CurationTags.refreshNoTagsMsg = function() {
 		} else {
 			CurationTags.noTagsMsg.style.display = "none";
 		}
+	}
+}
+
+CurationTags.scrollToElement = function(elm){
+	if(elm) {
+		var selectedPosX = 0;
+		var selectedPosY = 0;
+		while(elm != null){
+			selectedPosX += elm.offsetLeft;
+			selectedPosY += elm.offsetTop;
+			elm = elm.offsetParent;
+		}
+		window.scrollTo(selectedPosX, selectedPosY);
 	}
 }
 
