@@ -711,7 +711,7 @@ XHTML id names.
 'helppage'             => 'Help:Contents',
 'mainpage'             => 'Main Page',
 'mainpage-description' => 'Main Page',
-'policy-url'           => 'Project:Policy',
+'policy-url'           => 'Help:Policies',
 'portal'               => 'Community portal',
 'portal-url'           => 'Project:Community Portal',
 'privacy'              => 'Privacy policy',
