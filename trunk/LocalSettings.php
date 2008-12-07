@@ -121,10 +121,10 @@ $wgDefaultSkin = 'wikipathways';
 ## appropriate copyright notice / icon. GNU Free Documentation
 ## License and Creative Commons licenses are supported so far.
 # $wgEnableCreativeCommonsRdf = true;
-$wgRightsPage = ""; # Set to the title of a wiki page that describes your license/copyright
-$wgRightsUrl = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-$wgRightsText = "a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License";
-$wgRightsIcon = "http://creativecommons.org/images/public/somerights20.png";
+$wgRightsPage = "WikiPathways:License_Terms"; # Set to the title of a wiki page that describes your license/copyright
+$wgRightsUrl = "http://creativecommons.org/licenses/by/3.0/";
+$wgRightsText = "our license terms";
+$wgRightsIcon = "http://i.creativecommons.org/l/by/3.0/88x31.png";
 # $wgRightsCode = ""; # Not yet used
 
 $wgDiff3 = "/usr/bin/diff3";
@@ -297,6 +297,7 @@ require_once('wpi/extensions/DeletePathway/DeletePathway.php');
 require_once('wpi/extensions/ShowError/ShowError.php');
 require_once('wpi/extensions/pathwayParserFunctions.php');
 require_once('extensions/UserMerge/UserMerge.php');
+require_once('extensions/parseViewRedirect.php');
 
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!
