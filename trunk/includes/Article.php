@@ -149,7 +149,7 @@ class Article {
 						return $rt->getFullURL();
 					}
 				}
-				return $rt;
+				return $rt->getFullURL();
 			}
 		}
 		// No or invalid redirect
