@@ -509,9 +509,6 @@ function SocialRewardingRatingCommentManual($comment, $user, $points) {
 
 
 
-
-
-
 /**
  * Handle insertion of social rewarding method "Amount
  * of References" in database. To pass revision ID all
@@ -529,135 +526,69 @@ function SocialRewardingRatingCommentManual($comment, $user, $points) {
  * @param int $rev_id Revision ID
  * @return boolean Inserted data
  */
-function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMinor, $wIsWatch, $wSection, $rev_id = 0) {
-	global $wgTitle;
-	global $SocialRewarding;
+function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMinor, $wIsWatch, $wSection, $rev) {
+        global $wgTitle, $mediaWiki;
+        global $SocialRewarding;
 
-	$dbw =& wfGetDB(DB_MASTER);
-	$dbr =& wfGetDB(DB_SLAVE);
-	$table = $dbr->tableName($SocialRewarding["DB"]["references"]);
+        $dbw =& wfGetDB(DB_MASTER);
+        $dbr =& wfGetDB(DB_SLAVE);
+        $table = $dbr->tableName($SocialRewarding["DB"]["references"]);
 
-	$article = new Article($wgTitle);
-
-	if ($article->getLatest() > 0) {
-		$rev_id = $article->getLatest();
+        if (is_object($rev)) {
+		$revision = $rev;
+		$rev_id = $revision->getId();
+	} else {
+		$rev_id = $rev;
+	       	$revision = Revision::newFromID($rev_id);
 	}
+	
+	if (is_object($revision)){
 
-	$revision = Revision::newFromID($rev_id);
-	$namespace = $revision->getTitle()->getNamespace();
-	if ($namespace != 102) { //only count references on pathway pages
-		return 0;
-	}
+//		$ns = $revision->getTitle()->getNamespace();
+//		if($ns != NS_PATHWAY) return 0; 
 
-	// Check if revision exists, because otherwise getText() will throw an error
-	if (is_object($revision)) {
-//		$revisionText = $revision->getText();
+                $rs = $dbr->query("SELECT * FROM $table WHERE rev_id = $rev_id");
+                if ($dbr->numRows($rs) == 0) {
 
-		$rs = $dbr->query("SELECT * FROM $table WHERE rev_id = $rev_id");
-		if ($dbr->numRows($rs) == 0) {
 
-//			// Get section text if searching for links is limited to sections in the config file
-//			if ($SocialRewarding["references"]["textMode"] == "section") {
-//				$sectionDelimiter = SocialRewardingTokString($SocialRewarding["references"]["textSection"], $SocialRewarding["reward"]["delimiter"]);
-//				$delimiter = $SocialRewarding["references"]["textDelimiter"];
-//				foreach ($sectionDelimiter as $key => $val) {
-//					$sectionDelimiter[$key] = "$delimiter $val $delimiter";
-//				}
-//
-//				$i = 0;
-//				while (($sectionText = Article::getSection($revisionText, $i)) != "") {
-//					foreach ($sectionDelimiter as $key => $val) {
-//						if (ereg($val, $sectionText)) {
-//							$text .= $sectionText;
-//						}
-//					}
-//					$i++;
-//				}
-//			} else {
-//				$text = $revisionText;
-//			}
+                        $i = 0;
 
-			$i = 0;
+                        //AP20081020  custom way to split text and count links
+                        $pathway = Pathway::newFromTitle($revision->getTitle());
+			$pathway->setActiveRevision($rev_id);
+                        $text = $pathway->getGpml();
+                        $split_text = explode('PublicationXRef xmlns', $text);
 
-//			$split_text = explode($SocialRewarding["references"]["linkStart"], $text);
+                        foreach($split_text as $key => $val) {
+                                $i++;
+                        }
 
-			//AP20081020  custom way to split text and count links
-			$pathway = Pathway::newFromTitle($revision->getTitle());
-			$text = $pathway->getGpml(); 
-			$split_text = explode('PublicationXRef xmlns', $text);
+                        $countSize = 0;
+                        $countLink = 0;
+                        $countSelfLink = 0;
 
-//			$linkStart = $SocialRewarding["references"]["linkStart"];
-//			$linkDelimiter = $SocialRewarding["references"]["linkDelimiter"];
-//			if ($SocialRewarding["references"]["googleWholeDomain"] == true ) {
-//				$linkDelimiter .= "/";
-//			}
+                        //AP20081020 new definitions of count and countSelfLink
+                        $count = $i - 1;
+                        $countSelfLink = $count;
 
-			foreach($split_text as $key => $val) {
-//				$links[$i] = $linkStart . strtok($val, $linkDelimiter);
-				$i++;
-			}
+                        // Only insert data in table if at least one factor is activated
+                        if ($SocialRewarding["references"]["siteSizeFactor"] == true || $SocialRewarding["references"]["siteLinkFactor"] == true || $SocialRewarding["references"]["siteSelfLinkFactor"] == true) {
+                                SocialRewardingDeleteFromTable($table, "rev_id = $rev_id");
+                                $dbw->insert($table, array(
+                                                "rev_id" => $rev_id,
+                                                "size" => $countSize,
+                                                "link" => $countLink,
+                                                "count" => $count,
+                                                "self_link" => $countSelfLink
+                                ));
+                        }
 
-			$countSize = 0;
-			$countLink = 0;
-			$countSelfLink = 0;
-
-//			if (count($links) > 1) {
-//				$google = new GoogleSearch();
-//			}
-
-//			for ($i = 1; $i < count($links); $i++) {
-//				if ($SocialRewarding["references"]["siteSizeFactor"] == true) {
-//					if ($SocialRewarding["references"]["stripWWW"] == true) {
-//						$link = str_replace("www.", "", $links[$i]);
-//					} else {
-//						$link = $links[$i];
-//					}
-//					$google->doSearch($link, "size");
-//					$countSize += $google->getCount();
-//				}
-//				if ($SocialRewarding["references"]["siteLinkFactor"] == true) {
-//					$google->doSearch($links[$i], "link");
-//					$countLink += $google->getCount();
-//				}
-//			}
-
-//			if ($SocialRewarding["references"]["siteSelfLinkFactor"] == true) {
-//				if (!$google) {
-//					$google = new GoogleSearch();
-//				}
-//				$google->doSearch(SocialRewardingGetURL(), "link");
-//				$countSelfLink += $google->getCount();
-//			}
-
-//			$count = count($links) - 1;
-
-			//AP20081020 new definitions of count and countSelfLink
-			$count = $i - 1;
-			$countSelfLink = $count;
-
-			// Only insert data in table if at least one factor is activated
-			if ($SocialRewarding["references"]["siteSizeFactor"] == true || $SocialRewarding["references"]["siteLinkFactor"] == true || $SocialRewarding["references"]["siteSelfLinkFactor"] == true) {
-				SocialRewardingDeleteFromTable($table, "rev_id = $rev_id");
-				$dbw->insert($table, array(
-						"rev_id" => $rev_id,
-						"size" => $countSize,
-						"link" => $countLink,
-						"count" => $count,
-						"self_link" => $countSelfLink
-				));
-			}
-
-			return 1;
-		} else {
-			return 0;
-		}
+                        return 1;
+                } else {
+                        return 0;
+                }
 	}
 }
-
-
-
-
-
 
 
 /**
