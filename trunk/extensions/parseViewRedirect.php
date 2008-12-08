@@ -1,4 +1,4 @@
- <?php
+<?php
  
     $wgHooks["ArticleViewRedirect"][] = 'wfBlockPathways';
 
