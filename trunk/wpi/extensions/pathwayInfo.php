@@ -197,7 +197,7 @@ function getXrefLink($xref) {
 	case 'Kegg Compound':
 		return "http://www.genome.jp/dbget-bin/www_bget?cpd:$id";
 	case 'HMDB':
-		return "http://www.hmdb.ca/scripts/show_card.cgi?METABOCARD=$id";
+		return "http://www.hmdb.ca/metabolites/$id";
 	default:
 		return false;
 	}
