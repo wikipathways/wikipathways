@@ -1,0 +1,75 @@
+= Email Verification Strategy =
+We need to encourage and potentially enforce verifiable email addresses from our users, 
+especially users who are active and who build a reputation at WikiPathways. On the other
+hand, we want to keep the barrier to entry and 'playing in the sandbox' as low as possible
+to encourage new users and folks who are new in general to the concepts of pathway curation.
+And, frankly, the great majority of our users probably fall into this last category.
+
+== Options Explored: Pros and Cons ==
+1. Status Quo - currently we don't require or verify email addresses at the time of account 
+creation, nor do we promote the use of email at any time following. This is a very low barrier
+to entry, but it also leaves us no way of contacting contributing users. They may in fact
+*want* to hear from us and not even know that they neglected to enter an email address.
+
+2. Email Verification - most "good" online communities that are social and active, require
+email verification at the time of account creation.  This may discourage some potential 
+users from ever signing up and trying out the editor in the Sandbox. But, everyone would
+have a verified email by which we could contact them. Though tools like mailinator serve
+to defeat this approach (but that would apply to only a small minority).
+
+3. Asynchronous Verification - we could require an email at the time of account creation, but
+delay the verification, such that the user could immediately go and play in the Sandbox, and
+deal with verifying their email later. The new account could be active for a week and then
+expire if not verified. Addresses a lot of concerns, but is perhaps complicated to implement 
+and administer, e.g., what permissions do unverified account have? Are they canceled or just
+put into a limit group? We'll probably have to deal with lots of emails from confused users.
+
+4. Bonus Verification - basically, leave things at status quo, but add an email verification
+function that can be run completely independently of account creation. It would result in
+a 'verified email' badge and a sense of being part of the community. This is something most
+new users might not be interested in until they realize the utility of the site, thus it 
+makes sense not to tie it to account creation. We will have to implement notices at key
+junctures to let an active user know if their not verified, which email we have on record, the
+benefits of getting verified and how to get verified.
+
+== The Plan ==
+The currently plan is to go with option #4 above -- the only one without cons! ;)
+
+*Account Creation Changes*
+Modify message at account creation to encourage entry of a valid email address, linking to
+a page that details how we use the email and the advantages to the user (see below).
+
+*Notices*
+We'll want to let users know what email they've provided (in case of typo or deliberate
+use of fake email at account creation) and how to change and verify it (see below). This
+notice should be repeated at:
+ - log in message
+ - pathway save events
+ - discussion page save events
+
+*Email Verification Explained*
+** Or, why do you want my email address?**
+We should have a help page or section dedicated to this topic to which we can link from the
+above contexts. This page should cover:
+ - the benefits of verifying an accurate email (badge included!)
+ - how and when their email will be used; how and when it *won't* be used
+ - how to update and verify their email
+ 
+ === Implementation ===
+ *Design*
+ On a given User Page, we'll want to have an applet controlled section that contains a label
+ ("Email Verified!", "Email Not Verified" or "Email Not Provided") and a button ("Update 
+ Email"). When clicked, the user gets an applet into which they can enter an email address
+ and click "Verify". This closes the window, updates the email address in the database, sends 
+ an email to the user, and changes the label to "Awaiting Verification...". If verified, then 
+ the label changes to "Email Verified!" and they get a badge that shows publicly. If not, then
+ the label changes to "Email Not Verified" after 24 or 48 hours.
+ 
+ I think the applet only needs "Verify" button, because there should be no reason to update
+ one's email address without verifying it.  However, there should also be a view function for
+ the user to check which email is on file. So, perhaps the button displays as "Verify" only
+ if an unverified email is displayed or if a change is made to the current, verified email.
+ Otherwise, if the user is viewing an already verified email in the applet, the button could
+ just read "Close" and take no action.
+ 
+ 
