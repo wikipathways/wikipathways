@@ -523,10 +523,11 @@ function SocialRewardingRatingCommentManual($comment, $user, $points) {
  * @param boolean $wIsMinor Minor flag
  * @param boolean $wIsWatch Watch flag
  * @param int $wSection Section number
+ * @param int bitfield $flags Type of edit
  * @param int $rev_id Revision ID
  * @return boolean Inserted data
  */
-function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMinor, $wIsWatch, $wSection, $rev) {
+function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMinor, $wIsWatch, $wSection, $flags, $rev) {
         global $wgTitle, $mediaWiki;
         global $SocialRewarding;
 
@@ -555,7 +556,7 @@ function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMin
 
                         //AP20081020  custom way to split text and count links
                         $pathway = Pathway::newFromTitle($revision->getTitle());
-			$pathway->setActiveRevision($rev_id);
+			//$pathway->setActiveRevision($rev_id); //only needed during initialization; breaks when saving a pathway
                         $text = $pathway->getGpml();
                         $split_text = explode('PublicationXRef xmlns', $text);
 
