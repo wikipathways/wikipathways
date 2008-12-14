@@ -545,8 +545,8 @@ function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMin
 	
 	if (is_object($revision)){
 
-//		$ns = $revision->getTitle()->getNamespace();
-//		if($ns != NS_PATHWAY) return 0; 
+		$ns = $revision->getTitle()->getNamespace();
+		if($ns != NS_PATHWAY) return 0; 
 
                 $rs = $dbr->query("SELECT * FROM $table WHERE rev_id = $rev_id");
                 if ($dbr->numRows($rs) == 0) {
@@ -588,6 +588,8 @@ function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMin
                 } else {
                         return 0;
                 }
+	} else { //revision is not an object (typically a non-pathway article)
+		return 0;
 	}
 }
 
