@@ -631,7 +631,7 @@ $SocialRewarding["references"]["autoMarkup"]		= false;
  * Activate social rewarding mechanism "Rating of Articles"? 
  */
 
-$SocialRewarding["rating"]["active"]			= true;
+$SocialRewarding["rating"]["active"]			= false;
 
 
 /**

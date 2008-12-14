@@ -94,8 +94,6 @@ class SpecialSocialRewardingAuthorsRanking {
 				<br>
 				<input type=checkbox name=sr_references "; if ($_GET["sr_references"]) $output.=" checked"; $output.="> Amount of References
 				&nbsp;&nbsp;&nbsp;
-				<input type=checkbox name=sr_rating"; if ($_GET["sr_rating"]) $output.=" checked"; $output.="> Rating of Articles
-				&nbsp;&nbsp;&nbsp;
 				<input type=checkbox name=sr_viewed "; if ($_GET["sr_viewed"]) $output.=" checked"; $output.="> Most Viewed Articles
 				&nbsp;&nbsp;&nbsp;
 			";
