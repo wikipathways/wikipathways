@@ -129,7 +129,7 @@ function SocialRewardingGetRevID() {
 	 * http://www.mediawiki.org/wiki/Manual:$mediaWiki
 	 * By checking this first, we prevent crashes for the api.php, xml-rpc and soap webservice.
 	 */
-	if(!$mediawiki) {
+	if(!$mediaWiki) {
 		return 0;
 	}
 	
