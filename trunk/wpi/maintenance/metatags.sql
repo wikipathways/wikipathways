@@ -40,5 +40,8 @@ CREATE TABLE IF NOT EXISTS tag_history (
 	action_user	int(8),
 	
 	-- Timestamp of action
-	time		char(14)
+	time		char(14),
+	
+	-- Old text value
+	text		varchar(500)
 );

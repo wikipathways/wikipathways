@@ -274,7 +274,8 @@ class MetaTag {
 				'page_id' => $this->page_id,
 				'action' => $action,
 				'action_user' => $this->user_mod,
-				'time' => $this->time_mod
+				'time' => $this->time_mod,
+				'text' => $this->text
 			)
 		);
 		
@@ -431,6 +432,7 @@ class MetaTagHistoryRow {
 	private $action;
 	private $user;
 	private $time;
+	private $text;
 	
 	function __construct($dbRow) {
 		$this->tag_name = $dbRow->tag_name;
@@ -438,6 +440,7 @@ class MetaTagHistoryRow {
 		$this->action = $dbRow->action;
 		$this->user = $dbRow->action_user;
 		$this->time = $dbRow->time;
+		$this->text = $dbRow->text;
 	}
 	
 	/**
@@ -473,6 +476,14 @@ class MetaTagHistoryRow {
 	 */
 	public function getPageId() {
 		return $this->page_id;
+	}
+	
+	/**
+	 * Get the contents of the tag at time of 
+	 * this history item
+	 */
+	public function getText() {
+		return $this->text;
 	}
 }
 
