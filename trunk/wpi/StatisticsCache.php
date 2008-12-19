@@ -3,7 +3,7 @@
 require_once("wpi.php");
 require_once("Pathway.php");
 
-if($argv) { //Called from commandline, update cache
+if($argv[0] == "StatisticsCache.php") { //Called from commandline, update cache
 	ini_set("memory_limit", "256M");
 	echo("Updating statistics cache\n");
 	$start = microtime(true);
