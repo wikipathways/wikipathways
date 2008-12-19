@@ -3,6 +3,20 @@
 require_once("wpi.php");
 require_once("Pathway.php");
 
+if($argv) { //Called from commandline, update cache
+	ini_set("memory_limit", "256M");
+	echo("Updating statistics cache\n");
+	$start = microtime(true);
+	
+	StatisticsCache::updatePathwaysCache();
+	foreach(Pathway::getAvailableSpecies() as $species) {
+		StatisticsCache::updateUniqueGenesCache($species);
+	}
+	
+	$time = (microtime(true) - $start);
+	echo("\tUpdated in $time seconds\n");
+}
+
 /**
 Since counting unique genes accross all pathways is an expensive operation,
 these calculations are cached.
@@ -10,7 +24,7 @@ these calculations are cached.
 This class is responsible for reading values from and writing values to that cache.
 */
 class StatisticsCache
-{
+{	
 	/**
 	 * returns the number of unique genes for a certain species.
 	 * re-creates the cache if it doesn't exist.
@@ -22,7 +36,6 @@ class StatisticsCache
 
 		// initialize variable $data with the contents of the cache
 		$data = StatisticsCache::readGeneCache();
-
 		// update cache if this species has never been calculated before
 		if (!array_key_exists ($species, $data))
 		{
@@ -64,11 +77,11 @@ class StatisticsCache
 		global $wgScriptPath;
 
 		$geneList = array();
+		$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
 		$all_pathways = Pathway::getAllPathways();
 		foreach (array_keys($all_pathways) as $pathway) {
 			$pathwaySpecies = $all_pathways[$pathway]->species();
 			if ($pathwaySpecies != $species) continue;
-			$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
 			$page_id = $all_pathways[$pathway]->getPageIdDB();
 			if (in_array($page_id, $taggedIds)) continue; //skip Tutorial pathways
 			try
@@ -118,10 +131,10 @@ class StatisticsCache
        	 	$res = $dbr->query("SELECT page_title FROM page WHERE page_namespace=" . NS_PATHWAY . " AND page_is_redirect = 0");
 		$total = 0;
         	$pathwaysPerSpecies = array();
+			$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
         	while ($row = $dbr->fetchRow($res)){
                 	$pathway = Pathway::newFromTitle($row["page_title"]);
 			if ($pathway->isDeleted()) continue; //skip deleted pathways
-			$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
 			$page_id = $pathway->getPageIdDB();
 			if (in_array($page_id, $taggedIds)) continue; // skip Tutorial pathways
                 	$species = $pathway->getSpecies();
@@ -178,15 +191,15 @@ class StatisticsCache
 	private static function writeGeneCache ($data)
 	{
 		global $wgScriptPath;
-		
 		// write all data in $data back to the file again
-		$filename = $_SERVER['DOCUMENT_ROOT'].$wgScriptPath.'wpi/tmp/UniqueGeneCounts.data';
+		$filename = WPI_SCRIPT_PATH . '/tmp/UniqueGeneCounts.data';
 		$file = fopen($filename, 'w+');
 		foreach ($data as $key => $c)
 		{
 			fwrite ($file, "$key\t$c\n");
 		}
-		fclose ($file);		
+		fclose ($file);
+		chmod($filename, 0666); 	
 	}
 	
 	/**
@@ -200,8 +213,8 @@ class StatisticsCache
 		// read contents of the cache into variable $data
 		$data = array();
 		
-		$filename = $_SERVER['DOCUMENT_ROOT'].$wgScriptPath.'wpi/tmp/UniqueGeneCounts.data';
-		$file = @fopen($filename, 'r');
+		$filename = WPI_SCRIPT_PATH . '/tmp/UniqueGeneCounts.data';
+		$file = fopen($filename, 'r');
 		if ($file) 
 		{
 			while (!feof($file)) 
@@ -220,13 +233,14 @@ class StatisticsCache
                 global $wgScriptPath;
                 
                 // write all data in $data back to the file again
-                $filename = $_SERVER['DOCUMENT_ROOT'].$wgScriptPath.'wpi/tmp/PathwayCounts.data';
+                $filename = WPI_SCRIPT_PATH . '/tmp/PathwayCounts.data';
                 $file = fopen($filename, 'w+');
                 foreach ($data as $key => $c)
                 {
                         fwrite ($file, "$key\t$c\n");
                 }
-                fclose ($file);      
+                fclose ($file);
+                chmod($filename, 0666);   
         }
                 
         /**     
@@ -240,7 +254,7 @@ class StatisticsCache
                 // read contents of the cache into variable $data
                 $data = array();
                                 
-                $filename = $_SERVER['DOCUMENT_ROOT'].$wgScriptPath.'wpi/tmp/PathwayCounts.data';
+                $filename = WPI_SCRIPT_PATH . '/tmp/PathwayCounts.data';
                 $file = @fopen($filename, 'r'); 
                 if ($file)
                 {

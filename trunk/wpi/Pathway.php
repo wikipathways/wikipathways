@@ -1,7 +1,6 @@
 <?php
 require_once('PathwayData.php');
 require_once('CategoryHandler.php');
-require_once('StatisticsCache.php');
 require_once('MetaDataCache.php');
 
 /**
@@ -574,7 +573,6 @@ class Pathway {
 		}
 		$pathway->updatePathway($gpmlData, $description);
 		$pathway = new Pathway($id);
-		StatisticsCache::updatePathwaysCache();
 		return $pathway;
 	}
 	
@@ -648,10 +646,6 @@ class Pathway {
 			$this->updateCategories();
 			//Update file cache
 			$this->updateCache();
-			
-			//Calculate number of unique genes for given species
-			// and update file with stored values
-			StatisticsCache::updateUniqueGenesCache ($this->getSpecies());
 		} else {
 			throw new Exception("Unable to save GPML, are you logged in?");
 		}
@@ -824,10 +818,6 @@ class Pathway {
 			$this->updateCategories();
 			//Update metadata cache
 			$this->invalidateMetaDataCache();
-			//Calculate number of unique genes for given species
-			// and update file with stored values
-			StatisticsCache::updateUniqueGenesCache($this->getSpecies());
-			StatisticsCache::updatePathwaysCache();
 			
 			//Clean up file cache
 			$this->clearCache(null, true);
