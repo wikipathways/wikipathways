@@ -13,11 +13,12 @@ function wfImageLink_Magic( &$magicWords, $langCode ) {
 }
 
 /** Modifies from pathwayThumb.php
- * Insert arbitrary images as thumbnail links to any SPECIAL, PATHWAY or MAIN page.
- * Parameters: image filename, display width, horizonal alignment, caption, namespace (special, pathway or main (default)), page title (stable id for pathways, e.g., WP274), tooltip.
+ * Insert arbitrary images as thumbnail links to any SPECIAL, PATHWAY, HELP or MAIN page, or external link.
+ * Parameters: image filename, display width, horizonal alignment, caption, namespace (special, pathway, main (default), or external), page title (stable id for pathways, e.g., WP274), tooltip.
  * Usage: Special page example: {{#imgLink:Wishlist_thumb_200.jpg|200|center|Wish list page|special|SpecialWishList|Wish list}}
  *        Pathway page example: {{#imgLink:Sandbox_thumb_200.jpg|200|center|Sandbox page|pathway|WP274|Sandbox}}
  *        Main page example: {{#imgLink:Download_all_thumb_200.jpg|200|center|Download page||Download_Pathways|Download pathways}}
+ * 	  External link example: {{#imgLink:WikiPathwaysSearch2.png|200|center||Help|{{FULLPAGENAME}}/WikiPathwaysSearch|Search}}
  */
 function renderImageLink( &$parser, $img, $width = 200, $align = '', $caption = '', $namespace = '', $pagetitle = '', $tooltip = '', $id='imglink') {      
 	global $wgUser;
@@ -56,6 +57,12 @@ function renderImageLink( &$parser, $img, $width = 200, $align = '', $caption = 
 		case 'pathway':
 			$href = Title::newFromText($pagetitle, NS_PATHWAY)->getFullUrl();
 			break;
+                case 'help':
+                        $href = Title::newFromText($pagetitle, NS_HELP)->getFullUrl();
+                        break;
+                case 'external':
+                        $href = $pagetitle;
+                        break;
 		default:
 			$href = Title::newFromText($pagetitle, NS_MAIN)->getFullUrl();
 			break;
