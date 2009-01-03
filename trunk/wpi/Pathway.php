@@ -17,6 +17,8 @@ class Pathway {
 		'Caenorhabditis elegans' => 'Ce',
 		'Saccharomyces cerevisiae' => 'Sc',
 		'Danio rerio' => 'Dr',
+		'Arabidopsis thaliana' => 'At',
+		'Oryza japonica' => 'Oj',
 	);
 	private static $spCode2Name; //TODO: complete species
 	
