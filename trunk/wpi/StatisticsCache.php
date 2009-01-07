@@ -80,6 +80,7 @@ class StatisticsCache
 		$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
 		$all_pathways = Pathway::getAllPathways();
 		foreach (array_keys($all_pathways) as $pathway) {
+			if(!$all_pathways[$pathway]->isPublic()) continue; //Skip private pathways
 			$pathwaySpecies = $all_pathways[$pathway]->species();
 			if ($pathwaySpecies != $species) continue;
 			$page_id = $all_pathways[$pathway]->getPageIdDB();
@@ -135,6 +136,7 @@ class StatisticsCache
         	while ($row = $dbr->fetchRow($res)){
                 	$pathway = Pathway::newFromTitle($row["page_title"]);
 			if ($pathway->isDeleted()) continue; //skip deleted pathways
+			if(!$pathway->isPublic()) continue; //Skip private pathways
 			$page_id = $pathway->getPageIdDB();
 			if (in_array($page_id, $taggedIds)) continue; // skip Tutorial pathways
                 	$species = $pathway->getSpecies();

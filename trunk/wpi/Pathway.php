@@ -36,7 +36,7 @@ class Pathway {
 	private $firstRevision; //The first revision of the pathway article
 	private $revision; //The active revision for this instance
 	private $metaDataCache; //The MetaDataCache object that handles the cached title/species
-	private $permissionsMgr; //Manages permissions for private pathways
+	private $permissionMgr; //Manages permissions for private pathways
 	
 	/**
 	 * Constructor for this class.
@@ -167,6 +167,13 @@ class Pathway {
 		return $this->pwCategories;
 	}
 	
+	public function getPermissionManager() {
+		if(!$this->permissionMgr) {
+			$this->permissionMgr = new PermissionManager($this->getTitleObject()->getArticleId());
+		}
+		return $this->permissionMgr;
+	}
+	
 	/**
 	 * Make this pathway private for the given user. This 
 	 * will reset all existing permissions.
@@ -174,7 +181,7 @@ class Pathway {
 	public function makePrivate($user) {
 		$title = $this->getTitleObject();
 		if($title->userCan(PermissionManager::$ACTION_MANAGE)) {
-			$mgr = new PermissionManager($title->getArticleId());
+			$mgr = $this->getPermissionManager();
 			$pp = new PagePermissions($title->getArticleId());
 			$pp->addReadWrite($user->getId());
 			$pp->addManage($user->getId());
@@ -183,6 +190,14 @@ class Pathway {
 		} else {
 			throw new Exception("Current user is not allowed to manage permissions for " . $this->getIdentifier());
 		}
+	}
+	
+	/**
+	 * Find out if this pathway is public (no additional permissions set).
+	 */
+	public function isPublic() {
+		$mgr = $this->getPermissionManager();
+		return $mgr->getPermissions() ? false : true;
 	}
 	
 	/**
