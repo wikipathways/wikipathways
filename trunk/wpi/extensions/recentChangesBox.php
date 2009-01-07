@@ -71,8 +71,7 @@ class RecentChangesBox {
 		$dbr =& wfGetDB( DB_SLAVE );
 		
 		$res = $dbr->query(
-			"SELECT DISTINCT (rc_title), rc_timestamp, rc_user, rc_comment,
-			rc_new
+			"SELECT DISTINCT (rc_title)
 			FROM recentchanges
 			WHERE rc_namespace = {$this->namespace}
 			ORDER BY rc_timestamp DESC
@@ -81,11 +80,20 @@ class RecentChangesBox {
 		
 		$this->rows = array();
 		while($row = $dbr->fetchObject( $res )) {
-			$date = $wgLang->date($row->rc_timestamp, true);
-			if($date == $wgLang->date(wfTimestamp(TS_MW))) {
-				$date = 'Today';
+			$title_res = $dbr->query(
+				"SELECT rc_title, rc_timestamp, rc_user, rc_comment, rc_new
+				FROM recentchanges
+				WHERE rc_title = '{$row->rc_title}' AND rc_namespace = {$this->namespace}
+				"
+			);
+			if($title_row = $dbr->fetchObject($title_res)) {
+				$date = $wgLang->date($title_row->rc_timestamp, true);
+				if($date == $wgLang->date(wfTimestamp(TS_MW))) {
+					$date = 'Today';
+				}
+				$this->rows[$date] .= $this->formatRow($title_row);
+				$dbr->freeResult($title_res);
 			}
-			$this->rows[$date] .= $this->formatRow($row);
 		}
 		$dbr->freeResult( $res );
 	}
