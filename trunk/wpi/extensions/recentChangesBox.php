@@ -71,9 +71,10 @@ class RecentChangesBox {
 		$dbr =& wfGetDB( DB_SLAVE );
 		
 		$res = $dbr->query(
-			"SELECT DISTINCT (rc_title)
+			"SELECT rc_title, max(rc_timestamp) as rc_timestamp
 			FROM recentchanges
 			WHERE rc_namespace = {$this->namespace}
+			GROUP BY rc_title
 			ORDER BY rc_timestamp DESC
 			LIMIT 0 , {$this->limit}"
 		);
@@ -83,7 +84,8 @@ class RecentChangesBox {
 			$title_res = $dbr->query(
 				"SELECT rc_title, rc_timestamp, rc_user, rc_comment, rc_new
 				FROM recentchanges
-				WHERE rc_title = '{$row->rc_title}' AND rc_namespace = {$this->namespace}
+				WHERE rc_title = '{$row->rc_title}' AND rc_namespace = {$this->namespace} 
+				AND rc_timestamp = '{$row->rc_timestamp}'
 				"
 			);
 			if($title_row = $dbr->fetchObject($title_res)) {
