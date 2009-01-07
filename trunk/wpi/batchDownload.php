@@ -110,6 +110,15 @@ function batchDownload($species, $fileType, $listPage = '', $onlyCategorized = f
 		}
 		$pathways = $filtered;
 	}
+	//Filter for private pathways
+	$filtered = array();
+	foreach($pathways as $p) {
+		if($p->isReadable()) {
+			$filtered[] = $p;
+		}
+	}
+	$pathways = $filtered;
+	
 	doDownload($pathways, $fileType); //Exits script
 }
 

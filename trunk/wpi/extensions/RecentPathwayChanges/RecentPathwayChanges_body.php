@@ -137,7 +137,8 @@ class RecentQueryPage extends QueryPage {
 		$comment = ($result->rc_comment ? $result->rc_comment : "no comment");
 		$titleName = $result->title;
 		try {
-                	$pathway = Pathway::newFromTitle($result->title);
+                $pathway = Pathway::newFromTitle($result->title);
+                if(!$pathway->isReadable()) return null; //Skip private pathways
 			$titleName = $pathway->getSpecies().":".$pathway->getName();
 		} catch(Exception $e) {}
                 $title = Title::makeTitle( $result->namespace, $titleName );

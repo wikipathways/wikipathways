@@ -43,6 +43,7 @@ class PathwayQueryPage extends QueryPage {
 	
 	function __construct($namespace) {
 		$this->namespace = $namespace;
+		$this->taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
 	}
 	
 	function getName() {
@@ -75,13 +76,15 @@ class PathwayQueryPage extends QueryPage {
 			";
 	}
 
+	private $taggedIds;
+	
 	function formatResult( $skin, $result ) {
 		global $wgLang, $wgContLang;
-		$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
-		if (in_array($result->id, $taggedIds)){ 
+		if (in_array($result->id, $this->taggedIds)){ 
 			return null;
 		}
                 $pathway = Pathway::newFromTitle($result->title);
+                if(!$pathway->isReadable()) return null; //Skip private pathways
                 $title = Title::makeTitle( $result->namespace, $pathway->getSpecies().":".$pathway->getName() );
                 $id = Title::makeTitle( $result->namespace, $result->title );
 		$text = $wgContLang->convert("$result->value revisions");
