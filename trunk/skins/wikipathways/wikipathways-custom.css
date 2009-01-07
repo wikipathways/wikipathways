@@ -2,6 +2,12 @@
 ** Custom CSS code for the WikiPathways skin (additional to the MonoBook based main.css
 */
 
+.private_warn {
+	background-color: #FFEEEE;
+	border: 1px solid #B22222;
+	padding: 5px;
+}
+
 .helphint {
         margin-left:1em;
         margin-right:1em;

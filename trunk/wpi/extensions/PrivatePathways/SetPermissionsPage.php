@@ -65,8 +65,10 @@ class SetPermissionsPage {
 					$this->warn("You can't remove yourself from the list of allowed users.");
 					$newPerm->addReadWrite($wgUser->getId());
 					$newPerm->addManage($wgUser->getId());
-					$newPerm = PermissionManager::resetExpires($newPerm);
 				}
+				
+				//Update expiration date
+				$newPerm = PermissionManager::resetExpires($newPerm);
 			} else {
 				$newPerm = '';
 			}
@@ -131,7 +133,14 @@ class SetPermissionsPage {
 		} else {
 			$pub_check = 'CHECKED';
 			$pri_vis = 'style="display:none;"';
-			$users = $wgUser->getName();
+			$users[$wgUser->getName()] = $wgUser->getName();
+			foreach(PermissionManager::getAuthors($this->title->getArticleId()) as $author) {
+				$u = User::newFromId($author);
+				if(!$u->isBot() && !$u->isAnon()) {
+					$users[$u->getName()] = $u->getName();
+				}
+			}
+			$users = implode("\n", $users);
 		}
 		
 		$url = $this->title->getLocalUrl( 'action=' . PermissionManager::$ACTION_MANAGE );

@@ -2,6 +2,7 @@
 
 $wgHooks['ParserBeforeStrip'][] = array('renderPathwayPage'); 	
 $wgHooks['BeforePageDisplay'][] = array('addPreloaderScript');
+
 function renderPathwayPage(&$parser, &$text, &$strip_state) {
 	global $wgUser;
 	
@@ -55,14 +56,25 @@ function addPreloaderScript($out) {
 class PathwayPage {
 	private $pathway;
 	private $data;
+	static $msgLoaded = false;
 	
 	function __construct($pathway) {
 		$this->pathway = $pathway;
 		$this->data = $pathway->getPathwayData();
+		
+		global $wgMessageCache;
+		if(!self::$msgLoaded) {
+			$wgMessageCache->addMessages( array(
+				'private_warning' => '{{SERVER}}{{SCRIPTPATH}}/skins/common/images/lock.png This pathway will not be visible to other users until $DATE. ' .
+				'To make it publicly available before that time, <span class="plainlinks">[{{fullurl:{{FULLPAGENAMEE}}|action=manage_permissions}} change the permissions]</span>.'
+			), 'en' );
+			self::$msgLoaded = true;
+		}
 	}
 
 	function getContent() {	
 		$text = <<<TEXT
+{$this->privateWarning()}
 {{Template:PathwayPage:Top}}
 {$this->curationTags()}
 {$this->descriptionText()}
@@ -71,6 +83,23 @@ class PathwayPage {
 {{Template:PathwayPage:Bottom}}
 TEXT;
 		return $text;
+	}
+	
+	function privateWarning() {
+		global $wgScriptPath, $wgLang;
+		
+		$warn = '';
+		if(!$this->pathway->isPublic()) {
+			$url = SITE_URL;
+			$msg = wfMsg('private_warning');
+			
+			$pp = $this->pathway->getPermissionManager()->getPermissions();
+			$expdate = $pp->getExpires();
+			$expdate = $wgLang->date($expdate, true);
+			$msg = str_replace('$DATE', $expdate, $msg);
+			$warn = "<div class='private_warn'>$msg</div>";
+		}
+		return $warn;
 	}
 	
 	function curationTags() {
