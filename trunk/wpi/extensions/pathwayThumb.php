@@ -98,6 +98,8 @@ function createEditCaption($pathway) {
             global $wgStylePath, $wgContLang;
 
             $img = new Image($pathway->getFileTitle(FILETYPE_IMG));
+            $img->loadFromFile();
+            
             $imgURL = $img->getURL();
 
             $thumbUrl = '';

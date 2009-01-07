@@ -24,6 +24,7 @@ function wfImageSize_Magic( &$magicWords, $langCode ) {
 function getSize( &$parser, $image, $maxWidth ) {
 	try {
 		$img = new Image(Title::newFromText($image));
+		$img->loadFromFile();
 		$w = $img->getWidth();
 		if($w > $maxWidth) $w = $maxWidth;
 		return $w . 'px';

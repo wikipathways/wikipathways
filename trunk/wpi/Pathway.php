@@ -852,7 +852,7 @@ class Pathway {
 			$this->invalidateMetaDataCache();
 			
 			//Clean up file cache
-			$this->clearCache(null, true);
+			$this->clearCache(null);
 		} else {
 			throw new Exception("Unable to mark pathway deleted, are you logged in?");
 		}
@@ -929,16 +929,12 @@ class Pathway {
 	 * Clear all cached files
 	 * \param fileType The file type to remove the cache for (one of FILETYPE_* constants)
 	 * or null to remove all files
-	 * \param forceImagePage If true, the MediaWiki image article for this pathway will
-	 * also be removed
 	 */
-	public function clearCache($fileType = null, $forceImagePage=false) {
-		if($forceImagePage) { //Only delete the image file when explicitly asked for!
-			$this->deleteImagePage("Clearing cache");
-		}
+	public function clearCache($fileType = null) {
 		if(!$fileType) { //Update all
 			$this->clearCache(FILETYPE_PNG);
 			$this->clearCache(FILETYPE_GPML);
+			$this->clearCache(FILETYPE_IMG);
 		} else {
 			$file = $this->getFileLocation($fileType, false);
 			if(file_exists($file)) {
@@ -951,15 +947,6 @@ class Pathway {
 	private function isOutOfDate($fileType) {		
 		wfDebug("isOutOfDate for $fileType\n");
 
-		//Special treatment for svg, check if image page exists
-		if($fileType == FILETYPE_IMG) {
-			$imgTitle = $this->getFileTitle(FILETYPE_IMG);
-			$article = new Article($imgTitle);
-			//Return false if image isn't uploaded,
-			//Else continue with file date check
-			if(!$article->exists()) return true;	
-		}
-			
 		$gpmlTitle = $this->getTitleObject();
 		$gpmlRev = Revision::newFromTitle($gpmlTitle);
 		if($gpmlRev) {
@@ -1042,11 +1029,9 @@ class Pathway {
 		$imgName = $this->getFileName(FILETYPE_IMG);
 		# Convert gpml to svg
 		$gpmlFile = realpath($gpmlFile);
-		$imgFile = WPI_TMP_PATH . "/" . $imgName;
+		$imgFile = $this->getFileLocation(FILETYPE_IMG, false);
 		
 		self::convert($gpmlFile, $imgFile);
-		# Upload svg file to wiki
-		return Pathway::saveFileToWiki($imgFile, $imgName, $description);
 	}
 	
 	private function saveGpmlCache() {
@@ -1084,190 +1069,6 @@ class Pathway {
 		$ex = file_exists($output);
 		wfDebug("PNG CACHE SAVED: $output, $ex;\n");
 	}
-	
-	## Based on SpecialUploadForm.php
-	## Assumes $saveName is already checked to be a valid Title
-	//TODO: run hooks
-	static function saveFileToWiki( $fileName, $saveName, $description ) {
-		global $wgUser, $wgParser;
-		
-		wfDebug("========= UPLOADING FILE FOR WIKIPATHWAYS ==========\n");
-		wfDebug("=== IN: $fileName\n=== OUT: $saveName\n");
-
-		$oldTitle = $wgParser->mTitle;
-		
-		# Check blocks
-		if( $wgUser->isBlocked() ) {
-			throw new Exception( "User is blocked" );
-		}
-
-		if( wfReadOnly() ) {
-			throw new Exception( "Page is read-only" );
-		}
-		
-		$localFile = wfLocalFile($saveName);
-		$localFile->upload($fileName, $description, "");
-		//Dirty hack: set wgParser title back to original after uploading image,
-		//because mediawiki sets it to the image page
-		$wgParser->mTitle = $oldTitle;
-	}
-	
-	/**
-	 * Record an image upload in the upload log and the image table
-	 * MODIFIED FROM Image.php
-	 * Because the original method redirected to the image page
-	 */
-	function recordUpload( $img, $oldver, $desc, $license = '', $copyStatus = '', $source = '', $watch = false ) {
-		global $wgUser, $wgUseCopyrightUpload;
-
-		$dbw =& wfGetDB( DB_MASTER );
-
-		$img->checkDBSchema($dbw);
-
-		// Delete thumbnails and refresh the metadata cache
-		$img->purgeCache();
-
-		// Fail now if the image isn't there
-		if ( !$img->fileExists || $img->fromSharedDirectory ) {
-			wfDebug( "Image::recordUpload: File ".$img->imagePath." went missing!\n" );
-			return false;
-		}
-
-		if ( $wgUseCopyrightUpload ) {
-			if ( $license != '' ) {
-				$licensetxt = '== ' . wfMsgForContent( 'license' ) . " ==\n" . '{{' . $license . '}}' . "\n";
-			}
-			$textdesc = '== ' . wfMsg ( 'filedesc' ) . " ==\n" . $desc . "\n" .
-			  '== ' . wfMsgForContent ( 'filestatus' ) . " ==\n" . $copyStatus . "\n" .
-			  "$licensetxt" .
-			  '== ' . wfMsgForContent ( 'filesource' ) . " ==\n" . $source ;
-		} else {
-			if ( $license != '' ) {
-				$filedesc = $desc == '' ? '' : '== ' . wfMsg ( 'filedesc' ) . " ==\n" . $desc . "\n";
-				 $textdesc = $filedesc .
-					 '== ' . wfMsgForContent ( 'license' ) . " ==\n" . '{{' . $license . '}}' . "\n";
-			} else {
-				$textdesc = $desc;
-			}
-		}
-
-		$now = $dbw->timestamp();
-
-		#split mime type
-		if (strpos($img->mime,'/')!==false) {
-			list($major,$minor)= explode('/',$img->mime,2);
-		}
-		else {
-			$major= $img->mime;
-			$minor= "unknown";
-		}
-
-		# Test to see if the row exists using INSERT IGNORE
-		# This avoids race conditions by locking the row until the commit, and also
-		# doesn't deadlock. SELECT FOR UPDATE causes a deadlock for every race condition.
-		$dbw->insert( 'image',
-			array(
-				'img_name' => $img->name,
-				'img_size'=> $img->size,
-				'img_width' => intval( $img->width ),
-				'img_height' => intval( $img->height ),
-				'img_bits' => $img->bits,
-				'img_media_type' => $img->type,
-				'img_major_mime' => $major,
-				'img_minor_mime' => $minor,
-				'img_timestamp' => $now,
-				'img_description' => $desc,
-				'img_user' => $wgUser->getID(),
-				'img_user_text' => $wgUser->getName(),
-				'img_metadata' => $img->metadata,
-			),
-			__METHOD__,
-			'IGNORE'
-		);
-
-		if( $dbw->affectedRows() == 0 ) {
-			# Collision, this is an update of an image
-			# Insert previous contents into oldimage
-			$dbw->insertSelect( 'oldimage', 'image',
-				array(
-					'oi_name' => 'img_name',
-					'oi_archive_name' => $dbw->addQuotes( $oldver ),
-					'oi_size' => 'img_size',
-					'oi_width' => 'img_width',
-					'oi_height' => 'img_height',
-					'oi_bits' => 'img_bits',
-					'oi_timestamp' => 'img_timestamp',
-					'oi_description' => 'img_description',
-					'oi_user' => 'img_user',
-					'oi_user_text' => 'img_user_text',
-				), array( 'img_name' => $img->name ), __METHOD__
-			);
-
-			# Update the current image row
-			$dbw->update( 'image',
-				array( /* SET */
-					'img_size' => $img->size,
-					'img_width' => intval( $img->width ),
-					'img_height' => intval( $img->height ),
-					'img_bits' => $img->bits,
-					'img_media_type' => $img->type,
-					'img_major_mime' => $major,
-					'img_minor_mime' => $minor,
-					'img_timestamp' => $now,
-					'img_description' => $desc,
-					'img_user' => $wgUser->getID(),
-					'img_user_text' => $wgUser->getName(),
-					'img_metadata' => $img->metadata,
-				), array( /* WHERE */
-					'img_name' => $img->name
-				), __METHOD__
-			);
-		} else {
-			# This is a new image
-			# Update the image count
-			$site_stats = $dbw->tableName( 'site_stats' );
-			$dbw->query( "UPDATE $site_stats SET ss_images=ss_images+1", __METHOD__ );
-		}
-
-		$descTitle = $img->getTitle();
-		$article = new Article( $descTitle );
-		$minor = false;
-		$watch = $watch || $wgUser->isWatched( $descTitle );
-		$suppressRC = true; // There's already a log entry, so don't double the RC load
-
-		if( $descTitle->exists() ) {
-			// TODO: insert a null revision into the page history for this update.
-			if( $watch ) {
-				$wgUser->addWatch( $descTitle );
-			}
-
-			# Invalidate the cache for the description page
-			$descTitle->invalidateCache();
-			$descTitle->purgeSquid();
-		} else {
-			// New image; create the description page.
-			//CHANGED: don't use insertNewArticle, this redirects
-			//Use $article->doEdit
-			//$article->insertNewArticle( $textdesc, $desc, $minor, $watch, $suppressRC );
-			$flags = EDIT_NEW | EDIT_FORCE_BOT;
-			$article->doEdit( $textdesc, $desc, $flags );
-		}
-
-		# Add the log entry
-		$log = new LogPage( 'upload' );
-		$log->addEntry( 'upload', $descTitle, $desc );
-
-		# Commit the transaction now, in case something goes wrong later
-		# The most important thing is that images don't get lost, especially archives
-		$dbw->immediateCommit();
-
-		# Invalidate cache for all pages using this image
-		$update = new HTMLCacheUpdate( $img->getTitle(), 'imagelinks' );
-		$update->doUpdate();
-
-		return true;
-	}
-	
 }
 
 ?>
