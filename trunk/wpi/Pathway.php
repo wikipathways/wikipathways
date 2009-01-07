@@ -34,7 +34,7 @@ class Pathway {
 	private $pwData; //The PathwayData for this pathway
 	private $pwCategories; //The CategoryHandler for this pathway
 	private $firstRevision; //The first revision of the pathway article
-	private $revision; //The active revision for this instance (0 = current by default)
+	private $revision; //The active revision for this instance
 	private $metaDataCache; //The MetaDataCache object that handles the cached title/species
 	private $permissionsMgr; //Manages permissions for private pathways
 	
@@ -49,7 +49,7 @@ class Pathway {
 
 		$this->pwPageTitle = Title::newFromText($id, NS_PATHWAY);
 		$this->id = $this->pwPageTitle->getDbKey();
-		
+		$this->revision = $this->getLatestRevision();
 		if($updateCache) $this->updateCache();
 	}
 	
@@ -111,8 +111,7 @@ class Pathway {
 	/**
 	 * Get the active revision in the modification
 	 * history for this instance. The active revision
-	 * is '0' by default, pointing to the most recent
-	 * revision.
+	 * is the latest revision by default.
 	 * \see Pathway::setActiveRevision(revision)
 	 */
 	public function getActiveRevision() {
