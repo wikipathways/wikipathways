@@ -138,7 +138,10 @@ $wgGroupPermissions['user']['edit'] = true;
 $wgGroupPermissions['user']['createtalk'] = true;
 
 $wgGroupPermissions['*'    ]['createaccount']   = true;
-$wgGroupPermissions['*'    ]['read']            = true;
+
+//Disable read for all users, this will be handled by the private pathways extension
+//$wgGroupPermissions['*'    ]['read']            = true;
+
 $wgGroupPermissions['*'    ]['edit']            = false;
 $wgGroupPermissions['*'    ]['createpage']      = false;
 $wgGroupPermissions['*'    ]['createtalk']      = false;
@@ -298,7 +301,7 @@ require_once('wpi/extensions/ShowError/ShowError.php');
 require_once('wpi/extensions/pathwayParserFunctions.php');
 require_once('extensions/UserMerge/UserMerge.php');
 require_once('extensions/parseViewRedirect.php');
-
+require_once('wpi/extensions/PrivatePathways/PrivatePathways.php' );
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!
 // Sign up for keys at http://recaptcha.net/api/getKey
