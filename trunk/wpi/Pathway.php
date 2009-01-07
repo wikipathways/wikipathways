@@ -8,6 +8,7 @@ Class that represents a Pathway on WikiPathways
 **/
 class Pathway {
 	public static $ID_PREFIX = 'WP';
+	public static $DELETE_PREFIX = "Deleted pathway: ";
 	
 	private static $spName2Code = array(
 		'Homo sapiens' => 'Hs', 
@@ -876,7 +877,7 @@ class Pathway {
 		global $wpiDisableValidation; //Temporarily disable GPML validation hook
 		$wpiDisableValidation = true;
 		
-		$succ =  $article->doEdit("{{deleted|$reason}}", "Deleted pathway: " . $reason);
+		$succ =  $article->doEdit("{{deleted|$reason}}", self::$DELETE_PREFIX . $reason);
 		if($succ) {
 			//Remove from categories
 			$this->updateCategories();
