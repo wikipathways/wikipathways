@@ -33,6 +33,7 @@ class SetPermissionsPage {
 			if($vis == 'private') {
 				$users = $_REQUEST['users'];
 				$users = $users ? explode("\n", $users) : array();
+				$userIds = array();
 				foreach($users as $un) {
 					$u = User::newFromName(trim($un));
 					if(!$u || $u->isAnon()) {
@@ -40,14 +41,32 @@ class SetPermissionsPage {
 						continue; //Skip invalid users
 					}
 					$id = $u->getId();
+					$userIds[] = $id;
 					$newPerm->addReadWrite($id);
 					$newPerm->addManage($id);
 				}
-				//TODO: Authors can always access the pathway
+				//Authors can always access the pathway
+				$authors = PermissionManager::getAuthors($this->title->getArticleId());
+				foreach($authors as $author) {
+					if(!in_array($author, $userIds)) {
+						//Author is not in the allowed user list
+						$authorUser = User::newFromId($author);
+						if($authorUser->isBot() || $authorUser->isAnon()) continue;
+						
+						$name = $authorUser->getName();
+						$this->warn("You can't remove author {$name} from list of allowed users.");
+						$newPerm->addReadWrite($author);
+						$newPerm->addManage($author);
+					}
+				}
 				
-				$newPerm->addReadWrite($wgUser->getId());
-				$newPerm->addManage($wgUser->getId());
-				$newPerm = PermissionManager::resetExpires($newPerm);
+				//Prevent users from locking themselves out
+				if(!in_array($wgUser->getId(), $userIds)) {
+					$this->warn("You can't remove yourself from the list of allowed users.");
+					$newPerm->addReadWrite($wgUser->getId());
+					$newPerm->addManage($wgUser->getId());
+					$newPerm = PermissionManager::resetExpires($newPerm);
+				}
 			} else {
 				$newPerm = '';
 			}
