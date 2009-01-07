@@ -126,8 +126,8 @@ class PermissionManager {
 	 * Find out if the given user is the only author of the page
 	 */
 	static function isOnlyAuthor($userId, $pageId) {
-		foreach(self::getAuthors($pageId) as $userId) {
-			if($userId != $row->rev_user) {
+		foreach(self::getAuthors($pageId) as $author) {
+			if($userId != $author) {
 				return false;
 			}
 		}
