@@ -8,6 +8,9 @@ try {
 }
 chdir($dir);
 
+//Prevent errors/warnings from messing up the xml response
+ini_set("display_errors", "0");
+
 $operations = array(
 	"listOrganisms",
 	"listPathways", 
