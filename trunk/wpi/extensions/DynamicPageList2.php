@@ -2857,6 +2857,9 @@ class ExtDynamicPageList2
             	}
            	
 		$pathway = Pathway::newFromTitle($pageTitle);
+		if(!$pathway->isReadable()) {
+			continue; //Skip private pathways
+		}
             	$title = $pathway->getSpecies().":".$pathway->getName();
                 $pick = 'Human';
                 if (isset($_GET["browse"])){

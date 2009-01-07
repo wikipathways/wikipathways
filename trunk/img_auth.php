@@ -42,16 +42,27 @@ if( preg_match( '!\d+px-(.*)!i', $name, $m ) )
 	$name = $m[1];
 wfDebugLog( 'img_auth', "\$name is {$name}" );
 
+//Check for pathway cache
+$id = Pathway::parseIdentifier($name);
+if($id) {
+	//Check pathway permissions
+	$pwTitle = Title::newFromText($id, NS_PATHWAY);
+	if(!$pwTitle->userCan('read')) {
+		wfDebugLog( 'img_auth', "User not permitted to view pathway $id" );
+		wfForbidden();
+	}
+}
+
 $title = Title::makeTitleSafe( NS_IMAGE, $name );
+
 if( !$title instanceof Title ) {
 	wfDebugLog( 'img_auth', "Unable to construct a valid Title from `{$name}`" );
 	wfForbidden();
 }
-$title = $title->getPrefixedText();
 
-// Check the whitelist if needed
-if( !$wgUser->getId() && ( !is_array( $wgWhitelistRead ) || !in_array( $title, $wgWhitelistRead ) ) ) {
-	wfDebugLog( 'img_auth', "Not logged in and `{$title}` not in whitelist." );
+//Check read permissions
+if(!$title->userCan('read')) {
+	wfDebugLog( 'img_auth', "User not permitted to view page {$title->getFullText()}" );
 	wfForbidden();
 }
 

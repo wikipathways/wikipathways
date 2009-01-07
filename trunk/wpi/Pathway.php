@@ -36,6 +36,7 @@ class Pathway {
 	private $firstRevision; //The first revision of the pathway article
 	private $revision; //The active revision for this instance (0 = current by default)
 	private $metaDataCache; //The MetaDataCache object that handles the cached title/species
+	private $permissionsMgr; //Manages permissions for private pathways
 	
 	/**
 	 * Constructor for this class.
@@ -88,6 +89,23 @@ class Pathway {
 		}
 		
 		return self::newFromTitle("$species:$name", $checkCache);
+	}
+	
+	/**
+	 * Parse the pathway identifier from the given string or title object.
+	 * @returns the identifier, of false if no identifier could be found.
+	 */
+	public static function parseIdentifier($title) {
+		if($title instanceof Title) {
+			$title = $title->getText();
+		}
+		
+		$match = array();
+		$exists = preg_match("/" . self::$ID_PREFIX . "\d+/", $title, $match);
+		if(!$exists) {
+			return false;
+		}
+		return $match[0];
 	}
 	
 	/**
@@ -148,6 +166,24 @@ class Pathway {
 			$this->pwCategories = new CategoryHandler($this);
 		}
 		return $this->pwCategories;
+	}
+	
+	/**
+	 * Find out if the current user has permissions to view this pathway
+	 */
+	public function isReadable() {
+		return $this->getTitleObject()->userCan('read');
+	}
+	
+	/**
+	 * Utility function that throws an exception if the
+	 * current user doesn't have permissions to view the
+	 * pathway.
+	 */
+	private function checkReadable() {
+		if(!$this->isReadable()) {
+			throw new Exception("Current user doesn't have permissions to view this pathway");
+		}
 	}
 	
 	/**
@@ -215,19 +251,12 @@ class Pathway {
 	 or the MediaWiki Title object
 	*/
 	public function newFromTitle($title, $checkCache = false) {
-		if($title instanceof Title) {
-			$title = $title->getText();
-		}
-		
 		//Remove url and namespace from title
-		$match = array();
-		$exists = preg_match("/" . self::$ID_PREFIX . "\d+/", $title, $match);
-		if(!$exists) {
+		$id = self::parseIdentifier($title);
+		if(!$id) {
 			throw new Exception("Couldn't parse pathway identifier from title " . $title);
 		}
-		$title = $match[0];
-		
-		return new Pathway($title, $checkCache);
+		return new Pathway($id, $checkCache);
 	}
 	
 	/**
@@ -441,6 +470,7 @@ class Pathway {
 	 * used, see Pathway::getActiveRevision)
 	 */	 
 	public function getGpml() {
+		$this->checkReadable();
 		$gpmlTitle = $this->getTitleObject();
 		$gpmlRef = Revision::newFromTitle($gpmlTitle, $this->revision);
 		
