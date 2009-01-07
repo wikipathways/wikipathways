@@ -225,7 +225,7 @@ $wgGroupPermissions[ 'sysop' ][ 'ns107_delete'] = true;
 $wgGroupPermissions['usersnoop'   ]['usersnoop'] = true;
 $wgGroupPermissions['sysop'       ]['usersnoop'] = true;
 $wgGroupPermissions['bureaucrat'  ]['usersnoop'] = true;
-
+$wgGroupPermissions['sysop']['list_private_pathways'] = true;
 $wgGroupPermissions['webservice']['webservice_write'] = true;
 
 //AP20071027 
@@ -303,6 +303,7 @@ require_once('wpi/extensions/pathwayParserFunctions.php');
 require_once('extensions/UserMerge/UserMerge.php');
 require_once('extensions/parseViewRedirect.php');
 require_once('wpi/extensions/PrivatePathways/PrivatePathways.php' );
+require_once('wpi/extensions/PrivatePathways/ListPrivatePathways.php' );
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!
 // Sign up for keys at http://recaptcha.net/api/getKey

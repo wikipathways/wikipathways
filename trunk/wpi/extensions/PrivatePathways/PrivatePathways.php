@@ -186,6 +186,14 @@ class PagePermissions {
 		$this->pageId = $pageId;
 	}
 	
+	public function getPermissions() {
+		return $this->permissions;
+	}
+	
+	public function getPageId() {
+		return $this->pageId;
+	}
+	
 	/**
 	 * Find out if the user can perform the given
 	 * action based on the permissions in this object

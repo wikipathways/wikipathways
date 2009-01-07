@@ -68,6 +68,23 @@ class MetaTag {
 		}
 	}
 	
+	public static function getTags($tag_name) {
+		$tags = array();
+		
+		$dbr = wfGetDB( DB_SLAVE );
+		$res = $dbr->select(
+			self::$TAG_TABLE, 
+			array('page_id'),
+			array('tag_name' => $tag_name)
+		);
+		while($row = $dbr->fetchObject( $res )) {
+			$tags[] = new MetaTag($tag_name, $row->page_id);
+		}
+		
+		$dbr->freeResult( $res );
+		return $tags;
+	}
+	
 	/**
 	 * Get all tags for the given page
 	 * @param $pageId The page id
