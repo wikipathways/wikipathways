@@ -126,16 +126,39 @@ class PermissionManager {
 	 * Find out if the given user is the only author of the page
 	 */
 	static function isOnlyAuthor($userId, $pageId) {
-		$dbr = wfGetDB( DB_SLAVE );
-		$query = "SELECT DISTINCT(rev_user) FROM revision WHERE " .
-			"rev_page = {$pageId}";
-		$res = $dbr->query($query);
-		while($row = $dbr->fetchObject( $res )) {
+		foreach(self::getAuthors($pageId) as $userId) {
 			if($userId != $row->rev_user) {
 				return false;
 			}
 		}
 		return true;
+	}
+	
+	static function getAuthors($pageId) {
+		$users = array();
+		$dbr = wfGetDB( DB_SLAVE );
+		$query = "SELECT DISTINCT(rev_user) FROM revision WHERE " .
+			"rev_page = {$pageId}";
+		$res = $dbr->query($query);
+		while($row = $dbr->fetchObject( $res )) {
+			$users[] = $row->rev_user;
+		}
+		return $users;
+	}
+	
+	/**
+	 * Reset the expiration date of the given permissions
+	 * to $ppExpiresAfter days from now
+	 */
+	public static function resetExpires(&$perm) {
+		global $ppExpiresAfter;
+		if(!$ppExpiresAfter) {
+			$ppExpiresAfter = 31; //Expire after 31 days by default
+		}
+		$expires = mktime(0, 0, 0, date("m") , date("d") + $ppExpiresAfter, date("Y"));
+		$expires = wfTimestamp( TS_MW, $expires);
+		$perm->setExpires($expires);
+		return $perm;
 	}
 	
 	/**

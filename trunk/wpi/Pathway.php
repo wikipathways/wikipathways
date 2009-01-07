@@ -168,6 +168,24 @@ class Pathway {
 	}
 	
 	/**
+	 * Make this pathway private for the given user. This 
+	 * will reset all existing permissions.
+	 */
+	public function makePrivate($user) {
+		$title = $this->getTitleObject();
+		if($title->userCan(PermissionManager::$ACTION_MANAGE)) {
+			$mgr = new PermissionManager($title->getArticleId());
+			$pp = new PagePermissions($title->getArticleId());
+			$pp->addReadWrite($user->getId());
+			$pp->addManage($user->getId());
+			$pp = PermissionManager::resetExpires($pp);
+			$mgr->setPermissions($pp);
+		} else {
+			throw new Exception("Current user is not allowed to manage permissions for " . $this->getIdentifier());
+		}
+	}
+	
+	/**
 	 * Find out if the current user has permissions to view this pathway
 	 */
 	public function isReadable() {

@@ -43,10 +43,11 @@ class SetPermissionsPage {
 					$newPerm->addReadWrite($id);
 					$newPerm->addManage($id);
 				}
-				//Prevent users from locking themselves out
+				//TODO: Authors can always access the pathway
+				
 				$newPerm->addReadWrite($wgUser->getId());
 				$newPerm->addManage($wgUser->getId());
-				$this->resetExpires($newPerm);
+				$newPerm = PermissionManager::resetExpires($newPerm);
 			} else {
 				$newPerm = '';
 			}
@@ -58,17 +59,6 @@ class SetPermissionsPage {
 	
 	function warn($msg) {
 		$this->warnings[] = $msg;
-	}
-	
-	function resetExpires(&$perm) {
-		global $ppExpiresAfter;
-		if(!$ppExpiresAfter) {
-			$ppExpiresAfter = 31; //Expire after 31 days by default
-		}
-		$expires = mktime(0, 0, 0, date("m") , date("d") + $ppExpiresAfter, date("Y"));
-		$expires = wfTimestamp( TS_MW, $expires);
-		$perm->setExpires($expires);
-		return $perm;
 	}
 	
 	function apply($perm) {

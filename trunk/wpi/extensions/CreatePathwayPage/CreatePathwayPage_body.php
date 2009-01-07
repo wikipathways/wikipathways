@@ -28,6 +28,7 @@ class CreatePathwayPage extends SpecialPage
 		$pwName = $_GET['pwName'];
 		$pwSpecies = $_GET['pwSpecies'];
 		$override = $_GET['override'];
+		$private = $_GET['private'];
 		
 		if($_GET['create'] == '1') { //Submit button pressed
 			//Check for pathways with the same name and species
@@ -47,15 +48,15 @@ class CreatePathwayPage extends SpecialPage
 				$wgOut->addWikiText("'''You may consider editing the existing pathway instead of creating a new one.'''\n");
 				$wgOut->addWikiText("'''If you still want to create a new pathway, please use a unique name.'''\n");
 				$wgOut->addWikiText("----\n");
-				$this->showForm($pwName, $pwSpecies, true);
+				$this->showForm($pwName, $pwSpecies, true, $private);
 			} else {
-				$this->startEditor($pwName, $pwSpecies);
+				$this->startEditor($pwName, $pwSpecies, $private);
 			}
 		} else {
 			$this->showForm();
 		}	}
 
-	function startEditor($pwName, $pwSpecies) {
+	function startEditor($pwName, $pwSpecies, $private) {
 		global $wgRequest, $wgOut, $wpiScriptURL;		
 		$backlink = '<a href="javascript:history.back(-1)">Back</a>';
 		if(!$pwName) {
@@ -69,14 +70,15 @@ class CreatePathwayPage extends SpecialPage
 		try {
 			$wgOut->addHTML("<div id='applet'></div>");
 			$pwTitle = "$pwName:$pwSpecies";
-			$wgOut->addWikiText("{{#editApplet:direct|applet|true|$pwTitle}}");
+			$new = $private ? 'private' : 'true';
+			$wgOut->addWikiText("{{#editApplet:direct|applet|$new|$pwTitle}}");
 		} catch(Exception $e) {
 			$wgOut->addHTML("<B>Error:</B><P>{$e->getMessage()}</P><BR>$backlink</BR>");
 			return;
 		}
 	}
 
-	function showForm($pwName = '', $pwSpecies = '', $override = '') {
+	function showForm($pwName = '', $pwSpecies = '', $override = '', $private = '') {
 		global $wgRequest, $wgOut, $wpiScriptURL;
 		$html = tag('p', 'To create a new pathway on WikiPathways, specify the pathway name and species 
 				and then click "create pathway" to start the pathway editor.<br>'
@@ -98,6 +100,8 @@ class CreatePathwayPage extends SpecialPage
 		if($override) {
 			$html .= "<input type='hidden' name='override' value='1'>";
 		}
+		if($private) $private = 'CHECKED';
+		$html .= "<tr><td colspan='2'><input type='checkbox' name='private' value='1' $private>" . wfMsg('create_private');
 		$html = tag('table', $html);
 		$html .= tag('input', "", array('type'=>'submit', 'value'=>'Create pathway'));
 		$html = tag('form', $html, array('action'=> SITE_URL . '/index.php', 'method'=>'get'));

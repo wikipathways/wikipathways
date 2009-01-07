@@ -24,10 +24,14 @@ function wfEditApplet_Magic( &$magicWords, $langCode ) {
  * to that will trigger the applet to start. If this argument equals 'direct', 
  * the applet will be activated directly.
  * @parameter $idReplace Id of the element that will be replaced by the applet
- * @parameter $new Whether the pathway is yet to be created (will be passed on to the applet)
+ * @parameter $new Whether the pathway is yet to be created (will be passed on to the applet) 
+ * and whether it should be private. Possible values:
+ * - '' or false: not a new pathway
+ * - 'private': a new pathway that should also be private
+ * - any other value: a new pathway that should be public
  * @parameter $pwTitle The title of the pathway to be edited (Species:Pathwayname)
 */
-function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $new = false, $pwTitle = '', $type = 'editor', $width = 0, $height = '500px' ) {
+function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $new = false, $pwTitle = '', $type = 'editor', $width = 0, $height = '500px') {
 	global $wgUser, $wgScriptPath, $loaderAdded, $scriptsAdded;
 	
 	//Check user rights
@@ -56,6 +60,10 @@ function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $n
 		$noresize = 'true';
 		break;
 		default: $main .= 'AppletMain';
+	}
+	
+	if($new == 'private') {
+		$param['private'] = "true";
 	}
 	
 	try {

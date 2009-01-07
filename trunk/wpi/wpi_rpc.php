@@ -52,8 +52,12 @@ $createPathway_sig=array(
 		$xmlrpcString, $xmlrpcBase64,
 	),
 	array(
+		$xmlrpcStruct, 
+		$xmlrpcString, $xmlrpcBase64, $xmlrpcBoolean,
+	),
+	array(
 		$xmlrpcStruct,
-		$xmlrpcString, $xmlrpcBase64, 
+		$xmlrpcString, $xmlrpcBase64, $xmlrpcBoolean,
 		$xmlrpcStruct
 	),
 );
@@ -74,6 +78,15 @@ $createPathway_docsig = array(
 		"'url', the url to the pathway page",
 		"Description of the modifications",
 		"The GPML data (base64 encoded)",
+		"Boolean indicated whether the pathway should be private or not",
+	),
+	array(
+		"A struct with the key/value pairs:" . 
+		"<BR>'id', the pathway id<BR>'revision', the newest revision number<BR>" .
+		"'url', the url to the pathway page",
+		"Description of the modifications",
+		"The GPML data (base64 encoded)",
+		"Boolean indicated whether the pathway should be private or not",
 		"The authentication data, a struct with the key/value pairs:" .
 		"<BR>'user', the username<BR>'token', the authentication token"
 	)
@@ -265,7 +278,7 @@ function updatePathway($id, $description, $gpmlData, $revision, $auth = NULL) {
 	return $resp;
 }
 
-function createPathway($description, $gpmlData, $auth = NULL) {
+function createPathway($description, $gpmlData, $private = false, $auth = NULL) {
 	global $xmlrpcerruser, $wgUser;
 	
 	//Authenticate first, if token is provided
@@ -281,11 +294,15 @@ function createPathway($description, $gpmlData, $auth = NULL) {
 	
 	try {
 		$pathway = Pathway::createNewPathway($gpmlData, $description);
+		$title = $pathway->getTitleObject();
 		$resp = array(
 			"id" => $pathway->getIdentifier(),
-			"url" => $pathway->getTitleObject()->getFullUrl(),
+			"url" => $title->getFullUrl(),
 			"revision" => $pathway->getLatestRevision()
 		);
+		if($private) {
+			$pathway->makePrivate($wgUser);
+		}
 	} catch(Exception $e) {
 		wfDebug("XML-RPC ERROR: $e");
 		$resp = new xmlrpcresp(0, $xmlrpcerruser, $e);
