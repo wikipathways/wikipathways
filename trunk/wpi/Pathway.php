@@ -322,7 +322,9 @@ class Pathway {
 		foreach($pages as $page_id) {
 			$pathway = Pathway::newFromTitle(Title::newFromId($page_id));
 			if(!$species || $pathway->getSpecies() == $species) {
-				$pathways[] = $pathway;
+				if(!$pathway->isDeleted()) { //Don't add deleted pathways
+					$pathways[] = $pathway;
+				}
 			}
 		}
 		return $pathways;
