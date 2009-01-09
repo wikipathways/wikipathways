@@ -225,7 +225,6 @@ function getPathwayAs($fileType, $pwId, $revision = 0) {
 		$p = new Pathway($pwId);
 		$p->setActiveRevision($revision);
 		$data = file_get_contents($p->getFileLocation($fileType));
-		$data = base64_encode($data);
 	} catch(Exception $e) {
 		throw new WSFault("Receiver", "Unable to get pathway: " . $e);
 	}
@@ -455,7 +454,6 @@ function getColoredPathway($pwId, $revision, $graphId, $color, $fileType) {
 			throw new Exception("Unable to convert to $outFile:\nStatus:$status\nMessage:$msg");
 		}
 		$data = file_get_contents($outFile);
-		$data = base64_encode($data);
 	} catch(Exception $e) {
 		throw new WSFault("Receiver", "Unable to get pathway: " . $e);
 	}
