@@ -70,17 +70,25 @@ class RecentChangesBox {
 		
 		$dbr =& wfGetDB( DB_SLAVE );
 		
+		//Query a couple more titles, in case
+		//the result contains titles that are
+		//not readable by the user
+		$query_limit = $this->limit + 5;
+		
 		$res = $dbr->query(
 			"SELECT rc_title, max(rc_timestamp) as rc_timestamp
 			FROM recentchanges
 			WHERE rc_namespace = {$this->namespace}
 			GROUP BY rc_title
 			ORDER BY rc_timestamp DESC
-			LIMIT 0 , {$this->limit}"
+			LIMIT 0 , {$query_limit}"
 		);
 		
 		$this->rows = array();
+		$i = 0;
 		while($row = $dbr->fetchObject( $res )) {
+			if($i >= $this->limit) break;
+			
 			$title_res = $dbr->query(
 				"SELECT rc_title, rc_timestamp, rc_user, rc_comment, rc_new
 				FROM recentchanges
@@ -93,7 +101,11 @@ class RecentChangesBox {
 				if($date == $wgLang->date(wfTimestamp(TS_MW))) {
 					$date = 'Today';
 				}
-				$this->rows[$date] .= $this->formatRow($title_row);
+				$fr = $this->formatRow($title_row);
+				if($fr) {
+					$this->rows[$date] .= $fr;
+					$i += 1;
+				}
 				$dbr->freeResult($title_res);
 			}
 		}
@@ -105,6 +117,9 @@ class RecentChangesBox {
 		$userUrl = Title::newFromText('User:' . $user->getTitleKey())->getFullUrl();
 
 		$title = Title::newFromText($row->rc_title, $this->namespace);
+		
+		if(!$title->userCan('read')) return ''; //Skip hidden titles
+		
 		$titleLink = $this->titleLink($title);
 		
 		if($row->rc_new) {

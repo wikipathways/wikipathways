@@ -260,6 +260,7 @@ class Pathway {
 			try {
 				$pathway = Pathway::newFromTitle($row[0]);
 				if($pathway->isDeleted()) continue; //Skip deleted pathways
+				if(!$pathway->getTitleObject()->userCan('read')) continue; //Skip hidden pathways
 				$allPathways[
 					$pathway->getIdentifier()] = $pathway;
 			} catch(Exception $e) {
