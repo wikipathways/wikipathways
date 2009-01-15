@@ -153,38 +153,7 @@ TEXT;
 	function bibliographyText() {
 		global $wgUser;
 		
-		$gpml = $this->data->getGpml();
-		
-		//Format literature references
-		$pubXRefs = $this->data->getPublicationXRefs();
-		foreach(array_keys($pubXRefs) as $id) {
-			$xref = $pubXRefs[$id];
-
-			$authors = $title = $source = $year = '';
-
-			//Format the citation ourselves
-			//Authors, title, source, year
-			foreach($xref->AUTHORS as $a) {
-				$authors .= "$a, ";
-			}
-
-			if($authors) $authors = substr($authors, 0, -2) . "; ";
-			if($xref->TITLE) $title = $xref->TITLE . "; ";
-			if($xref->SOURCE) $source = $xref->SOURCE;
-			if($xref->YEAR) $year = ", " . $xref->YEAR;
-			$out .= "# $authors''$title''$source$year";
-			
-			if((string)$xref->ID && (strtolower($xref->DB) == 'pubmed')) {
-				//We have a pubmed id, use biblio extension
-				$out .= " - [http://www.ncbi.nlm.nih.gov/pubmed/" . $xref->ID . " PubMed]";
-			}
-			$out .= "\n";
-		}
-		if($out) {
-			
-		} else {
-			$out = "''No bibliography''\n";
-		}
+		$out = "<pathwayBibliography></pathwayBibliography>";
 		//No edit button for now, show help on how to add bibliography instead
 		//$button = $this->editButton('javascript:;', 'Edit bibliography', 'bibEdit');
 		#&$parser, $idClick = 'direct', $idReplace = 'pwThumb', $new = '', $pwTitle = '', $type = 'editor'

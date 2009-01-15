@@ -132,6 +132,8 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
 		
 		<?php print Skin::makeGlobalVariablesScript( $this->data ); ?>
+		<!-- TK: Import custom script -->
+		<script type="<?php $this->text('jsmimetype') ?>" src="<?php $this->text('stylepath') ?>/<?php $this->text('stylename') ?>/wikipathways-custom.js"></script>
 		<script type="<?php $this->text('jsmimetype') ?>" src="<?php $this->text('stylepath' ) ?>/common/wikibits.js?<?php echo $GLOBALS['wgStyleVersion'] ?>"><!-- wikibits js --></script>
 <?php	if($this->data['jsvarurl'  ]) { ?>
 		<script type="<?php $this->text('jsmimetype') ?>" src="<?php $this->text('jsvarurl'  ) ?>"><!-- site js --></script>
