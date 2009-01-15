@@ -304,6 +304,7 @@ require_once('extensions/UserMerge/UserMerge.php');
 require_once('extensions/parseViewRedirect.php');
 require_once('wpi/extensions/PrivatePathways/PrivatePathways.php' );
 require_once('wpi/extensions/PrivatePathways/ListPrivatePathways.php' );
+require_once('wpi/extensions/PrivatePathways/PrivateContributions.php' );
 require_once('wpi/extensions/recentChangesBox.php');
 require_once('wpi/extensions/pathwayBibliography.php');
 /* This shouldn't be in LocalSettings.php, since that's checked

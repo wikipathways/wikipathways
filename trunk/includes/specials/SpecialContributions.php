@@ -158,7 +158,7 @@ class ContribsPager extends ReverseChronologicalPager {
 
 		$page = Title::makeTitle( $row->page_namespace, $row->page_title );
                 $name = $page->getText();
-		if ($row->page_namespace == NS_PATHWAY){
+		if (!$page->isRedirect() && $row->page_namespace == NS_PATHWAY){
 			$pathway = Pathway::newFromTitle($row->page_title );
 			$name = $pathway->getSpecies() .":". $pathway->getName();
 		}
@@ -322,6 +322,9 @@ function wfSpecialContributions( $par = null ) {
 
 	$wgOut->addHTML( contributionsForm( $options ) );
 
+	//TK: add new hook that allows us to add content right after the form
+	wfRunHooks( 'SpecialContributionsAfterForm', $id);
+	
 	$pager = new ContribsPager( $target, $options['namespace'], $options['year'], $options['month'] );
 	if ( !$pager->getNumRows() ) {
 		$wgOut->addWikiMsg( 'nocontribs' );

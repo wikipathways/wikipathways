@@ -33,9 +33,9 @@ class ListPrivatePathways extends SpecialPage {
 				$tr .= "<TD><A href='{$title->getFullURL()}'>{$pathway->getName()} ({$pathway->getSpecies()})</A>";
 			
 				$p = $pp->getPermissions();
-				$tr .= "<TD>" . $this->createUserString($p['read']);
-				$tr .= "<TD>" . $this->createUserString($p['edit']);
-				$tr .= "<TD>" . $this->createUserString($p[PermissionManager::$ACTION_MANAGE]);
+				$tr .= "<TD>" . self::createUserString($p['read']);
+				$tr .= "<TD>" . self::createUserString($p['edit']);
+				$tr .= "<TD>" . self::createUserString($p[PermissionManager::$ACTION_MANAGE]);
 				$tr .= "<TD>" . $wgLang->date($pp->getExpires(), true);
 				$table .= $tr;
 			}
@@ -45,7 +45,7 @@ class ListPrivatePathways extends SpecialPage {
 		$wgOut->addHTML($table);
 	}
 	
-	function createUserString($array = array()) {
+	public static function createUserString($array = array()) {
 		global $wgUser;
 		
 		$us = "";
