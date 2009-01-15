@@ -28,6 +28,7 @@ $operations = array(
 	"getCurationTagHistory",
 	"getColoredPathway",
 	"findInteractions",
+	"getXrefList",
 );
 $opParams = array(
 	"listOrganisms" => "MIXED",
@@ -46,6 +47,7 @@ $opParams = array(
 	"getCurationTagHistory" => "MIXED",
 	"getColoredPathway" => "MIXED",
 	"findInteractions" => "MIXED",
+	"getXrefList" => "MIXED",
 );
 
 $classmap = array(); //just let the engine know you prefer classmap mode
@@ -329,6 +331,24 @@ function findInteractions($query) {
 		$objects[] = new WSSearchResult($r);
 	}
 	return array("result" => $objects);
+}
+
+/**
+ * List the datanode xrefs of a pathway, translated to the given
+ * identifier system. Note that the number of items may differ from
+ * the number of datanodes on the pathway (due to a many-to-many mapping
+ * between the different databases).
+ * @param string $pwId The pathway identifier.
+ * @param string $code The database code to translate to (e.g. 'S' for UniProt).
+ * @return array of string $xrefs The translated xrefs.
+ */
+function getXrefList($pwId, $code) {
+	try {
+		$list = PathwayIndex::listPathwayXrefs(new Pathway($pwId), $code);
+		return array("xrefs" => $list);
+	} catch(Exception $e) {
+		throw new WSFault("Receiver", "Unable to process request: " . $e);
+	}
 }
 
 /**

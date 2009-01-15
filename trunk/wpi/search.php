@@ -86,6 +86,30 @@ class PathwayIndex {
 		return self::hitsToResults($hits);
 	}
 	
+	public static function listPathwayXrefs($pathway, $code) {
+		$xrefs = array();
+	
+		$source = $pathway->getTitleObject()->getFullUrl();
+		$term = new Zend_Search_Lucene_Index_Term($source, self::$f_source);
+		$query = new Zend_Search_Lucene_Search_Query_Term($term);
+	
+		$hits = self::$index->find($query);
+		foreach($hits as $h) {
+			$doc =& $h->getDocument();
+			if(in_array(self::$f_x_id_database, $doc->getFieldNames())) {
+				$iddb = $doc->getFieldValue(self::$f_x_id_database);
+				if(self::endsWith(":$code", $iddb)) {
+					$xrefs[] = substr($iddb, 0, -strlen(":$code"));
+				}
+			}
+		}
+		return array_unique($xrefs);
+	}
+	
+	function endsWith($needle, $haystack){
+		return strrpos($haystack, $needle) === strlen($haystack)-strlen($needle);
+	}
+
 	private static function hitsToResults($hits) {
 		$results = array();
 		foreach($hits as $hit) {
