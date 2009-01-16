@@ -30,6 +30,8 @@ class PathwayBibliography {
 		$i = 0;
 		$nrShow = 4;
 		
+		if(!$data) return "";
+		
 		//Format literature references
 		$pubXRefs = $data->getPublicationXRefs();
 		foreach(array_keys($pubXRefs) as $id) {

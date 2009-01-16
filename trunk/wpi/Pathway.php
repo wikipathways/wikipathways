@@ -137,6 +137,7 @@ class Pathway {
 		if($this->revision != $revision) {
 			$this->revision = $revision;
 			$this->pwData = null; //Invalidate loaded pathway data
+			$this->pwCategories = null; //Invalidate category data
 			$this->updateCache(); //Make sure the cache for this revision is up to date	
 		}
 	}
@@ -708,6 +709,8 @@ class Pathway {
 		$succ = true;
 		$succ =  $gpmlArticle->doEdit($gpmlData, $description);
 		if($succ) {
+			//Force reload of data
+			$this->setActiveRevision($this->getLatestRevision());
 			//Update metadata cache
 			$this->invalidateMetaDataCache();
 			//Update category links
@@ -845,6 +848,7 @@ class Pathway {
 				$rev = $this->getActiveRevision();
 				if($rev == 0 || $rev == $deprev) return true;
 			}
+
 			return false;
 		} else {
 			if(!$revision) $revision = $this->getLatestRevision();

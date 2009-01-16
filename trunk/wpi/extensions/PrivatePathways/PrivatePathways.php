@@ -106,7 +106,7 @@ class PermissionManager {
 						//User can only make a page private when:
 						//- the user is the only author
 						//- the user can edit the page
-						if(self::isOnlyAuthor($user->getId(), $title->getArticleID())) {
+						if(MwUtils::isOnlyAuthor($user->getId(), $title->getArticleID())) {
 							$result = $title->userCan('edit');
 						} else {
 							$result = false;
@@ -120,30 +120,6 @@ class PermissionManager {
 		//Otherwise, use the default permissions
 		$result = null;
 		return true;
-	}
-	
-	/**
-	 * Find out if the given user is the only author of the page
-	 */
-	static function isOnlyAuthor($userId, $pageId) {
-		foreach(self::getAuthors($pageId) as $author) {
-			if($userId != $author) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	static function getAuthors($pageId) {
-		$users = array();
-		$dbr = wfGetDB( DB_SLAVE );
-		$query = "SELECT DISTINCT(rev_user) FROM revision WHERE " .
-			"rev_page = {$pageId}";
-		$res = $dbr->query($query);
-		while($row = $dbr->fetchObject( $res )) {
-			$users[] = $row->rev_user;
-		}
-		return $users;
 	}
 	
 	/**

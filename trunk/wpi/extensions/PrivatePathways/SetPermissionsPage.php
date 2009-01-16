@@ -46,7 +46,7 @@ class SetPermissionsPage {
 					$newPerm->addManage($id);
 				}
 				//Authors can always access the pathway
-				$authors = PermissionManager::getAuthors($this->title->getArticleId());
+				$authors = MwUtils::getAuthors($this->title->getArticleId());
 				foreach($authors as $author) {
 					if(!in_array($author, $userIds)) {
 						//Author is not in the allowed user list

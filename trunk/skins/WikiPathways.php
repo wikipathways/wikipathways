@@ -62,7 +62,6 @@ class WikiPathwaysTemplate extends QuickTemplate {
 				wfDebug("Unable to create pathway object for WikiPathways skin");
 			}
 		}
-		
 /** AP20070421
  *		//Remove edit tab for pathways
  *		if($wgTitle->getNameSpace() == 100) {
@@ -86,19 +85,6 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		if($ns == NS_PATHWAY || $ns == NS_PATHWAY_TALK) {
 			unset($this->data['content_actions']['move']);
 		}
-		//Modify delete tab to use custom deletion for pathways
-		if($pathway && $this->data['content_actions']['delete']) {
-			if($pathway->isDeleted()) {
-				//Remove delete tab if already deleted
-				unset($this->data['content_actions']['delete']);
-			} else {
-				//Use default delete action, but rename
-				$this->data['content_actions']['delete']['text'] = 'delete';
-				$this->data['content_actions']['delete']['href'] = 
-					SITE_URL . '/index.php?title=Special:DeletePathway&id=' . $pathway->getIdentifier();
-			}
-		}
-		
 		if($wgTitle->getNameSpace() == NS_PATHWAY || NS_PATHWAY_TALK || NS_IMAGE) {
 			$actions = $this->data['content_actions'];
 			$this->data['content_actions'] = $actions;

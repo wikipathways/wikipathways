@@ -27,9 +27,32 @@ function checkDeleted($title, $user, $action, $result) {
 	if($action == 'edit' && $title->getNamespace() == NS_PATHWAY) {
 		$pathway = Pathway::newFromTitle($title);
 		if($pathway->isDeleted()) {
-			//Only users with 'delete' permission can revert deletion
-			//So disable edit for all other users
-			$result = $title->getUserPermissionsErrors('delete', $user) == array();
+			if(MwUtils::isOnlyAuthor($user, $title->getArticleId())) {
+				//Users that are sole author of a pathway can always revert deletion
+				$result = true;
+				return false;
+			} else {
+				//Only users with 'delete' permission can revert deletion
+				//So disable edit for all other users
+				$result = $title->getUserPermissionsErrors('delete', $user) == array();
+				return false;
+			}
+		}
+	}
+	$result = null;
+	return true;
+}
+
+/*
+ * Special delete permissions for pathways if user is sole author
+ */
+$wgHooks['userCan'][] = 'checkSoleAuthor';
+
+function checkSoleAuthor($title, $user, $action, $result) {
+	//Users are allowed to delete their own pathway
+	if($action == 'delete' && $title->getNamespace() == NS_PATHWAY) {
+		if(MWUtils::isOnlyAuthor($user, $title->getArticleId()) && $title->userCan('edit')) {
+			$result = true;
 			return false;
 		}
 	}
@@ -37,4 +60,32 @@ function checkDeleted($title, $user, $action, $result) {
 	return true;
 }
 
+/**
+ * Removes deletion tab if needed
+ */
+$wgHooks['SkinTemplateContentActions'][] = 'deleteTab';
+
+function deleteTab(&$content_actions) {
+	global $wgTitle;
+	try {
+		if($wgTitle->getNamespace() == NS_PATHWAY) {
+			$pathway = Pathway::newFromTitle($wgTitle);
+		}
+	} catch(Exception $e) {
+		//Don't crash on invalid pathway
+	}
+	//Modify delete tab to use custom deletion for pathways
+	if($pathway && $wgTitle->userCan('delete')) {
+		if($pathway->isDeleted()) {
+			//Remove delete tab if already deleted
+			unset($content_actions['delete']);
+		} else {
+			//Use default delete action, but link to special deletion page
+			$content_actions['delete']['text'] = 'delete';
+			$content_actions['delete']['href'] = 
+				SITE_URL . '/index.php?title=Special:DeletePathway&id=' . $pathway->getIdentifier();
+		}
+	}
+	return true;
+}
 ?>
