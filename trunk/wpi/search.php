@@ -72,6 +72,26 @@ class PathwayIndex {
 		return self::hitsToResults($hits);
 	}
 	
+	/**
+	 * Searches on literature fields:
+	 * literature.pubmed, literature.author, literature.title
+	 * @parameter $query The query (can be pubmed id, author or title keyword).
+	 * @return An array with the results as SearchHit objects
+	 **/
+	public static function searchByLiterature($query) {
+		$results = array();
+		$query = self::queryToAllFields(
+			$query, 
+			array(
+				self::$f_literature_author,
+				self::$f_literature_title,
+				self::$f_literature_pubmed,
+			)
+		);
+		$hits = self::$index->find($query);
+		return self::hitsToResults($hits);
+	}
+	
 	public static function searchInteractions($query) {
 		$results = array();
 		$query = self::queryToAllFields(
@@ -144,6 +164,9 @@ class PathwayIndex {
 	static $f_left = 'left';
 	static $f_right = 'right';
 	static $f_mediator = 'mediator';
+	static $f_literature_author = 'literature.author';
+	static $f_literature_title = 'literature.title';
+	static $f_literature_pubmed = 'literature.pubmed';
 }
 
 class SearchHit {

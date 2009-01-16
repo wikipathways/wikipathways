@@ -29,6 +29,7 @@ $operations = array(
 	"getColoredPathway",
 	"findInteractions",
 	"getXrefList",
+	"findPathwaysByLiterature",
 );
 $opParams = array(
 	"listOrganisms" => "MIXED",
@@ -48,6 +49,7 @@ $opParams = array(
 	"getColoredPathway" => "MIXED",
 	"findInteractions" => "MIXED",
 	"getXrefList" => "MIXED",
+	"findPathwaysByLiterature" => "MIXED",
 );
 
 $classmap = array(); //just let the engine know you prefer classmap mode
@@ -320,6 +322,40 @@ function findPathwaysByXref($id, $code = '', $indirect = true) {
 }
 
 /**
+ * Find pathways by literature references.
+ * @param string $query The query, can be a pubmed id, author name or title keyword.
+ * @return array of object WSSearchResult $result Array of WSSearchResult objects
+ */
+function findPathwaysByLiterature($query) {
+	$results = PathwayIndex::searchByLiterature($query);
+	$combined = array();
+	foreach($results as $r) {
+		$nwsr = new WSSearchResult($r, array(
+			PathwayIndex::$f_graphId,
+			PathwayIndex::$f_literature_pubmed,
+			PathwayIndex::$f_literature_title,
+		));
+		$source = $r->getDocument()->getFieldValue(PathwayIndex::$f_source);
+		if($combined[$source]) {
+			$wsr =& $combined[$source];
+			foreach(array_keys($wsr->fields) as $fn) {
+				if($nwsr->fields[$fn]) {
+					$newvalues = array_merge(
+						$nwsr->fields[$fn]->values, 
+						$wsr->fields[$fn]->values
+					);
+					$newvalues = array_unique($newvalues);
+					$wsr->fields[$fn]->values = $newvalues;
+				}
+			}
+		} else {
+			$combined[$source] = $nwsr;
+		}
+	}
+	return array("result" => $combined);
+}
+
+/**
  * Find interactions.
  * @param string $query The name of an entity to find interactions for (e.g. 'P53')
  * @return array of object WSSearchResult $result Array of WSSearchResult objects
@@ -564,7 +600,9 @@ class WSSearchResult extends WSPathwayInfo {
 		$this->fields = array();
 		$doc = $hit->getDocument();
 		foreach($includeFields as $fn) {
-			$this->fields[] = new WSIndexField($fn, $doc->getFieldValues($fn));
+			if(in_array($fn, $doc->getFieldNames())) {
+				$this->fields[$fn] = new WSIndexField($fn, $doc->getFieldValues($fn));
+			}
 		}
 	}
 	
