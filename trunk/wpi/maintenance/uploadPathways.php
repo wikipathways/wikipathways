@@ -25,24 +25,20 @@ function process($file, $category = '') {
 			}
 		}
 	} else {
-		$pathway = Pathway::newFromFileTitle(basename($file));
-		echo("\tUploading pathway {$pathway->name()}<BR>\n");
-		echo("\t\tSpecies: " . $pathway->species() . "<BR>\n");
+		echo("\tUploading pathway {basename($file)}<BR>\n");
 		echo("\t\tCategory: $category<BR>\n");
-		if(!$pathway->exists()) {
-			if($doit) {
-				uploadPathway($file, $pathway);
-				$pathway->getCategoryHandler()->addToCategory($category);
-			}
-		} else {
-				echo("\tPathway already exists!<br>\n");
+		
+		if($doit) {
+			$pathway = uploadPathway($file, $pathway);
+			$pathway->getCategoryHandler()->addToCategory($category);
+			echo("\t\=> Success, uploaded to {$pathway->getIdentifier()}<BR>\n");
 		}
 	}
 }
 
 function uploadPathway($file, $pathway) {
 	$gpml = file_get_contents($file);
-	$pathway->updatePathway($gpml, "Uploaded new pathway");
+	return Pathway::createNewPathway($gpml);
 }
 
 ?>
