@@ -20,6 +20,7 @@ $operations = array(
 	"login",
 	"getPathwayAs",
 	"updatePathway",
+	"createPathway",
 	"findPathwaysByText",
 	"findPathwaysByXref",
 	"removeCurationTag",
@@ -40,6 +41,7 @@ $opParams = array(
 	"login" => "MIXED",
 	"getPathwayAs" => "MIXED",
 	"updatePathway" => "MIXED",
+	"createPathway" => "MIXED",
 	"findPathwaysByText" => "MIXED",
 	"findPathwaysByXref" => "MIXED",
 	"removeCurationTag" => "MIXED",
@@ -87,6 +89,7 @@ $svr = new WSService(array(
 	"opParams" => $opParams,
 	"serviceName" => "WikiPathways",
 	"RESTMapping" => $restmap,
+	"cacheWSDL" => false,
 ));
 
 $svr->reply();
@@ -187,6 +190,27 @@ function updatePathway($pwId, $description, $gpml, $revision, $auth = NULL) {
 	}
 	ob_clean();
 	return array("success" => true);
+}
+
+/**
+ * Cteate a new pathway on the wiki
+ * @param string $gpml The GPML code for the new pathway
+ * @param object WSAuth $auth The authentication info
+ * @return object WSPathwayInfo $pathwayInfo The pathway info of the created pathway
+ **/
+function createPathway($gpml, $auth) {
+	try {
+		//Authenticate first, if token is provided
+		if($auth) {
+			authenticate($auth['user'], $auth['key'], true);
+		}
+		
+		$pathway = Pathway::createNewPathway($gpml, "New pathway");
+		return array("pathwayInfo" => new WSPathwayInfo($pathway));
+	} catch(Exception $e) {
+		throw new WSFault("Receiver", $e);
+		wfDebug("WSFAULT: $e");
+	}
 }
 
 /**
