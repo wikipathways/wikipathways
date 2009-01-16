@@ -209,6 +209,30 @@ class WikiPathwaysTemplate extends QuickTemplate {
 			?>href="<?php echo htmlspecialchars($this->data['nav_urls']['mainpage']['href'])?>" <?php
 			?>title="<?php $this->msg('mainpage') ?>"></a>
 	</div>
+        <div id="p-search" class="portlet">
+                <h5><label for="searchInput">search</label></h5>
+                <div id="googleSearch" class="pBody">
+<!-- Google CSE Search Box Begins -->
+  <form id="searchbox_cref" action="http://www.wikipathways.org/index.php/WikiPathways:GoogleSearch">
+    <table BORDER=0 CELLSPACING=0 CELLPADDING=0 >
+    <tr><td>
+    <input type="hidden" name="cref" value="http://www.wikipathways.org/wp_cse_context.xml" />
+    <input type="hidden" name="cof" value="FORID:11" />
+    <input type="hidden" name="filter" value="0" /> <!--set filter=0 to disable omitting similiar hits-->
+    <input name="q" type="text" size="14%" />
+    </td></tr>
+    <tr align="left">
+    <td>
+        <input type="checkbox" name="as_occt" value="title">titles only
+        </td>
+    </tr>
+    </table>
+</form>
+<script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=searchbox_cref"></script>
+<!-- Google CSE Search Box Ends -->
+                </div>
+        </div>
+
 	<script type="<?php $this->text('jsmimetype') ?>"> if (window.isMSIE55) fixalpha(); </script>
 	<?php foreach ($this->data['sidebar'] as $bar => $cont) { ?>
 	<div class='portlet' id='p-<?php echo Sanitizer::escapeId($bar) ?>'>
@@ -240,29 +264,6 @@ class WikiPathwaysTemplate extends QuickTemplate {
  		</div>
  	</div>
  -->
-	<div id="p-search" class="portlet">
-		<h5><label for="searchInput">search</label></h5>
-		<div id="googleSearch" class="pBody">
-<!-- Google CSE Search Box Begins -->
-  <form id="searchbox_cref" action="http://www.wikipathways.org/index.php/WikiPathways:GoogleSearch">
-    <table BORDER=0 CELLSPACING=0 CELLPADDING=0 >
-    <tr><td>
-    <input type="hidden" name="cref" value="http://www.wikipathways.org/wp_cse_context.xml" />
-    <input type="hidden" name="cof" value="FORID:11" />
-    <input type="hidden" name="filter" value="0" /> <!--set filter=0 to disable omitting similiar hits-->
-    <input name="q" type="text" size="14%" />
-    </td></tr>
-    <tr align="left">
-    <td>
-	<input type="checkbox" name="as_occt" value="title">titles only
-	</td>
-    </tr>
-    </table>
-</form>
-<script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=searchbox_cref"></script>
-<!-- Google CSE Search Box Ends -->
-		</div>
-	</div>
 	<div class="portlet" id="p-tb">
 		<h5><?php $this->msg('toolbox') ?></h5>
 		<div class="pBody">
