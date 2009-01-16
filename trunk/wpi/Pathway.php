@@ -645,6 +645,17 @@ class Pathway {
 		return $pathway;
 	}
 	
+	private static function checkGpmlSpecies($gpml) {
+		if(preg_match("/<Pathway.*Organism=\"(.*?)\"/u", $gpml, $match)) {
+			$species = $match[1];
+			if(!in_array($species, self::getAvailableSpecies())) {
+				throw new Exception("The organism '$species' for the pathway is not supported.");
+			}
+		} else {
+			throw new Exception("The pathway doesn't have an organism attribute.");
+		}
+	}
+	
 	private static function generateUniqueId() {
 		//Get the highest identifier
 		$dbr = wfGetDB( DB_SLAVE );
@@ -774,6 +785,13 @@ class Pathway {
 	 **/
 	static function validateGpml($gpml) {
 		$return = null;
+		//First, check if species is supported
+		try {
+			self::checkGpmlSpecies($gpml);
+		} catch(Exception $e) {
+			$return = $e->getMessage();
+		}
+		//Second, validate GPML to schema
 		$xml = DOMDocument::loadXML($gpml);
 		if(!$xml) {
 			return "Error: no valid XML provided\n$gpml";
