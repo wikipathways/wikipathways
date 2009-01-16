@@ -89,6 +89,7 @@ TABLE;
 				\"$collapse\", " . ($nrShow + 1) . ", true)' style='cursor:pointer;color:#0000FF'>$expand<td width='45%'></table>";
 		}
 		//Sort and iterate over all elements
+		$species = $this->getOrganism();
 		sort($nodes);
 		$i = 0;
 		foreach($nodes as $datanode) {
@@ -99,7 +100,7 @@ TABLE;
 			$table .= '<td>' . $datanode['BackpageHead'];
 			$table .= '<td>';
 			$xref = $datanode->Xref;
-			$link = getXrefLink($xref);
+			$link = getXrefLink($xref, $species);
 			if($link) {
 				$link = "<a href='$link'>{$xref['ID']} ({$xref['Database']})</a>";
 			} else {
@@ -136,7 +137,7 @@ TABLE;
 	}
 }
 
-function getXrefLink($xref) {
+function getXrefLink($xref, $species = '') {
 	$db = $xref['Database'];
 	$id = $xref['ID'];
 	
@@ -144,7 +145,12 @@ function getXrefLink($xref) {
 	
 	switch($db) {
 	case 'Ensembl':
-		return "http://www.ensembl.org/Homo_sapiens/Gene/Summary?g=" . $id;
+		if($species) {
+			$species = str_replace(' ', '_', $species);
+			return "http://www.ensembl.org/$species/Gene/Summary?g=" . $id;
+		} else {
+			return "http://www.ensembl.org/Homo_sapiens/Search/Summary?_q=" . $id;
+		}
 	case 'Entrez Gene':
 		return "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=full_report&list_uids=" . $id;
 	case 'SwissProt':
