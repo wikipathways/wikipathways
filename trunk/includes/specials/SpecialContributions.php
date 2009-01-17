@@ -161,6 +161,8 @@ class ContribsPager extends ReverseChronologicalPager {
 		if (!$page->isRedirect() && $row->page_namespace == NS_PATHWAY){
 			$pathway = Pathway::newFromTitle($row->page_title );
 			$name = $pathway->getSpecies() .":". $pathway->getName();
+		} elseif ($row->page_namespace == NS_IMAGE ){
+			return '';
 		}
 		$link = $sk->makeKnownLinkObj( $page, $name );
 		$difftext = $topmarktext = '';
@@ -212,7 +214,8 @@ class ContribsPager extends ReverseChronologicalPager {
 			$mflag = '';
 		}
 
-		$ret = "{$d} {$histlink} {$difftext} {$nflag}{$mflag} {$link}{$userlink}{$comment} {$topmarktext}";
+		//AP20090116 - skip making native history and diff links
+		$ret = "{$d} {$nflag}{$mflag} {$link}{$userlink}{$comment} {$topmarktext}";
 		if( $rev->isDeleted( Revision::DELETED_TEXT ) ) {
 			$ret .= ' ' . wfMsgHtml( 'deletedrev' );
 		}

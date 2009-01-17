@@ -147,30 +147,39 @@ class ChangesList {
 	}
 
 	protected function insertDiffHist(&$s, &$rc, $unpatrolled) {
+		global $wgLang, $wgContLang;
 		# Diff link
 		if( !$this->userCan($rc,Revision::DELETED_TEXT) ) {
 			$diffLink = $this->message['diff'];
 		} else if( $rc->mAttribs['rc_type'] == RC_NEW || $rc->mAttribs['rc_type'] == RC_LOG ) {
 			$diffLink = $this->message['diff'];
 		} else {
-			$rcidparam = $unpatrolled
-				? array( 'rcid' => $rc->mAttribs['rc_id'] )
-				: array();
-			$diffLink = $this->skin->makeKnownLinkObj( $rc->getTitle(), $this->message['diff'],
-				wfArrayToCGI( array(
-					'curid' => $rc->mAttribs['rc_cur_id'],
-					'diff'  => $rc->mAttribs['rc_this_oldid'],
-					'oldid' => $rc->mAttribs['rc_last_oldid'] ),
-					$rcidparam ),
-				'', '', ' tabindex="'.$rc->counter.'"');
+                        $rcidparam = $unpatrolled
+                              ? array( 'rcid' => $rc->mAttribs['rc_id'] )
+                              : array();
+	                $id = Title::makeTitle( $rc->mAttribs['namespace'], $rc->mAttribs['title'] );
+			$old = $rc->mAttribs['rc_last_oldid'];
+			$new = $rc->mAttribs['rc_this_oldid'];
+			$diffLink = "<a href='" . SITE_URL .
+                                "/index.php?title=Special:DiffAppletPage&old={$old}&new={$new}" .
+                                "&pwTitle={$rc->getTitle()}'>diff</a>";
+			//$diffLink = $this->skin->makeKnownLinkObj( $rc->getTitle(), $this->message['diff'],
+			//	wfArrayToCGI( array(
+			//		'curid' => $rc->mAttribs['rc_cur_id'],
+			//		'diff'  => $rc->mAttribs['rc_this_oldid'],
+			//		'oldid' => $rc->mAttribs['rc_last_oldid'] ),
+			//		$rcidparam ),
+			//	'', '', ' tabindex="'.$rc->counter.'"');
 		}
-		$s .= '('.$diffLink.') (';
+		$s .= '('.$diffLink;
 
 		# History link
-		$s .= $this->skin->makeKnownLinkObj( $rc->getTitle(), $this->message['hist'],
-			wfArrayToCGI( array(
-				'curid' => $rc->mAttribs['rc_cur_id'],
-				'action' => 'history' ) ) );
+		//AP20090116 - skip making native history link
+		//$s .= ') (';
+		//$s .= $this->skin->makeKnownLinkObj( $rc->getTitle(), $this->message['hist'],
+		//	wfArrayToCGI( array(
+		//		'curid' => $rc->mAttribs['rc_cur_id'],
+		//		'action' => 'history' ) ) );
 		$s .= ') . . ';
 	}
 
