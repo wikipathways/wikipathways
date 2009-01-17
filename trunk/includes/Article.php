@@ -2821,22 +2821,32 @@ class Article {
 		$lnk = $current
 			? wfMsg( 'currentrevisionlink' )
 			: $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'currentrevisionlink' ) );
-		$curdiff = $current
-			? wfMsg( 'diff' )
-			: $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'diff' ), 'diff=cur&oldid='.$oldid );
+                $curdiff = "<a href='" . SITE_URL .
+                                "/index.php?title=Special:DiffAppletPage&old={$oldid}&new={$this->mLatest}" .
+                                "&pwTitle={$this->mTitle}'>diff</a>";
+		//$curdiff = $current
+		//	? wfMsg( 'diff' )
+		//	: $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'diff' ), 'diff=cur&oldid='.$oldid );
 		$prev = $this->mTitle->getPreviousRevisionID( $oldid ) ;
 		$prevlink = $prev
 			? $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'previousrevision' ), 'direction=prev&oldid='.$oldid )
 			: wfMsg( 'previousrevision' );
-		$prevdiff = $prev
-			? $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'diff' ), 'diff=prev&oldid='.$oldid )
-			: wfMsg( 'diff' );
+                $prevdiff = "<a href='" . SITE_URL .
+                                "/index.php?title=Special:DiffAppletPage&old={$oldid}&new={$prev}" .
+                                "&pwTitle={$this->mTitle}'>diff</a>";
+		//$prevdiff = $prev
+		//	? $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'diff' ), 'diff=prev&oldid='.$oldid )
+		//	: wfMsg( 'diff' );
+                $next = $this->mTitle->getNextRevisionID( $oldid ) ;
 		$nextlink = $current
 			? wfMsg( 'nextrevision' )
 			: $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'nextrevision' ), 'direction=next&oldid='.$oldid );
-		$nextdiff = $current
-			? wfMsg( 'diff' )
-			: $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'diff' ), 'diff=next&oldid='.$oldid );
+                $nextdiff = "<a href='" . SITE_URL .
+                                "/index.php?title=Special:DiffAppletPage&old={$oldid}&new={$next}" .
+                                "&pwTitle={$this->mTitle}'>diff</a>";
+		//$nextdiff = $current
+		//	? wfMsg( 'diff' )
+		//	: $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'diff' ), 'diff=next&oldid='.$oldid );
 
 		$cdel='';
 		if( $wgUser->isAllowed( 'deleterevision' ) ) {
