@@ -1697,8 +1697,14 @@ class Article {
 		if( $this->doWatch() ) {
 			$wgOut->setPagetitle( wfMsg( 'addedwatch' ) );
 			$wgOut->setRobotpolicy( 'noindex,nofollow' );
-
-			$wgOut->addWikiMsg( 'addedwatchtext', $this->mTitle->getPrefixedText() );
+			$title = $this->mTitle;
+	               $titleName = $title->getBaseText();
+        	       try {
+                	        $pathway = Pathway::newFromTitle($title);
+                        	$titleName = $pathway->getName();
+                	} catch(Exception $e) {}
+                	$addedwatchtext = "The pathway \"[[$title|$titleName]]\" has been added to [[Special:Watchlist|your watchlist]].";
+			$wgOut->addWikiText( $addedwatchtext);
 		}
 
 		$wgOut->returnToMain( true, $this->mTitle->getPrefixedText() );
@@ -1742,8 +1748,14 @@ class Article {
 		if( $this->doUnwatch() ) {
 			$wgOut->setPagetitle( wfMsg( 'removedwatch' ) );
 			$wgOut->setRobotpolicy( 'noindex,nofollow' );
-
-			$wgOut->addWikiMsg( 'removedwatchtext', $this->mTitle->getPrefixedText() );
+                        $title = $this->mTitle;
+                       $titleName = $title->getBaseText();
+                       try {
+                                $pathway = Pathway::newFromTitle($title);
+                                $titleName = $pathway->getName();
+                        } catch(Exception $e) {}
+                        $removedwatchtext = "The pathway \"[[$title|$titleName]]\" has been removed from [[Special:Watchlist|your watchlist]].";
+                        $wgOut->addWikiText( $removedwatchtext);
 		}
 
 		$wgOut->returnToMain( true, $this->mTitle->getPrefixedText() );

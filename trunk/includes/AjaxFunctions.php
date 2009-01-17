@@ -166,6 +166,7 @@ function wfSajaxSearch( $term ) {
  *   '<err#>' on error
  */
 function wfAjaxWatch($pagename = "", $watch = "") {
+global $wgOut;
 	if(wfReadOnly()) {
 		// redirect to action=(un)watch, which will display the database lock
 		// message
@@ -200,9 +201,18 @@ function wfAjaxWatch($pagename = "", $watch = "") {
 			$dbw->commit();
 		}
 	}
+        $titleName = $title->getBaseText();
+        try {
+              $pathway = Pathway::newFromTitle($title);
+              $titleName = $pathway->getName();
+        } catch(Exception $e) {}
 	if( $watch ) {
-		return '<w#>'.wfMsgExt( 'addedwatchtext', array( 'parse' ), $title->getPrefixedText() );
+		$addedwatchtext = "-- The pathway \"[[{$title}|{$titleName}]]\" has been added to [[Special:Watchlist|your watchlist]] --";
+		return '<w#>'.wfMsgWikiHTML( $addedwatchtext);
+		//return '<w#>'.wfMsgExt( 'addedwatchtext', array( 'parse' ), $title->getPrefixedText() );
 	} else {
-		return '<u#>'.wfMsgExt( 'removedwatchtext', array( 'parse' ), $title->getPrefixedText() );
+                $removedwatchtext = "-- The pathway \"[[$title|$titleName]]\" has been removed from [[Special:Watchlist|your watchlist]] --";
+                return '<u#>'.wfMsgWikiHTML( $removedwatchtext);
+		//return '<u#>'.wfMsgExt( 'removedwatchtext', array( 'parse' ), $title->getPrefixedText() );
 	}
 }
