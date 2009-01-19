@@ -11,8 +11,26 @@ chdir(dirname(__FILE__));
 //Create new tables
 require_once('createTables.php');
 
-//Modify metatag table
 $dbw =& wfGetDB(DB_MASTER);
+
+//Create metatag index
+$dbw->immediateBegin();
+
+$dbw->query(
+	"CREATE INDEX tag_name ON tag (tag_name)"
+);
+$dbw->query(
+	"CREATE INDEX tag_page ON tag (page_id)"
+);
+$dbw->query(
+	"CREATE INDEX taghist_name ON tag_history (tag_name)"
+);
+$dbw->query(
+	"CREATE INDEX taghist_page ON tag_history (page_id)"
+);
+$dbw->immediateCommit();
+
+//Modify metatag table
 $dbw->immediateBegin();
 
 $dbw->query(
@@ -20,6 +38,4 @@ $dbw->query(
 );
 
 $dbw->immediateCommit();
-
-
 ?>

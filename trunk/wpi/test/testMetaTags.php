@@ -12,7 +12,7 @@ require_once("MetaTag.php");
 $starttime = wfTimestamp(TS_MW);
 
 /* First read a nonexisting tag */
-$title = Title::newFromText("Pathway:Homo sapiens:Sandbox");
+$title = Title::newFromText("Pathway:WP4");
 echo "Tagging {$title->getFullText()}\n<BR>";
 $tag = new MetaTag("MyTag:firsttag", $title->getArticleID());
 
@@ -50,10 +50,28 @@ $tag->save();
 echo "Edited tag text <BR>\n";
 
 /* Query by page */
+$start = microtime(true);
+
 echo "Query tags for page {$title->getFullText()}\n<BR>";
 $tags = MetaTag::getTagsForPage($title->getArticleID());
 $nrTags = count($tags);
 echo "Page has $nrTags tags<BR>\n";
+
+$time = microtime(true) - $start;
+echo("Time: $time<BR>\n");
+
+/* Query by tag */
+$start = microtime(true);
+
+$tag = "Curation:tutorial";
+echo "Query pages for tag {$tag}\n<BR>";
+$pages = MetaTag::getPagesForTag($tag);
+$nrPages = count($pages);
+echo "Tag has $nrPages pages<BR>\n";
+
+$time = microtime(true) - $start;
+echo("Time: $time<BR>\n");
+
 
 /* Then delete */
 echo "Removing tag<BR>\n";

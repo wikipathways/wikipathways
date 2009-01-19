@@ -23,7 +23,9 @@ CREATE TABLE IF NOT EXISTS tag (
 	-- Timestamp of the last tag modification
 	time_mod	char(14),
 	
-	PRIMARY KEY (tag_name, page_id)
+	PRIMARY KEY (tag_name, page_id),
+	INDEX tag_name (tag_name),
+	INDEX tag_page (page_id)
 );
 
 CREATE TABLE IF NOT EXISTS tag_history (
@@ -43,5 +45,8 @@ CREATE TABLE IF NOT EXISTS tag_history (
 	time		char(14),
 	
 	-- Old text value
-	text		varchar(500)
+	text		varchar(500),
+	
+	INDEX taghist_name (tag_name),
+	INDEX taghist_page (page_id)
 );
