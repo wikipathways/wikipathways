@@ -8,10 +8,16 @@ chdir("../");
 require_once('wpi.php');
 chdir(dirname(__FILE__));
 
-//Create new tables
-require_once('createTables.php');
+/* Tables for web service logging */
+echo "*** Creating tables for web service logging ***\n";
 
 $dbw =& wfGetDB(DB_MASTER);
+$dbw->immediateBegin();
+
+
+$dbw->sourceFile(realpath('./wslog.sql'), false, 'printSql');
+
+$dbw->immediateCommit();
 
 //Create metatag index
 $dbw->immediateBegin();
