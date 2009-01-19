@@ -16,6 +16,7 @@ $operations = array(
 	"listPathways", 
 	"getPathway",
 	"getPathwayInfo",
+	"getPathwayHistory",
 	"getRecentChanges",
 	"login",
 	"getPathwayAs",
@@ -37,6 +38,7 @@ $opParams = array(
 	"listPathways" => "MIXED", 
 	"getPathway" => "MIXED",
 	"getPathwayInfo" => "MIXED",
+	"getPathwayHistory" => "MIXED",
 	"getRecentChanges" => "MIXED",
 	"login" => "MIXED",
 	"getPathwayAs" => "MIXED",
@@ -143,6 +145,44 @@ function getPathwayInfo($pwId) {
 		$pathway = new Pathway($pwId);
 		$pwi = new WSPathwayInfo($pathway);
 		return array("pathwayInfo" => $pwi);
+	} catch(Exception $e) {
+		wfDebug(__METHOD__ . " (ERROR): $e\n");
+		throw new WSFault("Receiver", $e);
+	}
+}
+
+/**
+ * Get the revision history of the pathway.
+ * @param string $pwId The pathway identifier
+ * @param string $timestamp Limit by time, only history items after the given
+ * time will be included.
+ * @return object WSPathwayHistory $history The pathway history
+ **/
+function getPathwayHistory($pwId, $timestamp) {
+	try {
+		$pathway = new Pathway($pwId);
+		$id = $pathway->getTitleObject()->getArticleId();
+		$dbr =& wfGetDB( DB_SLAVE );
+		$res = $dbr->select(
+			"revision", 
+			array("rev_id", "rev_user_text", "rev_timestamp", "rev_comment"),
+			array('rev_page' => $id, 'rev_timestamp >= ' . $dbr->addQuotes($timestamp))
+		);
+
+		$hist = new WSPathwayHistory($pathway);
+		
+		while($row = $dbr->fetchObject( $res )) {
+			$hr = new WSHistoryRow();
+			$hr->revision = $row->rev_id;
+			$hr->comment = $row->rev_comment;
+			$hr->user = $row->rev_user_text;
+			$hr->timestamp = $row->rev_timestamp;
+			$hist->history[] = $hr;
+		}
+		
+		$dbr->freeResult( $res );
+		
+		return array('history' => $hist);
 	} catch(Exception $e) {
 		wfDebug(__METHOD__ . " (ERROR): $e\n");
 		throw new WSFault("Receiver", $e);
@@ -604,6 +644,46 @@ class WSPathwayInfo {
 	* @var string $revision - the revision number
 	**/
 	public $revision;
+}
+
+ /**
+ * @namespace http://www.wikipathways.org/webservice
+ */
+class WSPathwayHistory extends WSPathwayInfo {
+	public function __construct($pathway) {
+		parent::__construct($pathway);
+	}
+	
+	public function addRow($histRow) {
+		$history[] = $histRow;
+	}
+	
+	/**
+	* @var array of object WSHistoryRow $history - The pathway history
+	**/
+	public $history = array();
+}
+
+ /**
+ * @namespace http://www.wikipathways.org/webservice
+ */
+class WSHistoryRow {
+	/**
+	* @var string $revision - the revision number
+	**/
+	public $revision;
+		/**
+	* @var string $comment - the edit description
+	**/
+	public $comment;
+	/**
+	* @var string $revision - the username ofthe user that edited this revision
+	**/
+	public $user;
+	/**
+	* @var string $revision - the timestamp of this revision
+	**/
+	public $timestamp;
 }
 
  /**
