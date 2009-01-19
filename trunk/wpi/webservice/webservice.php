@@ -8,6 +8,29 @@ try {
 }
 chdir($dir);
 
+## Log the request ##
+//Try to find the called operation
+$operation = '';
+if(preg_match("/<soapenv:Body>(.*?)>/us", $HTTP_RAW_POST_DATA, $match)) {
+	$operation = trim($match[1]);
+} else if(in_array("wsdl", array_keys($_REQUEST))) { //WSDL requests
+	$operation = "wsdl";
+} else if($_SERVER["PATH_INFO"]) {
+	$operation = "rest: " . $_SERVER["PATH_INFO"];
+}
+
+$timestamp = wfTimestamp( TS_MW );
+$ip = $_SERVER['REMOTE_ADDR'];
+//write the log entry
+$dbw =& wfGetDB(DB_MASTER);
+$values = array(
+	"ip" => $ip,
+	"operation" => $operation,
+	"request_timestamp" => $timestamp,
+);
+$dbw->insert("webservice_log", $values);
+$dbw->immediateCommit();
+
 //Prevent errors/warnings from messing up the xml response
 ini_set("display_errors", "0");
 

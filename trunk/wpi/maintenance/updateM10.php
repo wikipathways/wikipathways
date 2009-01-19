@@ -8,6 +8,9 @@ chdir("../");
 require_once('wpi.php');
 chdir(dirname(__FILE__));
 
+//Create new tables
+require_once('createTables.php');
+
 //Modify metatag table
 $dbw =& wfGetDB(DB_MASTER);
 $dbw->immediateBegin();
@@ -17,4 +20,6 @@ $dbw->query(
 );
 
 $dbw->immediateCommit();
+
+
 ?>

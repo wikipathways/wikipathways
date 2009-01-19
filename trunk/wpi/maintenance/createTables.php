@@ -44,8 +44,18 @@ $dbw->sourceFile(realpath('./SocialRewardingTables.sql'), false, 'printSql');
 
 $dbw->immediateCommit();
 
+/* Tables for web service logging */
+echo "*** Creating tables for web service logging ***\n";
+
+$dbw =& wfGetDB(DB_MASTER);
+$dbw->immediateBegin();
+
+
+$dbw->sourceFile(realpath('./wslog.sql'), false, 'printSql');
+
+$dbw->immediateCommit();
+
 function printSql($txt) {
 	echo "SQL> $txt\n";
 }
-
 ?>
