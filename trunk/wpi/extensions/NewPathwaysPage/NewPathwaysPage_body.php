@@ -70,7 +70,7 @@ class RCQueryPage extends QueryPage {
                 $titleName = $result->title;
                 try {
                         $pathway = Pathway::newFromTitle($result->title);
-				        if(!$pathway->isReadable()) {
+				        if(!$pathway->isReadable() || $pathway->isDeleted()) {
 				        	return ''; //Don't display this title when user is not allowed to read
 				        }
                         $titleName = $pathway->getSpecies().":".$pathway->getName();
