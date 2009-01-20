@@ -261,9 +261,13 @@ class RewardRecommend extends Reward {
                 if (is_array($recommend)) {
                         foreach($recommend as $key => $val) {
 				$revision = Revision::newFromId($key);
-			        if (!(preg_match('/Pathway\:/', $revision->getTitle()))){
-                                        unset($recommend[$key]);
-                                }
+				if ($revision != null){
+				        if (!(preg_match('/Pathway\:/', $revision->getTitle()))){
+        	                                unset($recommend[$key]);
+                	                }
+				} else {
+					unset($recommend[$key]);
+				}
                         }
                 }
         }
