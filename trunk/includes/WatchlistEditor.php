@@ -143,10 +143,13 @@ class WatchlistEditor {
 			if( !$title instanceof Title )
 				$title = Title::newFromText( $title );
 			if( $title instanceof Title ) {
-				$pathway = Pathway::newFromTitle($title);
-				$name = $pathway->getSpecies().":".$pathway->getName();
-				$output->addHtml( "<li>" . $skin->makeKnownLinkObj( $title, $name )
-				. ' (' . $skin->makeLinkObj( $title->getTalkPage(), $talk ) . ")</li>\n" );
+				$name = $title->getText();
+				try {
+					$pathway = Pathway::newFromTitle($title);
+					$name = $pathway->getSpecies().":".$pathway->getName();
+				} catch(Exception $e) {}
+                                $output->addHtml( "<li>" . $skin->makeKnownLinkObj( $title, $name )
+                                . ' (' . $skin->makeLinkObj( $title->getTalkPage(), $talk ) . ")</li>\n" );
 			}
 		}
 		$output->addHtml( "</ul>\n" );
