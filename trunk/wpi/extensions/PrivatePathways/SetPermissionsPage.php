@@ -134,7 +134,7 @@ class SetPermissionsPage {
 			$pub_check = 'CHECKED';
 			$pri_vis = 'style="display:none;"';
 			$users[$wgUser->getName()] = $wgUser->getName();
-			foreach(PermissionManager::getAuthors($this->title->getArticleId()) as $author) {
+			foreach(MwUtils::getAuthors($this->title->getArticleId()) as $author) {
 				$u = User::newFromId($author);
 				if(!$u->isBot() && !$u->isAnon()) {
 					$users[$u->getName()] = $u->getName();
