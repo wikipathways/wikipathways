@@ -108,30 +108,41 @@ class PathwayIndex {
 	
 	public static function listPathwayXrefs($pathway, $code) {
 		$xrefs = array();
-	
+
 		$source = $pathway->getTitleObject()->getFullUrl();
-		$term = new Zend_Search_Lucene_Index_Term($source, self::$f_source);
-		$query = new Zend_Search_Lucene_Search_Query_Term($term);
+		$src_term = new Zend_Search_Lucene_Index_Term($source, self::$f_source);
+		$src_query = new Zend_Search_Lucene_Search_Query_Term($src_term);
 		
-		self::$index->setResultSetLimit(0);
+		$code_term = new Zend_Search_Lucene_Index_Term($code, self::$f_x_id_database);
+		$code_query = new Zend_Search_Lucene_Search_Query_Wildcard($code_term);
+
+		$query = new Zend_Search_Lucene_Search_Query_Boolean();
+		$query->addSubquery($src_query, true);
+		$query->addSubquery($code_query, true);
 		
 		$hits = self::$index->find($query);
+		//To reduce memory usage, gather hit ids and discard hits
+		$docs = array();
 		foreach($hits as $h) {
-			$doc =& $h->getDocument();
-			if(in_array(self::$f_x_id_database, $doc->getFieldNames())) {
-				$iddbList = $doc->getFieldValues(self::$f_x_id_database);
-				foreach($iddbList as $iddb) {
-					if(self::endsWith(":$code", $iddb)) {
-						$xrefs[] = substr($iddb, 0, -strlen(":$code"));
-					}
-				}
+			$docs[] = $h->id;
+		}
+		unset($hits);
+
+		$iddbs = array();
+		foreach($docs as $d) {
+			$doc = self::$index->getDocument($d);
+			$fieldNames = $doc->getFieldNames();
+			if(in_array(self::$f_x_id_database, $fieldNames)) {
+				$fields = $doc->getFieldValues(self::$f_x_id_database);
+				$iddbs = array_merge($iddbs, preg_grep("/:{$code}$/", array_unique($fields)));
 			}
 		}
-		return array_unique($xrefs);
-	}
-	
-	function endsWith($needle, $haystack){
-		return strrpos($haystack, $needle) === strlen($haystack)-strlen($needle);
+		$refs = array();
+		foreach($iddbs as $iddb) {
+			$r = substr($iddb, 0, -strlen(":$code"));
+			$refs[$r] = $r;
+		}
+		return $refs;
 	}
 
 	private static function hitsToResults($hits) {
