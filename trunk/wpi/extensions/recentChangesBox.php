@@ -114,11 +114,23 @@ class RecentChangesBox {
 	
 	private function formatRow($row) {
 		$user = User::newFromId($row->rc_user);
+		
+		if($user->isBot()) {
+			return ''; //Skip bots
+		}
+		
 		$userUrl = Title::newFromText('User:' . $user->getTitleKey())->getFullUrl();
 
 		$title = Title::newFromText($row->rc_title, $this->namespace);
 		
-		if(!$title->userCan('read')) return ''; //Skip hidden titles
+		if(!$title->userCan('read')) return ''; //Skip titles hidden for this user
+		
+		$perm = new PermissionManager($title->getArticleId());
+		if($perm->getPermissions()) {
+			if(!$perm->userCan('read', User::newFromId(0))) {
+				return ''; //Skip pages that are not publicly available
+			}
+		}
 		
 		$titleLink = $this->titleLink($title);
 		
@@ -129,9 +141,9 @@ class RecentChangesBox {
 		} else {
 			$icon = SITE_URL . "/skins/common/images/comment_edit.png";
 		}
-		$img = "<img src='$icon' title='{$row->rc_comment}'></img>";
-		
-		return "<TR><TD>$img<TD>$titleLink by <a href='$userUrl' title='{$row->rc_comment}'>{$this->getDisplayName($user)}</a>";
+		$comment = htmlentities($row->rc_comment);
+		$img = "<img src=\"$icon\" title=\"{$comment}\"></img>";
+		return "<TR><TD>$img<TD>$titleLink by <a href=\"$userUrl\" title=\"{$comment}\">{$this->getDisplayName($user)}</a>";
 	}
 	
 	private function getDisplayName($user) {
