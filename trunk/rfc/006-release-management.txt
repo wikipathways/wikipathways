@@ -357,3 +357,56 @@ Here is some background information about diffs, patching, to help you with the 
 
 See also: http://producingoss.com/en/vc.html#vc-using
 and: http://svnbook.red-bean.com/en/1.4/svn.branchmerge.copychanges.html
+
+=== Step-by-step instructions for WikiPathways release ===
+This section lists the steps to take for a typical milestone release. Note that you have to replace some milestone and revision numbers.
+
+# Tag for WikiPathways code
+svn cp http://svn.bigcat.unimaas.nl/wikipathways/trunk http://svn.bigcat.unimaas.nl/wikipathways/branches/milestone_10.x
+svn cp http://svn.bigcat.unimaas.nl/wikipathways/branches/milestone_10.x http://svn.bigcat.unimaas.nl/wikipathways/tags/milestone_10.0
+
+# Tag for PathVisio code
+svn cp http://svn.bigcat.unimaas.nl/pathvisio/trunk http://svn.bigcat.unimaas.nl/pathvisio/branches/milestone_10.x
+svn cp http://svn.bigcat.unimaas.nl/pathvisio/branches/milestone_10.x http://svn.bigcat.unimaas.nl/pathvisio/tags/milestone_10.0
+
+# Ssh to WikiPathways server
+# Update site code
+cd /var/www/wikipathways
+svn switch http://svn.bigcat.unimaas.nl/wikipathways/tags/milestone_10.0
+
+# (If needed): run the update script
+cd wpi/maintenance
+php updateM10.php 
+
+# Update applet code
+cd ~/code/pathvisio/
+svn update
+
+# Build applets
+cd tags/milestone_10.0
+ant wikipathways-dest -Dwikipathways.dest=/var/www/wikipathways
+ant diffapplet -Dwikipathways.dest=/var/www/wikipathways
+
+# Now test the editor on sandbox pathway
+
+# (If needed): update bots
+ant tarbin-wpclient -Dwsdl.url=http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl
+cp wikipathways_client_bin-1.1-r2438.tar.gz /home/wikipathways/bots/wikipathways/
+cd ~/bots/wikipathways
+tar -xf wikipathways_client_bin-1.1-r2438.tar.gz --strip=1
+
+# (If needed): update and restart indexer
+cd ~/code/pathvisio/tags/milestone_10.0/tools/lucene-indexer
+ant dist
+cp -R dist/* /home/wikipathways/index/bin
+	# Resume an exising screen session that runs the indexer (or start a new one)
+screen -R 5353.pts-0.bigcat0025uns40mw 
+	# Kill running indexer
+	# Restart (and optionally rebuild)
+java -jar ../bin/wikipathways-indexer.jar indexer.config gdb.config --rebuild
+	# Detach the screen with CTRL-A d
+
+# Update the site content
+	# Copy new / updated pages and messages
+	# Update news section (also add items to news archive page)
+
