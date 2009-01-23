@@ -127,7 +127,7 @@ class RecentChangesBox {
 		
 		$perm = new PermissionManager($title->getArticleId());
 		if($perm->getPermissions()) {
-			if(!$perm->userCan('read', User::newFromId(0))) {
+			if(!$perm->getPermissions()->userCan('read', User::newFromId(0))) {
 				return ''; //Skip pages that are not publicly available
 			}
 		}
