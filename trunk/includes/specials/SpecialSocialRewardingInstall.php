@@ -759,7 +759,7 @@ class SpecialSocialRewardingInstall {
 					$i = 0;
 					while ($row = $this->dbr->fetchRow($rs)) {
 						// Execute hook funtion for Google search
-						$ok = SocialRewardingReferences("", "", "", "", "", "", "", $row[0]);
+						$ok = SocialRewardingReferences("", "", "", "", "", "", "", "", $row[0]);
 						if ($ok == 1) {
 							$i++;
 						}
