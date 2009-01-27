@@ -858,7 +858,7 @@ $SocialRewarding["viewed"]["autoMarkup"]		= false;
  * Activate social rewarding mechanism "Recommender System"? 
  */
 
-$SocialRewarding["recommend"]["active"]			= true;
+$SocialRewarding["recommend"]["active"]			= false;
 
 
 /**
@@ -982,7 +982,7 @@ $SocialRewarding["recommend"]["markupStdPoints"]	= false;
  * Set automatic "Recommender System" markup active?
  */
 
-$SocialRewarding["recommend"]["autoMarkup"]		= true;
+$SocialRewarding["recommend"]["autoMarkup"]		= false;
 
 
 
