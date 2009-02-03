@@ -250,7 +250,7 @@ $wgDebugLogFile = WPI_SCRIPT_PATH . '/tmp/wikipathwaysdebug.txt';
 //$wgProfiling = true; //Set to true for debugging info
 
 ##Extensions
-require_once('extensions/analytics.php'); //Google Analytics support
+require_once('extensions/GoogleAnalytics/googleAnalytics.php'); //Google Analytics support
 require_once('extensions/inputbox.php');
 require_once('extensions/GoogleGroups.php');
 //require_once('extensions/ParserFunctions.php');
@@ -338,6 +338,9 @@ $wgGroupPermissions['sysop']['interwiki'] = true;
 
 //UserMerge settings
 $wgGroupPermissions['bureaucrat']['usermerge'] = true;
+
+//Google analytics settings (key should be in pass.php)
+$wgGoogleAnalyticsIgnoreSysops = false;
 
 //Set enotif for watch page changes to true by default
 $wgDefaultUserOptions ['enotifwatchlistpages'] = 1;
