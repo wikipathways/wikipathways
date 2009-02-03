@@ -1,7 +1,7 @@
 <?php
 $allMessages = array(
 	'en' => array( 
-		'pp_descr' => 'Select access level for this pathway ([[Help:Private Pathways|?]]).',
+		'pp_descr' => 'Select access level for this pathway ([[Help:Private Pathways|help]]).',
 		'pp_descr_pub' => 'All users can view and edit this pathway.',
 		'pp_descr_pri' => 'Only users specified below can view and edit this pathway (enter each user on a new line).',
 		'pp_forbidden_title' => 'Unable to change permissions',
