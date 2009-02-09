@@ -50,6 +50,7 @@ $operations = array(
 	"removeCurationTag",
 	"saveCurationTag",
 	"getCurationTags",
+	"getCurationTagsByName",
 	"getCurationTagHistory",
 	"getColoredPathway",
 	"findInteractions",
@@ -72,6 +73,7 @@ $opParams = array(
 	"removeCurationTag" => "MIXED",
 	"saveCurationTag" => "MIXED",
 	"getCurationTags"=> "MIXED",
+	"getCurationTagsByName" => "MIXED",
 	"getCurationTagHistory" => "MIXED",
 	"getColoredPathway" => "MIXED",
 	"findInteractions" => "MIXED",
@@ -536,6 +538,21 @@ function getCurationTags($pwId) {
 	$pw = new Pathway($pwId);
 	$pageId = $pw->getTitleObject()->getArticleId();
 	$tags = CurationTag::getCurationTags($pageId);
+	$wstags = array();
+	foreach($tags as $t) {
+		$wstags[] = new WSCurationTag($t);
+	}
+	return array("tags" => $wstags);
+}
+
+/**
+ * Get all curation tags for the given
+ * tag name.
+ * @param string $tagName The tag name
+ * @return array of object WSCurationTag $tags The curation tags
+ */
+function getCurationTagsByName($tagName) {
+	$tags = CurationTag::getCurationTagsByName($tagName);
 	$wstags = array();
 	foreach($tags as $t) {
 		$wstags[] = new WSCurationTag($t);

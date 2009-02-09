@@ -204,6 +204,13 @@ class CurationTag {
 		return $curTags;
 	}
 	
+	public static function getCurationTagsByName($tagname) {
+		if(!self::isCurationTag($tagname)) {
+			self::errorNoCurationTag($tagname);
+		}
+		return MetaTag::getTags($tagname);
+	}
+	
 	/**
 	 * Get tag history for the given page
 	 */
