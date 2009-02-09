@@ -555,7 +555,10 @@ function getCurationTagsByName($tagName) {
 	$tags = CurationTag::getCurationTagsByName($tagName);
 	$wstags = array();
 	foreach($tags as $t) {
-		$wstags[] = new WSCurationTag($t);
+		$wst = new WSCurationTag($t);
+		if($wst->pathway) {
+			$wstags[] = $wst;
+		}
 	}
 	return array("tags" => $wstags);
 }
@@ -818,9 +821,13 @@ class WSCurationTag {
 	public function __construct($metatag) {
 		$this->name = $metatag->getName();
 		$this->displayName = CurationTag::getDisplayName($this->name);
-		$this->pathway = new WSPathwayInfo(
-			Pathway::newFromTitle(Title::newFromId($metatag->getPageId()))
-		);
+		$title = Title::newFromId($metatag->getPageId());
+		if($title) {
+			$this->pathway = new WSPathwayInfo(
+				Pathway::newFromTitle($title)
+			);
+		}
+
 		$this->revision = $metatag->getPageRevision();
 		$this->text = $metatag->getText();
 		$this->timeModified = $metatag->getTimeMod();
