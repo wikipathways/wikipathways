@@ -57,19 +57,19 @@ above contexts. This page should cover:
  
  === Implementation ===
  *Design*
- On a given User Page, we'll want to have an applet controlled section that contains a label
+ On a given User Page, we'll want to have an php-controlled section that contains a label
  ("Email Verified!", "Email Not Verified" or "Email Not Provided") and a button ("Update 
- Email"). When clicked, the user gets an applet into which they can enter an email address
+ Email"). When clicked, the user gets a GUI into which they can enter an email address
  and click "Verify". This closes the window, updates the email address in the database, sends 
  an email to the user, and changes the label to "Awaiting Verification...". If verified, then 
  the label changes to "Email Verified!" and they get a badge that shows publicly. If not, then
  the label changes to "Email Not Verified" after 24 or 48 hours.
  
- I think the applet only needs "Verify" button, because there should be no reason to update
+ I think the GUI only needs "Verify" button, because there should be no reason to update
  one's email address without verifying it.  However, there should also be a view function for
  the user to check which email is on file. So, perhaps the button displays as "Verify" only
  if an unverified email is displayed or if a change is made to the current, verified email.
- Otherwise, if the user is viewing an already verified email in the applet, the button could
+ Otherwise, if the user is viewing an already verified email in the GUI, the button could
  just read "Close" and take no action.
  
  
