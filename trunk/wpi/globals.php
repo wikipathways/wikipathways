@@ -6,10 +6,14 @@ define("FILETYPE_IMG", "svg");
 define("FILETYPE_GPML", "gpml");
 define("FILETYPE_MAPP", "mapp");
 define("FILETYPE_PNG", "png");
+define("FILETYPE_PDF", "pdf");
+define("FILETYPE_PWF", "pwf");
+define("FILETYPE_TXT", "txt");
 
 //Script info
 $wpiPathName = 'wpi'; //pathname containing wpi script
 $wpiTmpName = 'tmp'; //temp path name
+$wpiCacheName = 'cache'; //cache path name
 $wpiScriptFile = 'wpi.php';
 
 $wpiScriptPath = realpath(dirname(__FILE__));
@@ -17,6 +21,7 @@ $wpiScript = "$wpiScriptPath/$wpiScriptFile";
 $wpiTmpPath = "$wpiScriptPath/$wpiTmpName";
 $siteURL = "http://{$_SERVER['HTTP_HOST']}/$wgScriptPath";
 $wpiURL = "$siteURL/$wpiPathName";
+$wpiCachePath = "$wpiScriptPath/$wpiCacheName";
 
 define("WPI_SCRIPT_PATH", $wpiScriptPath);
 define("WPI_SCRIPT", $wpiScript);
@@ -25,6 +30,8 @@ define("SITE_URL", $siteURL);
 define("WPI_URL",  $wpiURL);
 define("WPI_SCRIPT_URL", WPI_URL . '/' . $wpiScriptFile);
 define("WPI_TMP_URL", WPI_URL . '/' . $wpiTmpName);
+define("WPI_CACHE_PATH", $wpiCachePath);
+define("WPI_CACHE_URL", WPI_URL . '/' . $wpiCacheName);
 
 //JS info
 define("JS_SRC_EDITAPPLET", $wgScriptPath . "/wpi/js/editapplet.js");

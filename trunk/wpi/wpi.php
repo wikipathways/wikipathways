@@ -132,6 +132,10 @@ function createJnlpArg($flag, $value) {
 
 function downloadFile($fileType, $pwTitle) {
 	$pathway = Pathway::newFromTitle($pwTitle);
+	if(!$pathway->isReadable()) {
+		throw new Exception("You don't have permissions to view this pathway");
+	}
+	
 	if($fileType === 'mapp') {
 		launchGenMappConverter($pathway);
 	}
@@ -140,7 +144,7 @@ function downloadFile($fileType, $pwTitle) {
 		$pathway->setActiveRevision($oldid);
 	}
 	//Register file type for caching
-	$pathway->registerFileType($fileType);
+	Pathway::registerFileType($fileType);
 	
 	$file = $pathway->getFileLocation($fileType);
 	$fn = $pathway->getFileName($fileType);

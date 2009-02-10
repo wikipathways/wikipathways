@@ -23,10 +23,10 @@ class Pathway {
 	);
 	private static $spCode2Name; //TODO: complete species
 	
-	private $fileTypes = array(
+	private static $fileTypes = array(
 				FILETYPE_IMG => FILETYPE_IMG, 
 				FILETYPE_GPML => FILETYPE_GPML,
-				FILETYPE_PNG => FILETYPE_IMG
+				FILETYPE_PNG => FILETYPE_IMG,
 	);
 
 	private $pwPageTitle; //The title object for the pathway page
@@ -515,6 +515,14 @@ class Pathway {
 	}
 
 	/**
+	 * Check if the given file type is valid (a pathway can
+	 * be converted to this file type)
+	 */
+	public static function isValidFileType($fileType) {
+		return in_array($fileType, array_keys(self::$fileTypes));
+	}
+	
+	/**
 	 * Get the filename of a cached file following the naming conventions
 	 * \param the file type to get the name for (one of the FILETYPE_* constants)
 	 */
@@ -551,8 +559,8 @@ class Pathway {
 	 * Register a file type that can be exported to
 	 * (needs to be supported by the GPML exporter
 	 */
-	public function registerFileType($fileType) {
-		$this->fileTypes[$fileType] = $fileType;
+	public static function registerFileType($fileType) {
+		self::$fileTypes[$fileType] = $fileType;
 	}
 	
 	/**
@@ -1070,6 +1078,7 @@ class Pathway {
 			//Remove cached GPML file
 			unlink($gpmlFile);
 			throw new Exception("Unable to convert to $outFile:\n<BR>Status:$status\n<BR>Message:$msg\n<BR>Command:$cmd<BR>");
+			wfDebug("Unable to convert to $outFile:\n<BR>Status:$status\n<BR>Message:$msg\n<BR>Command:$cmd<BR>");
 		}
 		return true;
 	} 

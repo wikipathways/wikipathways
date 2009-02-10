@@ -194,7 +194,7 @@ class StatisticsCache
 	{
 		global $wgScriptPath;
 		// write all data in $data back to the file again
-		$filename = WPI_SCRIPT_PATH . '/tmp/UniqueGeneCounts.data';
+		$filename = WPI_CACHE_PATH . '/UniqueGeneCounts.data';
 		$file = fopen($filename, 'w+');
 		foreach ($data as $key => $c)
 		{
@@ -215,7 +215,7 @@ class StatisticsCache
 		// read contents of the cache into variable $data
 		$data = array();
 		
-		$filename = WPI_SCRIPT_PATH . '/tmp/UniqueGeneCounts.data';
+		$filename = WPI_CACHE_PATH . '/UniqueGeneCounts.data';
 		$file = fopen($filename, 'r');
 		if ($file) 
 		{
@@ -235,7 +235,7 @@ class StatisticsCache
                 global $wgScriptPath;
                 
                 // write all data in $data back to the file again
-                $filename = WPI_SCRIPT_PATH . '/tmp/PathwayCounts.data';
+                $filename = WPI_CACHE_PATH . '/PathwayCounts.data';
                 $file = fopen($filename, 'w+');
                 foreach ($data as $key => $c)
                 {
@@ -256,7 +256,7 @@ class StatisticsCache
                 // read contents of the cache into variable $data
                 $data = array();
                                 
-                $filename = WPI_SCRIPT_PATH . '/tmp/PathwayCounts.data';
+                $filename = WPI_CACHE_PATH . '/PathwayCounts.data';
                 $file = @fopen($filename, 'r'); 
                 if ($file)
                 {
