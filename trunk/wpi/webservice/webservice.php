@@ -385,6 +385,7 @@ function getRecentChanges($timestamp)
  * @return array of object WSSearchResult $result Array of WSSearchResult objects
  **/
 function findPathwaysByText($query, $species = '') {
+	requireSearch();
 	$objects = array();
 	$results = PathwayIndex::searchByText($query, $species);
 	foreach($results as $r) {
@@ -401,6 +402,7 @@ function findPathwaysByText($query, $species = '') {
  * @return array of object WSSearchResult $result Array of WSSearchResult objects
  **/
 function findPathwaysByXref($id, $code = '', $indirect = true) {
+	requireSearch();
 	$xref = new XRef($id, $code);
 	$objects = array();
 	$results = PathwayIndex::searchByXref($xref, $indirect);
@@ -416,6 +418,7 @@ function findPathwaysByXref($id, $code = '', $indirect = true) {
  * @return array of object WSSearchResult $result Array of WSSearchResult objects
  */
 function findPathwaysByLiterature($query) {
+	requireSearch();
 	$results = PathwayIndex::searchByLiterature($query);
 	$combined = array();
 	foreach($results as $r) {
@@ -450,6 +453,7 @@ function findPathwaysByLiterature($query) {
  * @return array of object WSSearchResult $result Array of WSSearchResult objects
  **/
 function findInteractions($query) {
+	requireSearch();
 	$objects = array();
 	$results= PathwayIndex::searchInteractions($query);
 	foreach($results as $r) {
@@ -468,6 +472,7 @@ function findInteractions($query) {
  * @return array of string $xrefs The translated xrefs.
  */
 function getXrefList($pwId, $code) {
+	requireSearch();
 	try {
 		$list = PathwayIndex::listPathwayXrefs(new Pathway($pwId), $code);
 		return array("xrefs" => $list);
@@ -643,6 +648,14 @@ function authenticate($username, $token, $write = false) {
 			throw new WSFault("Sender", "Account doesn't have write access for the web service. \n".
 			"Contact the site administrator to request write permissions.");
 		}
+	}
+}
+
+function requireSearch() {
+	try {
+		require_once('search.php');
+	} catch(Exception $e) {
+		wfDebug("Webservice: Unable to connect to lucene index!\n");
 	}
 }
 
