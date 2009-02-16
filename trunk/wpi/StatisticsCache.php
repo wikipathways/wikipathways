@@ -24,7 +24,16 @@ these calculations are cached.
 This class is responsible for reading values from and writing values to that cache.
 */
 class StatisticsCache
-{	
+{
+	private static $pathways;
+	
+	private static function getAllPathways() {
+		if(!self::$pathways) {
+			self::$pathways = Pathway::getAllPathways();	
+		}
+		return self::$pathways;
+	}
+	
 	/**
 	 * returns the number of unique genes for a certain species.
 	 * re-creates the cache if it doesn't exist.
@@ -76,37 +85,41 @@ class StatisticsCache
 	{
 		global $wgScriptPath;
 
+		$databases = array(
+			'HUGO',
+			'Entrez Gene',
+			'Ensembl',
+			'SwissProt',
+			'UniGene',
+			'RefSeq',
+			'MGI',
+			'RGD',
+			'ZFIN',
+			'FlyBase',
+			'WormBase',
+			'SGD',
+			'TAIR'
+		);
+		
 		$geneList = array();
 		$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
-		$all_pathways = Pathway::getAllPathways();
-		foreach (array_keys($all_pathways) as $pathway) {
-			if(!$all_pathways[$pathway]->isPublic()) continue; //Skip private pathways
-			$pathwaySpecies = $all_pathways[$pathway]->species();
+		$all_pathways = self::getAllPathways();
+		foreach ($all_pathways as $pathway) {
+			if(!$pathway->isPublic()) continue; //Skip private pathways
+			$pathwaySpecies = $pathway->species();
 			if ($pathwaySpecies != $species) continue;
-			$page_id = $all_pathways[$pathway]->getPageIdDB();
+			$page_id = $pathway->getPageIdDB();
 			if (in_array($page_id, $taggedIds)) continue; //skip Tutorial pathways
 			try
 			{
-				$xml = $all_pathways[$pathway]->getPathwayData();
-				$nodes = $xml->getUniqueElements('DataNode', 'TextLabel');
-				foreach ($nodes as $datanode){
-					$xref = $datanode->Xref;
-					if ($xref[ID] && $xref[ID] != '' && $xref[ID] != ' '){
-						if ($xref[Database] == 'HUGO'
-						|| $xref[Database] == 'Entrez Gene'
-						|| $xref[Database] == 'Ensembl'
-						|| $xref[Database] == 'SwissProt'
-						|| $xref[Database] == 'UniGene'
-						|| $xref[Database] == 'RefSeq'
-						|| $xref[Database] == 'MGI'
-						|| $xref[Database] == 'RGD'
-						|| $xref[Database] == 'ZFIN'
-						|| $xref[Database] == 'FlyBase'
-						|| $xref[Database] == 'WormBase'
-						|| $xref[Database] == 'SGD'
-						|| $xref[Database] == 'TAIR'
-						){
-							array_push($geneList, $xref[ID]);
+				$xrefs = $pathway->getUniqueXrefs();
+				
+				foreach ($xrefs as $xref){
+					$id = $xref->getId();
+					$db = $xref->getSystem();
+					if ($id && $id != '' && $id != ' '){
+						if (in_array($db, $databases)){
+							array_push($geneList, $id);
 						}
 					}
 				}
@@ -128,24 +141,22 @@ class StatisticsCache
          */
         private static function countPathways()
         {
-	        $dbr = wfGetDB( DB_SLAVE );
-       	 	$res = $dbr->query("SELECT page_title FROM page WHERE page_namespace=" . NS_PATHWAY . " AND page_is_redirect = 0");
-		$total = 0;
-        	$pathwaysPerSpecies = array();
 			$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
-        	while ($row = $dbr->fetchRow($res)){
-                	$pathway = Pathway::newFromTitle($row["page_title"]);
-			if ($pathway->isDeleted()) continue; //skip deleted pathways
-			if(!$pathway->isPublic()) continue; //Skip private pathways
-			$page_id = $pathway->getPageIdDB();
-			if (in_array($page_id, $taggedIds)) continue; // skip Tutorial pathways
-                	$species = $pathway->getSpecies();
-                	if ($species == '') continue; //skip pathways without a species category
-			$pathwaysPerSpecies{$species} += 1;
-			$total += 1;
+        	$pathwaysPerSpecies = array();
+			$total = 0;
+        	$pathways = self::getAllPathways();
+        	foreach($pathways as $pathway) {
+        		if ($pathway->isDeleted()) continue; //skip deleted pathways
+				if(!$pathway->isPublic()) continue; //Skip private pathways
+				$page_id = $pathway->getPageIdDB();
+				if (in_array($page_id, $taggedIds)) continue; // skip Tutorial pathways
+             	$species = $pathway->getSpecies();
+                if ($species == '') continue; //skip pathways without a species category
+				$pathwaysPerSpecies{$species} += 1;
+				$total += 1;
         	}
         	$pathwaysPerSpecies{'total'} = $total;
-		return $pathwaysPerSpecies;
+			return $pathwaysPerSpecies;
 	}
 
 	/**
