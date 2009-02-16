@@ -117,6 +117,8 @@ class MetaTag {
 	public static function getPagesForTag($name, $text = false, $case = true) {
 		$pages = array();
 		
+		$dbr = wfGetDB( DB_SLAVE );
+		
 		$name = mysql_real_escape_string($name);
 
 		$where = array('tag_name' => $name);
@@ -129,8 +131,6 @@ class MetaTag {
 			$text = mysql_real_escape_string($text);
 			$text = " AND $text_field = '$text' ";
 		}
-		
-		$dbr = wfGetDB( DB_SLAVE );
 		
 		$query = 
 			"SELECT page_id FROM " . self::$TAG_TABLE . 

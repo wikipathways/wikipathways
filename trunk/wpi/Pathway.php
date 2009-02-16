@@ -446,6 +446,23 @@ class Pathway {
 	}
 	
 	/**
+	 * Get the unique xrefs in this pathway.
+	 * This method will not load the GPML, but use the
+	 * metadata cache for performance.
+	 */
+	public function getUniqueXrefs() {
+		if($this->exists()) { //Only use cache if this pathway exists
+			$xrefStr = $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_XREFS);
+			$xrefStr = explode(MetaDataCache::$XREF_SEP, $xrefStr);
+			$xrefs = array();
+			foreach($xrefStr as $s) $xrefs[$s] = Xref::fromText($s);
+			return $xrefs;
+		} else {
+			return array();
+		}
+	}
+	
+	/**
 	 * Get or set the pathway species
 	 * \param species changes the species to this value if not null
 	 * \return the species of the pathway

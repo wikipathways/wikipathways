@@ -117,6 +117,21 @@ class PathwayData {
 		return $unique;
 	}
 	
+	function getUniqueXrefs() {
+		$elements = $this->getElements('DataNode');
+		
+		$xrefs = array();
+		
+		foreach($elements as $elm) {
+			$id = $elm->Xref['ID'];
+			$system = $elm->Xref['Database'];
+			$ref = new Xref($id, $system);
+			$xrefs[$ref->asText()] = $ref;
+		}
+		
+		return $xrefs;
+	}
+	
 	function getElementsForPublication($xrefId) {
 		$gpml = $this->getGpml();
 		$elements = array();
@@ -210,4 +225,26 @@ class Interaction {
 	}
 }
 
+class Xref {
+	private $id;
+	private $system;
+	
+	public function __construct($id, $system) {
+		$this->id = $id;
+		$this->system = $system;
+	}
+	
+	public function getId() { return $this->id; }
+	
+	public function getSystem() { return $this->system; }
+	
+	public static function fromText($txt) {
+		$data = explode(':', $txt);
+		return new Xref($data[0], $data[1]);
+	}
+	
+	public function asText() {
+		return "{$this->id}:{$this->system}";
+	}
+}
 ?>
