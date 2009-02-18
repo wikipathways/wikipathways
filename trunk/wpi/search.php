@@ -12,7 +12,7 @@ class PathwayIndex {
 	
 	/**
 	 * Get a list of pathways by a datanode xref.
-	 * @param $xref The XRef object, if the XRef->code field is empty, the search
+	 * @param $xref The XRef object, if the XRef->getSystem() field is empty, the search
 	 will not restrict to any database.
 	 * @param $indirect also use cross-references from the synonym database
 	 * @return An array with the results as PathwayDocument objects
@@ -21,11 +21,11 @@ class PathwayIndex {
 		$results = array();
 		
 		$field = self::$f_id;
-		$word = $xref->id;
+		$word = $xref->getId();
 		
-		if($xref->code) {
+		if($xref->getSystem()) {
 			$field = $field . '.database';
-			$word = $word . ':' . $xref->code;
+			$word = $word . ':' . $xref->getSystem();
 		}
 		if($indirect) {
 			$field = 'x.' . $field;
@@ -209,16 +209,6 @@ class SearchHit {
 	
 	function getScore() {
 		return $this->hit->score;
-	}
-}
-
-class XRef {
-	public $id;
-	public $code;
-	
-	function __construct($id, $code = null) {
-		$this->id = $id;
-		$this->code = $code;
 	}
 }
 ?>
