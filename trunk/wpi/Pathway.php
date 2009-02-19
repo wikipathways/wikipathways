@@ -984,7 +984,7 @@ class Pathway {
 		}
 		
 		if(!$fileType) { //Update all
-			foreach($this->fileTypes as $type) {
+			foreach(self::$fileTypes as $type) {
 				$this->updateCache($type);
 			}
 			return;
