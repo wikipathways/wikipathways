@@ -66,7 +66,7 @@ class TagChangeNotification extends EmailNotification {
 		# global configuration level.
 		$editor = $this->editor;
 		$name    = $editor->getName();
-		$adminAddress = new MailAddress( $wgPasswordSender, 'WikiAdmin' );
+		$adminAddress = new MailAddress( $wgPasswordSender, 'WikiPathways' );
 		$editorAddress = new MailAddress( $editor );
 		if( $wgEnotifRevealEditorAddress
 		    && ( $editor->getEmail() != '' )
