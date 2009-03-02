@@ -101,6 +101,12 @@ class SpecialWishList extends SpecialPage
 		$this->reload();
 	}
 	
+	static function comparePathways($p1, $p2) {
+		$o1 = $p1->getSpecies() . $p1->getName();
+		$o2 = $p2->getSpecies() . $p2->getName();
+		return strcmp($o1, $o2);
+	}
+	
 	function markResolved($id, $pathwayTitle = '') {
 		global $wgOut, $wgUser;
 		if($pathwayTitle) {
@@ -111,6 +117,7 @@ class SpecialWishList extends SpecialPage
 		$select = "<select name='pathway'>$pwSelect";
 		//First show a form to fill in the pathway names
 		$pathways = Pathway::getAllPathways();
+		usort($pathways, 'SpecialWishList::comparePathways');
 		foreach($pathways as $pathway) {
 			$name = $pathway->name();
 			$species = $pathway->species();
