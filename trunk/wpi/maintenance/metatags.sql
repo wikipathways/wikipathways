@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS tag (
 	tag_name	varchar(255),
 	
 	-- Contents of the tag
-	tag_text	varchar(500),
+	tag_text	TEXT,
 	
 	-- Id ofthe page that is tagged
 	page_id		int(8) UNSIGNED,
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS tag_history (
 	time		char(14),
 	
 	-- Old text value
-	text		varchar(500),
+	text		TEXT,
 	
 	INDEX taghist_name (tag_name),
 	INDEX taghist_page (page_id)
