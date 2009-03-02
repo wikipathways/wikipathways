@@ -23,11 +23,12 @@ if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
 	$listPage = $_GET['listPage'];
 	$onlyCategorized = $_GET['onlyCategorized'];
 	$tag = $_GET['tag'];
+	$excludeTags = $_GET['tag_excl'];
 	
 	if($species) {
 		try {
 		$batch = new BatchDownloader(
-			$species, $fileType, $listPage, $onlyCategorized, $tag
+			$species, $fileType, $listPage, $onlyCategorized, $tag, split(';', $excludeTags)
 		);
 		$batch->download();
 		} catch(Exception $e) {
@@ -44,13 +45,17 @@ class BatchDownloader {
 	private $listPage;
 	private $onlyCategorized;
 	private $tag;
+	private $excludeTags;
 	
-	function __construct($species, $fileType, $listPage = '', $onlyCategorized = false, $tag = '') {
+	function __construct($species, $fileType, $listPage = '', $onlyCategorized = false, $includeTag = '', $excludeTags = NULL) {
 		$this->species = $species;
 		$this->fileType = $fileType;
 		$this->listPage = $listPage;
 		$this->onlyCategorized = $onlyCategorized;
-		$this->tag = $tag;
+		$this->tag = $includeTag;
+		if($excludeTags && count($excludeTags) > 0) {
+			$this->excludeTags = $excludeTags;
+		}
 	}
 	
 	static function createDownloadLinks($input, $argv, &$parser) {
@@ -58,6 +63,7 @@ class BatchDownloader {
 		$listPage = $argv['listpage'];
 		$onlyCategorized = $argv['onlycategorized'];
 		$tag = $argv['tag'];
+		$excludeTags = $argv['excludetags'];
 	
 		if($listPage) {
 			$listParam = '&listPage=' . $listPage;
@@ -68,10 +74,12 @@ class BatchDownloader {
 		if($tag) {
 			$tagParam = "&tag=$tag";
 		}
-	
+		if($excludeTags) {
+			$excludeParam = "&tag_excl=$excludeTags";
+		}
 		foreach(Pathway::getAvailableSpecies() as $species) {
 			$html .= tag('li', 
-						tag('a',$species,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType$listParam$onlyCategorizedParam$tagParam", 'target'=>'_new')));
+						tag('a',$species,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType$listParam$onlyCategorizedParam$tagParam$excludeParam", 'target'=>'_new')));
 		}
 		$html = tag('ul', $html);
 		return $html;
@@ -79,10 +87,15 @@ class BatchDownloader {
 	
 	private function createZipName() {
 		$cat = $this->onlyCategorized ? "_categorized" : '';
-		$list = $this->listPage ? "_$listPage" : '';
-		$t = $this->tag ? "_$tag" : '';
+		$list = $this->listPage ? "_{$this->listPage}" : '';
+		$t = $this->tag ? "_{$this->tag}" : '';
+		$et = '';
+		if($this->excludeTags) {
+			$str = implode('.', $this->excludeTags);
+			$et = "_$str";
+		}
 		$fileName = "wikipathways_" . $this->species . 
-					$cat . $list . $t . "_{$this->fileType}.zip";
+					$cat . $list . $t . $et . "_{$this->fileType}.zip";
 		$fileName = str_replace(' ', '_', $fileName);
 		return WPI_CACHE_PATH . "/" . $fileName;
 	}
@@ -189,6 +202,21 @@ class BatchDownloader {
 			}
 			$pathways = $filtered;
 		}
+		//Filter out certain tags
+		if($this->excludeTags) {
+			$pages = array();
+			foreach($this->excludeTags as $t) {
+				$pages = array_merge($pages, MetaTag::getPagesForTag($t));
+			}
+			foreach($pathways as $p) {
+				$id = $p->getTitleObject()->getArticleId();
+				if(!in_array($id, $pages)) {
+					$filtered[] = $p;
+				}
+			}
+			$pathways = $filtered;
+		}
+		
 		//Filter for private pathways
 		$filtered = array();
 		foreach($pathways as $p) {
