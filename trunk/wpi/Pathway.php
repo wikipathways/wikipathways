@@ -19,7 +19,7 @@ class Pathway {
 		'Saccharomyces cerevisiae' => 'Sc',
 		'Danio rerio' => 'Dr',
 		'Arabidopsis thaliana' => 'At',
-		'Oryza japonica' => 'Oj',
+		'Oryza sativa' => 'Oj',
 	);
 	private static $spCode2Name; //TODO: complete species
 	
