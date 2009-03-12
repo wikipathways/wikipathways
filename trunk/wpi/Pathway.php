@@ -618,6 +618,11 @@ class Pathway {
 		 * out of it. We'll strip some silently that Title would die on.
 		 */
 		$filtered = preg_replace ( "/[^".Title::legalChars()."]|:/", '-', $prefix );
+		/*
+		 * Filter out additional illegal character that shouldn't be in a file name
+		 */
+		$filtered = preg_replace( "/[\/\?\<\>\\\:\*\|]/", '-', $prefix);
+		
 		$title = Title::newFromText( $filtered, NS_IMAGE );
 		if(!$title) {
 			throw new Exception("Invalid file title for pathway " + $fileName);

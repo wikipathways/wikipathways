@@ -404,21 +404,34 @@ class MetaTag {
 	}
 	
 	public static function getHistoryForPage($pageId, $fromTime = '0') {
-		return self::queryHistory($pageId, false, $fromTime);
+		return self::queryHistory($pageId, '', $fromTime);
+	}
+	
+	public static function getAllHistory($tagName = '', $fromTime = '0') {
+		return self::queryHistory('', $tagName, $fromTime);
 	}
 	
 	private static function queryHistory($pageId, $tagName, $fromTime = '0') {
-		
 		$nameWhere = '';
 		if($tagName) {
 			$nameWhere = "'{$tagName}' AND";
 		}
 		
+		$pageWhere = '';
+		if($pageId) {
+			$pageWhere = "page_id = $pageId AND";
+		}
+		
+		$tagWhere = '';	
+		if($tagName) {
+			$tagWhere = "tag_name = '$tagName' AND";
+		}
+		
 		$dbr = wfGetDB( DB_SLAVE );
 		$tbl = self::$TAG_HISTORY_TABLE;
 		$query = "SELECT * FROM $tbl WHERE " .
-			"$nameWhere page_id = {$pageId} " .
-			"AND time >= $fromTime ORDER BY time DESC";
+			"$nameWhere $pageWhere $tagWhere " .
+			" time >= $fromTime ORDER BY time DESC";
 		$res = $dbr->query($query);
 		$history = array();
 		while($row = $dbr->fetchObject( $res )) {

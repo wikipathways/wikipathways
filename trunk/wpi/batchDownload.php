@@ -103,9 +103,33 @@ class BatchDownloader {
 	private function getCached() {
 		$zipFile = $this->createZipName();
 		if(file_exists($zipFile)) {
+			$tsZip = filemtime($zipFile);
+			
 			//Check if file is still valid (based on the latest pathway edit)
 			$latest = wfTimestamp(TS_UNIX, MwUtils::getLatestTimestamp(NS_PATHWAY));
-			if($latest > filemtime($zipFile)) {
+			
+			//If the download is based on curation tags, also check the last modification
+			//on the used tags
+			if($this->tag || $this->excludeTags) {
+				$checkTags = array();
+				if($this->tag) $checkTags[] = $this->tag;
+				if($this->excludeTags) {
+					foreach($this->excludeTags as $t) $checkTags[] = $t;
+				}
+				$hist = CurationTag::getAllHistory(wfTimestamp(TS_MW, $tsZip));
+				foreach($hist as $h) {
+					if(in_array($h->getTagName(), $checkTags)) {
+						$action = $h->getAction();
+						if($action == MetaTag::$ACTION_CREATE || $action == MetaTag::$ACTION_REMOVE) {
+							$latestTag = wfTimestamp(TS_UNIX, $h->getTime());
+							break;
+						}
+					}
+				}
+			}
+			if($latestTag > $latest) $latest = $latestTag;
+			
+			if($latest > $tsZip) {
 				return null;
 			} else {
 				return $zipFile;
@@ -137,11 +161,28 @@ class BatchDownloader {
 		}
 	
 		$zipFile = $this->createZipName();
+		
+		//Create symlinks to the cached gpml files,
+		//with a custom file name (containing the pathway title)
+		$files = "";
+		$tmpLinks = array();
+		$tmpDir = WPI_TMP_PATH . "/" . wfTimestamp(TS_UNIX);
+		mkdir($tmpDir);
 		foreach($pathways as $pw) {
-			$files .= $pw->getFileLocation($this->fileType) . ' ';
+			$link = $tmpDir . "/" . $pw->getIdentifier() . "_" . $pw->getActiveRevision() . 
+				"_" . $pw->getFilePrefix() . "." . $this->fileType;
+			$cache = $pw->getFileLocation($this->fileType);
+			link($cache, $link);
+			$tmpLinks[] = $link;
+			$files .= '"' . $link . '" ';
 		}
-		$cmd = "zip -j '$zipFile' $files 2>&1";
+		$cmd = "zip -j \"$zipFile\" $files 2>&1";
 		$output = wfShellExec($cmd, $status);
+		
+		//Remove the tmp files
+		foreach($tmpLinks as $l) unlink($l);
+		rmdir($tmpDir);
+		
 		if($status != 0) {
 			throw new Exception("'''Unable process download:''' $output");
 		}
@@ -156,7 +197,7 @@ class BatchDownloader {
 			foreach($allpws as $p) {
 				$pspecies = str_replace(' ', '_', $p->species());
 				if($pspecies == $species && $this->species) {
-					$pathways[] = $p;
+					$pathways[$p->getIdentifier()] = $p;
 				}
 			}
 		} else {
@@ -164,7 +205,7 @@ class BatchDownloader {
 			$filtered = array();
 			foreach($pathways as $p) {  //Filter by species
 				if($p->getSpecies() == $this->species) {
-					$filtered[] = $p;
+					$filtered[$p->getIdentifier()] = $p;
 				}
 			}
 			$pathways = $filtered;
@@ -179,13 +220,15 @@ class BatchDownloader {
 				$cats = $ch->getCategories();
 				foreach($cats as $c) {
 					if(in_array($c, $allCats)) {
-						$filtered[] = $p;
+						$filtered[$p->getIdentifier()] = $p;
 						break;
 					}
 				}
 			}
 			$pathways = $filtered;
 		}
+		
+		//Include only pathways with a given tag
 		if($this->tag) {
 			$filtered = array();
 			$pages = MetaTag::getPagesForTag($this->tag);
@@ -197,12 +240,13 @@ class BatchDownloader {
 					if($rev) {
 						$p->setActiveRevision($rev);
 					}
-					$filtered[] = $p;
+					$filtered[$p->getIdentifier()] = $p;
 				}
 			}
 			$pathways = $filtered;
 		}
 		//Filter out certain tags
+		$filtered = array();
 		if($this->excludeTags) {
 			$pages = array();
 			foreach($this->excludeTags as $t) {
@@ -211,17 +255,16 @@ class BatchDownloader {
 			foreach($pathways as $p) {
 				$id = $p->getTitleObject()->getArticleId();
 				if(!in_array($id, $pages)) {
-					$filtered[] = $p;
+					$filtered[$p->getIdentifier()] = $p;
 				}
 			}
 			$pathways = $filtered;
 		}
-		
 		//Filter for private pathways
 		$filtered = array();
 		foreach($pathways as $p) {
 			if($p->isPublic()) { //Filter out all private pathways
-				$filtered[] = $p;
+				$filtered[$p->getIdentifier()] = $p;
 			}
 		}
 		return $filtered;	

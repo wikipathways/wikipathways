@@ -229,8 +229,7 @@ class CurationTag {
 	 * Get the curation tag history for all pages
 	 **/
 	public static function getAllHistory($fromTime = 0) {
-		$allhist = MetaTag::getHistoryForPage($fromTime);
-		
+		$allhist = MetaTag::getAllHistory('', $fromTime);
 		$hist = array();
 		foreach($allhist as $h) {
 			if(self::isCurationTag($h->getTagName())) {
