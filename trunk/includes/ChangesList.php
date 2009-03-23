@@ -189,7 +189,11 @@ class ChangesList {
 		# patrolled yet, we need to give users a way to do so
 		if ($rc->getTitle()->getNamespace() == NS_PATHWAY){ 
 			$pathway = Pathway::newFromTitle($rc->getTitle());
-                	$title = Title::makeTitle( $rc->getTitle()->getNsText(), $pathway->getSpecies().":".$pathway->getName() );
+			if(!$pathway->isReadable()) { //Keep private pathway names obscured
+				$title = $rc->getTitle();
+			} else {
+                		$title = Title::makeTitle( $rc->getTitle()->getNsText(), $pathway->getSpecies().":".$pathway->getName() );
+			}
 		} else {
 			$title = '';
 		}
