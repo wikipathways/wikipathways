@@ -5,6 +5,10 @@ The subdirectory will the category the pathway has to be placed in, e.g.
 
 pathway0.gpml 			will not be placed in any category
 foo/pathway1.gpml 		will be placed in category 'foo'
+
+Run this script as user 'MaintBot' and with parameter 'doit=true' in the url to upload the pathways.
+If this parameter is not present, the script will do a 'dry run' and only list
+the pathways but don't actually upload them.
 */
 
 require_once("Maintenance.php");
