@@ -169,8 +169,8 @@ class BatchDownloader {
 		$tmpDir = WPI_TMP_PATH . "/" . wfTimestamp(TS_UNIX);
 		mkdir($tmpDir);
 		foreach($pathways as $pw) {
-			$link = $tmpDir . "/" . $pw->getIdentifier() . "_" . $pw->getActiveRevision() . 
-				"_" . $pw->getFilePrefix() . "." . $this->fileType;
+			$link = $tmpDir . "/" . $pw->getFilePrefix() . "_" . $pw->getIdentifier() . "_"
+					 . $pw->getActiveRevision() . "." . $this->fileType;
 			$cache = $pw->getFileLocation($this->fileType);
 			link($cache, $link);
 			$tmpLinks[] = $link;
