@@ -100,7 +100,7 @@ function generateContent() {
 		try {
 			$modTime = $pathway->getGpmlModificationTime();
 			$url = $pathway->getFullUrl();
-			$name = $pathway->getName();
+			$pathwayName = $pathway->getName();
 			$authorIds = MwUtils::getAuthors($pathway->getTitleObject()->getArticleID());
 			$authors = array();
 			foreach($authorIds as $id) {
@@ -119,13 +119,13 @@ function generateContent() {
 
 			// Print pathways data
 			if ($outputFormat =='html'){
-				fwrite($fh, "<tr><td>".$name."</td><td>".$species."</td><td>".$categories."&nbsp</td><td>".$url."</td><td>".$modTime."</td><td>".$lastRevision."</td><td>".$author."&nbsp</td><td>");
+				fwrite($fh, "<tr><td>".$pathwayName."</td><td>".$species."</td><td>".$categories."&nbsp</td><td>".$url."</td><td>".$modTime."</td><td>".$lastRevision."</td><td>".$author."&nbsp</td><td>");
 			}
 			elseif ($outputFormat == 'excel'){
 				//TODO
 			}
 			else {
-				fwrite($fh, $name."\t".$species."\t".$categories."\t".$url."\t".$modTime."\t".$lastRevision."\t".$author."\t");
+				fwrite($fh, $pathwayName."\t".$species."\t".$categories."\t".$url."\t".$modTime."\t".$lastRevision."\t".$author."\t");
 			}
 
 			$uniqueXrefs = $pathway->getUniqueXrefs();
