@@ -255,11 +255,7 @@ TEXT;
 <ul id="nav" name="nav">		
 <li><a href="#nogo2" class="button buttondown"><span>Download</span></a>
 		<ul>
-			<li><a class="parent" href="#">Download for</a>
-					<ul>
-						$downloadlist
-					</ul>
-			</li>
+			$downloadlist
 			$cytoscape
 		</ul>
 </li>
