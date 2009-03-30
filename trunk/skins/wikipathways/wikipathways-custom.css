@@ -250,6 +250,7 @@ a.button:active span {
 	padding: 0;
 	margin: 0;
 	list-style: none;
+	z-index: 10000
 }
 
 #nav a {
