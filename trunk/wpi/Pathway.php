@@ -676,7 +676,8 @@ class Pathway {
 	}
 	
 	private static function checkGpmlSpecies($gpml) {
-		if(preg_match("/<Pathway.*Organism=\"(.*?)\"/u", $gpml, $match)) {
+		$gpml = utf8_encode($gpml);
+		if(preg_match("/<Pathway.*Organism=\"(.*?)\"/us", $gpml, $match)) {
 			$species = $match[1];
 			if(!in_array($species, self::getAvailableSpecies())) {
 				throw new Exception("The organism '$species' for the pathway is not supported.");
