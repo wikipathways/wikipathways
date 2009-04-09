@@ -1004,9 +1004,6 @@ class Pathway {
 			case FILETYPE_GPML:
 				$this->saveGpmlCache();
 				break;
-			case FILETYPE_IMG:
-				$this->saveImageCache();
-				break;
 			default:
 				$this->saveConvertedCache($fileType);
 				break;
@@ -1105,24 +1102,6 @@ class Pathway {
 		}
 		return true;
 	} 
-	
-	private function saveImageCache() {
-		$file = $this->getFileLocation(FILETYPE_GPML);
-		$this->saveImage($file, "Updated SVG cache");
-	}
-	
-	/**
-	 * Saves the pathway image (based on the given GPML file) 
-	 * and uploads it to the MediaWiki image page
-	 */
-	private function saveImage($gpmlFile, $description) {
-		$imgName = $this->getFileName(FILETYPE_IMG);
-		# Convert gpml to svg
-		$gpmlFile = realpath($gpmlFile);
-		$imgFile = $this->getFileLocation(FILETYPE_IMG, false);
-		
-		self::convert($gpmlFile, $imgFile);
-	}
 	
 	private function saveGpmlCache() {
 		$gpml = $this->getGpml();
