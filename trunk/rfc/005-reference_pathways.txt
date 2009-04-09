@@ -1,81 +1,25 @@
 == RFC 005: Reference pathways ==
-This RFC describes the plan for keeping static, immutable reference pathways on WikiPathways. Since any pathway on WikiPathways is inherently 
-unstable (meaning it's content will be changed by users), keeping an original reference pathway that is immutable is desirable for some 
-pathway content, for example pathways converted from other sources (KEGG, Reactome, inter-species). 
+This RFC describes the plan for periodically updating pathways on WikiPathways that were automatically converted from an external data source ((KEGG, Reactome, inter-species). Since any pathway on WikiPathways is inherently unstable (meaning it's content will be changed by users), it is necessary to design a mechanism that allows for merging incremental updates (when the original datasource is updated) into the unstable version on WikiPathways.
 
-== What is a reference pathway? ==
+Note (TK, April 2008): We decided that reference pathways are not required to make incremental updates of converted pathway content possible. Because reference pathways would only introduce extra complexity, the rest of this RFC will outline Alex's idea for a workflow without reference pathways. Older versions of this RFC containing the implementation plan for reference pathways can still be viewed in the svn history.
 
-In the context of this RFC, a reference pathway is an automatically converted pathway, either from an outside source or from a different
-species at WikiPatwhays. The content of the reference pathway would replicate completely that of the original pathway used for conversion.
-The only possible difference in content would be introduced by the converter tool and would not involve the biology described in the pathway, 
-but only cosmetic differences like changes to layout, fonts etc. 
-A reference pathway cannot be edited by users.
+The following is a summary from wikipathway-dev thread: http://groups.google.com/group/wikipathways-dev/browse_thread/thread/f9c0509b8a85020b
+
+== Workflow ==
+Converted pathways are uploaded to the wiki. Users can edit the pathways, like any other pathway on the wiki. Once an update for the converted pathway becomes available, two thinks can happen:
+1. The pathway wasn't edited. It's the same as the original converted pathway and can be overwritten with the new converted version.
+2. The pathway was edited. The user is notified that an update from the original datasource is avaliable (via the curation tag mechanism). A curation tag is added, with a link to a merge tool that shows the diff between the original converted and updated converted pathway. Using the merge tool, the user can merge the changes into the edited pathway and mark it as merged.
+This process is repeated when a new update of the converted pathway becomes available.
 
 == Implementation ==
+We need to implement:
+1. A server-side tool that:
+- Converts pathway from an external data source
+- Initally uploads converted pathways to the wiki
+- Performs the following actions when an update of the external data source is available:
+	- check whether an uploaded pathway has been changed on the wiki by a user
+	- either overwrite the uploaded pathway or add a curation tag with link to mergetool
 
-=== Pathway ===
+2. A merge tool that shows a diff between two pathways and allows the user to merge these changes into another pathway. This can simply be a page with the diff applet and the editor applet below each other. Future versions can include semi-automatic merging.
 
-The reference pathway should be like any other pathway on WikiPathways in *almost* all aspects. The following lists of features/functions
-is a first attempt at defining how the reference pathway is different.
-
-The reference pathway should be different in terms of:
-- Edits: Read-only, no edits allowed (See User interface Option 2)
-- Pathway page (or the actual pathway image) should include a label or icon stating that it is a ref pathway.
-- GPML: Somehow record that this is a reference pathway, source of the content and date it was retrieved
-
-The reference pathway should behave like a normal pathway in terms of:
-- Searching
-- Browsing
-- Pathway ontologies
-- Pathway statistics
-- Downloading
-- Diff viewer (so that users an choose to compare an edited ref patwhay and the original)
-
-TK: Pathways derived from reference pathways, should also record this in GPML. I would suggest to store both data
-in the same way, by adding a 'derived-from' child element to pathway.
-This could be used to store external sources:
-<derived-from source="Reactome" source-pathway="Reactome_pathway_id" date="19830402"/>
-and internally:
-<derived-from source="WikiPathways" source-pathway="WP_pathway_id" date="19830402" />
-
-=== Automatically updating reference pathways ===
-
-One of the main benefits to keeping static reference pathways is that these can be automatically updated (programmatically) from the source 
-without considering merging content with pathways generated from the ref pathway. Monthly (?) updates of reference pathways would ensure 
-that our representation of outside content is kept up-to-date and accurate.
- 
-=== User interface ===
-
-Option 1:
-When a user tries to edit a ref pathway, the applet is started but when saving it will not be possible to save pathway with the
-same name.
-
-Option 2:
-To edit a ref pathway a user first has to select "create new pathway" and an option for selecting a ref pathway as a starting point will
-be available. If user tries to edit ref pathway directly, message appears explaining what to do.
-
-These two options could also be combined in some way to provide greater usability.
-
-AP: I think it would be better to block Option 1 altogether: the edit button should be disabled entirely.  If a user wants to download 
-the pathway and edit it locally they can do that outside of WP. Option 2 is important for adapting reference pathways to create
-specialized pathways.  This could be a general feature available whenever a new pathway is created. You can imagine and option to
-start with an already existing pathway when creating a new pathway, and the reference pathways would be included in this list.  This
-would also make it easier to manually translate a pathway from one species to another.
-TK: A reason not to block option 1 could be that you want access to the backpage information, which is only available through the editor. An alternative for blocking is to rename the edit button to 'Show interactive pathway' or something similar.
-
-== Discussion points ==
-
-=== Benefits of keeping reference pathways ===
-
-- Reference pathways can easily be kept up-to-date with source without having to consider merging changes in pathways generated from reference 
-pathway. This allows for accurate representation of outside content.
-
-- User can compare pathways generated from a ref pathway to the original.
-
-=== Drawbacks to keeping reference pathways ===
-
-- Having several pathways with similar name and content may cause issues with pathway statistics. 
-
-AP: Not sure why reference pathways would cause this?  Pathways with similar names can happen anyway and reference pathways shouldn't 
-have more issues with this, I wouldn't think.
-TK: But I agree similar content can be an issue, since it could clubber your end results with almost duplicates. It shouldn't matter for the p-value though, since each pathway is tested individually (not sure if I'm right here). As long as we store in GPML from which pathway it's derived, the statistical algorithm can take that into account and filter out or group derived pathways.
+Note that both tools can be implemented independent of the WikiPathways code.
