@@ -184,7 +184,7 @@ HTML
 		global $wgHooks;
 		$wgHooks['SkinTemplateTabs'][] = array($this, 'customizeTabs');
 		
-		$this->output->setPageTitle( $this->title->getTalkpage()->getPrefixedText() );
+		$this->output->setPageTitle( $this->title->getTalkPage()->getPrefixedText() );
 		self::addJSandCSS();
 		$article = new Article( $this->title ); // Added in r29715 sorting. Why?
 		
@@ -411,7 +411,7 @@ HTML
 		global $wgHooks;
 		$wgHooks['SkinTemplateTabs'][] = array($this, 'customizeTabs');
 		
-		$this->output->setPageTitle( $this->title->getTalkpage()->getPrefixedText() );
+		$this->output->setPageTitle( $this->title->getTalkPage()->getPrefixedText() );
 		self::addJSandCSS();
 		
 		$empty = $this->showSearchForm();
@@ -504,7 +504,7 @@ class ThreadPermalinkView extends LqtView {
 		$query = '';
 		else
 		$query = 'lqt_archive_month=' . substr($this->thread->modified(),0,6);
-		$talkpage = $this->thread->article()->getTitle()->getTalkpage();
+		$talkpage = $this->thread->article()->getTitle()->getTalkPage();
 		$talkpage_link = $this->user->getSkin()->makeKnownLinkObj($talkpage, '', $query);
 		if ( $this->thread->hasSuperthread() ) {
 			return wfMsg('lqt_fragment',"<a href=\"{$this->permalinkUrl($this->thread->topmostThread())}\">".wfMsg('lqt_discussion_link')."</a>",$talkpage_link);
@@ -1060,7 +1060,7 @@ HTML
 	
 	function showSuccessMessage( $is_deleted_already ) {
 		// TODO talkpageUrl should accept threads, and look up their talk pages.
-		$talkpage_url = LqtView::talkpageUrl($this->thread->article()->getTitle()->getTalkpage());
+		$talkpage_url = LqtView::talkpageUrl($this->thread->article()->getTitle()->getTalkPage());
 		$message = $is_deleted_already ? wfMsg('lqt_delete_undeleted') : wfMsg('lqt_delete_deleted');
 		$message .= ' ';
 		$message .= wfMsg('lqt_delete_return', '<a href="'.$talkpage_url.'">'.wfMsg('lqt_delete_return_link').'</a>');
