@@ -370,6 +370,8 @@ class Thread {
 		$this->bumpRevisionsOnAncestors($change_type, $change_object, $reason, wfTimestampNow());
 		self::setChangeOnDescendents($this->topmostThread(), $change_type, $change_object);
 
+		self::updateTalkPage();
+
 		if( $change_type == Threads::CHANGE_REPLY_CREATED
 				&& $this->editedness == Threads::EDITED_NEVER ) {
 			$this->editedness = Threads::EDITED_HAS_REPLY;
@@ -413,6 +415,17 @@ class Thread {
 	//		$lastRevision, $this->getModified(), $bot, '', $oldsize, $newsize,
 	//		$revisionId );
 	}
+
+        function updateTalkPage() {
+                $talkTitle = $this->article()->getTitle()->getTalkPage();
+                $talkArticle = new Article($talkTitle, 0);
+		$talkRevision = Revision::newFromId($talkArticle->getLatest());
+                if( $talkRevision ) $text = $talkRevision->getRawText();
+	    	$timestamp = wfTimestampNow();
+                $text .=  "\n<!-- LQT $timestamp -->";
+                $description = "LQT edit";
+                $talkArticle->doEdit($text, $description);
+        }
 
 	function delete($reason) {
 		$this->type = Threads::TYPE_DELETED;
