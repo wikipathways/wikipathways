@@ -423,7 +423,7 @@ class Thread {
                 if( $talkRevision ) $text = $talkRevision->getRawText();
 	    	$timestamp = wfTimestampNow();
                 $text .=  "\n<!-- LQT $timestamp -->";
-                $description = "LQT edit";
+                $description = "Discussion edited";
                 $talkArticle->doEdit($text, $description);
         }
 
@@ -913,6 +913,8 @@ class Threads {
 
 		self::createTalkpageIfNeeded($article);
 
+		$newthread->updateTalkPage();
+		
 		NewMessages::writeMessageStateForUpdatedThread($newthread);
 
 		return $newthread;
