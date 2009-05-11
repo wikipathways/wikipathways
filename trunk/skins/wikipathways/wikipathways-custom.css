@@ -314,3 +314,9 @@ ul.pathwayhistory {
 	padding:0px;
 	
 }
+
+.searchboxBgImage {
+width: 90px;
+background:url('http://www.wikipathways.org/img_auth.php/e/ea/Magnifying-glass.gif') no-repeat;
+padding-left:20px;
+}

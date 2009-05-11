@@ -219,13 +219,8 @@ class WikiPathwaysTemplate extends QuickTemplate {
     <input type="hidden" name="cref" value="http://www.wikipathways.org/wp_cse_context.xml" />
     <input type="hidden" name="cof" value="FORID:11" />
     <input type="hidden" name="filter" value="0" /> <!--set filter=0 to disable omitting similiar hits-->
-    <input name="q" type="text" size="14%" />
+    <input class="searchboxBgImage" name="q" type="text" size="14%" value="" />
     </td></tr>
-    <tr align="left">
-    <td>
-        <input type="checkbox" name="as_occt" value="title">titles only
-        </td>
-    </tr>
     </table>
 </form>
 <script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=searchbox_cref"></script>
