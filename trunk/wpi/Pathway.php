@@ -11,15 +11,24 @@ class Pathway {
 	public static $DELETE_PREFIX = "Deleted pathway: ";
 	
 	private static $spName2Code = array(
-		'Homo sapiens' => 'Hs', 
-		'Rattus norvegicus' => 'Rn', 
-		'Mus musculus' => 'Mm',
-		'Drosophila melanogaster' => 'Dm',
-		'Caenorhabditis elegans' => 'Ce',
-		'Saccharomyces cerevisiae' => 'Sc',
-		'Danio rerio' => 'Dr',
+		'Anopheles gambiae' => 'Ag',
 		'Arabidopsis thaliana' => 'At',
+		'Bos taurus' => 'Bt',
+		'Bacillus subtilis' => 'Bs',
+		'Caenorhabditis elegans' => 'Ce',
+		'Canis familiaris' => 'Cf',
+		'Danio rerio' => 'Dr',
+		'Drosophila melanogaster' => 'Dm',
+		'Escherichia coli' => 'Ec',
+		'Equus caballus' => 'Qc',
+		'Gallus gallus' => 'Gg',
+		'Homo sapiens' => 'Hs', 
+		'Mus musculus' => 'Mm',
 		'Oryza sativa' => 'Oj',
+		'Pan troglodytes' => 'Pt',
+		'Rattus norvegicus' => 'Rn', 
+		'Saccharomyces cerevisiae' => 'Sc',
+		'Xenopus tropicalis' => 'Xt',
 	);
 	private static $spCode2Name; //TODO: complete species
 	

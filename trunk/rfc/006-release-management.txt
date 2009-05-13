@@ -358,6 +358,22 @@ Here is some background information about diffs, patching, to help you with the 
 See also: http://producingoss.com/en/vc.html#vc-using
 and: http://svnbook.red-bean.com/en/1.4/svn.branchmerge.copychanges.html
 
+=== Other tasks for release time ===
+
+* Update the release notes on http://www.pathvisio.org/Release_Notes
+
+* add a news item on the pathvisio.org main page
+
+* Update the pathvisio webstart
+	Make sure webstart/autoftp.conf.template has been filled in and saved as webstart/autoftp.conf 
+	(you need to know username / password of the ftp account)
+	
+	run "ant webstart"
+
+* Update the news item on wikipathways.org
+
+* If there are major new features, do an announcement on wp-announce. If this is a small release, do an announcement on wp-dev=======
+
 === Step-by-step instructions for WikiPathways release ===
 This section lists the steps to take for a typical milestone release. Note that you have to replace some milestone and revision numbers.
 
@@ -409,4 +425,35 @@ java -jar ../bin/wikipathways-indexer.jar indexer.config gdb.config --rebuild
 # Update the site content
 	# Copy new / updated pages and messages
 	# Update news section (also add items to news archive page)
+	
+# Update the pathvisio webstart & tar
+	# Webstart must be compiled with Java 5. First make sure that you're on java 5
+	javac -version
+	java -version
+	
+	# switch to the current release tag
+	# note that you must use a pure svn repository, not git-svn
+	
+	cd ~/prg/pv_release
+	svn-clean
+	svn switch http://svn.bigcat.unimaas.nl/pathvisio/tags/milestone_12.0
+	
+	# compile webstart and publish
+	ant prepare-webstart
+	scp -r webstart/www/* pathvisio@www.pathvisio.org:/home/pathvisio/webstart
+	
+	# test webstart: 
+	go to http://pathvisio.org/Download
+	Click on download link
+	Check revision no in about box
+	
+	# create tar.gz and publish
+	ant tar
+	scp pathvisio_[bs]* pathvisio@www.pathvisio.org:/home/pathvisio/data/releases
+	
+	# update front page and release notes
+	http://pathvisio.org/Release_Notes
+	http://pathvisio.org/PathVisio
+	
+	
 
