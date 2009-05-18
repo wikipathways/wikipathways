@@ -71,20 +71,26 @@ class BatchDownloader {
 	
 		if($listPage) {
 			$listParam = '&listPage=' . $listPage;
-			$subsetIds = Pathway::parsePathwayListPage($listPage, true);
+			$listedPathways = Pathway::parsePathwayListPage($listPage);
+			foreach ($listedPathways as $pw) {
+                        	$countPerSpecies[$pw->getSpecies()] += 1;
+                	}
 		}
 		if($onlyCategorized) {
 			$onlyCategorizedParam = '&onlyCategorized=true';
 		}
 		if($tag) {
 			$tagParam = "&tag=$tag";
-			$subsetIds = CurationTag::getPagesForTag("$tag");
+			$taggedPageIds = CurationTag::getPagesForTag("$tag");
+                	foreach ($taggedPageIds as $pageId) {
+                        	$countPerSpecies[Pathway::newFromTitle(Title::newFromId($pageId))->getSpecies()] += 1;
+                	}
 		}
 		if($excludeTags) {
 			$excludeParam = "&tag_excl=$excludeTags";
 		}
 		foreach(Pathway::getAvailableSpecies() as $species) {
-			$nrPathways = StatisticsCache::howManyPathways($species, $subsetIds);
+			$nrPathways = $countPerSpecies[$species]; 
                 	if($displayStats) {
                         	$stats = "\t\t($nrPathways)";
                 	}

@@ -60,7 +60,7 @@ class StatisticsCache
 	 * given species = 'total', it returns total number of pathways        
 	 * re-creates the cache if it doesn't exist.        
  	 */
-        public static function howManyPathways($species, $subsetIds = array())        
+        public static function howManyPathways($species)        
 	{
                 global $wgScriptPath;
                 $count = 0;
@@ -71,7 +71,7 @@ class StatisticsCache
 		// update cache if this species has never been calculated before                
 		if (!array_key_exists ($species, $data))                
 		{
-                        $data = StatisticsCache::countPathways($subsetIds);
+                        $data = StatisticsCache::countPathways();
                         StatisticsCache::writePathwayCache($data); 
                }
 
@@ -139,7 +139,7 @@ class StatisticsCache
 	 * this methods counts for all species every time. It's basically just as fast with the
 	 * current logic below.
          */
-        private static function countPathways($subsetIds = array())
+        private static function countPathways()
         {
 			$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
         	$pathwaysPerSpecies = array();
@@ -150,9 +150,6 @@ class StatisticsCache
 			if(!$pathway->isPublic()) continue; //Skip private pathways
 			$page_id = $pathway->getPageIdDB();
 			if (in_array($page_id, $taggedIds)) continue; // skip Tutorial pathways
-			if (count($subsetIds)>0){
-				if (!in_array($page_id, $subsetIds)) continue; // skip if not in passed list
-			}
             		$species = $pathway->getSpecies();
                 	if ($species == '') continue; //skip pathways without a species category
 			$pathwaysPerSpecies{$species} += 1;
