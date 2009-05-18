@@ -44,13 +44,15 @@ EOD;
 	foreach(Pathway::getAvailableSpecies() as $species) {
 		$nr = StatisticsCache::howManyPathways($species);
 		$genes = StatisticsCache::howManyUniqueGenes($species);
-		$table .= <<<EOD
+		if ($nr > 0) {  // skip listing species with 0 pathways
+			$table .= <<<EOD
 
 |-align="left"
 |$species:
 |'''$nr'''
 |''($genes)''
 EOD;
+		}
 	}
 	$table .= "\n|}";
 	$output .= $table;
