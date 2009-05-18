@@ -24,11 +24,12 @@ if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
 	$onlyCategorized = $_GET['onlyCategorized'];
 	$tag = $_GET['tag'];
 	$excludeTags = $_GET['tag_excl'];
+	$displayStats = $_GET['stats'];
 	
 	if($species) {
 		try {
 		$batch = new BatchDownloader(
-			$species, $fileType, $listPage, $onlyCategorized, $tag, split(';', $excludeTags)
+			$species, $fileType, $listPage, $onlyCategorized, $tag, split(';', $excludeTags), $displayStats
 		);
 		$batch->download();
 		} catch(Exception $e) {
@@ -46,8 +47,9 @@ class BatchDownloader {
 	private $onlyCategorized;
 	private $tag;
 	private $excludeTags;
+	private $displayStats;
 	
-	function __construct($species, $fileType, $listPage = '', $onlyCategorized = false, $includeTag = '', $excludeTags = NULL) {
+	function __construct($species, $fileType, $listPage = '', $onlyCategorized = false, $includeTag = '', $excludeTags = NULL, $displayStats = false) {
 		$this->species = $species;
 		$this->fileType = $fileType;
 		$this->listPage = $listPage;
@@ -56,6 +58,7 @@ class BatchDownloader {
 		if($excludeTags && count($excludeTags) > 0) {
 			$this->excludeTags = $excludeTags;
 		}
+		$this->stats = $displayStats;
 	}
 	
 	static function createDownloadLinks($input, $argv, &$parser) {
@@ -64,6 +67,7 @@ class BatchDownloader {
 		$onlyCategorized = $argv['onlycategorized'];
 		$tag = $argv['tag'];
 		$excludeTags = $argv['excludetags'];
+		$displayStats = $argv['stats'];
 	
 		if($listPage) {
 			$listParam = '&listPage=' . $listPage;
@@ -73,13 +77,20 @@ class BatchDownloader {
 		}
 		if($tag) {
 			$tagParam = "&tag=$tag";
+			$subsetIds = CurationTag::getPagesForTag("$tag");
 		}
 		if($excludeTags) {
 			$excludeParam = "&tag_excl=$excludeTags";
 		}
 		foreach(Pathway::getAvailableSpecies() as $species) {
-			$html .= tag('li', 
-						tag('a',$species,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType$listParam$onlyCategorizedParam$tagParam$excludeParam", 'target'=>'_new')));
+			$nrPathways = StatisticsCache::howManyPathways($species, $subsetIds);
+                	if($displayStats) {
+                        	$stats = "\t\t($nrPathways)";
+                	}
+			if ($nrPathways > 0) {  // skip listing species with 0 pathways
+				$html .= tag('li', 
+						tag('a',$species . $stats,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType$listParam$onlyCategorizedParam$tagParam$excludeParam", 'target'=>'_new')));
+			}
 		}
 		$html = tag('ul', $html);
 		return $html;

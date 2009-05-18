@@ -60,7 +60,7 @@ class StatisticsCache
 	 * given species = 'total', it returns total number of pathways        
 	 * re-creates the cache if it doesn't exist.        
  	 */
-        public static function howManyPathways($species)        
+        public static function howManyPathways($species, $subsetIds = array())        
 	{
                 global $wgScriptPath;
                 $count = 0;
@@ -71,7 +71,7 @@ class StatisticsCache
 		// update cache if this species has never been calculated before                
 		if (!array_key_exists ($species, $data))                
 		{
-                        $data = StatisticsCache::countPathways();
+                        $data = StatisticsCache::countPathways($subsetIds);
                         StatisticsCache::writePathwayCache($data); 
                }
 
@@ -139,7 +139,7 @@ class StatisticsCache
 	 * this methods counts for all species every time. It's basically just as fast with the
 	 * current logic below.
          */
-        private static function countPathways()
+        private static function countPathways($subsetIds = array())
         {
 			$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
         	$pathwaysPerSpecies = array();
@@ -147,13 +147,16 @@ class StatisticsCache
         	$pathways = self::getAllPathways();
         	foreach($pathways as $pathway) {
         		if ($pathway->isDeleted()) continue; //skip deleted pathways
-				if(!$pathway->isPublic()) continue; //Skip private pathways
-				$page_id = $pathway->getPageIdDB();
-				if (in_array($page_id, $taggedIds)) continue; // skip Tutorial pathways
-             	$species = $pathway->getSpecies();
-                if ($species == '') continue; //skip pathways without a species category
-				$pathwaysPerSpecies{$species} += 1;
-				$total += 1;
+			if(!$pathway->isPublic()) continue; //Skip private pathways
+			$page_id = $pathway->getPageIdDB();
+			if (in_array($page_id, $taggedIds)) continue; // skip Tutorial pathways
+			if (count($subsetIds)>0){
+				if (!in_array($page_id, $subsetIds)) continue; // skip if not in passed list
+			}
+            		$species = $pathway->getSpecies();
+                	if ($species == '') continue; //skip pathways without a species category
+			$pathwaysPerSpecies{$species} += 1;
+			$total += 1;
         	}
         	$pathwaysPerSpecies{'total'} = $total;
 			return $pathwaysPerSpecies;
