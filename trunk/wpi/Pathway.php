@@ -776,9 +776,10 @@ class Pathway {
 
 	/**
 	 * Parse a mediawiki page that contains a pathway list.
-	 * Assumes one pathway per line, invalid lines will be ignored
+	 * Assumes one pathway per line, invalid lines will be ignored.
+	 * If $ids=true is passed in, then page_ids are returned
 	 */
-	public static function parsePathwayListPage($listPage) {
+	public static function parsePathwayListPage($listPage, $ids=false) {
 		$listRev = Revision::newFromTitle(Title::newFromText($listPage), 0);
 		if($listRev != null) {
 			$lines = explode("\n", $listRev->getText());
@@ -804,6 +805,9 @@ class Pathway {
 					//If pathway creation works and the pathway exists, add to array
 					$pathway = Pathway::newFromTitle($title);
 					if(!is_null($pathway) && $pathway->exists()) {
+						if ($ids) { //return pathway IDs instead of objects
+							$pathway = $pathway->getPageIdDB();
+						}
 						$pathwayList[] = $pathway;
 					}
 				} catch(Exception $e) {

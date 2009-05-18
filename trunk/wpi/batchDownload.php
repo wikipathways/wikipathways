@@ -71,6 +71,7 @@ class BatchDownloader {
 	
 		if($listPage) {
 			$listParam = '&listPage=' . $listPage;
+			$subsetIds = Pathway::parsePathwayListPage($listPage, true);
 		}
 		if($onlyCategorized) {
 			$onlyCategorizedParam = '&onlyCategorized=true';
