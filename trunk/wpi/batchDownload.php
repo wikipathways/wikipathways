@@ -90,10 +90,12 @@ class BatchDownloader {
 			$excludeParam = "&tag_excl=$excludeTags";
 		}
 		foreach(Pathway::getAvailableSpecies() as $species) {
-			$nrPathways = $countPerSpecies[$species]; 
+			$nrPathways =  $countPerSpecies[$species]; 
                 	if($displayStats) {
                         	$stats = "\t\t($nrPathways)";
-                	}
+                	} else if(!$listPage && !$tag) {
+				$nrPathways = 1;  // list all if not filtering and counting
+			}
 			if ($nrPathways > 0) {  // skip listing species with 0 pathways
 				$html .= tag('li', 
 						tag('a',$species . $stats,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType$listParam$onlyCategorizedParam$tagParam$excludeParam", 'target'=>'_new')));
