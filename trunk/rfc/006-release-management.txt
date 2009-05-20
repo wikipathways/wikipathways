@@ -430,7 +430,7 @@ java -jar ../bin/wikipathways-indexer.jar indexer.config gdb.config --rebuild
 	# Webstart must be compiled with Java 5. First make sure that you're on java 5
 	javac -version
 	java -version
-	
+
 	# switch to the current release tag
 	# note that you must use a pure svn repository, not git-svn
 	
@@ -451,6 +451,10 @@ java -jar ../bin/wikipathways-indexer.jar indexer.config gdb.config --rebuild
 	ant tar
 	scp pathvisio_[bs]* pathvisio@www.pathvisio.org:/home/pathvisio/data/releases
 	
+	# create tar.gz of webservice client library and publish
+	ant tarbin-wpclient
+	scp wikipathways-client_* pathvisio@www.pathvisio.org:/home/pathvisio/data
+
 	# update front page and release notes
 	http://pathvisio.org/Release_Notes
 	http://pathvisio.org/PathVisio
