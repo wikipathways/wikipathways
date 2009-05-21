@@ -211,7 +211,7 @@ class BatchDownloader {
 	
 	function listPathways() {
 		if($this->listPage) {
-			$allpws = getPathwaysByList($this->listPage);
+			$allpws = Pathway::parsePathwayListPage($this->listPage);
 			$pathways = array();
 			//Apply additional filter by species
 			foreach($allpws as $p) {
