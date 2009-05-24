@@ -41,8 +41,10 @@ function generateContent() {
 	error_reporting(0);
 
 	//The displayed systems
+	  //NOTE: "Ensembl" will catch all species-specific Ensembl systems
+	  // now that matching is done on first word of system name
 	$displaySystems = array(
-		"Entrez Gene",
+		"Entrez",
 		"Ensembl",
 		"SwissProt",
 		"UniGene",
@@ -133,7 +135,12 @@ function generateContent() {
 			$xrefList = array();
 		
 			foreach($uniqueXrefs as $xref) {
-				$xrefList[$xref->getSystem()] .= $xref->getId() . ',';
+				// only use first word of system namess 
+				// to simplify matching for species-specific Ensembl systems
+				$xrefSystem = $xref->getSystem();
+				$xrefSystemWords = explode(" ", $xrefSystem);
+				$simpleXrefSystem = $xrefSystemWords[0];
+				$xrefList[$simpleXrefSystem] .= $xref->getId() . ',';
 				$count++;
 			}
 			//Generate the MOD list
@@ -145,6 +152,10 @@ function generateContent() {
 				'FlyBase',
 				'WormBase',
 				'SGD',
+				'TAIR',
+                                'EcoGene',
+                                'MaizeGDB',
+                                'Oryzabase',
 			);
 			foreach(array_keys($xrefList) as $system) {
 				if(in_array($system, $modSystems)) {
