@@ -686,7 +686,14 @@ class Pathway {
 	
 	private static function checkGpmlSpecies($gpml) {
 		$gpml = utf8_encode($gpml);
-		if(preg_match("/<Pathway.*Organism=\"(.*?)\"/us", $gpml, $match)) {
+		//preg_match can fail on very long strings, so first try to find the <Pathway ...> part
+		//with strpos
+		$startTag = strpos($gpml, "<Pathway");
+		if(!$startTag) throw new Exception("Unable to find start of '<Pathway ...>' tag.");
+		$endTag = strpos($gpml, ">", $startTag);
+		if(!$endTag) throw new Exception("Unable to find end of '<Pathway ...>' tag.");
+		
+		if(preg_match("/<Pathway.*Organism=\"(.*?)\"/us", substr($gpml, $startTag, $endTag - $startTag), $match)) {
 			$species = $match[1];
 			if(!in_array($species, self::getAvailableSpecies())) {
 				throw new Exception("The organism '$species' for the pathway is not supported.");
