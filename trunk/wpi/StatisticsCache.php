@@ -170,6 +170,12 @@ class StatisticsCache
         {
 			$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
         	$pathwaysPerSpecies = array();
+        	
+        	//Set all species to 0
+        	foreach(Pathway::getAvailableSpecies() as $species) {
+        		$pathwaysPerSpecies[$species] = 0;
+        	}
+        	
 			$total = 0;
         	$pathways = self::getAllPathways();
         	foreach($pathways as $pathway) {
