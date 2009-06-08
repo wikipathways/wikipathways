@@ -11,6 +11,7 @@
 		 <jar href="wikipathways.jar"/>
 		 <jar href="lib/jdom.jar"/>
 		 <jar href="lib/resources.jar"/>
+		 <jar href="lib/bridgedb.jar"/>
 	</resources>
 	<application-desc main-class="org.pathvisio.gui.wikipathways.GenMappExporter">
 		<!--ARG-->
