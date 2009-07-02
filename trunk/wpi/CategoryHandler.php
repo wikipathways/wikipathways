@@ -18,13 +18,27 @@ class CategoryHandler {
 	}
 	
 	public function addToCategory($category) {
-		$cat = "<Comment Source=\"WikiPathways-category\">$category</Comment>";
 		$gpml = $this->pathway->getGPML();
-		if(stripos($gpml, $cat) !== false) {
-			//The category is already present, nothing to do
-			return;
-		}
-		$gpml = preg_replace('/(<Pathway (?U).+)(<Graphics)/s',"$1$cat\n$2", $gpml);
+		
+		$dom = new DomDocument();
+		$dom->loadXML($gpml);
+
+		$node = $dom->createElement("Comment", $category);
+		$dom->appendChild($node);
+		$source_node = $dom->createAttribute("Source");
+		$node->appendChild($source_node);
+		$source = $dom->createTextNode("WikiPathways-category");
+		$source_node->appendChild($source);
+
+		$xpath = new DomXPath($dom);
+
+		$result = $xpath->query("//*[@BoardWidth]");
+		$result_comment = $xpath->query("/Comment");
+
+		$result->item(0)->parentNode->insertBefore($result_comment->item(0), $result->item(0));
+		
+		$gpml =	$dom->saveXML();
+		
 		$this->pathway->updatePathway($gpml, 'Added to category $category');
 	}
 	
