@@ -63,6 +63,10 @@ class CreatePathwayPage extends SpecialPage
 			$wgOut->addHTML("<B>Please specify a name for the pathway<BR>$backlink</B>");
 			return;
 		}
+		if(strlen($pwName)> 50) {
+			$wgOut->addHTML("<B>Please specify a shorter name. The length of the name should be less than 50 characters !<BR>$backlink</B>");
+			return;
+		}
 		if(!$pwSpecies) {
 			$wgOut->addHTML("<B>Please specify a species for the pathway<BR>$backlink</B>");
 			return;
