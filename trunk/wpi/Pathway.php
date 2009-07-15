@@ -54,7 +54,6 @@ class Pathway {
 	 * this will be the page title without namespace prefix).
 	*/
 	function __construct($id, $updateCache = false) {
-		wfDebug("Creating pathway: $id\n");
 		if(!$id) throw new Exception("id argument missing in constructor for Pathway");
 
 		$this->pwPageTitle = Title::newFromText($id, NS_PATHWAY);
