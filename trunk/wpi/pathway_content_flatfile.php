@@ -78,8 +78,6 @@ function generateContent() {
 		fwrite($fh, "Pathway Name\tOrganism\tGene Ontology\tUrl to WikiPathways\tLast Changed\tLast Revision\tAuthor\tCount$sysCols\n");
 	} 
 
-	$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
-
 	$all_pathways = Pathway::getAllPathways();
 
 	//Stores looked up user names (key is user id)
@@ -92,9 +90,14 @@ function generateContent() {
 			if ($species != $restrictSpecies) continue; 	
 		}
 
-		//Exclude tutorial pathways
+		//Exclude unwanted pathways
 		$page_id = $pathway->getPageIdDB();
-		if (in_array($page_id, $taggedIds)) continue;
+		if (in_array($page_id, CurationTag::getPagesForTag('Curation:Tutorial'))) continue;
+		if (in_array($page_id, CurationTag::getPagesForTag('Curation:ProposedDeletion'))) continue;
+                if (in_array($page_id, CurationTag::getPagesForTag('Curation:Stub'))) continue;
+                if (in_array($page_id, CurationTag::getPagesForTag('Curation:InappropriateContent'))) continue;
+                if (in_array($page_id, CurationTag::getPagesForTag('Curation:UnderConstruction'))) continue;
+
 	
 		//Exclude deleted and private pathways
 		if($pathway->isDeleted() || !$pathway->isPublic()) continue;
