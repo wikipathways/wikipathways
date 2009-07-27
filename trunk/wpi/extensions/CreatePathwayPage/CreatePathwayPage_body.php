@@ -105,8 +105,9 @@ class CreatePathwayPage extends SpecialPage
 			        try {
 			                $pathway = Pathway::createNewPathway($gpmlData);
                 			$title = $pathway->getTitleObject();
+					$name = $pathway->getName();
                 			if($private2) $pathway->makePrivate($wgUser);
-	                                $wgOut->addWikiText("'''<font color='green'>Pathway successfully upload!</font>'''\n'''Check it out at $title.'''\n----\n");
+	                                $wgOut->addWikiText("'''<font color='green'>Pathway successfully upload!</font>'''\n'''Check it out:  [[$title|$name]]'''\n----\n");
         			} catch(Exception $e) {
                 			wfDebug("GPML UPLOAD ERROR: $e");
         			}
