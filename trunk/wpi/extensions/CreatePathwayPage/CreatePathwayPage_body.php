@@ -31,10 +31,13 @@ class CreatePathwayPage extends SpecialPage
 		}
 		
 		$pwName = $_GET['pwName'];
+                $pwNameLen = strlen($pwName);
 		$pwSpecies = $_GET['pwSpecies'];
 		$override = $_GET['override'];
 		$private = $_GET['private'];
-		$pwNameLen = strlen($pwName);
+		$uploading = $_POST['upload'];
+		$private2 = $_POST['private2'];
+		
 		
 		if($_GET['create'] == '1') { //Submit button pressed
 			//Check for pathways with the same name and species
@@ -55,45 +58,69 @@ class CreatePathwayPage extends SpecialPage
 				$wgOut->addWikiText("'''If you still want to create a new pathway, please use a unique name.'''\n");
 				$wgOut->addWikiText("----\n");
 				$this->showForm($pwName, $pwSpecies, true, $private);
+			} elseif(!$pwName) {
+				$wgOut->addWikiText("== Warning ==\n<font color='red'>No pathway name given!</font>\n'''Please specify a name for the pathway'''\n----\n");
+                                $this->showForm($pwName, $pwSpecies, true, $private);
+	                } elseif(!$pwSpecies) {
+                                $wgOut->addWikiText("== Warning ==\n<font color='red'>No species given!</font>\n'''Please specify a species for the pathway'''\n----\n");
+                                $this->showForm($pwName, $pwSpecies, true, $private);
 			} elseif ($pwNameLen > 50) { 
  		                $wgOut->addWikiText("== Warning ==\n<font color='red'>Your pathway name is too long! ''($pwNameLen characters)''</font>\n"); 
 				$wgOut->addWikiText("'''Please specify a name with less than 50 characters.'''\n----\n");
- 		                $this->showForm($pwName, $pwSpecies, true, $private);
+ 		                $this->showForm($pwName, $pwSpecies, false, $private);
 			} else {
 				$this->startEditor($pwName, $pwSpecies, $private);
 			}
-		} elseif($_GET['upload'] == '1') { //Upload button pressed   
-                        $this->doUpload($private);
+		} elseif($uploading == '1') { //Upload button pressed   
+                        $this->doUpload($uploading, $private2);
                 } else {
 			$this->showForm();
 		}
 	}
 
-	function doUpload($private) {
-		global $wgRequest, $wgOut, $wpiScriptURL;
-		$file = $_FILES['gpml'];
-		
-		//Check extension
-		if(!eregi(".gpml$", $file)){
-			$wgOut->addWikiText("'''Please select a GPML file for upload.'''\n");
-                        $wgOut->addWikiText("----\n");
-                        $this->showForm();
+	function doUpload($uploading, $private2) {
+		global $wgRequest, $wgOut, $wpiScriptURL, $wgUser;
+		//Check for something... anything
+		if (!empty($_FILES['gpml']['name'])) { 
+			$size = $_FILES['gpml']['size'];
+			//Check file size
+			if ($size > 1000000) {
+				$size = $size / 1000000;
+				$wgOut->addWikiText("== Warning ==\n<font color='red'>File too large! ''($size MB)''</font>\n'''Please select a GPML file under 1MB.'''\n----\n");
+                                $wgOut->addWikiText("----\n");
+                                $this->showForm('','',false,'', $uploading, $private2);
+			}
+			$file = $_FILES['gpml']['name'];
+			//Check for gpml extension
+			if(!eregi(".gpml$", $file)){
+				$wgOut->addWikiText("== Warning ==\n<font color='red'>Not a GPML file!</font>\n'''Please select a GPML file for upload.'''\n----\n");
+                	        $wgOut->addWikiText("----\n");
+                	        $this->showForm('','',false,'', $uploading, $private2);
+			} else {
+				//It looks good, let's create a new pathway!
+				$gpmlTempFile = $_FILES['gpml']['tmp_name'];
+				$GPML = fopen($gpmlTempFile, 'r');
+				$gpmlData = fread($GPML, filesize($gpmlTempFile));
+				fclose($GPML);
+			        try {
+			                $pathway = Pathway::createNewPathway($gpmlData);
+                			$title = $pathway->getTitleObject();
+                			if($private2) $pathway->makePrivate($wgUser);
+	                                $wgOut->addWikiText("'''<font color='green'>Pathway successfully upload!</font>'''\n'''Check it out at $title.'''\n----\n");
+        			} catch(Exception $e) {
+                			wfDebug("GPML UPLOAD ERROR: $e");
+        			}
+                	        $this->showForm('','',false,'', $uploading, $private2);
+			}
 		} else {
-                        $wgOut->addWikiText("'''DEBUG: Uploaded $file.'''\n");
+			$wgOut->addWikiText("== Warning ==\n<font color='red'>No file detected!</font>\n'''Please try again.'''\n----\n");
+			$this->showForm('','',false,'', $uploading, $private2);
 		}
 	}
 
 	function startEditor($pwName, $pwSpecies, $private) {
 		global $wgRequest, $wgOut, $wpiScriptURL;		
 		$backlink = '<a href="javascript:history.back(-1)">Back</a>';
-		if(!$pwName) {
-			$wgOut->addHTML("<B>Please specify a name for the pathway<BR>$backlink</B>");
-			return;
-		}
-		if(!$pwSpecies) {
-			$wgOut->addHTML("<B>Please specify a species for the pathway<BR>$backlink</B>");
-			return;
-		}
 		try {
 			$wgOut->addHTML("<div id='applet'></div>");
 			$pwTitle = "$pwName:$pwSpecies";
@@ -105,7 +132,7 @@ class CreatePathwayPage extends SpecialPage
 		}
 	}
 
-	function showForm($pwName = '', $pwSpecies = '', $override = '', $private = '') {
+	function showForm($pwName = '', $pwSpecies = '', $override = '', $private = '', $uploading = 0, $private2 = '') {
 		global $wgRequest, $wgOut, $wpiScriptURL;
                 $this->addJavaScript();
 
@@ -136,11 +163,11 @@ class CreatePathwayPage extends SpecialPage
 		$wgOut->addHTML($html);
 
                 //Toggle GPML upload option
-                $elm = $this->getNewFormElements();
+                $elm = $this->getNewFormElements($uploading, $private2);
                 $newdiv = $elm['div'];
                 $newbutton = $elm['button'];
-               // $wgOut->addHTML("<BR> $newbutton");
-               // $wgOut->addHTML($newdiv);
+                $wgOut->addHTML("<BR> $newbutton");
+                $wgOut->addHTML($newdiv);
 
 	}
         function addJavaScript() {
@@ -162,16 +189,17 @@ JS;
                 $wgOut->addScript($js);
         }
 
-        function getNewFormElements() {
+        function getNewFormElements($uploading = 0, $private2 = '') {
                 global $wgUser;
-
+		if($private2) $private2 = 'CHECKED';
+		if (!$uploading) $display = "display:none";
                 $div = <<<DIV
-<div id="upload" style="display:none">
+<div id="upload" style={$display}>
 <table><td>
-<FORM action="{$this->this_url}" method="post">
+<FORM action="{$this->this_url}" method="post" enctype="multipart/form-data">
 	<INPUT type="file" name="gpml" size="40">
 	<tr><td> 
-   	<INPUT type='checkbox' name='private' value='1' $private> {$this->create_priv_msg}<BR>
+   	<INPUT type='checkbox' name='private2' value='1' {$private2}> {$this->create_priv_msg}<BR>
 	<input type='hidden' name='upload' value='1'>
 	<input type='hidden' name='title' value='Special:CreatePathwayPage'>
 	<tr><td>
@@ -181,7 +209,7 @@ JS;
 </div>
 DIV;
 
-    	$button = "<a href=\"javascript:showhide('upload', this, 'upload GPML', 'TEST');\">Upload GPML</a>";
+    	$button = "<a href=\"javascript:showhide('upload', this, 'hide', 'show');\">Upload GPML</a>";
         return array('button' => $button, 'div' => $div);
         }
 
