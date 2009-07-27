@@ -3,6 +3,9 @@ require_once("wpi/wpi.php");
 
 class CreatePathwayPage extends SpecialPage
 {
+	private $this_url;
+	private $create_priv_msg;
+
         function CreatePathwayPage() {
                 SpecialPage::SpecialPage("CreatePathwayPage");
                 self::loadMessages();
@@ -11,7 +14,9 @@ class CreatePathwayPage extends SpecialPage
         function execute( $par ) {
                 global $wgRequest, $wgOut, $wpiScriptURL, $wgUser;
                 $this->setHeaders();
-
+		$this->this_url = SITE_URL . '/index.php';
+		$this->create_priv_msg = wfMsg('create_private') ;
+ 
 		if(wfReadOnly()) {
 			$wgOut->readOnlyPage( "" );
 		}
@@ -29,6 +34,7 @@ class CreatePathwayPage extends SpecialPage
 		$pwSpecies = $_GET['pwSpecies'];
 		$override = $_GET['override'];
 		$private = $_GET['private'];
+		$pwNameLen = strlen($pwName);
 		
 		if($_GET['create'] == '1') { //Submit button pressed
 			//Check for pathways with the same name and species
@@ -49,22 +55,39 @@ class CreatePathwayPage extends SpecialPage
 				$wgOut->addWikiText("'''If you still want to create a new pathway, please use a unique name.'''\n");
 				$wgOut->addWikiText("----\n");
 				$this->showForm($pwName, $pwSpecies, true, $private);
+			} elseif ($pwNameLen > 50) { 
+ 		                $wgOut->addWikiText("== Warning ==\n<font color='red'>Your pathway name is too long! ''($pwNameLen characters)''</font>\n"); 
+				$wgOut->addWikiText("'''Please specify a name with less than 50 characters.'''\n----\n");
+ 		                $this->showForm($pwName, $pwSpecies, true, $private);
 			} else {
 				$this->startEditor($pwName, $pwSpecies, $private);
 			}
-		} else {
+		} elseif($_GET['upload'] == '1') { //Upload button pressed   
+                        $this->doUpload($private);
+                } else {
 			$this->showForm();
-		}	}
+		}
+	}
+
+	function doUpload($private) {
+		global $wgRequest, $wgOut, $wpiScriptURL;
+		$file = $_FILES['gpml'];
+		
+		//Check extension
+		if(!eregi(".gpml$", $file)){
+			$wgOut->addWikiText("'''Please select a GPML file for upload.'''\n");
+                        $wgOut->addWikiText("----\n");
+                        $this->showForm();
+		} else {
+                        $wgOut->addWikiText("'''DEBUG: Uploaded $file.'''\n");
+		}
+	}
 
 	function startEditor($pwName, $pwSpecies, $private) {
 		global $wgRequest, $wgOut, $wpiScriptURL;		
 		$backlink = '<a href="javascript:history.back(-1)">Back</a>';
 		if(!$pwName) {
 			$wgOut->addHTML("<B>Please specify a name for the pathway<BR>$backlink</B>");
-			return;
-		}
-		if(strlen($pwName)> 50) {
-			$wgOut->addHTML("<B>Please specify a shorter name. The length of the name should be less than 50 characters !<BR>$backlink</B>");
 			return;
 		}
 		if(!$pwSpecies) {
@@ -84,12 +107,14 @@ class CreatePathwayPage extends SpecialPage
 
 	function showForm($pwName = '', $pwSpecies = '', $override = '', $private = '') {
 		global $wgRequest, $wgOut, $wpiScriptURL;
+                $this->addJavaScript();
+
 		$html = tag('p', 'To create a new pathway on WikiPathways, specify the pathway name and species 
 				and then click "create pathway" to start the pathway editor.<br>'
 				);
-		$html .= "	<input type='hidden' name='create' value='1'>
+		$html_form ="	<input type='hidden' name='create' value='1'>
 				<input type='hidden' name='title' value='Special:CreatePathwayPage'>
-				<td>Pathway name:
+				<table><td>Pathway name:
 				<td><input type='text' name='pwName' value='$pwName'>
 				<tr><td>Species:<td>
 				<select name='pwSpecies'>";
@@ -98,19 +123,67 @@ class CreatePathwayPage extends SpecialPage
 			$pwSpecies = $species[0];
 		}
 		foreach($species as $sp) {
-			$html .= "<option value='$sp'" . ($sp == $pwSpecies ? ' selected' : '') . ">$sp";
+			$html_form .= "<option value='$sp'" . ($sp == $pwSpecies ? ' selected' : '') . ">$sp";
 		}
 		$html .= '</select>';
 		if($override) {
-			$html .= "<input type='hidden' name='override' value='1'>";
+			$html_form .= "<input type='hidden' name='override' value='1'>";
 		}
 		if($private) $private = 'CHECKED';
-		$html .= "<tr><td colspan='2'><input type='checkbox' name='private' value='1' $private>" . wfMsg('create_private');
-		$html = tag('table', $html);
-		$html .= tag('input', "", array('type'=>'submit', 'value'=>'Create pathway'));
-		$html = tag('form', $html, array('action'=> SITE_URL . '/index.php', 'method'=>'get'));
+		$html_form .= "<tr><td colspan='2'><input type='checkbox' name='private' value='1' $private>" . wfMsg('create_private');
+		$html_form .= "<tr><td><input type='submit' value='Create pathway'> </table>";
+                $html.= tag('form', $html_form, array('action'=> SITE_URL . '/index.php', 'method'=>'get'));
 		$wgOut->addHTML($html);
+
+                //Toggle GPML upload option
+                $elm = $this->getNewFormElements();
+                $newdiv = $elm['div'];
+                $newbutton = $elm['button'];
+               // $wgOut->addHTML("<BR> $newbutton");
+               // $wgOut->addHTML($newdiv);
+
 	}
+        function addJavaScript() {
+                global $wgOut, $wgScriptPath;
+                $js = <<<JS
+<script type="text/javascript">
+        function showhide(id, toggle, hidelabel, showlabel) {
+                elm = document.getElementById(id);
+                if(toggle.innerHTML == hidelabel) {
+                        elm.style.display = "none";
+                        toggle.innerHTML = showlabel;
+                } else {
+                        elm.style.display = "";
+                        toggle.innerHTML = hidelabel;
+                }
+        }
+</script>
+JS;
+                $wgOut->addScript($js);
+        }
+
+        function getNewFormElements() {
+                global $wgUser;
+
+                $div = <<<DIV
+<div id="upload" style="display:none">
+<table><td>
+<FORM action="{$this->this_url}" method="post">
+	<INPUT type="file" name="gpml" size="40">
+	<tr><td> 
+   	<INPUT type='checkbox' name='private' value='1' $private> {$this->create_priv_msg}<BR>
+	<input type='hidden' name='upload' value='1'>
+	<input type='hidden' name='title' value='Special:CreatePathwayPage'>
+	<tr><td>
+	<INPUT type='submit' value='Upload pathway'>
+</FORM>
+</table>
+</div>
+DIV;
+
+    	$button = "<a href=\"javascript:showhide('upload', this, 'upload GPML', 'TEST');\">Upload GPML</a>";
+        return array('button' => $button, 'div' => $div);
+        }
 
         function loadMessages() {
                 static $messagesLoaded = false;
