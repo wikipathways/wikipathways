@@ -135,84 +135,86 @@ class CreatePathwayPage extends SpecialPage
 
 	function showForm($pwName = '', $pwSpecies = '', $override = '', $private = '', $uploading = 0, $private2 = '') {
 		global $wgRequest, $wgOut, $wpiScriptURL;
-                $this->addJavaScript();
 
-		$html = tag('p', 'To create a new pathway on WikiPathways, specify the pathway name and species 
-				and then click "create pathway" to start the pathway editor.<br>'
-				);
-		$html_form ="	<input type='hidden' name='create' value='1'>
-				<input type='hidden' name='title' value='Special:CreatePathwayPage'>
-				<table><td>Pathway name:
-				<td><input type='text' name='pwName' value='$pwName'>
-				<tr><td>Species:<td>
-				<select name='pwSpecies'>";
-		$species = Pathway::getAvailableSpecies();
-		if(!$pwSpecies) {
-			$pwSpecies = $species[0];
+		if ($uploading) {
+			$form_method = "post";
+			$form_extra = "enctype='multipart/form-data'";
+			$upload_check = 'CHECKED';
+			$editor_vis = 'style="display:none;"'; //switch the other one off
+		} else {
+                	$form_method = "get";
+                	$form_extra = "";
+			$editor_check = 'CHECKED';
+                	$upload_vis = 'style="display:none;"'; //switch the other one off
 		}
-		foreach($species as $sp) {
-			$html_form .= "<option value='$sp'" . ($sp == $pwSpecies ? ' selected' : '') . ">$sp";
-		}
-		$html .= '</select>';
-		if($override) {
-			$html_form .= "<input type='hidden' name='override' value='1'>";
-		}
-		if($private) $private = 'CHECKED';
-		$html_form .= "<tr><td colspan='2'><input type='checkbox' name='private' value='1' $private>" . wfMsg('create_private');
-		$html_form .= "<tr><td><input type='submit' value='Create pathway'> </table>";
-                $html.= tag('form', $html_form, array('action'=> SITE_URL . '/index.php', 'method'=>'get'));
-		$wgOut->addHTML($html);
-
-                //Toggle GPML upload option
-                $elm = $this->getNewFormElements($uploading, $private2);
-                $newdiv = $elm['div'];
-                $newbutton = $elm['button'];
-                $wgOut->addHTML("<BR> $newbutton");
-                $wgOut->addHTML($newdiv);
-
-	}
-        function addJavaScript() {
-                global $wgOut, $wgScriptPath;
-                $js = <<<JS
-<script type="text/javascript">
-        function showhide(id, toggle, hidelabel, showlabel) {
-                elm = document.getElementById(id);
-                if(toggle.innerHTML == hidelabel) {
-                        elm.style.display = "none";
-                        toggle.innerHTML = showlabel;
-                } else {
-                        elm.style.display = "";
-                        toggle.innerHTML = hidelabel;
-                }
-        }
-</script>
-JS;
-                $wgOut->addScript($js);
-        }
-
-        function getNewFormElements($uploading = 0, $private2 = '') {
-                global $wgUser;
 		if($private2) $private2 = 'CHECKED';
-		if (!$uploading) $display = "display:none";
-                $div = <<<DIV
-<div id="upload" style={$display}>
-<table><td>
-<FORM action="{$this->this_url}" method="post" enctype="multipart/form-data">
-	<INPUT type="file" name="gpml" size="40">
-	<tr><td> 
-   	<INPUT type='checkbox' name='private2' value='1' {$private2}> {$this->create_priv_msg}<BR>
-	<input type='hidden' name='upload' value='1'>
-	<input type='hidden' name='title' value='Special:CreatePathwayPage'>
-	<tr><td>
-	<INPUT type='submit' value='Upload pathway'>
-</FORM>
-</table>
-</div>
-DIV;
+                $html_upload = "<FORM action='$this->this_url' method='post' enctype='multipart/form-data'>
+				<table><td>
+        			<INPUT type='file' name='gpml' size='40'>
+       				<tr><td>
+        			<INPUT type='checkbox' name='private2' value='1' $private2> $this->create_priv_msg
+        			<input type='hidden' name='upload' value='1'>
+				<input type='hidden' name='title' value='Special:CreatePathwayPage'>
+        			<tr><td><INPUT type='submit' value='Upload pathway'></table></FORM>";
+                $html_editor =" <FORM action='$this->this_url' method='get'>
+				<table><td>Pathway name:
+                                <td><input type='text' name='pwName' value='$pwName'>
+                                <tr><td>Species:<td>
+                                <select name='pwSpecies'>";
+                $species = Pathway::getAvailableSpecies();
+                if(!$pwSpecies) {
+                        $pwSpecies = $species[0];
+                }
+                foreach($species as $sp) {
+                        $html_editor .= "<option value='$sp'" . ($sp == $pwSpecies ? ' selected' : '') . ">$sp";
+                }
+                $html_editor .= '</select>';
+                if($override) {
+                        $html_editor .= "<input type='hidden' name='override' value='1'>";
+                }
+                if($private) $private = 'CHECKED';
+                $html_editor .= "<tr><td colspan='2'><input type='checkbox' name='private' value='1' $private> $this->create_priv_msg
+				<input type='hidden' name='create' value='1'>
+				<input type='hidden' name='title' value='Special:CreatePathwayPage'>
+				<tr><td><input type='submit' value='Create pathway'> </table></FORM><BR>";
 
-    	$button = "<a href=\"javascript:showhide('upload', this, 'hide', 'show');\">Upload GPML</a>";
-        return array('button' => $button, 'div' => $div);
-        }
+	        $wgOut->addHTML("
+			<P>Select to either use the pathway editor or upload a gpml file:<P>
+                        <FORM>
+                        <TABLE width='100%'><TBODY>
+                        <TR><TD><INPUT onclick='showEditor()' type='radio' name='visibility' value='editor' $editor_check><B>Use Editor</B>
+                        <DIV id='editor' $editor_vis> 
+			$html_editor
+			</DIV>
+                        <TR><TD><INPUT onclick='showUpload()' type='radio' name='visibility' value='upload' $upload_check><B>Upload File</B>
+                        <DIV id='upload' $upload_vis>
+			$html_upload
+                        </DIV>
+                        </TBODY></TABLE>
+                        </FORM>
+                        "
+                );
+
+
+		$wgOut->addScript("
+<script type='text/javascript'>
+                function showEditor() {
+                        var elm = document.getElementById('editor');
+                        elm.style.display = '';
+                        var elm = document.getElementById('upload');
+                        elm.style.display = 'none';
+                }
+                function showUpload() {
+                        var elm = document.getElementById('upload');
+                        elm.style.display = '';
+                        var elm = document.getElementById('editor');
+                        elm.style.display = 'none';
+                }
+
+</script>       
+
+		");
+	}
 
         function loadMessages() {
                 static $messagesLoaded = false;
