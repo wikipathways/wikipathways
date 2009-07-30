@@ -181,6 +181,8 @@ class BatchDownloader {
 		}
 	
 		$zipFile = $this->createZipName();
+		//Delete old file if exists
+		if(file_exists($zipFile)) unlink($zipFile);
 		
 		//Create symlinks to the cached gpml files,
 		//with a custom file name (containing the pathway title)
