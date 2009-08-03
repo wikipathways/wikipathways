@@ -1110,8 +1110,10 @@ class Pathway {
 			$msg .= $line . "\n";
 		}
 		if($status != 0 ) {
-			//Remove cached GPML file
-			unlink($gpmlFile);
+			//Not needed anymore, since we now use a unique file name for
+			//each revision, so it's guaranteed to update.
+			////Remove cached GPML file
+			//unlink($gpmlFile);
 			throw new Exception("Unable to convert to $outFile:\n<BR>Status:$status\n<BR>Message:$msg\n<BR>Command:$cmd<BR>");
 			wfDebug("Unable to convert to $outFile:\n<BR>Status:$status\n<BR>Message:$msg\n<BR>Command:$cmd<BR>");
 		}
