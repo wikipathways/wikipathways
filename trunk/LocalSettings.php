@@ -22,7 +22,9 @@ set_include_path( implode( PATH_SEPARATOR, $path ) . PATH_SEPARATOR . get_includ
 require_once( "includes/DefaultSettings.php" );
 
 # If PHP's memory limit is very low, some operations may fail.
-ini_set( 'memory_limit', '64M' );
+ini_set( 'memory_limit', '128M' );
+# Increase max shell memory for inkscape conversion of large pathways
+$wgMaxShellMemory = 512 * 1024;
 
 if ( $wgCommandLineMode ) {
 	if ( isset( $_SERVER ) && array_key_exists( 'REQUEST_METHOD', $_SERVER ) ) {
