@@ -629,7 +629,7 @@ class Pathway {
 		/*
 		 * Filter out additional illegal character that shouldn't be in a file name
 		 */
-		$filtered = preg_replace( "/[\/\?\<\>\\\:\*\|]/", '-', $prefix);
+		$filtered = preg_replace( "/[\/\?\<\>\\\:\*\|\[\]]/", '-', $prefix);
 		
 		$title = Title::newFromText( $filtered, NS_IMAGE );
 		if(!$title) {
