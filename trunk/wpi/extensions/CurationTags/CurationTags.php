@@ -158,7 +158,11 @@ class CurationTag {
 		if(!self::$tagDefinition) {
 			$title = Title::newFromText(self::$TAG_LIST_PAGE);
 			$ref = Revision::newFromTitle($title);
-			self::$tagDefinition = new SimpleXMLElement($ref->getText());
+			if($ref) {
+				self::$tagDefinition = new SimpleXMLElement($ref->getText());
+			} else {
+				self::$tagDefinition = new SimpleXMLElement('<?xml version="1.0"?><TagDefinitions></TagDefinitions>');
+			}
 		}
 		return self::$tagDefinition;
 	}
