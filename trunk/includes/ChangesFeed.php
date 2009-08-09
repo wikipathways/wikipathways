@@ -108,13 +108,14 @@ class ChangesFeed {
 				$n++;
 			}
 		}
-
 		foreach( $sorted as $obj ) {
 			$title = Title::makeTitle( $obj->rc_namespace, $obj->rc_title );
 			$talkpage = $title->getTalkPage();
 			$item = new FeedItem(
 				$title->getPrefixedText(),
-				FeedUtils::formatDiff( $obj ),
+//TK: Do not format diff, this will take very long with gpml changes...
+//				FeedUtils::formatDiff( $obj ),
+				$obj->rc_comment,
 				$title->getFullURL( 'diff=' . $obj->rc_this_oldid . '&oldid=prev' ),
 				$obj->rc_timestamp,
 				($obj->rc_deleted & Revision::DELETED_USER) ? wfMsgHtml('rev-deleted-user') : $obj->rc_user_text,
