@@ -395,11 +395,10 @@ cd wpi/maintenance
 php updateM10.php 
 
 # Update applet code
-cd ~/code/pathvisio/
-svn update
+cd ~/code/pathvisio-release
+svn switch http://svn.bigcat.unimaas.nl/pathvisio/tags/milestone_10.0
 
 # Build applets
-cd tags/milestone_10.0
 ant wikipathways-dest -Dwikipathways.dest=/var/www/wikipathways
 ant diffapplet -Dwikipathways.dest=/var/www/wikipathways
 
@@ -449,11 +448,11 @@ java -jar ../bin/wikipathways-indexer.jar indexer.config gdb.config --rebuild
 	
 	# create tar.gz and publish
 	ant tar
-	scp pathvisio_[bs]* pathvisio@www.pathvisio.org:/home/pathvisio/data/releases
+	scp release/pathvisio_[bs]* pathvisio@www.pathvisio.org:/home/pathvisio/data/releases
 	
 	# create tar.gz of webservice client library and publish
-	ant tarbin-wpclient
-	scp wikipathways-client_* pathvisio@www.pathvisio.org:/home/pathvisio/data
+	ant tarbin-wpclient -Dwsdl.url=http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl
+	scp release/wikipathways-client_* pathvisio@www.pathvisio.org:/home/pathvisio/data
 
 	# update front page and release notes
 	http://pathvisio.org/Release_Notes
