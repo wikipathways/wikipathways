@@ -1,9 +1,8 @@
 <?php
-
-require_once("wpi/wpi.php");
 require_once("Article.php");
 require_once("ImagePage.php");
 require_once("wpi/Pathway.php");
+require_once("wpi/DataSources.php");
 
 /*
 Generates info text for pathway page
@@ -100,7 +99,7 @@ TABLE;
 			$table .= '<td>' . $datanode['BackpageHead'];
 			$table .= '<td>';
 			$xref = $datanode->Xref;
-			$link = getXrefLink($xref, $species);
+			$link = DataSource::getUrl((string)$xref['ID'], (string)$xref['Database']);
 			if($link) {
 				$link = "<a href='$link'>{$xref['ID']} ({$xref['Database']})</a>";
 			} else {
@@ -134,106 +133,6 @@ TABLE;
 			$table = "";
 		}
 		return $table;
-	}
-}
-
-function getXrefLink($xref, $species = '') {
-	$db = $xref['Database'];
-	$id = $xref['ID'];
-	
-	if(!(string)$id) return false;
-	
-	switch($db) {
-	case 'Ensembl':
-		if($species) {
-			$species = str_replace(' ', '_', $species);
-			return "http://www.ensembl.org/$species/Gene/Summary?g=" . $id;
-		} else {
-			return "http://www.ensembl.org/Homo_sapiens/Search/Summary?_q=" . $id;
-		}
-	case 'Entrez Gene':
-		return "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=gene&cmd=Retrieve&dopt=full_report&list_uids=" . $id;
-	case 'SwissProt':
-		return "http://www.expasy.org/uniprot/" . $id;
-	case 'GenBank':
-		return "http://www.ebi.ac.uk/cgi-bin/emblfetch?style=html&id=" . $id;
-	case 'RefSeq':
-		$ret = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?";
-		if(substr($id,0,2) == 'NM') return $ret . "db=Nucleotide&cmd=Search&term=" . $id;
-		else return $ret . "db=Protein&cmd=search&term=" . $id;
-	case 'SGD':
-		return "http://db.yeastgenome.org/cgi-bin/locus.pl?locus=$id";
-	case 'FlyBase':
-		return "http://flybase.bio.indiana.edu/.bin/fbidq.html?$id";
-	case 'GenBank':
-		return $id;
-	case 'InterPro':
-		return "http://www.ebi.ac.uk/interpro/IEntry?ac=$id";
-	case 'MGI':
-		return "http://www.informatics.jax.org/searches/accession_report.cgi?id=$id";
-	case 'RGD':
-		return "http://rgd.mcw.edu/generalSearch/RgdSearch.jsp?quickSearch=1&searchKeyword=$id";
-	case 'GeneOntology':
-		return "http://godatabase.org/cgi-bin/go.cgi?view=details&search_constraint=terms&depth=0&query=$id";
-	case 'UniGene':
-		$org_nr = split('\.', $id);
-		return "http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG={$org_nr[0]}&CID={$org_nr[1]}";
-	case 'WormBase':
-		return "http://www.wormbase.org/db/gene/gene?name=$id";
-	case 'Affy':
-		return "http://www.ensembl.org/Homo_sapiens/Search/Summary?species=all;idx=;q=$id";
-	case 'EMBL':
-		return "http://www.ebi.ac.uk/cgi-bin/emblfetch?style=html&id=$id";
-	case 'HUGO':
-		return "http://www.gene.ucl.ac.uk/cgi-bin/nomenclature/get_data.pl?hgnc_id=$id";
-	case 'OMIM':
-		return "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=OMIM&cmd=Search&doptcmdl=Detailed&term=?$id";
-	case 'PDB':
-		return "http://bip.weizmann.ac.il/oca-bin/ocashort?id=$id";
-	case 'Pfam':
-		return "http://www.sanger.ac.uk//cgi-bin/Pfam/getacc?$id";
-	case 'CAS':
-		return  "http://chem.sis.nlm.nih.gov/chemidplus/direct.jsp?regno=$id";
-	case 'ChEBI':
-		return "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI:$id";
-	case 'PubChem':
-		return "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=$id";
-	case 'NuGO wiki':
-		return "http://nugowiki.org/index.php/$id";
-	case 'Kegg Compound':
-		return "http://www.genome.jp/dbget-bin/www_bget?cpd:$id";
-	case 'HMDB':
-		return "http://www.hmdb.ca/metabolites/$id";
-	case 'TAIR':
-		return "http://arabidopsis.org/servlets/Search?type=general&search_action=detail&method=1&show_obsolete=F&sub_type=gene&name=$id";
-	case 'BioGrid':
-		return "http://www.thebiogrid.org/SearchResults/summary/$id";
-	case 'EC':
-		return "http://www.genome.ad.jp/dbget-bin/www_bget?ec:$id";
-	case 'Gramene GenesDB':
-		return "http://www.gramene.org/db/genes/search_gene?acc=$id";
-	case 'IRGSP Gene':
-		return "http://rapdb.lab.nig.ac.jp/cgi-bin/gbrowse/IRGSP_40/?name=$id";
-	case 'miRBase':
-		return "http://microrna.sanger.ac.uk/cgi-bin/sequences/mirna_entry.pl?acc=$id";
-	case 'MaizeGDB':
-		return "http://www.maizegdb.org/cgi-bin/displaylocusresults.cgi?term=$id";
-	case 'Oryzabase':
-		return "http://www.shigen.nig.ac.jp/rice/oryzabase/gateway/gatewayAction.do?target=symbol&id=$id";
-	case 'Rice Ensembl Gene':
-		return "http://www.gramene.org/Oryza_sativa/geneview?gene=$id";
-	case 'Uniprot/TrEMBL':
-		return "http://www.uniprot.org/uniprot/$id";
-	case 'UCSC Genome Browser':
-		return "http://genome.ucsc.edu/cgi-bin/hgTracks?position=$id";
-	case 'Wheat Gene Catalog':
-		return "http://wheat.pw.usda.gov/sql?sql=select+distinct+genewgcreference.number+as+WGC,+reference.name+as+Reference,+reference.title+as+Title,+journal.name+as+Journal,+reference.volume+as+Volume,+reference.pages+as+Page+from+reference+inner+join+genewgcreference+on+genewgcreference.referenceid=reference.id+inner+join+journal+on+reference.journalid=journal.id+where+genewgcreference.number=$id";
-	case 'Wheat Gene Names':
-		return "http://wheat.pw.usda.gov/report?class=gene;name=$id";
-	case 'ZFIN':
-		return "http://zfin.org/cgi-bin/webdriver?MIval=aa-markerview.apg&OID=$id";
-	default:
-		return false;
 	}
 }
 ?>
