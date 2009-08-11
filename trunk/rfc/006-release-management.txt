@@ -457,6 +457,5 @@ java -jar ../bin/wikipathways-indexer.jar indexer.config gdb.config --rebuild
 	# update front page and release notes
 	http://pathvisio.org/Release_Notes
 	http://pathvisio.org/PathVisio
-	
-	
 
+	# send out newsletter on milestones 16, 19, 22, 25, 28, 31, 34
