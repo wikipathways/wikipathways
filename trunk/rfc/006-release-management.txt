@@ -399,8 +399,9 @@ cd ~/code/pathvisio-release
 svn switch http://svn.bigcat.unimaas.nl/pathvisio/tags/milestone_10.0
 
 # Build applets
-ant wikipathways-dest -Dwikipathways.dest=/var/www/wikipathways
-ant diffapplet -Dwikipathways.dest=/var/www/wikipathways
+# From milestone 17, both applets are built with one command.
+# ant.properties should define keystore.password
+ant install-wpi -Dwikipathways.dest=/var/www/wikipathways -propertyfile ~/code/ant.properties
 
 # Now test the editor on sandbox pathway
 
@@ -438,7 +439,8 @@ java -jar ../bin/wikipathways-indexer.jar indexer.config gdb.config --rebuild
 	svn switch http://svn.bigcat.unimaas.nl/pathvisio/tags/milestone_12.0
 	
 	# compile webstart and publish
-	ant prepare-webstart
+	# ant.properties should define the keystore.password property.
+	ant prepare-webstart -propertyfile ~/ant.properties
 	scp -r webstart/www/* pathvisio@www.pathvisio.org:/home/pathvisio/webstart
 	
 	# test webstart: 
