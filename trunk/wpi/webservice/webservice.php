@@ -131,15 +131,21 @@ function listOrganisms() {
 
 /**
  * Get a list of all available pathways.
+ * @param string $organism The organism to filter by (optional)
  * @return array of object WSPathwayInfo $pathways Array of pathway info objects
  **/
-function listPathways() {
-	$pathways = Pathway::getAllPathways();
-	$objects = array();
-	foreach($pathways as $p) {
-		$objects[] = new WSPathwayInfo($p);
+function listPathways($organism = false) {
+	try {
+		$pathways = Pathway::getAllPathways($organism);
+		$objects = array();
+		foreach($pathways as $p) {
+			$objects[] = new WSPathwayInfo($p);
+		}
+		return array("pathways" => $objects);
+	} catch(Exception $e) {
+		wfDebug("ERROR: $e");
+		throw new WSFault("Receiver", $e);
 	}
-	return array("pathways" => $objects);
 }
 
 /**
