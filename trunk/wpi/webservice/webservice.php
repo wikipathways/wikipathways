@@ -84,9 +84,13 @@ $opParams = array(
 $classmap = array(); //just let the engine know you prefer classmap mode
 
 $restmap = array(
+	"getPathway" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getPathway"
+	),
 	"getPathwayInfo" => array(
 		"HTTPMethod" =>"GET",
-		"RESTLocation" => "getPathwayInfo/id/{pwId}"
+		"RESTLocation" => "getPathwayInfo"
 	),
 	"listOrganisms" => array(
 		"HTTPMethod" =>"GET",
@@ -98,15 +102,15 @@ $restmap = array(
 	),
 	"findPathwaysByXref" => array(
 		"HTTPMethod" =>"GET",
-		"RESTLocation" => "findPathwaysByXref/id/{id}/code/{code}"
+		"RESTLocation" => "findPathwaysByXref"
 	),
 	"findPathwaysByText" => array(
 		"HTTPMethod" =>"GET",
-		"RESTLocation" => "findPathwaysByText/query/{query}/species/{species}"
+		"RESTLocation" => "findPathwaysByText"
 	),
 	"findInteractions" => array(
 		"HTTPMethod" =>"GET",
-		"RESTLocation" => "findInteractions/query/{query}"
+		"RESTLocation" => "findInteractions"
 	),
 );
 
