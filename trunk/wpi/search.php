@@ -91,7 +91,7 @@ class IndexClient {
 		if($r->getResponseCode() == 200) {
 			$txt = $r->getResponseBody();
 			if($txt) {
-				explode("\n", $txt);
+				return explode("\n", $txt);
 			} else {
 				return array();
 			}
