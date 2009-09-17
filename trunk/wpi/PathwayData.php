@@ -246,5 +246,9 @@ class Xref {
 	public function asText() {
 		return "{$this->id}:{$this->system}";
 	}
+	
+	public function __toString() {
+		return $this->asText();
+	}
 }
 ?>

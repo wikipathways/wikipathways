@@ -1,11 +1,7 @@
 <?php
 chdir(dirname(realpath(__FILE__)) . "/../");
 require_once('wpi.php');
-try {
-	require_once('search.php');
-} catch(Exception $e) {
-	wfDebug("Webservice: Unable to connect to lucene index!\n");
-}
+require_once('search.php');
 chdir($dir);
 
 ## Log the request ##
@@ -395,31 +391,55 @@ function getRecentChanges($timestamp)
  * @return array of object WSSearchResult $result Array of WSSearchResult objects
  **/
 function findPathwaysByText($query, $species = '') {
-	requireSearch();
-	$objects = array();
-	$results = PathwayIndex::searchByText($query, $species);
-	foreach($results as $r) {
-		$objects[] = new WSSearchResult($r, array());
+	try {
+		$objects = array();
+		$results = PathwayIndex::searchByText($query, $species);
+		foreach($results as $r) {
+			$objects[] = new WSSearchResult($r, array());
+		}
+		return array("result" => $objects);
+	} catch(Exception $e) {
+		wfDebug("ERROR: $e");
+		throw new WSFault("Receiver", $e);
 	}
-	return array("result" => $objects);
 }
 
 /**
  * Find pathways by a datanode xref.
- * @param string $id The datanode identifier (e.g. 'P45985')
- * @param string $code Optional, limit the query by database (e.g. 'S' for UniProt). Leave
+ * @param array of string $id The datanode identifier (e.g. 'P45985')
+ * @param array of string $code Optional, limit the query by database (e.g. 'S' for UniProt). Leave
  * blank to search on all databases
  * @return array of object WSSearchResult $result Array of WSSearchResult objects
  **/
-function findPathwaysByXref($id, $code = '', $indirect = true) {
-	requireSearch();
-	$xref = new XRef($id, $code);
-	$objects = array();
-	$results = PathwayIndex::searchByXref($xref, $indirect);
-	foreach($results as $r) {
-		$objects[] = new WSSearchResult($r, array(PathwayIndex::$f_graphId));
+function findPathwaysByXref($id, $code = '') {
+	try {
+		if($code) {
+			if(count($code) == 1) { //One code for all ids
+				$code = array_fill(0, count($id), $code[0]);
+			} else if(count($code) != count($id)) {
+				throw new WSFault("Sender", "Number of supplied ids does not match number of system codes");
+			}
+		} else {
+			$code = array_fill(0, count($id), '');
+		}
+		$xrefs = array();
+		$xrefsStr = array();
+		for($i = 0; $i < count($id); $i += 1) {
+			$x = new XRef($id[$i], $code[$i]);
+			$xrefs[] = $x;
+			$xrefsStr[] = (string)$x;
+		}
+		$objects = array();
+		$results = PathwayIndex::searchByXref($xrefs, true);
+		foreach($results as $r) {
+			$wsr = new WSSearchResult($r);
+			$objects[] = $wsr;
+		}
+		return array("result" => $objects);
+	} catch(Exception $e) {
+		wfDebug("ERROR: $e");
+		throw new WSFault("Receiver", $e);
 	}
-	return array("result" => $objects);
 }
 
 /**
@@ -428,33 +448,37 @@ function findPathwaysByXref($id, $code = '', $indirect = true) {
  * @return array of object WSSearchResult $result Array of WSSearchResult objects
  */
 function findPathwaysByLiterature($query) {
-	requireSearch();
-	$results = PathwayIndex::searchByLiterature($query);
-	$combined = array();
-	foreach($results as $r) {
-		$nwsr = new WSSearchResult($r, array(
-			PathwayIndex::$f_graphId,
-			PathwayIndex::$f_literature_pubmed,
-			PathwayIndex::$f_literature_title,
-		));
-		$source = $r->getDocument()->getFieldValue(PathwayIndex::$f_source);
-		if($combined[$source]) {
-			$wsr =& $combined[$source];
-			foreach(array_keys($wsr->fields) as $fn) {
-				if($nwsr->fields[$fn]) {
-					$newvalues = array_merge(
-						$nwsr->fields[$fn]->values, 
-						$wsr->fields[$fn]->values
-					);
-					$newvalues = array_unique($newvalues);
-					$wsr->fields[$fn]->values = $newvalues;
+	try {
+		$results = PathwayIndex::searchByLiterature($query);
+		$combined = array();
+		foreach($results as $r) {
+			$nwsr = new WSSearchResult($r, array(
+				PathwayIndex::$f_graphId,
+				PathwayIndex::$f_literature_pubmed,
+				PathwayIndex::$f_literature_title,
+			));
+			$source = $r->getFieldValue(PathwayIndex::$f_source);
+			if($combined[$source]) {
+				$wsr =& $combined[$source];
+				foreach(array_keys($wsr->fields) as $fn) {
+					if($nwsr->fields[$fn]) {
+						$newvalues = array_merge(
+							$nwsr->fields[$fn]->values, 
+							$wsr->fields[$fn]->values
+						);
+						$newvalues = array_unique($newvalues);
+						$wsr->fields[$fn]->values = $newvalues;
+					}
 				}
+			} else {
+				$combined[$source] = $nwsr;
 			}
-		} else {
-			$combined[$source] = $nwsr;
 		}
+		return array("result" => $combined);
+	} catch(Exception $e) {
+		wfDebug("ERROR: $e");
+		throw new WSFault("Receiver", $e);
 	}
-	return array("result" => $combined);
 }
 
 /**
@@ -463,13 +487,16 @@ function findPathwaysByLiterature($query) {
  * @return array of object WSSearchResult $result Array of WSSearchResult objects
  **/
 function findInteractions($query) {
-	requireSearch();
-	$objects = array();
-	$results= PathwayIndex::searchInteractions($query);
-	foreach($results as $r) {
-		$objects[] = new WSSearchResult($r);
+	try {
+		$objects = array();
+		$results= PathwayIndex::searchInteractions($query);
+		foreach($results as $r) {
+			$objects[] = new WSSearchResult($r);
+		}
+		return array("result" => $objects);
+	} catch(Exception $e) {
+		throw new WSFault("Receiver", $e);
 	}
-	return array("result" => $objects);
 }
 
 /**
@@ -482,7 +509,6 @@ function findInteractions($query) {
  * @return array of string $xrefs The translated xrefs.
  */
 function getXrefList($pwId, $code) {
-	requireSearch();
 	try {
 		$list = PathwayIndex::listPathwayXrefs(new Pathway($pwId), $code);
 		return array("xrefs" => $list);
@@ -661,14 +687,6 @@ function authenticate($username, $token, $write = false) {
 	}
 }
 
-function requireSearch() {
-	try {
-		require_once('search.php');
-	} catch(Exception $e) {
-		wfDebug("Webservice: Unable to connect to lucene index!\n");
-	}
-}
-
 function formatXml($xml) {
 	return preg_replace("/\&/", "&amp;", $xml);
 }
@@ -765,13 +783,15 @@ class WSSearchResult extends WSPathwayInfo {
 		parent::__construct($hit->getPathway());
 		$this->score = $hit->getScore();
 		if($includeFields === null) {
-			$includeFields = $hit->getDocument()->getFieldNames();
+			$includeFields = $hit->getFieldValues();
 		}
 		$this->fields = array();
-		$doc = $hit->getDocument();
 		foreach($includeFields as $fn) {
-			if(in_array($fn, $doc->getFieldNames())) {
-				$this->fields[$fn] = new WSIndexField($fn, $doc->getFieldValues($fn));
+			if(in_array($fn, $hit->getFieldNames())) {
+				$v = $hit->getFieldValues($fn);
+				if($v && count($v) > 0) {
+					$this->fields[$fn] = new WSIndexField($fn, $v);
+				}
 			}
 		}
 	}

@@ -1,40 +1,176 @@
 <?php
 require_once 'wpi.php';
-require_once 'includes/Zend/Search/Lucene.php';
 
-//open the index (path defined in pass.php)
-Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_TextNum_CaseInsensitive());
+class IndexNotFoundException extends Exception {
+	public function __construct() {
+		parent::__construct(
+			'Unable to locate lucene index service. Please specify the base url for the index service as $indexServiceUrl in pass.php'
+		);
+	}
+}
 
-PathwayIndex::$index = Zend_Search_Lucene::open($wpiIndexDir);
-
-class PathwayIndex {
-	static $index;
+/**
+ * Handles the requests to the REST indexer service.
+ * The base url to this service can be specified using the global variable $indexServiceUrl
+ */
+class IndexClient {
+	private static function doQuery($url) {
+		$r = new HttpRequest($url, HttpRequest::METH_GET);
+		try {
+			$r->send();
+		} catch(Exception $e) {
+			throw new IndexNotFoundException();
+		}
+		if($r->getResponseCode() == 200) {
+			$xml = new SimpleXMLElement($r->getResponseBody());
+			$results = array();
+			//Convert the response to SearchHit objects
+			foreach($xml->SearchResult as $resultNode) {
+				$score = $resultNode['Score'];
+				$fields = array();
+				foreach($resultNode->Field as $fieldNode) {
+					$fields[(string)$fieldNode['Name']][] = (string)$fieldNode['Value'];
+				}
+				//Remove duplicate values
+				foreach(array_keys($fields) as $fn) {
+					$fields[$fn] = array_unique($fields[$fn]);
+				}
+				$results[] = new SearchHit($score, $fields);
+			}
+			return $results;
+		} else {
+			$txt = $r->getResponseBody();
+			if(strpos($txt, '<?xml')) {
+				$xml = new SimpleXMLElement($r->getResponseBody());
+				throw new Exception($xml->message);
+			} else {
+				throw new Exception($r->getResponseBody());
+			}
+		}
+	}
 	
 	/**
+	 * Performs a query on the index service and returns the results
+	 * as an array of SearchHit objects.
+	 */
+	static function query($query, $analyzer = '') {
+		$url = self::getServiceUrl() . 'search?query=' . urlencode($query);
+		if($analyzer) {
+			$url .= "&analyzer=$analyzer";
+		}
+		return self::doQuery($url);
+	}
+	
+	static function queryXrefs($ids, $codes) {
+		$enc_ids = array();
+		$enc_codes = array();
+		foreach($ids as $i) $enc_ids[] = urlencode($i);
+		foreach($codes as $c) $enc_codes[] = urlencode($c);
+		
+		$url = self::getServiceUrl() . 'searchxrefs?';
+		$url .= 'id=' . implode('&id=', $enc_ids);
+		if(count($enc_codes) > 0) {
+			$url .= '&code=' . implode('&code=', $enc_codes);
+		}
+		return self::doQuery($url);
+	}
+	
+	/**
+	 * Get the xrefs for a pathway, translated to the given system code.
+	 * @return an array of strings containing the ids.
+	 */
+	static function xrefs($pathway, $code) {
+		$source = $pathway->getTitleObject()->getFullURL();
+		$url = self::getServiceUrl() . "xrefs/" . urlencode($source) . "/" . urlencode($code);
+		$r = new HttpRequest($url, HttpRequest::METH_GET);
+		try {
+			$r->send();
+		} catch(Exception $e) {
+			throw new IndexNotFoundException();
+		}
+		if($r->getResponseCode() == 200) {
+			$txt = $r->getResponseBody();
+			if($txt) {
+				explode("\n", $txt);
+			} else {
+				return array();
+			}
+		} else {
+			throw new Exception($r->getResponseBody());
+		}
+	}
+	
+	static function getServiceUrl() {
+		global $indexServiceUrl;
+		if(!$indexServiceUrl) {
+			throw new IndexNotFoundException();
+		}
+		return $indexServiceUrl;
+	}
+}
+
+class SearchHit {
+	private $pathway;
+	private $fields;
+	private $score;
+	
+	function __construct($score, $fields) {
+		$this->score = $score;
+		$this->fields = $fields;
+	}
+	
+	function getPathway() {
+		if(!$this->pathway) {
+			$this->pathway = PathwayIndex::pathwayFromSource(
+				$this->fields[PathwayIndex::$f_source][0]
+			);
+		}
+		return $this->pathway;
+	}
+	
+	function getScore() {
+		return $this->score;
+	}
+	
+	function getFieldValues($name) {
+		return $this->fields[$name];
+	}
+	
+	function setFieldValues($name, $values) {
+		$this->fields[$name] = $values;
+	}
+	function getFieldNames() {
+		return array_keys($this->fields);	
+	}
+	
+	function getFieldValue($name) {
+		$values = $this->fields[$name];
+		if($values) return $values[0];
+	}
+}
+
+class PathwayIndex {
+	/**
 	 * Get a list of pathways by a datanode xref.
-	 * @param $xref The XRef object, if the XRef->getSystem() field is empty, the search
+	 * @param $xref The XRef object or an array of XRef objects. If the XRef->getSystem() field is empty, the search
 	 will not restrict to any database.
-	 * @param $indirect also use cross-references from the synonym database
 	 * @return An array with the results as PathwayDocument objects
 	 **/
-	public static function searchByXref($xref, $indirect = true) {
-		$results = array();
-		
-		$field = self::$f_id;
-		$word = $xref->getId();
-		
-		if($xref->getSystem()) {
-			$field = $field . '.database';
-			$word = $word . ':' . $xref->getSystem();
-		}
-		if($indirect) {
-			$field = 'x.' . $field;
+	public static function searchByXref($xrefs) {
+		if(!is_array($xrefs)) {
+			$xrefs = array( $xrefs );
 		}
 		
-		$term = new Zend_Search_Lucene_Index_Term($word, $field);
-		$query = new Zend_Search_Lucene_Search_Query_Term($term);
-		$hits = self::$index->find($query);
-		return self::hitsToResults($hits);
+		$ids = array();
+		$codes = array();
+		
+		foreach($xrefs as $xref) {
+			$ids[] = $xref->getId();
+			if($xref->getSystem()) {
+				$codes[] = $xref->getSystem();
+			}
+		}
+		return IndexClient::queryXrefs($ids, $codes);
 	}
 	
 	/**
@@ -46,7 +182,6 @@ class PathwayIndex {
 	 * @return An array with the results as PathwayDocument objects
 	 **/
 	public static function searchByText($query, $organism = false) {
-		$results = array();
 		$query = self::queryToAllFields(
 			$query, 
 			array(
@@ -58,18 +193,9 @@ class PathwayIndex {
 		);
 		
 		if($organism) {
-			$usrQuery = Zend_Search_Lucene_Search_QueryParser::parse($query);
-			$orgQuery = Zend_Search_Lucene_Search_QueryParser::parse(
-				self::$f_organism . ':"' . $organism . '"'
-			);
-
-			$query = new Zend_Search_Lucene_Search_Query_Boolean();
-			$query->addSubquery($usrQuery, true);
-			$query->addSubquery($orgQuery, true);
+			$query = "($query) AND " . self::$f_organism . ":\"$organism\"";
 		}
-		
-		$hits = self::$index->find($query);
-		return self::hitsToResults($hits);
+		return IndexClient::query($query);
 	}
 	
 	/**
@@ -79,7 +205,6 @@ class PathwayIndex {
 	 * @return An array with the results as SearchHit objects
 	 **/
 	public static function searchByLiterature($query) {
-		$results = array();
 		$query = self::queryToAllFields(
 			$query, 
 			array(
@@ -88,12 +213,10 @@ class PathwayIndex {
 				self::$f_literature_pubmed,
 			)
 		);
-		$hits = self::$index->find($query);
-		return self::hitsToResults($hits);
+		return IndexClient::query($query);
 	}
 	
 	public static function searchInteractions($query) {
-		$results = array();
 		$query = self::queryToAllFields(
 			$query,
 			array(
@@ -102,57 +225,13 @@ class PathwayIndex {
 				self::$f_mediator
 			)
 		);
-		$hits = self::$index->find($query);
-		return self::hitsToResults($hits);
+		return IndexClient::query($query);
 	}
 	
 	public static function listPathwayXrefs($pathway, $code) {
-		$xrefs = array();
-
-		$source = $pathway->getTitleObject()->getFullUrl();
-		$src_term = new Zend_Search_Lucene_Index_Term($source, self::$f_source);
-		$src_query = new Zend_Search_Lucene_Search_Query_Term($src_term);
-		
-		$code_term = new Zend_Search_Lucene_Index_Term($code, self::$f_x_id_database);
-		$code_query = new Zend_Search_Lucene_Search_Query_Wildcard($code_term);
-
-		$query = new Zend_Search_Lucene_Search_Query_Boolean();
-		$query->addSubquery($src_query, true);
-		$query->addSubquery($code_query, true);
-		
-		$hits = self::$index->find($query);
-		//To reduce memory usage, gather hit ids and discard hits
-		$docs = array();
-		foreach($hits as $h) {
-			$docs[] = $h->id;
-		}
-		unset($hits);
-
-		$iddbs = array();
-		foreach($docs as $d) {
-			$doc = self::$index->getDocument($d);
-			$fieldNames = $doc->getFieldNames();
-			if(in_array(self::$f_x_id_database, $fieldNames)) {
-				$fields = $doc->getFieldValues(self::$f_x_id_database);
-				$iddbs = array_merge($iddbs, preg_grep("/:{$code}$/", array_unique($fields)));
-			}
-		}
-		$refs = array();
-		foreach($iddbs as $iddb) {
-			$r = substr($iddb, 0, -strlen(":$code"));
-			$refs[$r] = $r;
-		}
-		return $refs;
+		return IndexClient::xrefs($pathway, $code);
 	}
 
-	private static function hitsToResults($hits) {
-		$results = array();
-		foreach($hits as $hit) {
-			$results[] = new SearchHit($hit);
-		}
-		return $results;
-	}
-	
 	static function pathwayFromSource($source) {
 		return Pathway::newFromTitle($source);
 	}
@@ -160,10 +239,11 @@ class PathwayIndex {
 	private static function queryToAllFields($queryStr, $fields) {
 		$q = '';
 		foreach($fields as $f) {
-			$q .= "($f:$queryStr) ";
+			$q .= "$f:($queryStr) ";
 		}
 		return $q;
 	}
+	
 	//Field names
 	static $f_source = 'source';
 	static $f_name = 'name';
@@ -182,33 +262,5 @@ class PathwayIndex {
 	static $f_literature_author = 'literature.author';
 	static $f_literature_title = 'literature.title';
 	static $f_literature_pubmed = 'literature.pubmed';
-}
-
-class SearchHit {
-	private $hit;
-	private $pathway;
-	private $fields;
-	private $score;
-	
-	function __construct($hit) {
-		$this->hit = $hit;
-	}
-	
-	function getPathway() {
-		if(!$this->pathway) {
-			$this->pathway = PathwayIndex::pathwayFromSource(
-				$this->hit->getDocument()->getFieldValue(PathwayIndex::$f_source)
-			);
-		}
-		return $this->pathway;
-	}
-	
-	function getDocument() {
-		return $this->hit->getDocument();
-	}
-	
-	function getScore() {
-		return $this->hit->score;
-	}
 }
 ?>
