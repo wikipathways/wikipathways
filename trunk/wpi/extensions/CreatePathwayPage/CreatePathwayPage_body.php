@@ -79,42 +79,43 @@ class CreatePathwayPage extends SpecialPage
 	}
 
 	function doUpload($uploading, $private2) {
-		global $wgRequest, $wgOut, $wpiScriptURL, $wgUser;
-		//Check for something... anything
-		if (!empty($_FILES['gpml']['name'])) { 
-			$size = $_FILES['gpml']['size'];
-			//Check file size
-			if ($size > 1000000) {
-				$size = $size / 1000000;
-				$wgOut->addWikiText("== Warning ==\n<font color='red'>File too large! ''($size MB)''</font>\n'''Please select a GPML file under 1MB.'''\n----\n");
-                                $wgOut->addWikiText("----\n");
-                                $this->showForm('','',false,'', $uploading, $private2);
-			}
-			$file = $_FILES['gpml']['name'];
-			//Check for gpml extension
-			if(!eregi(".gpml$", $file)){
-				$wgOut->addWikiText("== Warning ==\n<font color='red'>Not a GPML file!</font>\n'''Please select a GPML file for upload.'''\n----\n");
-                	        $wgOut->addWikiText("----\n");
-                	        $this->showForm('','',false,'', $uploading, $private2);
-			} else {
-				//It looks good, let's create a new pathway!
-				$gpmlTempFile = $_FILES['gpml']['tmp_name'];
-				$GPML = fopen($gpmlTempFile, 'r');
-				$gpmlData = fread($GPML, filesize($gpmlTempFile));
-				fclose($GPML);
-			        try {
-			                $pathway = Pathway::createNewPathway($gpmlData);
-                			$title = $pathway->getTitleObject();
+		try {
+			global $wgRequest, $wgOut, $wpiScriptURL, $wgUser;
+			//Check for something... anything
+			if (!empty($_FILES['gpml']['name'])) { 
+				$size = $_FILES['gpml']['size'];
+				//Check file size
+				if ($size > 1000000) {
+					$size = $size / 1000000;
+					$wgOut->addWikiText("== Warning ==\n<font color='red'>File too large! ''($size MB)''</font>\n'''Please select a GPML file under 1MB.'''\n----\n");
+		                            $wgOut->addWikiText("----\n");
+		                            $this->showForm('','',false,'', $uploading, $private2);
+				}
+				$file = $_FILES['gpml']['name'];
+				//Check for gpml extension
+				if(!eregi(".gpml$", $file)){
+					$wgOut->addWikiText("== Warning ==\n<font color='red'>Not a GPML file!</font>\n'''Please select a GPML file for upload.'''\n----\n");
+		            	        $wgOut->addWikiText("----\n");
+		            	        $this->showForm('','',false,'', $uploading, $private2);
+				} else {
+					//It looks good, let's create a new pathway!
+					$gpmlTempFile = $_FILES['gpml']['tmp_name'];
+					$GPML = fopen($gpmlTempFile, 'r');
+					$gpmlData = fread($GPML, filesize($gpmlTempFile));
+					fclose($GPML);
+		            $pathway = Pathway::createNewPathway($gpmlData);
+        			$title = $pathway->getTitleObject();
 					$name = $pathway->getName();
-                			if($private2) $pathway->makePrivate($wgUser);
-	                                $wgOut->addWikiText("'''<font color='green'>Pathway successfully upload!</font>'''\n'''Check it out:  [[$title|$name]]'''\n----\n");
-        			} catch(Exception $e) {
-                			wfDebug("GPML UPLOAD ERROR: $e");
-        			}
-                	        $this->showForm('','',false,'', $uploading, $private2);
+        			if($private2) $pathway->makePrivate($wgUser);
+                    $wgOut->addWikiText("'''<font color='green'>Pathway successfully upload!</font>'''\n'''Check it out:  [[$title|$name]]'''\n----\n");
+        	        $this->showForm('','',false,'', $uploading, $private2);
+				}
+			} else {
+				$wgOut->addWikiText("== Warning ==\n<font color='red'>No file detected!</font>\n'''Please try again.'''\n----\n");
+				$this->showForm('','',false,'', $uploading, $private2);
 			}
-		} else {
-			$wgOut->addWikiText("== Warning ==\n<font color='red'>No file detected!</font>\n'''Please try again.'''\n----\n");
+		} catch(Exception $e) {
+			$wgOut->addWikiText("== Error ==\n<b><font color='red'>{$e->getMessage()}</font></b>\n\n<pre>$e</pre>\n'''Please try again.'''\n----\n");
 			$this->showForm('','',false,'', $uploading, $private2);
 		}
 	}
