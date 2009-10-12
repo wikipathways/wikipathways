@@ -783,7 +783,7 @@ class WSSearchResult extends WSPathwayInfo {
 		parent::__construct($hit->getPathway());
 		$this->score = $hit->getScore();
 		if($includeFields === null) {
-			$includeFields = $hit->getFieldValues();
+			$includeFields = $hit->getFieldNames();
 		}
 		$this->fields = array();
 		foreach($includeFields as $fn) {
