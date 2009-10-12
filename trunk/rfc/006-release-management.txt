@@ -406,20 +406,26 @@ ant install-wpi -Dwikipathways.dest=/var/www/wikipathways -propertyfile ~/code/a
 # Now test the editor on sandbox pathway
 
 # (If needed): update bots
-ant tarbin-wpclient -Dwsdl.url=http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl
-cp wikipathways_client_bin-1.1-r2438.tar.gz /home/wikipathways/bots/wikipathways/
-cd ~/bots/wikipathways
-tar -xf wikipathways_client_bin-1.1-r2438.tar.gz --strip=1
+	ant tarbin-wpclient -Dwsdl.url=http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl
+	scp release/wikipathways_client_bin-1.1-rXXXX.tar.gz wikipathways@137.120.14.13:/home/wikipathways/wikipathways-bots/wikipathways
+	ssh wikipathways@137.120.14.13 'cd /home/wikipathways/wikipathways-bots/wikipathways & tar -xf wikipathways_client_bin-1.1-rXXXX.tar.gz --strip=1' #Extract on other server
 
-# (If needed): update and restart indexer
-cd ~/code/pathvisio/tags/milestone_10.0/tools/lucene-indexer
-ant dist
-cp -R dist/* /home/wikipathways/index/bin
-	# Resume an exising screen session that runs the indexer (or start a new one)
-screen -R 5353.pts-0.bigcat0025uns40mw 
+# (If needed): update and restart indexer service
+	cd ~/code/pathvisio/tags/milestone_10.0/tools/lucene-indexer
+	ant dist
+	cp -R dist/ wikipathways@137.120.14.13:/home/wikipathways/wikipathways-index-service
+
+	# Ssh to indexer server
+	ssh wikipathways@137.120.14.13
+
+	# Run these commands on the indexer server
+	# Resume an exising screen session that runs the indexer service (or start a new one)
+	screen -R 5353.pts-0.bigcat0025uns40mw 
 	# Kill running indexer
-	# Restart (and optionally rebuild)
-java -jar ../bin/wikipathways-indexer.jar indexer.config gdb.config --rebuild
+	# Restart
+	cd /home/wikipathways/wikipathways-index-service
+	./run.sh
+
 	# Detach the screen with CTRL-A d
 
 # Update the site content
