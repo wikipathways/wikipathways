@@ -108,6 +108,22 @@ $restmap = array(
 		"HTTPMethod" =>"GET",
 		"RESTLocation" => "findInteractions"
 	),
+	"findPathwaysByLiterature" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "findPathwaysByLiterature"
+	),
+	"getXrefList" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getXrefList"
+	),
+	"getPathwayHistory" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getPathwayHistory"
+	),
+	"getRecentChanges" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getRecentChanges"
+	),
 );
 
 $svr = new WSService(array(
@@ -406,26 +422,26 @@ function findPathwaysByText($query, $species = '') {
 
 /**
  * Find pathways by a datanode xref.
- * @param array of string $id The datanode identifier (e.g. 'P45985')
- * @param array of string $code Optional, limit the query by database (e.g. 'S' for UniProt). Leave
+ * @param array of string $ids The datanode identifier (e.g. 'P45985')
+ * @param array of string $codes Optional, limit the query by database (e.g. 'S' for UniProt). Leave
  * blank to search on all databases
  * @return array of object WSSearchResult $result Array of WSSearchResult objects
  **/
-function findPathwaysByXref($id, $code = '') {
+function findPathwaysByXref($ids, $codes = '') {
 	try {
-		if($code) {
-			if(count($code) == 1) { //One code for all ids
-				$code = array_fill(0, count($id), $code[0]);
-			} else if(count($code) != count($id)) {
+		if($codes) {
+			if(count($codes) == 1) { //One code for all ids
+				$codes = array_fill(0, count($ids), $codes[0]);
+			} else if(count($codes) != count($ids)) {
 				throw new WSFault("Sender", "Number of supplied ids does not match number of system codes");
 			}
 		} else {
-			$code = array_fill(0, count($id), '');
+			$codes = array_fill(0, count($ids), '');
 		}
 		$xrefs = array();
 		$xrefsStr = array();
-		for($i = 0; $i < count($id); $i += 1) {
-			$x = new XRef($id[$i], $code[$i]);
+		for($i = 0; $i < count($ids); $i += 1) {
+			$x = new XRef($ids[$i], $codes[$i]);
 			$xrefs[] = $x;
 			$xrefsStr[] = (string)$x;
 		}
