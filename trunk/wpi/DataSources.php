@@ -48,8 +48,8 @@ class DataSource {
                 foreach(explode("\n", $txt) as $line) {
                         $cols = explode("\t", $line);
                         $name = $cols[0];
-                        $species = $cols[6];
-                        self::$species[$name] = $species;
+                        $s = $cols[6];
+                        self::$species[$name] = $s;
                 }
         }
 
@@ -104,16 +104,51 @@ class DataSource {
 	 * species-specific datasource, then a blank "" is returned.
 	 */ 
         public static function getSpecies($datasource) {
-                if(!self::$speciess) {
-                        self::initSpeciess();
+                if(!self::$species) {
+                        self::initSpecies();
                 }
-                if($datasource && array_key_exists($datasource, self::$speciess)) {
-                        $value = self::$speciess[$datasource];
+                if($datasource && array_key_exists($datasource, self::$species)) {
+                        $value = self::$species[$datasource];
                         return $value;
                 } else {
                         return false;
                 }
         }
 
+	/**
+	 * returns the species-specific Ensembl datasource name, e.g., "Ensembl Mouse". 
+	 * If there isn't one, it just returns "Ensembl".
+	 */
+	public static function getEnsemblDatasource($s) {
+                if(!self::$species) {
+                        self::initSpecies();
+                }
+		$datasource = "Ensembl"; //default return
+		$match = "Ensembl"; //string match
+	 	foreach(array_keys(self::$species) as $name){
+			if(self::$species[$name] === $s && strncmp($name, $match, strlen($match)) == 0){
+				$datasource = $name;
+			}
+		}
+		return $datasource;
+	}
+
+	/**
+	 * returns the list of species-specific datasources other than Ensembl, usually 
+	 * model organism databases (MODs).
+	 */
+        public static function getModDatasources($s) {
+                if(!self::$species) {
+                        self::initSpecies();
+                }
+                $dsList = array();
+                $match = "Ensembl"; //string match
+                foreach(array_keys(self::$species) as $name){
+                        if(self::$species[$name] === $s && strncmp($name, $match, strlen($match)) != 0){
+                                $dsList[] = $name;
+                        }
+                }
+                return $dsList;
+        }
 }
 ?>
