@@ -11,7 +11,7 @@ For an overview of the available methods, see:
 http://www.wikipathways.org/wpi/wpi_rpc.php
 
 Please test your scripts on the test site first:
-http://137.120.89.38/wikipathways-test/wpi/wpi_rpc.php
+http://137.120.14.24/wikipathways-test/wpi/wpi_rpc.php
 */
 
 //Authentication data
@@ -22,7 +22,7 @@ $pass = "YourPassword";
 require("includes/xmlrpc.inc");
 
 //Setup a connection to the xml-rpc server (on the test site)
-$c = new xmlrpc_client("/wikipathways-test/wpi/wpi_rpc.php", "137.120.89.38", 80);
+$c = new xmlrpc_client("/wikipathways-test/wpi/wpi_rpc.php", "137.120.14.24", 80);
 $c->setDebug(0);
 $c->setAcceptedCompression(null);
 
