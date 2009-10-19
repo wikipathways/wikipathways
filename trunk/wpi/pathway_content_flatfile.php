@@ -2,9 +2,10 @@
 require_once("wpi.php");
 require_once("Pathway.php");
 require_once("PathwayData.php");
+require_once('search.php');
 
-//Get species restriction
-$restrictSpecies = $_REQUEST['species'];
+//Get requested species 
+$species = $_REQUEST['species'];
 
 //Get output format
 $outputFormat = $_REQUEST['output'];
@@ -13,7 +14,7 @@ if(!$outputFormat){
 }
 
 //Try to use a cached file if possible
-$cacheFile = WPI_CACHE_PATH . "/wikipathways_data_$restrictSpecies.$outputFormat";
+$cacheFile = WPI_CACHE_PATH . "/wikipathways_data_$species.$outputFormat";
 if(file_exists($cacheFile)) {
 	$latest = wfTimestamp(TS_UNIX, MwUtils::getLatestTimestamp(NS_PATHWAY));
 	if($latest <= filemtime($cacheFile)) {
@@ -34,32 +35,31 @@ function returnCached() {
 }
 
 function generateContent() {
-	global $restrictSpecies, $outputFormat, $cacheFile;
+	global $species, $outputFormat, $cacheFile;
 	
 	$fh = fopen($cacheFile, 'w');
 
 	error_reporting(0);
 
-	//The displayed systems
-	  //NOTE: "Ensembl" will catch all species-specific Ensembl systems
-	  // now that matching is done on first word of system name
-	$displaySystems = array(
-		"Entrez",
-		"Ensembl",
-		"SwissProt",
+	//The datasources to list in output file
+	$datasourceList = array(
+		"Entrez Gene",
+		"Ensembl", //SPECIAL CASE (see below)
+		"Uniprot/TrEMBL",
 		"UniGene",
 		"RefSeq",
-		"MOD",
+		"MOD", //SPECIAL CASE (see below)
 		"PubChem",
 		"CAS",
 		"ChEBI",
 	);
+	
 
 	// Print header
 	//NOTE: Model Organism Databases = HUGO, MGI, RGD, ZFIN, FlyBase, WormBase, SGD
 	if ($outputFormat =='html'){
 		$sysCols = '';
-		foreach($displaySystems as $s) {
+		foreach($datasourceList as $s) {
 			$sysCols .= "<TD>$s</TD>";
 		}
 	
@@ -71,24 +71,19 @@ function generateContent() {
 		fwrite($fh, "Not available yet...\n");
 	} else {
 		$sysCols = '';
-		foreach($displaySystems as $s) {
+		foreach($datasourceList as $s) {
 			$sysCols .= "\t$s";
 		}
 		//print header
 		fwrite($fh, "Pathway Name\tOrganism\tGene Ontology\tUrl to WikiPathways\tLast Changed\tLast Revision\tAuthor\tCount$sysCols\n");
 	} 
 
-	$all_pathways = Pathway::getAllPathways();
+	$pathwayList = Pathway::getAllPathways($species);
 
 	//Stores looked up user names (key is user id)
 	$users = array();
 
-	foreach ($all_pathways as $pathway) {
-		//Apply species restriction if necessary
-		$species = $pathway->getSpecies();
-		if($restrictSpecies) {
-			if ($species != $restrictSpecies) continue; 	
-		}
+	foreach ($pathwayList as $pathway) {
 
 		//Exclude unwanted pathways
 		$page_id = $pathway->getPageIdDB();
@@ -97,8 +92,6 @@ function generateContent() {
                 if (in_array($page_id, CurationTag::getPagesForTag('Curation:Stub'))) continue;
                 if (in_array($page_id, CurationTag::getPagesForTag('Curation:InappropriateContent'))) continue;
                 if (in_array($page_id, CurationTag::getPagesForTag('Curation:UnderConstruction'))) continue;
-
-	
 		//Exclude deleted and private pathways
 		if($pathway->isDeleted() || !$pathway->isPublic()) continue;
 	
@@ -133,55 +126,60 @@ function generateContent() {
 				fwrite($fh, $pathwayName."\t".$species."\t".$categories."\t".$url."\t".$modTime."\t".$lastRevision."\t".$author."\t");
 			}
 
-			$uniqueXrefs = $pathway->getUniqueXrefs();
-			$count = 0;
-			$xrefList = array();
-		
-			foreach($uniqueXrefs as $xref) {
-				// only use first word of system namess 
-				// to simplify matching for species-specific Ensembl systems
-				$xrefSystem = $xref->getSystem();
-				$xrefSystemWords = explode(" ", $xrefSystem);
-				$simpleXrefSystem = $xrefSystemWords[0];
-				$xrefList[$simpleXrefSystem] .= $xref->getId() . ',';
-				$count++;
-			}
-			//Generate the MOD list
-			$modSystems = array(
-				'HUGO',
-				'MGI',
-				'RGD',
-				'ZFIN',
-				'FlyBase',
-				'WormBase',
-				'SGD',
-				'TAIR',
-                                'EcoGene',
-                                'MaizeGDB',
-                                'Oryzabase',
-			);
-			foreach(array_keys($xrefList) as $system) {
-				if(in_array($system, $modSystems)) {
-					$xrefList['MOD'] .= $xrefList[$system];
+			// Print xref translations
+                        $datasourceXrefMap = array();
+			$updatedDatasourceList = array();
+			$xrefCount = array();
+			foreach($datasourceList as $s) {
+				if($s === "Ensembl"){
+					$s = DataSource::getEnsemblDatasource($species);
 				}
-			}
-			array_walk($xrefList, 'perlChop');
+				if($s === "MOD") {
+					$list = DataSource::getModDatasources($species);
+					if(count($list) > 0 ){
+						//just take the first one here
+						$s = $list[0];
+					} else {
+						//register a blank
+						$datasourceXrefMap[$s] = ' ';
+						$xrefCount[$s] = 0;
+						continue;
+					}
+				}	
+				$xrefCount[$s] = 0;
+				$code = DataSource::getCode($s);
+				try {
+					$xrefList = PathwayIndex::listPathwayXrefs($pathway, $code);			
+			        } catch(Exception $e) {
+         		        	throw new WSFault("Receiver", "Unable to process request: " . $e);
+        			}
+			
+				$tmp = "";
+				foreach($xrefList as $xref) {
+					$tmp .= $xref . ',';
+					$xrefCount[$s]++;
+				}
+ 				perlChop($tmp); //remove final comma from generated list
+				$datasourceXrefMap[$s] = $tmp;
+				$updatedDatasourceList[] = $s;
+			}		
+			//array_walk($datasourceXrefMap, 'perlChop');
 		
 			//Print gene content data
 			if ($outputFormat =='html') {
-				fwrite($fh, $count);
-				foreach($displaySystems as $s) {
+				fwrite($fh, $xrefCount[$updatedDatasourceList[0]]); //writing count for first datasource only (for simplicity)
+				foreach($updatedDatasourceList as $s) {
 					//append with space character toprovide for empty cells in html table 
-					fwrite($fh, "<TD>{$xrefList[$s]}&nbsp</TD>");
+					fwrite($fh, "<TD>{$datasourceXrefMap[$s]}&nbsp</TD>");
 				}
 				fwrite($fh, "</TR>");
 			} elseif ($outputFormat == 'excel'){
 				//TODO
 			} else {
-				fwrite($fh, $count);
-				foreach($displaySystems as $s) {
+				fwrite($fh, $xrefCount[$updatedDatasourceList[0]]); //writing count for first datasource only (for simplicity)
+				foreach($updatedDatasourceList as $s) {
 					//append with space character toprovide for empty cells in html table 
-					fwrite($fh, "\t{$xrefList[$s]}");
+					fwrite($fh, "\t{$datasourceXrefMap[$s]}");
 				}
 				fwrite($fh, "\n");
 			}
