@@ -99,7 +99,7 @@ TABLE;
 			$table .= '<td>' . $datanode['BackpageHead'];
 			$table .= '<td>';
 			$xref = $datanode->Xref;
-			$link = DataSource::getUrl((string)$xref['ID'], (string)$xref['Database']);
+			$link = DataSource::getLinkout((string)$xref['ID'], (string)$xref['Database']);
 			if($link) {
 				$link = "<a href='$link'>{$xref['ID']} ({$xref['Database']})</a>";
 			} else {
