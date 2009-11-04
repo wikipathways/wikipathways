@@ -21,7 +21,7 @@ if(file_exists($cacheFile)) {
 		returnCached(); //Redirect to cached (exits script)
 	}
 }
-generateContent(); //Update cache
+generateContent($species); //Update cache
 returnCached();
 
 function returnCached() {
@@ -34,8 +34,8 @@ function returnCached() {
 	exit();
 }
 
-function generateContent() {
-	global $species, $outputFormat, $cacheFile;
+function generateContent($species) {
+	global $outputFormat, $cacheFile;
 	
 	$fh = fopen($cacheFile, 'w');
 
@@ -77,6 +77,31 @@ function generateContent() {
 		//print header
 		fwrite($fh, "Pathway Name\tOrganism\tGene Ontology\tUrl to WikiPathways\tLast Changed\tLast Revision\tAuthor\tCount$sysCols\n");
 	} 
+
+    	// Loop through all species, if requested
+	// THIS DOESN'T WORK: TAKES TOO LONG?
+    	//if ($species == 'All') {
+    	//	foreach(Pathway::getAvailableSpecies() as $species) {
+	//		processPathways($species, $fh, $datasourceList);
+	//	}
+	//} else {
+		processPathways($species, $fh, $datasourceList);
+	//}
+
+        //Print footer
+        if ($outputFormat =='html'){
+                fwrite($fh, "</table></html>");
+        } elseif ($outputFormat == 'excel'){
+                //TODO
+        } else {
+
+        }
+
+        fclose($fh);
+}
+
+function processPathways($species, $fh, $datasourceList) { 
+        global $outputFormat, $cacheFile;
 
 	$pathwayList = Pathway::getAllPathways($species);
 
@@ -190,16 +215,6 @@ function generateContent() {
 		}
 	}
 
-	//Print footer
-	if ($outputFormat =='html'){
-		fwrite($fh, "</table></html>");
-	} elseif ($outputFormat == 'excel'){
-		//TODO
-	} else {
-
-	}
-	
-	fclose($fh);
 }
 
 function perlChop(&$string){
