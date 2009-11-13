@@ -32,7 +32,7 @@ class DataSourcesCache {
 	private static function read() {
 		$f = WPI_CACHE_PATH . "/" . self::$file;
 		if(file_exists($f)) {
-			file_get_contents($f);
+			return file_get_contents($f);
 		}
 	}
 	
