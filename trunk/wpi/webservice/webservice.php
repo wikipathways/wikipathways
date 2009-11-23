@@ -704,7 +704,7 @@ function authenticate($username, $token, $write = false) {
 }
 
 function formatXml($xml) {
-	return preg_replace("/\&/", "&amp;", $xml);
+	return htmlentities($xml);
 }
 
 //Class definitions
@@ -850,7 +850,7 @@ class WSIndexField {
 class WSPathway extends WSPathwayInfo {
 	function __construct($pathway) {
 		parent::__construct($pathway);
-		$this->gpml = formatXml($pathway->getGPML());
+		$this->gpml = $pathway->getGPML();
 	}
 	/**
 	* @var string $gpml - the GPML code
