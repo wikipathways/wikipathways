@@ -1106,12 +1106,15 @@ class Pathway {
 	 * output file extension.
 	 */
 	public static function convert($gpmlFile, $outFile) {
+		global $wgMaxShellMemory;
+		
 		$gpmlFile = realpath($gpmlFile);
 		
 		$basePath = WPI_SCRIPT_PATH;
-		$cmd = "java -Xmx128M -jar $basePath/bin/pathvisio_core.jar '$gpmlFile' '$outFile' 2>&1";
+		$maxMemoryM = intval($wgMaxShellMemory / 1024); //Max script memory on java program in megabytes
+		$cmd = "java -Xmx{$maxMemoryM}M -jar $basePath/bin/pathvisio_core.jar '$gpmlFile' '$outFile' 2>&1";
 		wfDebug("CONVERTER: $cmd\n");
-		$msg = wfShellExec($cmd, $status);
+		$msg = wfJavaExec($cmd, $status);
 		
 		if($status != 0 ) {
 			//Not needed anymore, since we now use a unique file name for

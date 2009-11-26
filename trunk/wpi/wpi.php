@@ -205,4 +205,47 @@ function tag($name, $text, $attributes = array()) {
 	}
 	return "<$name $attr>$text</$name>";
 }
+
+/**
+ * Modified wfShellExec for java calls. This does not include the memory limit
+ * on the ulimit call, since this doesn't work well with java.
+ * @param $cmd Command line, properly escaped for shell.
+ * @param &$retval optional, will receive the program's exit code.
+ *                 (non-zero is usually failure)
+ * @return collected stdout as a string (trailing newlines stripped)
+ */
+function wfJavaExec( $cmd, &$retval=null ) {
+	global $IP, $wgMaxShellMemory, $wgMaxShellFileSize;
+
+	if( wfIniGetBool( 'safe_mode' ) ) {
+		wfDebug( "wfShellExec can't run in safe_mode, PHP's exec functions are too broken.\n" );
+		$retval = 1;
+		return "Unable to run external programs in safe mode.";
+	}
+
+	if ( php_uname( 's' ) == 'Linux' ) {
+		$time = intval( ini_get( 'max_execution_time' ) );
+		$filesize = intval( $wgMaxShellFileSize );
+
+		if ( $time > 0) {
+			$script = "$IP/bin/ulimit4-nomemory.sh";
+			if ( is_executable( $script ) ) {
+				$cmd = escapeshellarg( $script ) . " $time $filesize " . escapeshellarg( $cmd );
+			}
+		}
+	} elseif ( php_uname( 's' ) == 'Windows NT' ) {
+		# This is a hack to work around PHP's flawed invocation of cmd.exe
+		# http://news.php.net/php.internals/21796
+		$cmd = '"' . $cmd . '"';
+	}
+	wfDebug( "wfJavaExec: $cmd\n" );
+
+	$retval = 1; // error by default?
+	ob_start();
+	passthru( $cmd, $retval );
+	$output = ob_get_contents();
+	ob_end_clean();
+	return $output;
+
+}
 ?>

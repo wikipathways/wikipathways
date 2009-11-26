@@ -9,7 +9,7 @@ class ShowError extends SpecialPage {
 		global $wgOut, $wgUser, $wgLang;
 		$this->setHeaders();
 		$error = htmlentities($_REQUEST['error']);
-		$wgOut->addWikiText("{{ErrorPage|$error}}");
+		$wgOut->addWikiText("<pre><nowiki>$error</nowiki></pre>");
 	}
 
 	function loadMessages() {
