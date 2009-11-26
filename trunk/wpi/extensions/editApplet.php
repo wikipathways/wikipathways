@@ -217,11 +217,7 @@ class EditApplet {
 	}
 	
 	static function getParameterArray($pathwayId, $pathwayName, $pathwaySpecies, $param = array()) {
-		global $wgUser, $wpiBridgeUrl;
-		
-		if(!isset($wpiBridgeUrl)) {
-			$wpiBridgeUrl = 'http://webservice.bridgedb.org/';
-		}
+		global $wgUser;
 		
 		if($pathwayId) {
 			$pathway = new Pathway($pathwayId);
@@ -246,7 +242,7 @@ class EditApplet {
 			'pwUrl' => $pwUrl,
 			'cache_archive' => $archive_string,
 			'cache_version' => $version_string,
-			'gdb_server' => $wpiBridgeUrl,
+			'gdb_server' => $_SERVER['HTTP_HOST'],
 			'revision' => $revision,
 			'siteUrl' => SITE_URL
 		);
