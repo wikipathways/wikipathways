@@ -1109,13 +1109,10 @@ class Pathway {
 		$gpmlFile = realpath($gpmlFile);
 		
 		$basePath = WPI_SCRIPT_PATH;
-		$cmd = "java -jar $basePath/bin/pathvisio_core.jar '$gpmlFile' '$outFile' 2>&1";
+		$cmd = "java -Xmx128M -jar $basePath/bin/pathvisio_core.jar '$gpmlFile' '$outFile' 2>&1";
 		wfDebug("CONVERTER: $cmd\n");
-		exec($cmd, $output, $status);
+		$msg = wfShellExec($cmd, $status);
 		
-		foreach ($output as $line) {
-			$msg .= $line . "\n";
-		}
 		if($status != 0 ) {
 			//Not needed anymore, since we now use a unique file name for
 			//each revision, so it's guaranteed to update.
