@@ -44,6 +44,7 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 
 	image.style.width = width + 'px';
 	image.style.height = height;
+	
 	//Replace existing content with loading message
 	image.innerHTML = '<div style="position:absolute;z-index:0">Loading...</div>';
 	setClass(image, 'thumbinner');
@@ -61,23 +62,17 @@ function doApplet(idImg, idApplet, basePath, main, width, height, keys, values, 
 	problems = document.createElement('a');
 	problems.href = site_url + '/index.php?title=Help:Known_problems';
 	problems.innerHTML = 'not working?';
-	image.appendChild(problems);
-		
-	//Create resize hint
-	resize = document.createElement('div');
-	resize.innerHTML = '<img src="' + wgScriptPath + '/skins/common/images/resize.png"/>';
-	resize.style.position = 'absolute';
-	resize.style.bottom = '0';
-	resize.style.right = '0';
-	image.appendChild(resize);
-	
+	image.appendChild(problems);	
 
 	var appletHTML = getAppletHTML(idApplet, '100%', '100%', main, basePath, 'wikipathways.jar', keys, values);	
 	appletObject.appletHTML = appletHTML;
 	
 	if(!noresize) {
-		var resizeable = new Resizeable(idImg, {bottom: 10, right: 10, left: 0, top: 0});
-		appletObject.resizeable = resizeable;
+		var $resize = $(image).resizable();
+		appletObject.resizeable = $resize;
+		
+		//Set the align attribute of the parent td element to left
+		$(image).parent('td').attr("align", "left");
 	}
 	
 	//ao.load( idApplet );
@@ -167,22 +162,22 @@ function getViewportSize() {
 	// the more standards compliant browsers (mozilla/netscape/opera/IE7) use window.innerWidth and window.innerHeight
 	if (typeof window.innerWidth != 'undefined')
 	{
-	     viewportwidth = window.innerWidth,
-	     viewportheight = window.innerHeight
+	     viewportwidth = window.innerWidth;
+	     viewportheight = window.innerHeight;
 	}
 	// IE6 in standards compliant mode (i.e. with a valid doctype as the first line in the document
 	else if (typeof document.documentElement != 'undefined'
 	    && typeof document.documentElement.clientWidth !=
 	    'undefined' && document.documentElement.clientWidth != 0)
 	{
-	      viewportwidth = document.documentElement.clientWidth,
-	      viewportheight = document.documentElement.clientHeight
+	      viewportwidth = document.documentElement.clientWidth;
+	      viewportheight = document.documentElement.clientHeight;
 	}
 	// older versions of IE
 	else
 	{
-	      viewportwidth = document.getElementsByTagName('body')[0].clientWidth,
-	      viewportheight = document.getElementsByTagName('body')[0].clientHeight
+	      viewportwidth = document.getElementsByTagName('body')[0].clientWidth;
+	      viewportheight = document.getElementsByTagName('body')[0].clientHeight;
 	}
 	
 	return Array(viewportwidth, viewportheight);

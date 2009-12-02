@@ -5,7 +5,6 @@ $wgExtensionFunctions[] = 'wfEditApplet';
 $wgHooks['LanguageGetMagic'][]  = 'wfEditApplet_Magic';
 
 $loaderAdded = false; //Set to true if loader is added in a previous call
-$scriptsAdded = false; //Set to true if script dependencies are added
 
 function wfEditApplet() {
 	global $wgParser;
@@ -32,7 +31,7 @@ function wfEditApplet_Magic( &$magicWords, $langCode ) {
  * @parameter $pwTitle The title of the pathway to be edited (Species:Pathwayname)
 */
 function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $new = false, $pwTitle = '', $type = 'editor', $width = 0, $height = '500px') {
-	global $wgUser, $wgScriptPath, $loaderAdded, $scriptsAdded;
+	global $wgUser, $wgScriptPath, $loaderAdded, $wpiJavascriptSources, $jsJQuery;
 	
 	//Check user rights
 	if( !$wgUser->isLoggedIn() || wfReadOnly()) {
@@ -101,12 +100,10 @@ PRELOAD;
 			$loaderAdded = true;
 		}
 		**/
-		$scripts = '';
-		if(!$scriptsAdded) {
-			$scripts = scriptTag('', JS_SRC_PROTOTYPE) . scriptTag('', JS_SRC_RESIZE) . scriptTag('', JS_SRC_EDITAPPLET);
-			$scriptsAdded = true;
-		}
-		$output = $scripts . $appletCode;
+		//Add editapplet.js script
+		$wpiJavascriptSources[] = JS_SRC_EDITAPPLET;
+		wpiAddXrefPanelScripts();
+		$output = $appletCode;
 	} catch(Exception $e) {
 		return "Error: $e";
 	}

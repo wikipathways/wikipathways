@@ -73,6 +73,12 @@ require('pass.php');
 # Load globals
 require_once('wpi/globals.php');
 
+# Default javascript locations
+if(!isset($jsJQuery)) $jsJQuery = "$wgScriptPath/wpi/js/jquery/jquery-1.3.2.js";
+if(!isset($jsJQueryUI)) $jsJQueryUI = "$wgScriptPath/wpi/js/jquery-ui/jquery-ui-1.7.2.custom.min.js";
+if(!isset($jsJQueryXML)) $jsJQueryXML = "$wgScriptPath/wpi/js/jquery/plugins/jquery.xmldom-1.0.js";
+if(!isset($jsSvgWeb)) $jsSvgWeb = "$wgScriptPath/wpi/js/svgweb/svg-uncompressed.js\" data-path=\"$wgScriptPath/wpi/js/svgweb";
+
 # Schemas for Postgres
 $wgDBmwschema       = "mediawiki";
 $wgDBts2schema      = "public";
@@ -309,6 +315,7 @@ require_once('wpi/extensions/PrivatePathways/ListPrivatePathways.php' );
 require_once('wpi/extensions/PrivatePathways/PrivateContributions.php' );
 require_once('wpi/extensions/recentChangesBox.php');
 require_once('wpi/extensions/pathwayBibliography.php');
+require_once('wpi/extensions/PathwayViewer/PathwayViewer.php');
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!
 // Sign up for keys at http://recaptcha.net/api/getKey
@@ -358,4 +365,16 @@ $wgReadOnlyFile = "readonly.enable";
 //Increase recent changes retention time
 $wgRCMaxAge = 60 * 24 * 3600;
 
+//Setup xrefpanel
+$wpiJavascriptSnippets[] = "XrefPanel_dataSourcesUrl = '" . WPI_CACHE_URL . "/datasources.txt';";
+if($wpiBridgeDb !== false) { //bridgedb web service support can be disabled by setting $wpiBridgeDb to false
+	if(!isset($wpiBridgeDb)) {
+		//Point to bridgedb proxy by default
+		$wpiBridgeDb = WPI_URL . '/extensions/bridgedb.php';
+	}
+	$wpiJavascriptSnippets[] = "XrefPanel_bridgeUrl = '$wpiBridgeDb';";
+}
+
+//Lastly, include javascripts (that may have been added by other extensions)
+require_once('wpi/Javascript.php');
 ?>
