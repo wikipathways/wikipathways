@@ -1,3 +1,4 @@
+
 //TODO: hyperlink cursor when over clickable object
 //TODO: make viewer resizable (currently hard because resizing the flash object stretches the svg, maybe adjust viewport will help)
 
@@ -7,6 +8,13 @@
  */
 if (typeof(PathwayViewer_basePath) == "undefined") 
     var PathwayViewer_basePath = '';
+
+/**
+ * This variable determines if xref info is displayed in a popup dialog ('popup')
+ * or info panel next to the svg image ('panel', default).
+ */
+if (typeof(PathwayViewer_xrefinfo) == "undefined") 
+    var PathwayViewer_xrefinfo = 'panel';
 
 /**
  * Pathway viewer based on Svgweb.
@@ -318,7 +326,7 @@ PathwayViewer.addControls = function($container, svgRoot, id){
     $container.append($controls);
     
     //Set correct position
-	var left = cWidth - (3 * s + 2 * w);
+    var left = cWidth - (3 * s + 2 * w);
     $controls.css({
         position: 'absolute',
         left: left,
@@ -592,12 +600,32 @@ GpmlModel.load = function(info){
             var id = jqxref.attr('ID');
             var ds = jqxref.attr('Database');
             
-            //Open an xref dialog
-            var $dialog = XrefPanel.create(id, ds, gpml.species, hover.textLabel);
-            $dialog.dialog('option', 'autoResize', false);
-            $dialog.dialog('option', 'title', hover.textLabel + ' (' + hover.type + ')');
-            $dialog.dialog('option', 'position', [e.pageX - $(window).scrollLeft(), e.pageY - $(window).scrollTop()]);
-            $dialog.dialog('open');
+            //Open the xref info
+            var title = hover.textLabel + ' (' + hover.type + ')';
+            
+            if (PathwayViewer_xrefinfo == 'popup') {
+                //Open an xref dialog
+                var $dialog = XrefPanel.createDialog(id, ds, gpml.species, hover.textLabel);
+                $dialog.dialog('option', 'autoResize', false);
+                $dialog.dialog('option', 'title', title);
+                $dialog.dialog('option', 'position', [e.pageX - $(window).scrollLeft(), e.pageY - $(window).scrollTop()]);
+                $dialog.dialog('open');
+            }
+            else {
+                //Close current dialog
+                if (gpml.currentDialog) {
+                    gpml.currentDialog.dialog('close');
+                }
+                var $dialog = XrefPanel.createDialog(id, ds, gpml.species, hover.textLabel);
+                $dialog.dialog('option', 'autoResize', false);
+                $dialog.dialog('option', 'title', title);
+                $dialog.dialog('option', 'position', [$svgObject.offset().left + $svgObject.width() + 10 - -$(window).scrollLeft(), $svgObject.offset().top - $(window).scrollTop()]);
+                $dialog.dialog('option', 'height', $svgObject.height());
+                
+                $dialog.dialog('open');
+                
+                gpml.currentDialog = $dialog;
+            }
         }
     }
     
@@ -608,7 +636,7 @@ GpmlModel.load = function(info){
             console.log("Error loading gpml: " + msg);
             console.error(ex);
         },
-        dataType: "text"
+        dataType: "xml"
     });
     return gpml;
 }

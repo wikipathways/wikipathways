@@ -1,26 +1,3 @@
-/* Fix to make DOMParser work under IE */
-if (typeof DOMParser == "undefined") {
-   DOMParser = function () {}
-
-   DOMParser.prototype.parseFromString = function (str, contentType) {
-      if (typeof ActiveXObject != "undefined") {
-         var d = new ActiveXObject("MSXML.DomDocument");
-         d.loadXML(str);
-         return d;
-      } else if (typeof XMLHttpRequest != "undefined") {
-         var req = new XMLHttpRequest;
-         req.open("GET", "data:" + (contentType || "application/xml") +
-                         ";charset=utf-8," + encodeURIComponent(str), false);
-         if (req.overrideMimeType) {
-            req.overrideMimeType(contentType);
-         }
-         req.send(null);
-         return req.responseXML;
-      }
-   }
-}
-/* End of fix */
-
 var CurationTags = {};
 
 /**
@@ -558,7 +535,20 @@ CurationTags.scrollToElement = function(elm){
 
 CurationTags.getRequestXML = function(xhr) {
 	var text = CurationTags.trim(xhr.responseText);
-	return new DOMParser().parseFromString(text,"text/xml");
+	return CurationTags.parseXML(text);
+}
+
+CurationTags.parseXML = function(xml) {
+	var xmlDoc = null;
+	if (window.DOMParser) {
+		parser = new DOMParser();
+		xmlDoc = parser.parseFromString(xml, "text/xml");
+	} else { //Internet Explorer
+		xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+		xmlDoc.async = "false";
+		xmlDoc.loadXML(xml);
+	}
+	return xmlDoc;
 }
 
 CurationTags.trim = function(str) {

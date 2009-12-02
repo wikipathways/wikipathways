@@ -366,12 +366,13 @@ $wgRCMaxAge = 60 * 24 * 3600;
 
 //Setup xrefpanel
 $wpiJavascriptSnippets[] = "XrefPanel_dataSourcesUrl = '" . WPI_CACHE_URL . "/datasources.txt';";
-if($wpiBridgeDb !== false) { //bridgedb web service support can be disabled by setting $wpiBridgeDb to false
-	if(!isset($wpiBridgeDb)) {
+if($wpiBridgeUrl !== false) { //bridgedb web service support can be disabled by setting $wpiBridgeDb to false
+	if(!isset($wpiBridgeUrl) || $wpiBridgeUseProxy) {
 		//Point to bridgedb proxy by default
-		$wpiBridgeDb = WPI_URL . '/extensions/bridgedb.php';
+		$wpiJavascriptSnippets[] = "XrefPanel_bridgeUrl = '" . WPI_URL . '/extensions/bridgedb.php' . "';";
+	} else {
+		$wpiJavascriptSnippets[] = "XrefPanel_bridgeUrl = '$wpiBridgeUrl';";
 	}
-	$wpiJavascriptSnippets[] = "XrefPanel_bridgeUrl = '$wpiBridgeDb';";
 }
 
 //Lastly, include javascripts (that may have been added by other extensions)
