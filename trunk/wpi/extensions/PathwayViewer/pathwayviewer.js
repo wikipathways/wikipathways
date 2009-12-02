@@ -1,4 +1,3 @@
-//TODO: handle position of svg container on resizing window
 //TODO: hyperlink cursor when over clickable object
 //TODO: make viewer resizable (currently hard because resizing the flash object stretches the svg, maybe adjust viewport will help)
 
@@ -58,7 +57,7 @@ PathwayViewer.idStartButton = '_startBtn';
 /**
  * Postfix for id of element that contains the controls.
  */
-PathwayViewer.idControl = '_controls';
+PathwayViewer.idControls = '_controls';
 
 /**
  * Postfix for id of svg object element.
@@ -249,6 +248,16 @@ PathwayViewer.startSVG = function(info){
         PathwayViewer.mouseWheel(e, svgRoot, $svgObject);
     });
     
+    //Add a resize handler to the window, to adjust
+    //the absolute svg position
+    $(window).resize(function(e){
+        var offset = $ph.offset();
+        $container.css({
+            'top': offset.top + 'px',
+            'left': offset.left + 'px'
+        });
+    });
+    
     //Show the svg object
     var $container = $('#' + info.imageId + PathwayViewer.idContainer);
     $container.css({
@@ -275,12 +284,7 @@ PathwayViewer.addControls = function($container, svgRoot, id){
     
     var totalWidth = (w + s) * 3;
     
-    var $controls = jQuery('<div />').attr('unselectable', 'on').attr('id', id).css({
-        position: 'absolute',
-        left: cOffset.left + cWidth - totalWidth + 'px',
-        top: cOffset.top,
-        'z-index': 1001
-    });
+    var $controls = jQuery('<div />').attr('unselectable', 'on').attr('id', id);
     
     var create = function(src, fn, left, top){
         var btn = jQuery('<div />').addClass('').css({
@@ -311,7 +315,16 @@ PathwayViewer.addControls = function($container, svgRoot, id){
     $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.zout, function(){
         PathwayViewer.zoomOut(svgRoot, $container);
     }, s + w, 7 * s + 5 * w));
-    $controls.insertAfter($container);
+    $container.append($controls);
+    
+    //Set correct position
+	var left = cWidth - (3 * s + 2 * w);
+    $controls.css({
+        position: 'absolute',
+        left: left,
+        top: 0,
+        'z-index': 1001
+    });
 }
 
 PathwayViewer.zoomTo = function(svg, factor, x, y){
@@ -620,5 +633,5 @@ PathwayViewer.parseGPML = function(xml){
         xmlDoc.async = "false";
         xmlDoc.loadXML(xml);
     }
-	return xmlDoc;
+    return xmlDoc;
 }
