@@ -42,7 +42,9 @@ XrefPanel.xrefHooks.push(function(xrefs){
     return xrefs;
 });
 
-XrefPanel.loadImage = '<img src="' + PathwayViewer_basePath + '/img/loading_small.gif" />';
+XrefPanel.createLoadImage = function() {
+	return '<img src="' + PathwayViewer_basePath + 'img/loading_small.gif" />';
+}
 
 /**
  * Add hook functions to customize the info
@@ -62,13 +64,22 @@ XrefPanel.createInfoCallback = function($div){
         $div.find('img').hide();
         $table = $('<table></table>');
         var lines = data.split("\n");
+		
+		//Group equal attributes
+		var attributes = {};
         for (var i in lines) {
             var cols = lines[i].split("\t");
             if (!cols[0] || !cols[1]) {
                 continue;
             }
-            $table.append('<tr><td><b>' + cols[0] + ':</b><td>' + cols[1]);
+			if(!attributes[cols[0]]) {
+				attributes[cols[0]] = [];
+			}
+			attributes[cols[0]].push(cols[1]);
         }
+		for(a in attributes) {
+            $table.append('<tr align="top"><td><b>' + a + ':</b><td>' + attributes[a].join(', '));
+		}
         $div.append($table);
     }
 }
@@ -82,7 +93,7 @@ XrefPanel.createErrorCallback = function($div, msg){
 
 XrefPanel.infoHooks.push(function(id, datasource, symbol, species){
     if (XrefPanel_bridgeUrl) {
-        var $div = $('<div id="bridgeInfo">' + XrefPanel.loadImage + '</div>');
+        var $div = $('<div id="bridgeInfo">' + XrefPanel.createLoadImage() + '</div>');
         XrefPanel.queryProperties(id, datasource, species, XrefPanel.createInfoCallback($div), 
 			XrefPanel.createErrorCallback($div, 'Unable to load info.'));
         return $div;
@@ -153,7 +164,7 @@ XrefPanel.create = function(id, datasource, species, symbol){
     }
     
     var maxXrefLines = 5; //Maximum number of xref links to show (scroll otherwise)
-    var $contents = $('<div><div id="info" /><div id="xrefs">' + XrefPanel.loadImage + '</div></div>');
+    var $contents = $('<div><div id="info" /><div id="xrefs">' + XrefPanel.createLoadImage() + '</div></div>');
     
     $dialog = $contents.dialog({
         autoOpen: false

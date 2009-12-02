@@ -1,5 +1,4 @@
-
-//TODO: zoom in direction of cursor
+//TODO: handle position of svg container on resizing window
 //TODO: hyperlink cursor when over clickable object
 //TODO: make viewer resizable (currently hard because resizing the flash object stretches the svg, maybe adjust viewport will help)
 
@@ -226,7 +225,7 @@ PathwayViewer.startSVG = function(info){
     $img.hide();
     
     //Add event handlers
-    var drag = PathwayViewer.newDragState(svgObject, svgRoot);
+    var drag = PathwayViewer.newDragState($svgObject, svgRoot);
     PathwayViewer.draggers[info.imageId] = drag;
     
     $svgObject.mousedown(drag.mouseDown);
@@ -247,7 +246,7 @@ PathwayViewer.startSVG = function(info){
         });
     }
     $svgObject.mousewheel(function(e){
-        PathwayViewer.mouseWheel(e, svgRoot);
+        PathwayViewer.mouseWheel(e, svgRoot, $svgObject);
     });
     
     //Show the svg object
@@ -303,24 +302,33 @@ PathwayViewer.addControls = function($container, svgRoot, id){
     $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.up, PathwayViewer.panUp, s + w, s));
     $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.down, PathwayViewer.panDown, s + w, 3 * s + 2 * w));
     
-    $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.zin, PathwayViewer.zoomIn, s + w, 5 * s + 3 * w));
+    $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.zin, function(){
+        PathwayViewer.zoomIn(svgRoot, $container);
+    }, s + w, 5 * s + 3 * w));
     $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.zfit, function(){
         PathwayViewer.zoomFit(svgRoot, cWidth, cHeight);
     }, s + w, 6 * s + 4 * w));
-    $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.zout, PathwayViewer.zoomOut, s + w, 7 * s + 5 * w));
+    $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.zout, function(){
+        PathwayViewer.zoomOut(svgRoot, $container);
+    }, s + w, 7 * s + 5 * w));
     $controls.insertAfter($container);
 }
 
-PathwayViewer.zoom = function(svg, factor){
+PathwayViewer.zoomTo = function(svg, factor, x, y){
+    //Zoom and ensure that x, y keeps pointing to the same svg coordinate after zooming
+    var dx = x / svg.currentScale - x / factor;
+    var dy = y / svg.currentScale - y / factor;
     svg.currentScale = factor;
+    svg.currentTranslate.setX(svg.currentTranslate.getX() - dx);
+    svg.currentTranslate.setY(svg.currentTranslate.getY() - dy);
 }
 
-PathwayViewer.zoomIn = function(svg){
-    PathwayViewer.zoom(svg, svg.currentScale * (1 + PathwayViewer.zoomStep));
+PathwayViewer.zoomIn = function(svg, $container){
+    PathwayViewer.zoomTo(svg, svg.currentScale * (1 + PathwayViewer.zoomStep), $container.width() / 2, $container.height() / 2);
 }
 
-PathwayViewer.zoomOut = function(svg){
-    PathwayViewer.zoom(svg, svg.currentScale / (1 + PathwayViewer.zoomStep));
+PathwayViewer.zoomOut = function(svg, $container){
+    PathwayViewer.zoomTo(svg, svg.currentScale / (1 + PathwayViewer.zoomStep), $container.width() / 2, $container.height() / 2);
 }
 
 PathwayViewer.zoomFit = function(svg, fw, fh){
@@ -352,16 +360,22 @@ PathwayViewer.panDown = function(svg){
     svg.currentTranslate.setY(svg.currentTranslate.getY() + PathwayViewer.moveStep);
 }
 
-PathwayViewer.mouseWheel = function(e, svg){
+PathwayViewer.mouseWheel = function(e, svg, $svgObject){
     e = e ? e : window.event;
     
     var wheelData = e.detail ? e.detail * -1 : e.wheelDelta;
     
+    var offset = $svgObject.offset();
+    var x = e.pageX - offset.left;
+    var y = e.pageY - offset.top;
+    
     if (wheelData > 0) {
-        PathwayViewer.zoomIn(svg);
+        PathwayViewer.zoomTo(svg, svg.currentScale * (1 + PathwayViewer.zoomStep), x, y);
+        //PathwayViewer.zoomIn(svg);
     }
     else {
-        PathwayViewer.zoomOut(svg);
+        PathwayViewer.zoomTo(svg, svg.currentScale / (1 + PathwayViewer.zoomStep), x, y);
+        //PathwayViewer.zoomOut(svg);
     }
     
     if (e.preventDefault) {
@@ -376,7 +390,7 @@ PathwayViewer.mouseWheel = function(e, svg){
  * svg object.
  * @param {Object} svg The svg root node.
  */
-PathwayViewer.newDragState = function(svgObj, svgRoot){
+PathwayViewer.newDragState = function($svgObject, svgRoot){
     var drag = {
         dragging: false,
         pMouseDown: {
@@ -391,12 +405,11 @@ PathwayViewer.newDragState = function(svgObj, svgRoot){
     
     drag.mouseDown = function(e){
         //Check if mouse is over svg element
-        var jqsvgObj = $(svgObj);
-        var svgOffset = jqsvgObj.offset();
+        var svgOffset = $svgObject.offset();
         if (svgOffset.left <= e.pageX &&
-        (svgOffset.left + jqsvgObj.width()) >= e.pageY &&
+        (svgOffset.left + $svgObject.width()) >= e.pageY &&
         svgOffset.top <= e.pageY &&
-        (svgOffset.top + jqsvgObj.height()) >= e.pageY) {
+        (svgOffset.top + $svgObject.height()) >= e.pageY) {
             drag.dragging = true;
             
             drag.pMouseDown = {
@@ -467,9 +480,11 @@ GpmlModel.load = function(info){
     gpml.callback = function(data, textStatus){
         gpml.$data = $(data);
         if (typeof data == 'string') {
-            gpml.$data = $.xmlDOM(data, function(msg){
-                console.log("unable to parse gpml: " + msg)
-            });
+            //gpml.$data = $.xmlDOM(data, function(msg){
+            //    console.log("unable to parse gpml: " + msg)
+            //});
+            var xml = PathwayViewer.parseGPML(data);
+            gpml.$data = $(xml);
         }
         
         var graphics = gpml.$data.find('Pathway > Graphics');
@@ -587,4 +602,23 @@ GpmlModel.load = function(info){
 
 debug = function(text){
     $("#debug").html(text);
+}
+
+/**
+ * Cross-browser xml parsing.
+ * From http://www.w3schools.com/Dom/dom_parser.asp
+ */
+PathwayViewer.parseGPML = function(xml){
+    var xmlDoc = null;
+    if (window.DOMParser) {
+        parser = new DOMParser();
+        xmlDoc = parser.parseFromString(xml, "text/xml");
+    }
+    else // Internet Explorer
+    {
+        xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+        xmlDoc.async = "false";
+        xmlDoc.loadXML(xml);
+    }
+	return xmlDoc;
 }

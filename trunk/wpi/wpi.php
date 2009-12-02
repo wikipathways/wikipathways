@@ -56,7 +56,7 @@ try {
  */
 function wpiAddXrefPanelScripts() {
 	global $wpiJavascriptSources, $wpiJavascriptSnippets, $jsJQuery, $jsJQueryUI, 
-		$jsJQueryXML, $wgScriptPath, $wgStylePath, $wgOut, $wikipathwaysSearchUrl;
+		$wgScriptPath, $wgStylePath, $wgOut, $wikipathwaysSearchUrl;
 	
 	//Add CSS
 	//Hack to add a css that's not in the skins directory
@@ -67,7 +67,6 @@ function wpiAddXrefPanelScripts() {
 	
 	$wpiJavascriptSources[] = $jsJQuery;
 	$wpiJavascriptSources[] = $jsJQueryUI;
-	$wpiJavascriptSources[] = $jsJQueryXML;
 	$wpiJavascriptSources[] = "$wgScriptPath/wpi/js/xrefpanel.js";
 	
 	if($wikipathwaysSearchUrl) {

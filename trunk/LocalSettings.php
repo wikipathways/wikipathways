@@ -76,7 +76,6 @@ require_once('wpi/globals.php');
 # Default javascript locations
 if(!isset($jsJQuery)) $jsJQuery = "$wgScriptPath/wpi/js/jquery/jquery-1.3.2.js";
 if(!isset($jsJQueryUI)) $jsJQueryUI = "$wgScriptPath/wpi/js/jquery-ui/jquery-ui-1.7.2.custom.min.js";
-if(!isset($jsJQueryXML)) $jsJQueryXML = "$wgScriptPath/wpi/js/jquery/plugins/jquery.xmldom-1.0.js";
 if(!isset($jsSvgWeb)) $jsSvgWeb = "$wgScriptPath/wpi/js/svgweb/svg-uncompressed.js\" data-path=\"$wgScriptPath/wpi/js/svgweb";
 
 # Schemas for Postgres
