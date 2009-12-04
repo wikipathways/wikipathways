@@ -377,6 +377,12 @@ and: http://svnbook.red-bean.com/en/1.4/svn.branchmerge.copychanges.html
 === Step-by-step instructions for WikiPathways release ===
 This section lists the steps to take for a typical milestone release. Note that you have to replace some milestone and revision numbers.
 
+# Update version number in code:
+These files need to be updated:
+
+build.xml
+GuiMain.java
+
 # Tag for WikiPathways code
 svn cp http://svn.bigcat.unimaas.nl/wikipathways/trunk http://svn.bigcat.unimaas.nl/wikipathways/branches/milestone_10.x
 svn cp http://svn.bigcat.unimaas.nl/wikipathways/branches/milestone_10.x http://svn.bigcat.unimaas.nl/wikipathways/tags/milestone_10.0
@@ -401,7 +407,10 @@ svn switch http://svn.bigcat.unimaas.nl/pathvisio/tags/milestone_10.0
 # Build applets
 # From milestone 17, both applets are built with one command.
 # ant.properties should define keystore.password
-ant install-wpi -Dwikipathways.dest=/var/www/wikipathways -propertyfile ~/code/ant.properties
+ant install-wpi \
+	-Dwikipathways.dest=/var/www/wikipathways \
+	-propertyfile ~/code/ant.properties  \
+	-Ddebug.mode=false
 
 # Now test the editor on sandbox pathway
 
@@ -446,24 +455,48 @@ ant install-wpi -Dwikipathways.dest=/var/www/wikipathways -propertyfile ~/code/a
 	
 	# compile webstart and publish
 	# ant.properties should define the keystore.password property.
-	ant prepare-webstart -propertyfile ~/ant.properties
+	ant prepare-webstart -propertyfile ~/ant.properties -Ddebug.mode=false
 	scp -r webstart/www/* pathvisio@www.pathvisio.org:/home/pathvisio/webstart
 	
-	# test webstart: 
+	# Update version no. on download page
 	go to http://pathvisio.org/Download
+	
+	# test webstart: 
 	Click on download link
 	Check revision no in about box
 	
 	# create tar.gz and publish
-	ant tar
+	ant tar -Ddebug.mode=false
 	scp release/pathvisio_[bs]* pathvisio@www.pathvisio.org:/home/pathvisio/data/releases
 	
 	# create tar.gz of webservice client library and publish
-	ant tarbin-wpclient -Dwsdl.url=http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl
-	scp release/wikipathways-client_* pathvisio@www.pathvisio.org:/home/pathvisio/data
+	ant tarbin-wpclient -Ddebug.mode=false -Dwsdl.url=http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl
+	scp release/wikipathways_client_* pathvisio@www.pathvisio.org:/home/pathvisio/data
 
 	# update front page and release notes
 	http://pathvisio.org/Release_Notes
 	http://pathvisio.org/PathVisio
+	
+	# newsletter has been sent out on milestones 16, 18
+	# send out newsletter on milestones 21, 24, 27, 30, 33
+	# On other milestones, send out a message to wikipathways-discuss
+	# Using the following template:
 
-	# send out newsletter on milestones 16, 19, 22, 25, 28, 31, 34
+To: wikipathways-discuss@googlegroups.com
+Subject: WikiPathways and PathVisio milestone ## released
+
+Today we released WikiPathways milestone ### and PathVisio version ###.
+
+This is a minor release, with mostly bug fixes. Like always, the latest version of WikiPathways
+is available at [1] and the latest version of PathVisio can be downloaded from [2]
+
+New in this release:
+
+###
+
+For details, see the roadmap[3] and the release notes[4]
+
+[1] http://www.wikipathways.org
+[2] http://pathvisio.org/wiki/PathVisioDownload
+[3] http://pathvisio.org/roadmap
+[4] http://pathvisio.org/Release_Notes 
