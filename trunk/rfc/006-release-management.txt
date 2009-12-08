@@ -187,12 +187,13 @@ If there isn't confusion about when to test,
 when to develop new features etc. it is more likely that people will actually do these things at the right time.
 
 === mediawiki code ===
-
 Updates to mediawiki are potentially disruptive. Therefore I propose to these kinds of updates 
 on the test site first as well, and always do it before the feature freeze 
 so we still have some time for testing.
 
-Mediawiki does major updates quarterly, with a few point releases in between.
+Mediawiki does major updates quarterly, with a few point releases in between. You can find the
+current MediaWiki version on the special page called 'version':
+http://www.wikipathways.org/index.php/Special:Version
 
 This is an overview of the steps needed to update mediawiki:
 
@@ -264,6 +265,24 @@ This is an overview of the steps needed to update mediawiki:
 	* restore LocalSettings.php (just revert back to the svn version)
 
 	7. Recompile applets (wikipathways-dest, diffapplet)
+	
+Note that this workflow does not include updating the custom wikipathways skin. This skin is based on the
+monobook skin and changes should be merged seperately:
+
+	1. Merge changes from newest version of skins/MonoBook.php into skins/WikiPathways.php. This is easiest
+	done manually with a merge tool (like Meld).
+	
+	2. Find the difference between the files in the skins/wikipathways directory with the files in the
+	mediawiki skins/monobook directory of the *current* mediawiki version:
+
+	diff -c -r mediawiki-1.9.3/skins/monobook /var/www/wikipathways/skins/wikipathways > 1.9.3_wp_skin_changes.diff
+	
+	3. Overwrite the skin files with the newest monobook files:
+	cp mediawiki-1.13.1/skins/monobook/* /var/www/wikipathways/skins/wikipathways/
+
+	4. Apply the WikiPathways specific changes (this may give conflicts, which you need to resolve manually):
+	cd /var/www/wikipathways/skins/wikipathways
+	patch -p3 < /home/thomas/programs/1.9.3_wp_skin_changes.diff
 
 **************************************
 
