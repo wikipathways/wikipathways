@@ -704,7 +704,11 @@ function authenticate($username, $token, $write = false) {
 }
 
 function formatXml($xml) {
-	return htmlentities($xml);
+	if(is_array($xml)) {
+		return array_map(htmlentities, $xml);
+	} else {
+		return htmlentities($xml);
+	}
 }
 
 //Class definitions
