@@ -468,6 +468,8 @@ CurationTags.loadTagCallback = function(xhr) {
 				//recent revision
 				html = html.replace("{{{update_link}}}", 
 					"<a href='javascript:CurationTags.updateTag(\"" + tagName + "\")'>Click here</a> to apply to current revision.");
+			} else {
+				html = html.replace("{{{update_link}}}", "");
 			}
 			
 			tagContent = document.createElement("div");
