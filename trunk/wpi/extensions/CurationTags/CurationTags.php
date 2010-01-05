@@ -18,7 +18,7 @@ $wgExtensionFunctions[] = "wfCurationTags";
 function wfCurationTags() {
 	global $wgParser;
 	$wgParser->setHook( "curationTags", "displayCurationTags" );
-	
+        
 	global $wgMessageCache;
 	$wgMessageCache->addMessages( 
 	array(
@@ -385,16 +385,18 @@ class CurationTagsAjax {
 	 * 		<Text>the tag text</text>
 	 * 	</Tag>
 	 */
-	public static function getTagData($name, $pageId) {
+	public static function getTagData($name, $pageId, $pageRev = 0) {
 		//Create a template call and use the parser to
 		//convert this to HTML
 		$tag = new MetaTag($name, $pageId);
 		$tmp = $name;
+		$tmp .= "|tag_name={$tag->getName()}";
 		$tmp .= "|tag_text={$tag->getText()}";
 		$tmp .= "|user_add={$tag->getUserAdd()}";
 		$tmp .= "|user_mod={$tag->getUserMod()}";
 		$tmp .= "|time_add={$tag->getTimeAdd()}";
 		$tmp .= "|time_mod={$tag->getTimeMod()}";
+		$tmp .= "|page_revision={$pageRev}";
 		
 		if($tag->getPageRevision()) {
 			$tmp .= "|tag_revision={$tag->getPageRevision()}";

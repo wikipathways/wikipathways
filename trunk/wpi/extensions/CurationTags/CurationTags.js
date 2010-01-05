@@ -209,6 +209,16 @@ CurationTags.removeTagCallback = function(xhr) {
 	CurationTags.refreshNoTagsMsg();
 }
 
+/**
+ * Update the tag to the current page revision (forces save and keeps tag text unchanged).
+ */
+CurationTags.updateTag = function(tagName) {
+	var tagData = CurationTags.tagData[tagName];
+	if(tagData) {
+		CurationTags.saveTag(tagName, tagData.text, CurationTags.pageRevision);
+	}
+}
+
 CurationTags.saveTag = function(tagName, tagText, tagRev) {
 	sajax_do_call(
 		"CurationTagsAjax::saveTag", 
@@ -397,7 +407,7 @@ CurationTags.loadTagsCallback = function(xhr) {
 CurationTags.loadTag = function(tagName) {
 	sajax_do_call(
 		"CurationTagsAjax::getTagData",
-		[tagName, CurationTags.pageId],
+		[tagName, CurationTags.pageId, CurationTags.pageRevision],
 		CurationTags.loadTagCallback
 	);
 }
@@ -453,6 +463,11 @@ CurationTags.loadTagCallback = function(xhr) {
 					"<IMG src='" + CurationTags.extensionPath + "/edit.png'/></A>";
 				btns.innerHTML = remove + edit;
 				elm.appendChild(btns);
+				
+				//Replace {{{update_link}}} with a link to apply the tag to the most
+				//recent revision
+				html = html.replace("{{{update_link}}}", 
+					"<a href='javascript:CurationTags.updateTag(\"" + tagName + "\")'>Click here</a> to apply to current revision.");
 			}
 			
 			tagContent = document.createElement("div");
