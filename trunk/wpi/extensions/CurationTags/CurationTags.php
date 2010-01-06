@@ -388,11 +388,20 @@ class CurationTagsAjax {
 	public static function getTagData($name, $pageId, $pageRev = 0) {
 		//Create a template call and use the parser to
 		//convert this to HTML
+		
 		$tag = new MetaTag($name, $pageId);
+
+		$userAdd = User::newFromId($tag->getUserAdd());
+		$userMod = User::newFromId($tag->getUserMod());
+		
 		$tmp = $name;
 		$tmp .= "|tag_name={$tag->getName()}";
 		$tmp .= "|tag_text={$tag->getText()}";
 		$tmp .= "|user_add={$tag->getUserAdd()}";
+		$tmp .= "|user_add_name={$userAdd->getName()}";
+		$tmp .= "|user_mod_name={$userMod->getName()}";
+		$tmp .= "|user_add_realname={$userAdd->getRealName()}";
+		$tmp .= "|user_mod_realname={$userMod->getRealName()}";
 		$tmp .= "|user_mod={$tag->getUserMod()}";
 		$tmp .= "|time_add={$tag->getTimeAdd()}";
 		$tmp .= "|time_mod={$tag->getTimeMod()}";
