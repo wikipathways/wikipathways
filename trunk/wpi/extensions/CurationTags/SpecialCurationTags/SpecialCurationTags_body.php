@@ -13,6 +13,9 @@ class SpecialCurationTags extends SpecialPage {
 		$this->setHeaders();
 		
 		if($tagName = $_REQUEST['showPathwaysFor']) {
+			$def = CurationTag::getTagDefinition();
+			$useRev = $def->xpath('Tag[@name="' . $tagName . '"]/@useRevision');
+
 			$disp = htmlentities(CurationTag::getDisplayName($tagName));
 			$pages = CurationTag::getPagesForTag($tagName);
 			
@@ -24,6 +27,9 @@ class SpecialCurationTags extends SpecialPage {
 			$wgOut->addHTML("<p><a href='$url'>back</a></p>");
 			$wgOut->addHTML("<table class='prettytable sortable'><tbody>");
 			$wgOut->addHTML("<th>Pathway name<th>Organism<th>Created by<th><th>Last modified by<th>");
+			if($useRev) {
+				$wgOut->addHTML("<th>Applies to latest revision");
+			}
 			
 			foreach($pages as $pageId) {
 				try {
@@ -42,7 +48,12 @@ class SpecialCurationTags extends SpecialPage {
 						$tmod = $wgLang->timeanddate( $tag->getTimeMod(), true );
 						$lcreate = $wgUser->getSkin()->userLink( $ucreate->getId(), $ucreate->getName() );
 						$lmod = $wgUser->getSkin()->userLink( $umod->getId(), $umod->getName() );
-						$wgOut->addHTML("<td>$lcreate<td>$tcreate<td>$lmod<td>$tmod");
+						
+						if($useRev) {
+							$latest = "<td>";
+							$latest .= $p->getLatestRevision() == $tag->getPageRevision() ? "<font color='green'>yes</font>" : "<font color='red'>no</font>";
+						}
+						$wgOut->addHTML("<td>$lcreate<td>$tcreate<td>$lmod<td>$tmod$latest");
 					}
 				} catch(Exception $e) {
 					wfDebug("SpecialCurationTags: unable to create pathway object for page " . $pageId);
