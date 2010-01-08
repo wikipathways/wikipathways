@@ -39,7 +39,8 @@ PathwayViewer.icons = {
     "zin": "img/zoom_in.png",
     "zout": "img/zoom_out.png",
     "zfit": "img/zoom_fit.png",
-    "loading": "img/loading.gif"
+    "loading": "img/loading.gif",
+	"getflash": "img/getflash.png"
 }
 
 /**
@@ -117,6 +118,29 @@ PathwayViewer.addLoadProgress = function(info, $img){
     $('body').append($div);
 }
 
+PathwayViewer.addFlashNotification = function(info){
+    var $img = PathwayViewer.getImg(info.imageId);
+	var $parent = $img.parent()
+	if($parent.is('a')) {
+		$parent = $parent.parent();
+	}
+	    
+    var $flash = jQuery('<img>')
+		.attr('src', PathwayViewer_basePath + PathwayViewer.icons.getflash)
+		.attr('title', 'Install Flash player to zoom and view protein/metabolite info.');
+    
+    var $div = jQuery('<div />').css({
+        position: 'relative',
+		top: -$parent.height() + 20 + 'px',
+		left: ($img.width() / 2) - 100 + 'px'
+    });
+    
+	$link = $('<a href="http://www.adobe.com/go/getflashplayer">');
+	$link.append($flash);
+    $div.append($link);
+	$parent.append($div);
+}
+
 PathwayViewer.addStartButton = function(info){
     var $img = PathwayViewer.getImg(info.imageId);
     
@@ -165,6 +189,16 @@ PathwayViewer.getImg = function(id){
 PathwayViewer.loadSVG = function(){
     for (var i in PathwayViewer.pathwayInfo) {
         var info = PathwayViewer.pathwayInfo[i];
+
+		//Test if a suitable renderer has been found by svgweb
+		if(!svgweb.config.use) {
+			//If not, instead of loading the svg, add a notification
+			//to help the user to install flash
+			console.log(svgweb.config.reason);
+			PathwayViewer.addFlashNotification(info);
+			continue;
+		}
+	
         var $img = PathwayViewer.getImg(info.imageId);
         
         PathwayViewer.addLoadProgress(info, $img);
