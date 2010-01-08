@@ -22,6 +22,12 @@ function wpiAddJavascript(&$out, $parseroutput) {
 	foreach($wpiJavascriptSources as $src) {
 		$out->addScript("<script src=\"{$src}\" type=\"{$wgJsMimeType}\"></script>\n");
 	}
+	
+	//Add firebug lite console if requested in GET
+	$fb = $_GET['firebug'];
+	if($fb) {
+		$out->addScript("<script src=\"http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js\" type=\"{$wgJsMimeType}\"></script>\n");	
+	}
 	return true;
 }
 ?>

@@ -129,13 +129,14 @@ PathwayViewer.addFlashNotification = function(info){
 		.attr('src', PathwayViewer_basePath + PathwayViewer.icons.getflash)
 		.attr('title', 'Install Flash player to zoom and view protein/metabolite info.');
     
-    var $div = jQuery('<div />').css({
+    var $div = jQuery('<div id="flashlink"/>').css({
         position: 'relative',
 		top: -$parent.height() + 20 + 'px',
-		left: ($img.width() / 2) - 100 + 'px'
+		left: ($img.width() / 2) - 100 + 'px',
+		'z-index': '1000'
     });
     
-	$link = $('<a href="http://www.adobe.com/go/getflashplayer">');
+	var $link = $('<a></a>').attr('href', 'http://www.adobe.com/go/getflashplayer').attr('id', 'flashlink_a');
 	$link.append($flash);
     $div.append($link);
 	$parent.append($div);
@@ -194,7 +195,6 @@ PathwayViewer.loadSVG = function(){
 		if(!svgweb.config.use) {
 			//If not, instead of loading the svg, add a notification
 			//to help the user to install flash
-			console.log(svgweb.config.reason);
 			PathwayViewer.addFlashNotification(info);
 			continue;
 		}
