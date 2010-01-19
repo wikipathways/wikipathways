@@ -472,9 +472,13 @@ CurationTags.loadTagCallback = function(xhr) {
 				html = html.replace("{{{update_link}}}", "");
 			}
 			
+			//To make the message show up when hovering over tag:
+			//part 1: replace UNIQUEID placeholder with tag name
+            html = html.replace(/UNIQUEID/g, tagName);
 			tagContent = document.createElement("div");
 			tagContent.className = "tagcontents";
 			tagContent.id = "tagContent_" + tagName;
+			
 			elm.appendChild(tagContent);
 		}
 		
@@ -486,6 +490,28 @@ CurationTags.loadTagCallback = function(xhr) {
 		
 		tagContent.innerHTML = html;
 		
+		//To make the message show up when hovering over tag:
+		//part 2: insert event listeners
+        var control = document.getElementById(tagName + "_hover");
+        var show = document.getElementById(tagName + "_show");
+		if (show && control) {
+			var funOver = function(e){
+				show.style.display = null;
+			}
+			var funOut = function(e){
+				show.style.display = 'none';
+			}
+			if (control.addEventListener) {
+				control.addEventListener('mouseover', funOver, false);
+				control.addEventListener('mouseout', funOut, false);
+			}
+			else 
+				if (control.attachEvent) {
+					control.attachEvent('onmouseover', funOver);
+					control.attachEvent('onmouseout', funOut);
+				}
+		}
+			
 		CurationTags.refreshNoTagsMsg();
 	}
 }
