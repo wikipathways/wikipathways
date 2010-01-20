@@ -397,7 +397,10 @@ CurationTags.loadTagsCallback = function(xhr) {
 		var nodes = xml.documentElement.childNodes;
 		
 		for(i=0;i<nodes.length;i++) {
-			CurationTags.loadTag(nodes[i].firstChild.nodeValue);
+			var tagname = nodes[i].firstChild.nodeValue;
+			if(tagname) {
+			CurationTags.loadTag(tagname);
+			}
 		}
 		CurationTags.refreshNoTagsMsg();
 	}
