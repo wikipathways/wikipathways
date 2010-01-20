@@ -15,13 +15,13 @@ class PathwayBibliography {
 		$parser->disableCache();
 		try {
 			$pathway = Pathway::newFromTitle($parser->mTitle);
-			return self::getHTML($pathway);
+			return self::getHTML($pathway, $parser);
 		} catch(Exception $e) {
 			return "Error: $e";
 		}
 	}
 	
-	private static function getHTML($pathway) {
+	private static function getHTML($pathway, $parser) {
 		global $wgUser;
 		
 		$data = $pathway->getPathwayData();
@@ -59,7 +59,8 @@ class PathwayBibliography {
 		}
 		
 		$id = 'biblist';
-		if($out) {
+		$hasRefs = (boolean)$out;
+		if($hasRefs) {
 			$out = "<OL id='$id'>$out</OL>";
 			$nrNodes = count($pubXRefs);
 			if($nrNodes > $nrShow) {
@@ -72,7 +73,10 @@ class PathwayBibliography {
 		} else {
 			$out = "<I>No bibliography</i>\n";
 		}
-		return $out;
+		//Handle hook template, may be used to add custom info after bibliography section
+		$hookTmp = "{{#ifexist: Template:PathwayPage:BibliographyBottom | {{Template:PathwayPage:BibliographyBottom|hasRefs=$hasRefs}} | }}";
+		$hookTmp = $parser->recursiveTagParse( $hookTmp );
+		return $out . $hookTmp;
 	}
 }
 ?>
