@@ -388,7 +388,7 @@ function getRecentChanges($timestamp)
 		try {
 				$ts = $row['rc_title'];
 			$p = Pathway::newFromTitle($ts);
-			if(!$p->getTitleObject()->isRedirect()) {
+			if(!$p->getTitleObject()->isRedirect() && $p->isReadable()) {
 				$objects[] = new WSPathwayInfo($p);			
 			}
 		} catch(Exception $e) {
