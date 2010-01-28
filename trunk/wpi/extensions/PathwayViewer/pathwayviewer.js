@@ -270,6 +270,7 @@ PathwayViewer.startSVG = function(info){
     PathwayViewer.draggers[info.imageId] = drag;
     
     $svgObject.mousedown(drag.mouseDown);
+    $svgObject.mouseup(drag.mouseUp);
     //Add the mouseup and mouse move to the document,
     //so we can continue dragging outside the svg object
     $(document).mouseup(drag.mouseUp);
@@ -475,8 +476,6 @@ PathwayViewer.newDragState = function($svgObject, svgRoot){
                 x: svgRoot.currentTranslate.getX(),
                 y: svgRoot.currentTranslate.getY()
             };
-            
-            e.preventDefault(true);
         }
     }
     
@@ -489,8 +488,6 @@ PathwayViewer.newDragState = function($svgObject, svgRoot){
         var dy = e.pageY - drag.pMouseDown.y;
         svgRoot.currentTranslate.setX(drag.pTransDown.x + dx / svgRoot.currentScale);
         svgRoot.currentTranslate.setY(drag.pTransDown.y + dy / svgRoot.currentScale);
-        
-        e.preventDefault(true);
     }
     
     drag.mouseUp = function(evt){
