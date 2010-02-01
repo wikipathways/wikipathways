@@ -18,8 +18,34 @@ class SpecialCurationTags extends SpecialPage {
 
 			$disp = htmlentities(CurationTag::getDisplayName($tagName));
 			$pages = CurationTag::getPagesForTag($tagName);
+			$nr = 0;
+			$table = "";
+			foreach($pages as $pageId) {
+				try {
+					$t = Title::newFromId($pageId);
+					if($t->getNamespace() == NS_PATHWAY) {
+						$p = Pathway::newFromTitle($t);
+						if($p->isDeleted()) continue; //Skip deleted pathways
+						
+						$nr = $nr + 1;
+						
+						$table .= "<tr><td><a href='{$p->getFullUrl()}'>{$p->name()}</a><td>{$p->species()}";
+						$tag = new MetaTag($tagName, $pageId);
+						$umod = User::newFromId($tag->getUserMod());
+						$tmod = $wgLang->timeanddate( $tag->getTimeMod(), true );
+						$lmod = $wgUser->getSkin()->userLink( $umod->getId(), $umod->getName() );
+						
+						if($useRev) {
+							$latest = "<td>";
+							$latest .= $p->getLatestRevision() == $tag->getPageRevision() ? "<font color='green'>yes</font>" : "<font color='red'>no</font>";
+						}
+						$table .= "<td>$lmod<td>$tmod$latest";
+					}
+				} catch(Exception $e) {
+					wfDebug("SpecialCurationTags: unable to create pathway object for page " . $pageId);
+				}
+			}
 			
-			$nr = count($pages);
 			$wgOut->addWikiText(
 				"The table below shows all $nr pathways that are tagged with curation tag: " .
 				"'''$disp'''. "
@@ -30,32 +56,7 @@ class SpecialCurationTags extends SpecialPage {
 			if($useRev) {
 				$wgOut->addHTML("<th>Applies to latest revision");
 			}
-			
-			foreach($pages as $pageId) {
-				try {
-					$t = Title::newFromId($pageId);
-					if($t->getNamespace() == NS_PATHWAY) {
-						$p = Pathway::newFromTitle($t);
-						if($p->isDeleted()) continue; //Skip deleted pathways
-						
-						$wgOut->addHTML(
-							"<tr><td><a href='{$p->getFullUrl()}'>{$p->name()}</a><td>{$p->species()}"
-						);
-						$tag = new MetaTag($tagName, $pageId);
-						$umod = User::newFromId($tag->getUserMod());
-						$tmod = $wgLang->timeanddate( $tag->getTimeMod(), true );
-						$lmod = $wgUser->getSkin()->userLink( $umod->getId(), $umod->getName() );
-						
-						if($useRev) {
-							$latest = "<td>";
-							$latest .= $p->getLatestRevision() == $tag->getPageRevision() ? "<font color='green'>yes</font>" : "<font color='red'>no</font>";
-						}
-						$wgOut->addHTML("<td>$lmod<td>$tmod$latest");
-					}
-				} catch(Exception $e) {
-					wfDebug("SpecialCurationTags: unable to create pathway object for page " . $pageId);
-				}
-			}
+			$wgOut->addHTML($table);
 		} else {
 			$wgOut->addWikiText("This page lists all available curation tags. " .
 				"See the [[Help:CurationTags|help page]] for instructions on how to use curation tags.");
