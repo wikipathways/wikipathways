@@ -1,6 +1,4 @@
 
-//TODO: fix accordion refresh issues in IE6/7
-
 if (typeof(XrefPanel_dataSourcesUrl) == "undefined") 
     var XrefPanel_dataSourcesUrl = '../../cache/datasources.txt';
 if (typeof(XrefPanel_bridgeUrl) == "undefined") 
@@ -68,7 +66,7 @@ XrefPanel.ignoreAttributes = {
  */
 XrefPanel.createInfoCallback = function($div){
     return function(data, textStatus){
-        $div.find('img').hide();
+        $div.empty();
         var $container = $('<div />');
         var lines = data.split("\n");
         
@@ -88,7 +86,7 @@ XrefPanel.createInfoCallback = function($div){
             if (a in XrefPanel.ignoreAttributes) 
                 continue;
             
-            $row = $('<div />').html('<B>' + a + ': </B>' + attributes[a].join(', '))
+            $row = $('<div />').html('<B>' + a + ': </B>' + attributes[a].join(', '));
             $container.append($row);
         }
         $div.append($container);
@@ -97,14 +95,13 @@ XrefPanel.createInfoCallback = function($div){
 
 XrefPanel.createErrorCallback = function($div, msg){
     return function(hr, errMsg, ex){
-        $div.find('img').hide();
         $div.html('<font color="red">' + msg + '</font>');
     }
 }
 
 XrefPanel.infoHooks.push(function(id, datasource, symbol, species){
     if (XrefPanel_bridgeUrl) {
-        var $div = $('<div id="bridgeInfo">' + XrefPanel.createLoadImage() + '</div>');
+        var $div = $('<div id="bridgeInfo">' + XrefPanel.createLoadImage() + ' loading info...</div>');
         XrefPanel.queryProperties(id, datasource, species, XrefPanel.createInfoCallback($div), XrefPanel.createErrorCallback($div, 'Unable to load info.'));
         return $div;
     }
@@ -195,19 +192,23 @@ XrefPanel.create = function(id, datasource, species, symbol){
     }
     
     var maxXrefLines = 5; //Maximum number of xref links to show (scroll otherwise)
-    $content = $('<div><div id="info" /><div id="xrefs">' + XrefPanel.createLoadImage() + '</div></div>');
+    $content = $('<div><div id="info" /><div id="xrefs"/>').css({
+        'text-align': 'left',
+        'font-size': '90%'
+    });
     
     //Store in cache
     XrefPanel.cacheContent(id, datasource, species, symbol, $content);
     
     //Add the info section
     var $infodiv = $content.find('#info');
+    var title = symbol ? '<h3>' + symbol + '</h3>' : '';
     var txt = '<b>Annotated with: </b>' + XrefPanel.createXrefLink(id, datasource, true);
     if (!id) 
         txt = '<b><font color="red">Invalid annotation, missing identifier!</font></b>';
     if (!datasource) 
         txt = '<b><font color="red">Invalid annotation, missing datasource!</font></b>';
-    $infodiv.append('<div>' + txt + '</div>');
+    $infodiv.append(title + '<div>' + txt + '</div>');
     
     //Run hooks that may add items to the info
     if (id && datasource) {
@@ -221,7 +222,7 @@ XrefPanel.create = function(id, datasource, species, symbol){
     
     var cbXrefs = function(data, textStatus){
         var $div = $content.find('#xrefs');
-        $div.find('img').hide();
+        $div.empty();
         
         if (!data) {
             return;
@@ -280,10 +281,12 @@ XrefPanel.create = function(id, datasource, species, symbol){
     }
     
     if (id && datasource) {
-        XrefPanel.queryXrefs(id, datasource, species, cbXrefs, XrefPanel.createErrorCallback($content.find('#xrefs'), 'Unable to load external references.'));
+        var $xdiv = $content.find('#xrefs');
+        $xdiv.html(XrefPanel.createLoadImage() + ' loading links...');
+        XrefPanel.queryXrefs(id, datasource, species, cbXrefs, XrefPanel.createErrorCallback($xdiv, 'Unable to load external references.'));
     }
     else {
-        $content.find('#xrefs').find('img').hide();
+        $content.find('#xrefs').empty();
     }
     return $content;
     

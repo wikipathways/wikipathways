@@ -10,13 +10,6 @@ if (typeof(PathwayViewer_basePath) == "undefined")
     var PathwayViewer_basePath = '';
 
 /**
- * This variable determines if xref info is displayed in a popup dialog ('popup')
- * or info panel next to the svg image ('panel', default).
- */
-if (typeof(PathwayViewer_xrefinfo) == "undefined") 
-    var PathwayViewer_xrefinfo = 'panel';
-
-/**
  * Pathway viewer based on Svgweb.
  * Depends on:
  * - Svgweb (http://svgweb.googlecode.com/)
@@ -40,7 +33,7 @@ PathwayViewer.icons = {
     "zout": "img/zoom_out.png",
     "zfit": "img/zoom_fit.png",
     "loading": "img/loading.gif",
-	"getflash": "img/getflash.png"
+    "getflash": "img/getflash.png"
 }
 
 /**
@@ -76,6 +69,12 @@ PathwayViewer.idSvgObject = '_svg';
  * Postfix for id elements that contains the loading progress indicator.
  */
 PathwayViewer.idLoadProgress = '_loading';
+
+/**
+ * Postfix for layout container
+ */
+PathwayViewer.idLayout = '_layout';
+
 /**
  * Array of objects that contain the information
  * for each pathway. The objects should contain the following
@@ -96,70 +95,114 @@ PathwayViewer.draggers = {};
  2. Add the buttons for starting the viewer when loading is finished
  */
 PathwayViewer.onPageLoad = function(){
-    PathwayViewer.loadSVG();
+    //PathwayViewer.loadSVG(); //Load svgweb after user starts viewer
+    for (var i in PathwayViewer.pathwayInfo) {
+        var info = PathwayViewer.pathwayInfo[i];
+        PathwayViewer.addStartButton(info);
+    }
     PathwayViewer.loadGPML();
 }
 $(window).load(PathwayViewer.onPageLoad);
 
-PathwayViewer.addLoadProgress = function(info, $img){
-    var $load = jQuery('<img>').attr('src', PathwayViewer_basePath + PathwayViewer.icons.loading).attr('title', 'Loading viewer...');
-    
-    //Get the location of the top-right corner of the image
-    var imgPos = $img.offset();
-    
-    var $div = jQuery('<div />').attr('id', info.imageId + PathwayViewer.idLoadProgress).css({
-        'z-index': '1000',
-        position: 'absolute',
-        top: imgPos.top + 'px',
-        left: (imgPos.left + $img.width() - 32) + 'px'
-    });
-    
-    $div.append($load);
-    $('body').append($div);
+PathwayViewer.showLoadProgress = function($container){
+    var $block = $container.find('progress_block');
+    if ($block.length > 0) {
+        $block.show();
+    }
+    else {
+        var $img = $('<img>').attr('src', PathwayViewer_basePath + PathwayViewer.icons.loading).attr('title', 'Loading viewer...');
+        var $load = $('<div>').css({
+            display: 'block',
+            position: 'relative',
+            left: '50%',
+            top: '50%',
+            'text-align': 'left'
+        });
+        $load.append($img);
+        
+        $block = $('<div/>').addClass('progress_block').css({
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            'z-index': 100,
+            cursor: 'wait',
+            'background-color': '#FFFFFF',
+            opacity: 1
+        });
+        $block.append($load);
+        $container.append($block);
+    }
+}
+
+PathwayViewer.hideLoadProgress = function($container){
+    $container.find('.progress_block').hide();
 }
 
 PathwayViewer.addFlashNotification = function(info){
     var $img = PathwayViewer.getImg(info.imageId);
-	var $parent = $img.parent()
-	if($parent.is('a')) {
-		$parent = $parent.parent();
-	}
-	    
-    var $flash = jQuery('<img>')
-		.attr('src', PathwayViewer_basePath + PathwayViewer.icons.getflash)
-		.attr('title', 'Install Flash player to zoom and view protein/metabolite info.');
+    var $parent = $img.parent()
+    if ($parent.is('a')) {
+        $parent = $parent.parent();
+    }
+    
+    var $flash = jQuery('<img>').attr('src', PathwayViewer_basePath + PathwayViewer.icons.getflash).attr('title', 'Install Flash player to zoom and view protein/metabolite info.');
     
     var $div = jQuery('<div id="flashlink"/>').css({
         position: 'relative',
-		top: -$parent.height() + 20 + 'px',
-		left: ($img.width() / 2) - 100 + 'px',
-		'z-index': '1000'
+        top: -$parent.height() + 20 + 'px',
+        left: ($img.width() / 2) - 100 + 'px',
+        'z-index': '1000'
     });
     
-	var $link = $('<a></a>').attr('href', 'http://www.adobe.com/go/getflashplayer').attr('id', 'flashlink_a');
-	$link.append($flash);
+    var $link = $('<a></a>').attr('href', 'http://www.adobe.com/go/getflashplayer').attr('id', 'flashlink_a');
+    $link.append($flash);
     $div.append($link);
-	$parent.append($div);
+    $parent.append($div);
+}
+
+PathwayViewer.removeStartButton = function(info){
+    $('#' + info.imageId + PathwayViewer.idStartButton).remove();
 }
 
 PathwayViewer.addStartButton = function(info){
+    //Test if a suitable renderer has been found by svgweb
+    if (!svgweb.config.use) {
+        //If not, instead of loading the svg, add a notification
+        //to help the user to install flash
+        PathwayViewer.addFlashNotification(info);
+        return;
+    }
+    
     var $img = PathwayViewer.getImg(info.imageId);
     
+    //If the img tag is nested in an anchor tag,
+    //remove it
+    if ($img.parent().is('a')) {
+        var $oldParent = $img.parent();
+        var $newParent = $oldParent.parent();
+        $oldParent.after($img);
+        $oldParent.remove();
+    }
+    
+    //Create a start image
+    var $parent = $img.parent()
     var $start = jQuery('<img>').attr('src', PathwayViewer_basePath + PathwayViewer.icons.start).attr('title', 'Click to activate pan and zoom.');
+    var $div = jQuery('<div/>').attr("id", info.imageId + PathwayViewer.idStartButton);
     
-    //Get the location of the top-right corner of the image
-    var imgPos = $img.offset();
+    //Add the start button
+    $div.append($start);
+    $img.before($div);
     
-    var $div = jQuery('<div />').attr('id', info.imageId + PathwayViewer.idStartButton).css({
-        'z-index': '1000',
-        position: 'absolute',
-        top: (imgPos.top + 5) + 'px',
-        left: (imgPos.left + $img.width() - 48) + 'px'
+    $div.css({
+        position: 'relative',
+        height: '1px',
+        width: '100%',
+        overflow: 'visible',
+        'text-align': 'right',
+        'z-index': '1000'
     });
     
-    $div.append($start);
-    $('body').append($div);
-    
+    //Register the action
     var startFunction = function(e){
         PathwayViewer.startSVG(info);
     }
@@ -178,6 +221,10 @@ PathwayViewer.loadGPML = function(){
     }
 }
 
+/**
+ * Get the first img tag that's a child of the element
+ * identified by id.
+ */
 PathwayViewer.getImg = function(id){
     var $img = $('#' + id);
     if ($img.get(0).nodeName.toLowerCase() != 'img') {
@@ -187,90 +234,103 @@ PathwayViewer.getImg = function(id){
     return $img;
 }
 
-PathwayViewer.loadSVG = function(){
-    for (var i in PathwayViewer.pathwayInfo) {
-        var info = PathwayViewer.pathwayInfo[i];
-
-		//Test if a suitable renderer has been found by svgweb
-		if(!svgweb.config.use) {
-			//If not, instead of loading the svg, add a notification
-			//to help the user to install flash
-			PathwayViewer.addFlashNotification(info);
-			continue;
-		}
-	
-        var $img = PathwayViewer.getImg(info.imageId);
+/**
+ * Start the viewer (after start button is clicked).
+ */
+PathwayViewer.startSVG = function(info){
+    console.log("Starting svg viewer for " + info.imageId);
+    
+    PathwayViewer.removeStartButton(info);
+    
+    //Replace the image by the container with the svgweb object and xref panel
+    var $img = PathwayViewer.getImg(info.imageId);
+    
+    var $container = $('<div />').attr('id', info.imageId + PathwayViewer.idContainer).css({
+        width: '100%',
+        height: '500px'
+    });
+    
+    var $parent = $img.parent();
+    $img.after($container);
+    $img.remove();
+    
+    //Create the layout pane
+    var $layout = $('<div/>').attr('id', info.imageId + PathwayViewer.idLayout).css({
+        width: '100%',
+        height: '100%'
+    });
+    var $viewerpane = $('<div/>').addClass('ui-layout-center').css({
+        border: '1px solid #BBBBBB',
+        'background-color': '#FFFFFF'
+    });
+    var $xrefpane = $('<div/>').addClass('ui-layout-east');
+    $layout.append($viewerpane);
+    $layout.append($xrefpane);
+    
+    var afterAnimate = function(){
+        //Apply the layout
+        $container.append($layout);
+        var layoutUtil = $layout.layout({
+            applyDefaultStyles: true,
+            center__applyDefaultStyles: false,
+            east__size: 300
+        });
+        layoutUtil.close('east');
         
-        PathwayViewer.addLoadProgress(info, $img);
+        $viewerpane.css({
+            overflow: 'hidden'
+        });
+        PathwayViewer.showLoadProgress($layout);
         
+        //Add the SVG object to the center panel
         var obj_id = info.imageId + PathwayViewer.idSvgObject;
         
         var obj = document.createElement('object', true);
         obj.id = obj_id;
         obj.setAttribute('type', 'image/svg+xml');
         obj.setAttribute('data', info.svgUrl);
-        obj.setAttribute('width', $img.width());
-        obj.setAttribute('height', $img.height());
+        //Set to maximum size, so all content will be displayed after resizing parent
+        //Ideally we would use relative size here ('100%'), but this causes the
+        //SVG to stretch on resizing the parent
+        //obj.setAttribute('width', screen.width + 'px');
+        //obj.setAttribute('height', screen.height + 'px');
         obj.addEventListener('load', function(){
-            //Replace progress by start button
-            $('#' + info.imageId + PathwayViewer.idLoadProgress).hide();
-            PathwayViewer.addStartButton(info);
-            
-            //If the img tag is nested in an anchor tag,
-            //remove it
-            if ($img.parent().is('a')) {
-                var $oldParent = $img.parent();
-                var $newParent = $oldParent.parent();
-                $oldParent.after($img);
-                $oldParent.remove();
-            }
+            var $svgObject = $('#' + info.imageId + PathwayViewer.idSvgObject);
+            var svgRoot = $svgObject.get(0).contentDocument.rootElement;
+            PathwayViewer.svgLoaded(info, $viewerpane, $xrefpane, $svgObject, svgRoot, layoutUtil);
+            //Remove progress when loaded
+            PathwayViewer.hideLoadProgress($layout);
         }, false);
         
-        var imgPos = $img.offset();
-        
-        var $container = jQuery('<div />').attr('id', info.imageId + PathwayViewer.idContainer).css({
-            'z-index': -1000,
-            'position': 'absolute',
-            'top': imgPos.top + 'px',
-            'left': imgPos.left + 'px'
-        });
-        $('body').append($container);
-        // $container.insertAfter($img);
-        svgweb.appendChild(obj, $container.get(0));
-        
-        //Make sure the svg objects will be hidden when starting the edit applet
-        $('#edit').click(function(e){
-            $container.remove();
-            $('#' + info.imageId + PathwayViewer.idStartButton).remove();
-            $('#' + info.imageId + PathwayViewer.idControls).remove();
-        });
+        svgweb.appendChild(obj, $viewerpane.get(0));
     }
+    
+    //Change the size of the image parent
+    if ($.browser.msie) { //Animate gives problems in IE, just change style directly 
+        $parent.css({
+            width: '100%',
+            height: 'auto'
+        });
+        afterAnimate();
+    }
+    else { //Animate for smooth transition
+        $parent.animate({
+            width: '100%',
+            height: 'auto'
+        }, 300, afterAnimate);
+    }
+    
+    
 }
 
-PathwayViewer.startSVG = function(info){
-    console.log("Starting svg viewer for " + info.imageId);
-    
-    var svgObject = document.getElementById(info.imageId + PathwayViewer.idSvgObject);
-    var svgRoot = svgObject.contentDocument.rootElement;
-    var $svgObject = $(svgObject);
-    
-    var $img = PathwayViewer.getImg(info.imageId);
-    //Insert image placeholder
-    var $ph = jQuery('<div />').css({
-        width: $img.width() + 'px',
-        height: $img.height() + 'px'
-    });
-    $img.after($ph);
-    
-    //Hide the png image
-    $img.hide();
-    
+PathwayViewer.svgLoaded = function(info, $container, $xrefContainer, $svgObject, svgRoot, layout){
     //Add event handlers
     var drag = PathwayViewer.newDragState($svgObject, svgRoot);
     PathwayViewer.draggers[info.imageId] = drag;
     
     $svgObject.mousedown(drag.mouseDown);
     $svgObject.mouseup(drag.mouseUp);
+    
     //Add the mouseup and mouse move to the document,
     //so we can continue dragging outside the svg object
     $(document).mouseup(drag.mouseUp);
@@ -284,43 +344,19 @@ PathwayViewer.startSVG = function(info){
             }
         });
         $svgObject.mousedown(function(e){
-            gpml.mouseDown($svgObject, svgRoot, e);
+            gpml.mouseDown(layout, $xrefContainer, $svgObject, svgRoot, e);
         });
     }
     $svgObject.mousewheel(function(e){
         PathwayViewer.mouseWheel(e, svgRoot, $svgObject);
     });
     
-    //Add a resize handler to the window, to adjust
-    //the absolute svg position
-    $(window).resize(function(e){
-        var offset = $ph.offset();
-        $container.css({
-            'top': offset.top + 'px',
-            'left': offset.left + 'px'
-        });
-    });
-    
-    //Show the svg object
-    var $container = $('#' + info.imageId + PathwayViewer.idContainer);
-    $container.css({
-        "z-index": 1000
-    });
-    
-    //Remove the start button
-    $('#' + info.imageId + PathwayViewer.idStartButton).hide();
-    
     //Show the pan and zoom buttons
     PathwayViewer.addControls($container, svgRoot, info.imageId + PathwayViewer.idControls);
-    
     PathwayViewer.zoomFit(svgRoot, $container.width(), $container.height());
 }
 
 PathwayViewer.addControls = function($container, svgRoot, id){
-    var cOffset = $container.offset();
-    var cWidth = $container.width();
-    var cHeight = $container.height();
-    
     var s = 5;
     var w = 20;
     var h = 20;
@@ -329,9 +365,9 @@ PathwayViewer.addControls = function($container, svgRoot, id){
     
     var $controls = jQuery('<div />').attr('unselectable', 'on').attr('id', id);
     
-    var create = function(src, fn, left, top){
+    var create = function(src, fn, left, top, title){
         var btn = jQuery('<div />').addClass('').css({
-            position: 'absolute',
+            position: 'relative',
             left: left + 'px',
             top: top + 'px',
             width: w + 'px',
@@ -341,31 +377,31 @@ PathwayViewer.addControls = function($container, svgRoot, id){
         btn.click(function(){
             fn(svgRoot);
         });
+        btn.attr("title", title);
         return btn;
     };
     
-    $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.left, PathwayViewer.panLeft, 0.5 * s + 0.5 * w, 2 * s + w));
-    $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.right, PathwayViewer.panRight, 1.5 * s + 1.5 * w, 2 * s + w));
-    $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.up, PathwayViewer.panUp, s + w, s));
-    $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.down, PathwayViewer.panDown, s + w, 3 * s + 2 * w));
+    $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.up, PathwayViewer.panUp, -s - 1.5 * w, s, "Pan up"));
+    $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.left, PathwayViewer.panLeft, -s - 2 * w, s, "Pan left"));
+    $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.right, PathwayViewer.panRight, -s - w, -w + s, "Pan right"));
+    $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.down, PathwayViewer.panDown, -s - 1.5 * w, -w + s, "Pan down"));
     
     $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.zin, function(){
         PathwayViewer.zoomIn(svgRoot, $container);
-    }, s + w, 5 * s + 3 * w));
+    }, -s - 1.5 * w, s, "Zoom in"));
     $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.zfit, function(){
-        PathwayViewer.zoomFit(svgRoot, cWidth, cHeight);
-    }, s + w, 6 * s + 4 * w));
+        PathwayViewer.zoomFit(svgRoot, $container.width(), $container.height());
+    }, -s - 1.5 * w, s, "Zoom to fit"));
     $controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.zout, function(){
         PathwayViewer.zoomOut(svgRoot, $container);
-    }, s + w, 7 * s + 5 * w));
+    }, -s - 1.5 * w, s, "Zoom out"));
     $container.append($controls);
     
     //Set correct position
-    var left = cWidth - (3 * s + 2 * w);
     $controls.css({
         position: 'absolute',
-        left: left,
-        top: 0,
+        left: '100%',
+        top: '0',
         'z-index': 1001
     });
 }
@@ -396,8 +432,10 @@ PathwayViewer.zoomFit = function(svg, fw, fh){
     var rh = fh / h;
     var r = Math.min(rw, rh);
     svg.currentScale = r;
-    svg.currentTranslate.setX(0);
-    svg.currentTranslate.setY(0);
+    
+    //Center
+    svg.currentTranslate.setX(0.5 * fw / r - w / 2);
+    svg.currentTranslate.setY(0.5 * fh / r - h / 2);
 }
 
 PathwayViewer.panUp = function(svg){
@@ -623,7 +661,7 @@ GpmlModel.load = function(info){
         }
     }
     
-    gpml.mouseDown = function($svgObject, svg, e){
+    gpml.mouseDown = function(layout, $xrefContainer, $svgObject, svg, e){
         var hover = gpml.getHoverObject($svgObject, svg, e);
         if (hover) {
             //Get the xref properties
@@ -634,29 +672,10 @@ GpmlModel.load = function(info){
             //Open the xref info
             var title = hover.textLabel + ' (' + hover.type + ')';
             
-            if (PathwayViewer_xrefinfo == 'popup') {
-                //Open an xref dialog
-                var $dialog = XrefPanel.createDialog(id, ds, gpml.species, hover.textLabel);
-                $dialog.dialog('option', 'autoResize', false);
-                $dialog.dialog('option', 'title', title);
-                $dialog.dialog('option', 'position', [e.pageX - $(window).scrollLeft(), e.pageY - $(window).scrollTop()]);
-                $dialog.dialog('open');
-            }
-            else {
-                //Close current dialog
-                if (gpml.currentDialog) {
-                    gpml.currentDialog.dialog('close');
-                }
-                var $dialog = XrefPanel.createDialog(id, ds, gpml.species, hover.textLabel);
-                $dialog.dialog('option', 'autoResize', false);
-                $dialog.dialog('option', 'title', title);
-                $dialog.dialog('option', 'position', [$svgObject.offset().left + $svgObject.width() + 10 - -$(window).scrollLeft(), $svgObject.offset().top - $(window).scrollTop()]);
-                $dialog.dialog('option', 'height', $svgObject.height());
-                
-                $dialog.dialog('open');
-                
-                gpml.currentDialog = $dialog;
-            }
+            var $panel = XrefPanel.create(id, ds, gpml.species, hover.textLabel);
+            $xrefContainer.empty();
+            $xrefContainer.append($panel);
+            layout.open('east');
         }
     }
     

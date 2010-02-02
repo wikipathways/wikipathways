@@ -32,6 +32,7 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 		$wpiJavascriptSources[] = $jsSvgWeb;
 		wpiAddXrefPanelScripts();
 		$wpiJavascriptSources[] = "$wgScriptPath/wpi/js/jquery/plugins/jquery.mousewheel.js";
+		$wpiJavascriptSources[] = "$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.2.0.js";
 		$wpiJavascriptSources[] = "$wfPathwayViewerPath/pathwayviewer.js";
 		$script = "PathwayViewer_basePath = '" . $wfPathwayViewerPath . "/';";
 		$wpiJavascriptSnippets[] = $script;
