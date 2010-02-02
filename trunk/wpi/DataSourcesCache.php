@@ -21,12 +21,14 @@ class DataSourcesCache {
 	public static function update() {
 		## Download a fresh datasources file
 		$txt = file_get_contents(self::$url);
-		$f = WPI_CACHE_PATH . "/" . self::$file;
-		$fh = fopen($f, 'w');
-		fwrite($fh, $txt);
-		fclose($fh);
-		chmod($f, 0666);
-		self::$content = $txt;
+		if($txt) { //Only update if file could be downloaded
+			$f = WPI_CACHE_PATH . "/" . self::$file;
+			$fh = fopen($f, 'w');
+			fwrite($fh, $txt);
+			fclose($fh);
+			chmod($f, 0666);
+			self::$content = $txt;
+		}
 	}
 	
 	private static function read() {
