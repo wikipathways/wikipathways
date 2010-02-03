@@ -315,6 +315,11 @@ require_once('wpi/extensions/PrivatePathways/PrivateContributions.php' );
 require_once('wpi/extensions/recentChangesBox.php');
 require_once('wpi/extensions/pathwayBibliography.php');
 require_once('wpi/extensions/PathwayViewer/PathwayViewer.php');
+require_once('wpi/extensions/StubManager/StubManager.php');
+require_once('wpi/extensions/ParserFunctionsHelper/ParserFunctionsHelper.php');
+require_once('wpi/extensions/SecureHTML/SecureHTML.php');
+require_once('wpi/extensions/RSS/rss.php');
+
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!
 // Sign up for keys at http://recaptcha.net/api/getKey
