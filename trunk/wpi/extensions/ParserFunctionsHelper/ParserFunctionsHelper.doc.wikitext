@@ -1,0 +1,39 @@
+{{Extension
+|name        = ParserFunctionsHelper
+|status      = beta
+|type1       = parser function
+|author      = [[user:jldupont|Jean-Lou Dupont]]
+|version     = 1.0.0
+|update      =
+|mediawiki   = 1.10, 1.11
+|download    = [http://mediawiki.googlecode.com/svn/tags/ParserFunctionsHelper SVN]
+|readme      =
+|changelog   = See SVN ($Id$)
+|description = 
+|parameters  =
+|rights      =
+|example     =
+}}
+== Purpose==
+Provides services to parser function extensions which require inserting content after the parsing phase. 
+
+This extension is meant to serve other extensions i.e. it does not provide end-user functionality by itself.
+
+== Motivation ==
+Parser functions can insert content during the parsing phase albeit not ''raw'' content i.e. content which should end-up untouched in the output page.
+
+This extension allows for registering ''raw'' content which will replace ''anchors'' in the parsed wikitext.
+
+== Usage ==
+
+== Dependancy ==
+* [[Extension:StubManager|StubManager extension]]
+
+{{Pear|ParserFunctionsHelper}}
+
+== History ==
+{|border=1
+! Release !! Notes
+|-
+| 1.0.0 || Initial public release
+|}

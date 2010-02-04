@@ -1,0 +1,85 @@
+{{Extension
+|name        = SecureHTML
+|status      = stable
+|type1       = tag
+|type2       = user rights
+|author      = [[user:jldupont|Jean-Lou Dupont]]
+|image       =
+|version     = 2.1.0
+|update      =
+|mediawiki   = 1.10, 1.11, 1.12
+|download    = [http://mediawiki.googlecode.com/svn/tags/SecureHTML/ SVN]
+|readme      =
+|changelog   = See SVN ($Id$)
+|description = This extension securely inserts HTML section(s) or pages on a wiki page. 
+|parameters  =
+|rights      =
+|example     =
+}}
+== Purpose==
+This extension securely inserts HTML section(s) or pages on a wiki page. This extension restricts the usage of 'html' tags  to protected pages. Furthermore, the extension allows for the controlled inclusion of templates.
+
+The html tags functionality is controlled through the '$wgRawHtml' global variable.
+
+== Features ==
+* Cascading: if the base page is allowed to use 'html' tags, then all included pages will be processed as if they could.
+* Namespace exemption: configured namespaces are exempted from 'protection' requirement
+* Parser cache friendliness: 
+** The extension must be enabled to continue the support of the inserted content
+* Support for the parser function <nowiki>{{#html}}</nowiki>
+* <nowiki>{{#shtml}}</nowiki> is very well suited for securely embedding ''widgets'' such as the ones created with [http://http://www.sproutbuilder.com/ SproutBuilder] or GoogleGadgets.
+** The page where the ''shtml'' parser function is used does not need to be protected '''but''' the template page where the javascript/html widget code is located must though.
+** This behavior makes it easy for administrator to allow selected widgets to be included by the user population of the wiki
+
+== Motivation for the {{ #html}} parser function ==
+It is sometimes useful to include, in a secure fashion, a template containing 'raw html' in another page. This enables, for example, the construction of ''gadgets''.
+
+Through the added functionality of parameterization using the <code>{@{parameter_here}@}</code>, the said templates can be customized on a per-page basis without resorting to convoluted escape patterns (e.g. <nowiki></html>{{{parameter_here}}}<html></nowiki>) which renders page viewing difficult to humans.
+
+== Usage ==
+=== < html> tag ===
+* Use the standard <nowiki><html></nowiki> tags (see [[Manual:$wgRawHtml]]) within a protected page. One can either protect the page before or after the inclusion of the said tag(s).
+=== {{ #html}} parser function ===
+Use: <code>{{#html:page_name [|optional parameters]}}</code> where:
+* <code>page_name</code> is the page name of the article to include
+* <code>optional parameters</code> are of the form:
+** <code>param_x = value_x | param_y = value_y </code>
+The page where this parser function is used must be ''edit'' protected.
+
+=== {{ #shtml }} parser function ===
+Same usage as for ''#html'' with difference that the origin page where this parser function is used does not need to be ''edit'' protected. The target page's ''edit'' protection attribute ensures security.
+
+== Example ==
+=== Test Page ===
+<code>{{#html:Template:Page1|param1=value1}}</code>
+=== Template:Page1 ===
+<code>This parameter will be replaced when called from [[Test:Page]] >> {@{param1}@}</code>
+
+== Dependencies ==
+* [[Extension:StubManager|StubManager extension]]
+* [[Extension:ParserFunctionsHelper|ParserFunctionsHelper extension]] is optional and only required for the parser function ''#shtml''
+{{Pear|SecureHTML}}
+
+== History ==
+* added namespace exemption functionality i.e. namespaces where article do not need to be protected in order to use 'html' tags
+** use <code>SecureHTMLclass::enableExemptNamespaces = false; </code> to turn off
+** use <code>SecureHTMLclass::exemptNamespaces[] = NS_XYZ; </code> to add namespaces
+* enhanced with functionality to 'add' content to the document's 'head' section
+* Removed dependency on ExtensionClass
+* Enabled for 'StubManager'
+* Added 'addExemptNamespaces' function
+=== 1.1.0 ===
+* Added, by default, NS_MEDIAWIKI namespace to the exemptNamespaces 
+=== 2.0.0 ===
+* Addition of the parser function <code>{{ #html}}</code>
+=== 2.1.0 ===
+* Addition of the parser function ''#shtml'' (requires [[Extension:ParserFunctionsHelper]])
+
+== Todo ==
+* Fix for allowing more customization of 'exempt' namespaces even when using StubManager
+* Think about renaming the extension to be more distict from [[Extension:Secure HTML]]
+
+==See also==
+* [[Extension:Secure HTML]] - Different extension, with a 'secret key' approach to securing <nowiki><html></nowiki>. Unfortunately it has a very similar name! 
+
+[[Category:Script embedding extensions]]

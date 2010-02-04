@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.7.0" 
+		version="2.0" 
+		xmlns="http://pear.php.net/dtd/package-2.0" 
+		xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd 
+		http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+
+ <name>ParserFunctionsHelper</name>
+ <channel>mediawiki.googlecode.com/svn</channel>
+ <summary>Provides services to parser function extensions which require inserting content after the parsing phase.</summary>
+ <description>Provides services to parser function extensions which require inserting content after the parsing phase.</description>
+
+ <lead>
+  <name>Jean-Lou Dupont</name>
+  <user>jldupont</user>
+  <email>mediawiki@jldupont.com</email>
+  <active>yes</active>
+ </lead>
+
+ <date>2007-12-10</date>
+ <time>13:39:02</time>
+
+ <version>
+  <release>1.0.0</release>
+  <api>1.0.0</api>
+ </version>
+ 
+ <stability>
+  <release>stable</release>
+  <api>stable</api>
+ </stability>
+
+ <license uri="http://www.php.net/license">PHP License</license>
+
+ <notes>$notes</notes>
+
+ <contents>
+  <dir name="/">
+	<!-- file list begin {{ -->
+	<!-- baseinstalldir: the target directory on the target machine -->
+   <file baseinstalldir="MediaWiki/ParserFunctionsHelper" name="ParserFunctionsHelper.php" role="php" />
+   <file baseinstalldir="MediaWiki/ParserFunctionsHelper" name="ParserFunctionsHelper.body.php" role="php" />
+    <!-- }} -->
+
+  </dir>
+ </contents>
+ 
+ <dependencies>
+  <required>
+
+   <php>
+    <min>5.0.0</min>
+    <max>6.0.0</max>
+   </php>
+
+   <pearinstaller>
+    <min>1.6.2</min>
+   </pearinstaller>
+ 
+	<package>
+		<name>StubManager</name>
+		<channel>mediawiki.googlecode.com/svn</channel>
+		<min>1.0.5</min>
+	</package>
+
+  </required>
+ </dependencies>
+
+ <phprelease>
+  <installconditions>
+   <os>
+    <name>*</name>
+   </os>
+  </installconditions>
+ </phprelease>
+
+<changelog>
+<release>
+<license uri="http://www.php.net/license">PHP License</license>
+<notes>
+* Initial Release
+</notes>
+</release>
+</changelog>
+
+</package>
