@@ -893,6 +893,9 @@ class Pathway {
 		global $wgUser, $wgLang;
 		$rev = Revision::newFromId($oldId);
 		$gpml = $rev->getText();
+		if(self::isDeletedMark($gpml)) {
+			throw new Exception("You are trying to revert to a deleted version of the pathway. Please choose another version to revert to.");
+		}
 		if($gpml) {
 			$usr = $wgUser->getSkin()->userLink($wgUser->getId(), $wgUser->getName());
 			$date = $wgLang->timeanddate( $rev->getTimestamp(), true );
@@ -925,8 +928,15 @@ class Pathway {
 		} else {
 			if(!$revision) $revision = $this->getLatestRevision();
 			$text = Revision::newFromId($revision)->getText();
-			return substr($text, 0, 9) == "{{deleted";
+			return self::isDeletedMark($text);
 		}
+	}
+	
+	/**
+	 * Check if the given text marks the pathway as deleted.
+	 */
+	public static function isDeletedMark($text) {
+		return substr($text, 0, 9) == "{{deleted";
 	}
 	
 	/**
