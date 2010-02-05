@@ -29,11 +29,10 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 		$wgOut->addMeta('svg.render.forceflash', 'true');
 		
 		//Add javascript dependencies
-		$wpiJavascriptSources[] = $jsSvgWeb;
 		wpiAddXrefPanelScripts();
-		$wpiJavascriptSources[] = "$wgScriptPath/wpi/js/jquery/plugins/jquery.mousewheel.js";
-		$wpiJavascriptSources[] = "$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.2.0.js";
-		$wpiJavascriptSources[] = "$wfPathwayViewerPath/pathwayviewer.js";
+		foreach(PathwayViewer::getJsDependencies() as $js) {
+			$wpiJavascriptSources[] = $js;
+		}
 		$script = "PathwayViewer_basePath = '" . $wfPathwayViewerPath . "/';";
 		$wpiJavascriptSnippets[] = $script;
 
@@ -61,5 +60,18 @@ SCRIPT;
           return "invalid pathway title: $e";
      }
 	return true;
+}
+
+class PathwayViewer {
+	static function getJsDependencies() {
+		global $jsSvgWeb, $wgScriptPath, $wfPathwayViewerPath;
+		
+		return array(
+			"$wgScriptPath/wpi/js/jquery/plugins/jquery.mousewheel.js",
+			"$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.2.0.js",
+			"$wfPathwayViewerPath/pathwayviewer.js",
+			$jsSvgWeb,
+		);
+	}
 }
 ?>

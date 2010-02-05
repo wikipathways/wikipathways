@@ -98,7 +98,11 @@ PathwayViewer.onPageLoad = function(){
     //PathwayViewer.loadSVG(); //Load svgweb after user starts viewer
     for (var i in PathwayViewer.pathwayInfo) {
         var info = PathwayViewer.pathwayInfo[i];
-        PathwayViewer.addStartButton(info);
+        if(info.start) {
+        	PathwayViewer.startSVG(info);
+        } else {
+        	PathwayViewer.addStartButton(info);
+        }
     }
     PathwayViewer.loadGPML();
 }
@@ -245,9 +249,12 @@ PathwayViewer.startSVG = function(info){
     //Replace the image by the container with the svgweb object and xref panel
     var $img = PathwayViewer.getImg(info.imageId);
     
+    var w = '100%'; if(info.width) w = info.width;
+    var h = '500px'; if(info.height) h = info.height;
+    
     var $container = $('<div />').attr('id', info.imageId + PathwayViewer.idContainer).css({
-        width: '100%',
-        height: '500px'
+        width: w,
+        height: h
     });
     
     var $parent = $img.parent();
@@ -278,7 +285,8 @@ PathwayViewer.startSVG = function(info){
         layoutUtil.close('east');
         
         $viewerpane.css({
-            overflow: 'hidden'
+            overflow: 'hidden',
+            'background-color': '#F9F9F9'
         });
         PathwayViewer.showLoadProgress($layout);
         
@@ -673,8 +681,9 @@ GpmlModel.load = function(info){
             var title = hover.textLabel + ' (' + hover.type + ')';
             
             var $panel = XrefPanel.create(id, ds, gpml.species, hover.textLabel);
-            $xrefContainer.empty();
             $xrefContainer.append($panel);
+            $xrefContainer.children().hide();
+            $panel.show();
             layout.open('east');
         }
     }

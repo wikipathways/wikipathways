@@ -192,7 +192,7 @@ XrefPanel.create = function(id, datasource, species, symbol){
     }
     
     var maxXrefLines = 5; //Maximum number of xref links to show (scroll otherwise)
-    $content = $('<div><div id="info" /><div id="xrefs"/>').css({
+    $content = $('<div><div class="xrefinfo" /><div class="xreflinks"/>').css({
         'text-align': 'left',
         'font-size': '90%'
     });
@@ -201,7 +201,7 @@ XrefPanel.create = function(id, datasource, species, symbol){
     XrefPanel.cacheContent(id, datasource, species, symbol, $content);
     
     //Add the info section
-    var $infodiv = $content.find('#info');
+    var $infodiv = $content.find('.xrefinfo');
     var title = symbol ? '<h3>' + symbol + '</h3>' : '';
     var txt = '<b>Annotated with: </b>' + XrefPanel.createXrefLink(id, datasource, true);
     if (!id) 
@@ -221,7 +221,7 @@ XrefPanel.create = function(id, datasource, species, symbol){
     }
     
     var cbXrefs = function(data, textStatus){
-        var $div = $content.find('#xrefs');
+        var $div = $content.find('.xreflinks');
         $div.empty();
         
         if (!data) {
@@ -281,12 +281,12 @@ XrefPanel.create = function(id, datasource, species, symbol){
     }
     
     if (id && datasource) {
-        var $xdiv = $content.find('#xrefs');
+        var $xdiv = $content.find('.xreflinks');
         $xdiv.html(XrefPanel.createLoadImage() + ' loading links...');
         XrefPanel.queryXrefs(id, datasource, species, cbXrefs, XrefPanel.createErrorCallback($xdiv, 'Unable to load external references.'));
     }
     else {
-        $content.find('#xrefs').empty();
+        $content.find('.xreflinks').empty();
     }
     return $content;
     
