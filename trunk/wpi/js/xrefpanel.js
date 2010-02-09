@@ -276,7 +276,8 @@ XrefPanel.create = function(id, datasource, species, symbol){
         }
         $div.append($accordion);
         $accordion.accordion({
-            autoHeight: false
+            autoHeight: false,
+            collapsible: true
         });
     }
     
@@ -313,7 +314,7 @@ XrefPanel.createXrefLink = function(id, datasource, withDataSourceLabel){
 	   html = label;
         console.log("Unable to create link for " + id + ", " + datasource);
     }
-    return '<span style="font-size:12px;">' + html + '</span>';
+    return '<span style="font-size:12px;">' + html + '<br></span>';
 }
 
 /**
