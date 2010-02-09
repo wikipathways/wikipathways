@@ -304,14 +304,16 @@ XrefPanel.getBaseUrl = function(){
 XrefPanel.createXrefLink = function(id, datasource, withDataSourceLabel){
     var url = XrefPanel.linkoutPatterns[datasource];
     var label = withDataSourceLabel ? id + ' (' + datasource + ')' : id;
+    var html = '';
     if (url) {
         url = url.replace('$ID', id);
-        return '<a target="_blank" href="' + url + '">' + label + '</a>';
+        html = '<a target="_blank" href="' + url + '">' + label + '</a>';
     }
     else {
+	   html = label;
         console.log("Unable to create link for " + id + ", " + datasource);
-        return label;
     }
+    return '<span style="font-size:12px;">' + html + '</span>';
 }
 
 /**

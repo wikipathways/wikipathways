@@ -277,10 +277,14 @@ PathwayViewer.startSVG = function(info){
     var afterAnimate = function(){
         //Apply the layout
         $container.append($layout);
+        var east_width = 300;
+        if(east_width > $container.width() * 0.5) {
+        	east_width = $container.width() * 0.5; //Cover half of the viewer max
+        }
         var layoutUtil = $layout.layout({
             applyDefaultStyles: true,
             center__applyDefaultStyles: false,
-            east__size: 300
+            east__size: east_width
         });
         layoutUtil.close('east');
         
