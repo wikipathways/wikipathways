@@ -240,6 +240,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
     <table BORDER=0 CELLSPACING=0 CELLPADDING=0 >
     <tr><td>
     <input type="hidden" name="cref" value="http://www.wikipathways.org/wp_cse_context.xml" />
+    <input type="hidden" value="011541552088579423722:rset6ep3k64" name="cx">
     <input type="hidden" name="cof" value="FORID:11" />
     <input type="hidden" name="filter" value="0" /> <!--set filter=0 to disable omitting similiar hits-->
     <input class="searchboxBgImage" name="q" type="text" size="14%" value="" />
