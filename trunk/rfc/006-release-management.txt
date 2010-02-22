@@ -125,25 +125,22 @@ user.user_id;
 
   Tip: to update the applets on the test site, run these commands (on the server)
   
-  # ~/code/pathvisio is the staging ground, where everything will be compiled
-  cd ~/code/pathvisio
+  # ~/code/pathvisio-trunk is the staging ground, where everything will be compiled
+  cd ~/code/pathvisio-trunk
   svn update
   cd trunk
   # compile & copy to site
-  ant diffapplet -Dwikipathways.dest=/var/www/wikipathways-test
-  ant wikipathways-dest -Dwikipathways.dest=/var/www/wikipathways-test
+  ant install-wpi -Dwikipathways.dest=/var/www/wikipathways-test -propertyfile ../ant.properties
 
 * on the stable site: always running a release tag
 
   Tip: to update the applet on the stable site to the latest tag, run this:
 
   # keep staging ground up-to-date
-  cd ~/code/pathvisio
-  svn update
-  cd tags/milestone_n.n
+  cd ~/code/pathvisio-release
+  svn switch http://svn.bigcat.unimaas.nl/pathvisio/tags/milestone_nn.n
   # compile & copy to site
-  ant diffapplet -Dwikipathways.dest=/var/www/wikipathways
-  ant wikipathways-dest -Dwikipathways.dest=/var/www/wikipathways
+  ant install-wpi -Dwikipathways.dest=/var/www/wikipathways -propertyfile ../ant.properties
 
 * make point releases when serious bugs occur in the middle of the release cycle.
 
