@@ -224,23 +224,16 @@ TEXT;
 		//AP20081218: Operating System Detection
 		require_once 'DetectBrowserOS.php';
 		//echo (browser_detection( 'os' ));
-		if (browser_detection( 'os' ) != 'win' && browser_detection( 'os' ) != 'nt'){
-                $download = array(
+		 $download = array(
                         'PathVisio (.gpml)' => self::getDownloadURL($pathway, 'gpml'),
+                        'Scalable Vector Graphics (.svg)' => self::getDownloadURL($pathway, 'svg'),
                         'Gene list (.txt)' => self::getDownloadURL($pathway, 'txt'),
                         'Eu.Gene (.pwf)' => self::getDownloadURL($pathway, 'pwf'),
                         'Png image (.png)' => self::getDownloadURL($pathway, 'png'),
                         'Acrobat (.pdf)' => self::getDownloadURL($pathway, 'pdf'),
-                );
-		} else {
-		$download = array(
-			'PathVisio (.gpml)' => self::getDownloadURL($pathway, 'gpml'),
-			'GenMAPP (.mapp)' => self::getDownloadURL($pathway, 'mapp'),
-			'Gene list (.txt)' => self::getDownloadURL($pathway, 'txt'),
-			'Eu.Gene (.pwf)' => self::getDownloadURL($pathway, 'pwf'),
-			'Png image (.png)' => self::getDownloadURL($pathway, 'png'),
-			'Acrobat (.pdf)' => self::getDownloadURL($pathway, 'pdf'),
-		);
+           );
+		if (browser_detection( 'os' ) == 'win' || browser_detection( 'os' ) == 'nt'){
+               $download['GenMAPP (.mapp)'] = self::getDownloadURL($pathway, 'mapp');
 		}
 
 		$pwTitle = $pathway->getTitleObject()->getFullText();
