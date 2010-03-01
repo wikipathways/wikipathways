@@ -236,9 +236,6 @@ TEXT;
                $download['GenMAPP (.mapp)'] = self::getDownloadURL($pathway, 'mapp');
 		}
 
-		$pwTitle = $pathway->getTitleObject()->getFullText();
-		$cytoscape = "<li><a href='" . WPI_SCRIPT_URL . "?action=launchCytoscape&pwTitle=$pwTitle'>Open in Cytoscape</a></li>";
-		
 		$downloadlist = '';
 		foreach(array_keys($download) as $key) {
 			$downloadlist .= "<li><a href='{$download[$key]}'>$key</a></li>";
@@ -249,7 +246,6 @@ TEXT;
 <li><a href="#nogo2" class="button buttondown"><span>Download</span></a>
 		<ul>
 			$downloadlist
-			$cytoscape
 		</ul>
 </li>
 </ul>
