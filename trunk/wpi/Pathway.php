@@ -29,6 +29,7 @@ class Pathway {
 		'Rattus norvegicus' => 'Rn', 
 		'Saccharomyces cerevisiae' => 'Sc',
 		'Xenopus tropicalis' => 'Xt',
+		'Zea mays' => 'Zm',
 	);
 	private static $spCode2Name; //TODO: complete species
 	
