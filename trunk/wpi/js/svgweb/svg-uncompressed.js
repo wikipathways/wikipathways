@@ -27,83 +27,191 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-// TODO: Document the architecture of the JavaScript portion of the library
-// separately and point to it from here.
-
-// Remove timing functions when done with Issue 96
-window.timer = {};
-
-function start(subject, subjectStarted) {
-  //console.log('start('+subject+','+subjectStarted+')');
-  if (subjectStarted && !ifStarted(subjectStarted)) {
-    //console.log(subjectStarted + ' not started yet so returning for ' + subject);
-    return;
-  }
-  //console.log('storing time for ' + subject);
-  window.timer[subject] = {start: new Date().getTime()};
-}
-
-function end(subject, subjectStarted) {
-  //console.log('end('+subject+','+subjectStarted+')');
-  if (subjectStarted && !ifStarted(subjectStarted)) {
-    //console.log(subjectStarted + ' not started yet so returning for ' + subject);
-    return;
-  }
+/**
+  SVG Web brings SVG to browsers that don't have it, such as on Internet
+  Explorer, using Flash. SVG Web supports both static and dynamic SVG files
+  scripted by JavaScript, giving the 'illusion' that SVG is truly supported
+  by a browser. This means that JavaScript in the same page 'sees' the SVG
+  as a real-part of the browser and can script it using the standard DOM, even
+  when we are emulating SVG support using Flash. SVG Web targets 
+  SVG 1.1 Full. 
   
-  if (!window.timer[subject]) {
-    console.log('Unknown subject: ' + subject);
-    return;
-  }
+  SVG Web brings SVG support from roughly a ~30% installed base to close to 
+  100% with a library that is roughly 70K in size, giving developers a retained 
+  mode API for applications where the HTML5 Canvas tag's immediate mode API 
+  might not be appropriate, such as where DOM tracking, import/export, 
+  acessibility, and scalable vector images are needed. Retained and 
+  immediate mode graphics APIs have different tradeoffs and are appropriate for
+  different use-cases.
   
-  window.timer[subject].end = new Date().getTime();
+  From a high-level SVG Web consists of two types of handlers, either
+  the NativeHandler which uses the native SVG browser support if present 
+  (Firefox, Safari, etc.) or the FlashHandler which uses Flash and various 
+  JavaScript tricks to provide SVG support. 
   
-  //console.log('at end, storing total time: ' + total(subject));
-}
-
-function increment(subject, amount) {
-  if (!window.timer[subject]) {
-    window.timer[subject] = {incremented: true, total: 0};
-  }
+  The entry point for the system is the static JavaScript singleton 'svgweb'
+  class. This does many things, including: ensuring SVG Web is loaded before
+  the window onload event fires; waiting for the onDOMContentLoaded event
+  to fire; grabbing any SVG either directly embedded into a page or embedded 
+  using the OBJECT tag; normalizing and cleaning up our SVG; and finally 
+  determining the capabilities of the platform and creating the correct 
+  handler. At this point the svgweb class hands off work to the specific 
+  handler created (NativeHandler or FlashHandler).
   
-  window.timer[subject].total += amount;
-}
-
-function total(subject) {
-  if (!window.timer[subject]) {
-    console.log('Unknown subject: ' + subject);
-    return;
-  }
+  The handlers and the svgweb singleton depend on a few support classes and
+  methods to get their job done, including:
+    * Utility functions such as 'extend', 'hitch', and 'mixin' to make defining
+    JavaScript classes and callbacks be a bit more compact and readable. 
+    Other utility functions include methods such as 'parseXML', 'xpath', and 
+    'xhrObj' to ease cross-browser XML, XPath, and XHR handling, respectively
+    * RenderConfig class - Helps determine the rendering capabilities of the 
+    browser and whether the page itself is overriding and forcing a particular 
+    render handler, such as through a META tag or query variables.
+    * FlashInfo class - Helps determine whether Flash is installed, and if so, 
+    which version.
+    * FlashInserter class - Inserts our Flash into the page in a consistent way.
+    
+  Moving on, the NativeHandler and FlashHandler decompose as follows. Let's
+  start with the NativeHandler, since its the most straightforward.
   
-  var t = window.timer[subject];
-  if (t.incremented) {
-    return t.total;
-  } else if (t) {
-    return t.end - t.start;
-  } else {
-    return null;
-  }
-}
-
-function ifStarted(subject) {
-  for (var i in window.timer) {
-    var t = window.timer[i];
-    if (i == subject && t.start !== undefined && t.end === undefined) {
-      return true;
-    }
-  }
+  The NativeHandler essentially shims through and uses the native browser 
+  support. For various reasons, however, the NativeHandler must still patch 
+  various parts of the browser's SVG implementation to provide a consistent 
+  SVG experience where reasonable. We are careful to do this minimally and 
+  only where absolutely necessary; we don't, for example, attempt to shim
+  in SMIL support on Firefox as that would be overkill. Some reasons for 
+  the patching we do need include:
+    * Firefox, for example, does not support setting SVG style values using
+    the standard HTML idiom, such as myCircle.style.fill = 'red'. SVG Web
+    adds this in for consistency.
+    * Some browsers have various bugs that are serious enough that a simple
+    patch on SVG Web's part can make life simpler for programmers.
+    * While SVG Web mostly supports the SVG standard, some small divergences
+    are necessary to accomodate various limitations that the FlashHandler
+    requires; we patch the native SVG implementation to match these divergences
+    in order to have API consistency between all the handlers for
+    end-developers.
+    
+  The FlashHandler is more complicated, obviously. It essentially consists
+  of a Flash portion plus JavaScript to simulate native support. Note that
+  we support having the FlashHandler do its magic not only on Internet 
+  Explorer but Safari, Firefox, and Chrome as well. This is useful for two
+  reasons: it significantly aides debugging and testing of the FlashHandler
+  and also makes it possible to optionally use the FlashHandler to 'go beyond'
+  the native capabilities of a browser if needed.
   
-  return false;
-}
-
-function report() {
-  for (var i in window.timer) {
-    var t = total(i);
-    if (t !== null) {
-      console.log(i + ': ' + t + 'ms');
-    }
-  }
-}
-// Remove these functions when done with Issue 96
+  For the FlashHandler let's begin with the Flash side. All of the Flash
+  is written in ActionScript 3 and is located in src/org/svgweb. Much of the
+  Flash side consists of ActionScript classes that essentially simulate and
+  render all the various SVG node types, such as SVGCircleNode.as for the
+  SVG Circle tag. The entry point for the Flash is the 
+  org.svgweb.SVGViewerWeb class, which mediates all interaction between
+  the JavaScript and Flash side of things. The JavaScript invokes various
+  methods on the SVGViewerWeb class to get things done, and the Flash
+  messages back various things, such as rendering being done, events, etc.
+  We use Flash's ExternalInterface to do this communication but things are
+  more complex unfortunately due to this part of the system being one of the
+  primary bottlenecks, requiring complicated optimizations. See the
+  SVGViewerWeb class for details on this aspect.
+  
+  The FlashHandler uses the Flash side to do its rendering, but it also must
+  handle two other significant cases:
+  * handle disconnected nodes (i.e. nodes not attached to anything yet)
+  * give the illusion of a real DOM and hand back SVG nodes that 'feel real'
+  
+  Various design constraints require that the JavaScript side be relatively
+  sophisticated and also do tracking, rather than pushing everything to the 
+  Flash ActionScript. The first primary reason includes the fact that 
+  essentially only basic strings and types are pushed over the Flash/JS 
+  boundry, rather than object references -- this is difficult since SVG is
+  essentially a tree, making it hard to do operations on specific nodes. The 
+  second primary reason has to do with dealing with disconnected trees, 
+  since you can build up a complicated DOM tree that is not attached to 
+  any rendered document and therefore has no Flash associated with it.
+  
+  Generally patching the browser is taboo. Since SVG Web is an emulation
+  environment rather than a new API we must patch the browser to give the
+  illusion of a real SVG implementation. We attempt to do this without
+  impacting or slowing down non-SVG use-cases. Methods such as 
+  getElementById, getElementsByTagNameNS, or createElementNS are patched in 
+  to short-circuit for the non-SVG cases.
+  
+  The real magic, though, begins when these methods are called for SVG nodes.
+  Instead of returning real DOM nodes we actually return 'fake' DOM nodes.
+  Looking through this file you will see various 'fake' DOM implementations
+  preceded with underscores, such as _Node, _Element, _Document, 
+  _DocumentFragment, etc. These JavaScript classes basically implement the
+  DOM interfaces, such as nodeName, appendChild, childNodes, etc. When an 
+  external developer 'calls' on one of our fake SVG nodes, they are actually 
+  interacting with a fake JavaScript class rather than a real DOM node; we
+  just work to give the illusion that it's a real DOM class.
+  
+  Inside our fake SVG DOM node classes, we track each node with a __guid that
+  helps us do tracking and registration with the Flash side. If you change
+  the property of an SVG Circle, for example, we would simply send the __guid
+  over to Flash and the new values. Using the __guid essentially gives us the
+  object references we don't get with Flash's ExternalInterface. Every 
+  fake node also keeps an internal reference to it's parsed XML so that it
+  can change and store the values on the JavaScript side as well. Some
+  complexity is involved in also tracking DOM TextNodes stored in our SVG
+  tree so that we can consistently return the 'same' DOM TextNode when fetched
+  rather than searching by text value, which would fail if there are many
+  DOM TextNodes with the same value. To handle this we internally store
+  DOM TextNodes as a node called '__text' and add a tracking __guid. This adds
+  some internal complexity but allows external developers to have what feels
+  more like a real DOM.
+  
+  In some ways you can think of the FlashHandler as having a 'peer node' on
+  its side for each SVG node rendered on the Flash side. We obviously don't
+  want to do this for every node, however, which would slow down page load
+  and bloat memory, so we only create our FlashHandler's
+  JavaScript fake 'peer node' on demand when fetched through the DOM, such
+  as through getElementById or by calling childNodes or firstChild on an
+  SVG DOM node. Once fetched the first time we cache our JavaScript fake 
+  peer class ready to be re-served on demand again.
+  
+  Let's look at the fake SVG nodes we return to developers to interact with.
+  On modern browsers we can easily simulate magic getters and setters such as
+  myCircle.style.fill = 'red' or someGroup.childNodes[0] using facilities
+  like __defineGetter__. On those browsers when you call 
+  someGroup.childNodes[0], for example, our magic getter would get invoked;
+  we would see if a fake peer JavaScript node exists for this and return it
+  if so, and if not, we would create it on-demand and return it. On IE, 
+  however, we have to get our magic getters and setters and propery change 
+  events using a different mechanism, known as Microsoft Behaviors.
+  
+  Microsoft Behaviors, or HTCs (HTML Components) are a powerful but relatively 
+  esoteric browser technology that have been around since IE 5.0. They 
+  essentially allow JavaScript to tie directly into Internet Explorer's 
+  rendering engine and add new tags. They are defined in an HTC file, in our 
+  case svg.htc.
+  
+  HTCs give us the hooks we need to define magic getters and setters for IE
+  as well as gives us something called onpropertychange necessary to support
+  style accesses like myGroup.style.fillColor = 'green'. On IE, whenever
+  we return a result that a developer will manipulate, such as the results
+  of getElementsByTagNameNS, we instead return our HTC proxy node -- you
+  will see methods such as node._getProxyNode() in the source that returns
+  our standard JavaScript _Node or _Element class on all browsers but IE, where
+  we return our HTC node instead. 
+  
+  If you look at the svg.htc file you will see that it has very little code
+  in it. This is for two reasons:
+  * The primary performance bottleneck for HTCs is the amount of code they
+  have; limiting their code has a huge affect on memory and performance
+  * We want to have a similar architecture for the FlashHandler independent
+  of the browser to ease maintenence.
+  
+  For this reason a given HTC node delegates all of its work to its
+  'fake node', which would be the _Node or _Element that it is tracking.
+  You will see calls such as node._getFakeNode() in the source which gets
+  our fake JavaScript class to work with. For example, if you called
+  node.appendChild(someNode), internally we would call someNode._getFakeNode()
+  to make sure we have our JavaScript _Node or _Element class and not the
+  HTC node. Now we can work with our fake SVG node in a consistent way.  
+  
+  @author Brad Neuberg (http://codinginparadise.org)
+*/
 
 (function(){ // hide everything externally to avoid name collisions
  
@@ -364,9 +472,17 @@ function xpath(doc, context, expr, namespaces) {
     
     @returns XML DOM document node.
 */
+var parseXMLCache = {};
 function parseXML(xml, preserveWhiteSpace) {
   if (preserveWhiteSpace === undefined) {
     preserveWhiteSpace = false;
+  }
+  
+  // Issue 421: Reuse XML ActiveX object on Internet Explorer
+  // http://code.google.com/p/svgweb/issues/detail?id=421
+  var cachedXML = parseXMLCache[preserveWhiteSpace + xml];
+  if (cachedXML) {
+    return cachedXML.cloneNode(true);
   }
     
   var xmlDoc;
@@ -424,6 +540,9 @@ function parseXML(xml, preserveWhiteSpace) {
       throw new Error('Unable to parse SVG: ' + e.message);
     }
   }
+  
+  // cache parsed XML (Issue 421)
+  parseXMLCache[preserveWhiteSpace + xml] = xmlDoc.cloneNode(true);
   
   return xmlDoc;
 }
@@ -686,6 +805,7 @@ extend(SVGWeb, {
       if (this.getHandlerType() == 'flash') {
         // register onloads
         if (node.onload) {
+          node.onload.methodType="svgweb";
           node.addEventListener('load', node.onload, false);
         }
         
@@ -730,6 +850,7 @@ extend(SVGWeb, {
       
       // copy over any node.onload listener
       if (node.onload) {
+        node.onload.methodType="svgweb";
         node.addEventListener('SVGLoad', node.onload, false);
       }
       
@@ -2003,6 +2124,9 @@ extend(SVGWeb, {
     
     window.attachEvent = window._attachEvent;
     window._attachEvent = null;
+    
+    // cleanup parsed XML cache
+    parseXMLCache = null;
   },
   
   /** Does certain things early on in the page load process to cleanup
@@ -2036,14 +2160,17 @@ extend(SVGWeb, {
   
   /** Intercepts setting up window.onload events so we can delay firing
       them until we are done with our internal work. */
-   _interceptOnloadListeners: function() {
+  _interceptOnloadListeners: function() {
     if (window.addEventListener) {
       window._addEventListener = window.addEventListener;
       window.addEventListener = function(type, f, useCapture) {
-        if (type == 'svgload') {
-            svgweb.addOnLoad(f);
-        } else {
+        if (type != 'load') {
           return window._addEventListener(type, f, useCapture);
+        } else {
+          if (f.methodType == 'svgweb')
+            svgweb.addOnLoad(f);
+          else
+            return window._addEventListener(type, f, useCapture);
         }
       }
     }
@@ -2051,10 +2178,13 @@ extend(SVGWeb, {
     if (isIE && window.attachEvent) {
       window._attachEvent = window.attachEvent;
       window.attachEvent = function(type, f) {
-        if (type == 'onsvgload') {
-            svgweb.addOnLoad(f);
-        } else {
+        if (type != 'onload') {
           return window._attachEvent(type, f);
+        } else {
+          if (f.methodType == 'svgweb')
+            svgweb.addOnLoad(f);
+          else
+            return window._attachEvent(type, f);
         }
       }
     }
@@ -2605,7 +2735,7 @@ FlashHandler._createElement = function(nodeName, forSVG) {
         if (type == 'load') {
           this._onloadListeners.push(listener);
         } else if (!addEventListener) { // IE
-          this.attachEvent('onsvg' + type, listener);
+          this.attachEvent('on' + type, listener);
         } else { // W3C
           _addEventListener(type, listener, useCapture);
         }  
@@ -3519,9 +3649,10 @@ extend(NativeHandler, {
         self._onObjectLoad(self._objNode._svgFunc, win);
       };
       if (this._objNode._addEventListener) {
-        this._objNode._addEventListener('svgload', loadFunc, false);
+        this._objNode._addEventListener('load', loadFunc, false);
       } else {
-        this._objNode.addEventListener('svgload', loadFunc, false);
+        loadFunc.methodType="svgweb";
+        this._objNode.addEventListener('load', loadFunc, false);
       }
     }
   },
@@ -4625,6 +4756,7 @@ extend(_Node, {
       @param type String type of event.
       @param fn Function to execute when event happens. */
   _addEvent: function(obj, type, fn) {
+    type.methodType="svgweb";
     if (obj.addEventListener) {
       obj.addEventListener(type, fn, false);
     }
@@ -5630,6 +5762,14 @@ extend(_Element, {
   setAttributeNS: function(ns, qName, attrValue /* String */) /* void */ {
     //console.log('setAttributeNS, ns='+ns+', qName='+qName+', attrValue='+attrValue+', this.nodeName='+this.nodeName);
     
+    // Issue 428: 
+    // "setAttribute gives error for undefined or null attribute value 
+    // (Flash renderer)"
+    // http://code.google.com/p/svgweb/issues/detail?id=428
+    if (attrValue === null || typeof attrValue == 'undefined') {
+      attrValue = '';
+    }
+    
     // parse out local name of attribute
     var localName = qName;
     if (qName.indexOf(':') != -1) {
@@ -5953,8 +6093,6 @@ extend(_Element, {
   },
 
   _getCurrentTranslate: function() { /* SVGPoint */
-    // TODO: at some point we probably want to call over to Flash on this one,
-    // since I believe it can be animated through SMIL
     return this._currentTranslate;
   },
   
@@ -6000,7 +6138,7 @@ extend(_Element, {
     'onfocusin', 'onfocusout', 'onactivate', 'onclick', 'onmousedown',
     'onmouseup', 'onmouseover', 'onmousemove', 'onmouseout', 'onload',
     'onunload', 'onabort', 'onerror', 'onresize', 'onscroll', 'onzoom',
-    'onbegin', 'onend', 'onrepeat', 'onsvgload'
+    'onbegin', 'onend', 'onrepeat'
   ],
   
   _handleEvent: function(evt) {
@@ -7060,7 +7198,7 @@ function _SVGWindow(handler) {
 
 extend(_SVGWindow, {
   addEventListener: function(type, listener, capture) {
-    if (type == 'svgload' || type == 'SVGLoad') {
+    if (type == 'load' || type == 'SVGLoad') {
       this._onloadListeners.push(listener);
     }
   },
@@ -7943,7 +8081,6 @@ extend(FlashInserter, {
                        + '://www.macromedia.com/go/getflashplayer');
       flash.setAttribute('style', style);
       flash.setAttribute('className', className);
-      flash.setAttribute
       for (var i = 0; i < customAttrs.length; i++) {
         flash.setAttribute(customAttrs[i].attrName,
                          customAttrs[i].attrValue);
@@ -8176,7 +8313,7 @@ extend(_SVGSVGElement, {
     //start('jsHandleLoad');
 
     var size = this._handler._inserter._determineSize();
-    this._handler.sendToFlash('jsHandleLoad',
+    this._handler.sendToFlash('jsHandleg',
                               [ /* objectURL */ this._getRelativeTo('object'),
                                 /* pageURL */ this._getRelativeTo('page'),
                                 /* objectWidth */ size.pixelsWidth,
@@ -8631,3 +8768,81 @@ window.svgweb = new SVGWeb(); // kicks things off
 
 // hide internal implementation details inside of a closure
 })();
+
+// Uncomment when doing performance profiling
+/*
+window.timer = {};
+
+function start(subject, subjectStarted) {
+  //console.log('start('+subject+','+subjectStarted+')');
+  if (subjectStarted && !ifStarted(subjectStarted)) {
+    //console.log(subjectStarted + ' not started yet so returning for ' + subject);
+    return;
+  }
+  //console.log('storing time for ' + subject);
+  window.timer[subject] = {start: new Date().getTime()};
+}
+
+function end(subject, subjectStarted) {
+  //console.log('end('+subject+','+subjectStarted+')');
+  if (subjectStarted && !ifStarted(subjectStarted)) {
+    //console.log(subjectStarted + ' not started yet so returning for ' + subject);
+    return;
+  }
+  
+  if (!window.timer[subject]) {
+    console.log('Unknown subject: ' + subject);
+    return;
+  }
+  
+  window.timer[subject].end = new Date().getTime();
+  
+  //console.log('at end, storing total time: ' + total(subject));
+}
+
+function increment(subject, amount) {
+  if (!window.timer[subject]) {
+    window.timer[subject] = {incremented: true, total: 0};
+  }
+  
+  window.timer[subject].total += amount;
+}
+
+function total(subject) {
+  if (!window.timer[subject]) {
+    console.log('Unknown subject: ' + subject);
+    return;
+  }
+  
+  var t = window.timer[subject];
+  if (t.incremented) {
+    return t.total;
+  } else if (t) {
+    return t.end - t.start;
+  } else {
+    return null;
+  }
+}
+
+function ifStarted(subject) {
+  for (var i in window.timer) {
+    var t = window.timer[i];
+    if (i == subject && t.start !== undefined && t.end === undefined) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+function report() {
+  for (var i in window.timer) {
+    var t = total(i);
+    if (t !== null) {
+      console.log(i + ': ' + t + 'ms');
+    }
+  }
+}
+*/
+// End of performance profiling functions
+

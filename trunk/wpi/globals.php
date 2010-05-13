@@ -9,6 +9,7 @@ define("FILETYPE_PNG", "png");
 define("FILETYPE_PDF", "pdf");
 define("FILETYPE_PWF", "pwf");
 define("FILETYPE_TXT", "txt");
+define("FILETYPE_BIOPAX", "owl");
 
 //Script info
 $wpiPathName = 'wpi'; //pathname containing wpi script

@@ -304,8 +304,8 @@ PathwayViewer.startSVG = function(info){
         //Set to maximum size, so all content will be displayed after resizing parent
         //Ideally we would use relative size here ('100%'), but this causes the
         //SVG to stretch on resizing the parent
-        //obj.setAttribute('width', screen.width + 'px');
-        //obj.setAttribute('height', screen.height + 'px');
+        obj.setAttribute('width', screen.width + 'px');
+        obj.setAttribute('height', screen.height + 'px');
         obj.addEventListener('load', function(){
             var $svgObject = $('#' + info.imageId + PathwayViewer.idSvgObject);
             var svgRoot = $svgObject.get(0).contentDocument.rootElement;
