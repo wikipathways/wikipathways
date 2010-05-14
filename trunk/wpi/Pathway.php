@@ -1124,7 +1124,7 @@ class Pathway {
 		
 		$basePath = WPI_SCRIPT_PATH;
 		$maxMemoryM = intval($wgMaxShellMemory / 1024); //Max script memory on java program in megabytes
-		$cmd = "java -Xmx{$maxMemoryM}M -jar $basePath/bin/pathvisio_core.jar '$gpmlFile' '$outFile' 2>&1";
+		$cmd = "java -Xmx{$maxMemoryM}M -jar $basePath/bin/pathvisio_core.jar \"$gpmlFile\" \"$outFile\" 2>&1";
 		wfDebug("CONVERTER: $cmd\n");
 		$msg = wfJavaExec($cmd, $status);
 		
