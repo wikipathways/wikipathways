@@ -24,10 +24,12 @@ class Pathway {
 		'Gallus gallus' => 'Gg',
 		'Homo sapiens' => 'Hs', 
 		'Mus musculus' => 'Mm',
+		'Mycobacterium tuberculosis' => 'Mx',
 		'Oryza sativa' => 'Oj',
 		'Pan troglodytes' => 'Pt',
 		'Rattus norvegicus' => 'Rn', 
 		'Saccharomyces cerevisiae' => 'Sc',
+		'Sus scrofa' => 'Ss',
 		'Xenopus tropicalis' => 'Xt',
 		'Zea mays' => 'Zm',
 	);
