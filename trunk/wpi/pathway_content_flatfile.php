@@ -19,7 +19,7 @@ if(!$mappingPref){
 	$mappingPref = 'on';
 }
 
-//Get update call (force or no)
+//Get update call (yes or no)
 $updateCache = $_REQUEST['update'];
 if(!$updateCache){
 	$updateCache = 'no';
@@ -38,7 +38,9 @@ if(!$species){
 //Try to use a cached file if possible
 //Always use cached if present. Updated by weekly cron script.
 $cacheFile = WPI_CACHE_PATH . "/wikipathways_data_$species.$outputFormat";
-if(file_exists($cacheFile && $updateCache != 'force') ) {
+if($mappingPref == 'off'){$cacheFile = WPI_CACHE_PATH . "/wikipathways_native_data_$species.$outputFormat";}
+
+if(file_exists($cacheFile) && $updateCache != 'yes' ) {
 #	$latest = wfTimestamp(TS_UNIX, MwUtils::getLatestTimestamp(NS_PATHWAY));
 #	if($latest <= filemtime($cacheFile)) {
 		returnCached(); //Redirect to cached (exits script)
@@ -173,11 +175,22 @@ function processPathways($species, $fh, $datasourceList) {
 			else {
 				fwrite($fh, $pathwayName."\t".$species."\t".$categories."\t".$url."\t".$modTime."\t".$lastRevision."\t".$author."\t");
 			}
+			
+			//Count original datanodes
+                        try
+                        {
+                          $xrefs = $pathway->getUniqueXrefs();
+                        }
+                          catch (Exception $e)
+                        {
+                        // we can safely ignore exceptions
+                        // erroneous pathways simply won't get counted
+                        }
+			$xrefCount = count($xrefs);
 
 			// Print xref translations
                         $datasourceXrefMap = array();
 			$updatedDatasourceList = array();
-			$xrefCount = array();
 			foreach($datasourceList as $s) {
 				if($s === "Ensembl"){
 					$s = DataSource::getEnsemblDatasource($species);
@@ -190,15 +203,13 @@ function processPathways($species, $fh, $datasourceList) {
 					} else {
 						//register a blank
 						$datasourceXrefMap[$s] = ' ';
-						$xrefCount[$s] = 0;
 						continue;
 					}
 				}	
-				$xrefCount[$s] = 0;
 				$code = DataSource::getCode($s);
 
 				## id mapping = off
-				if($mapping = 'off'){
+				if($mappingPref = 'off'){
 		                        try
                		         	{
                        		         $xrefs = $pathway->getUniqueXrefs();
@@ -212,11 +223,10 @@ function processPathways($species, $fh, $datasourceList) {
 					$tmp = "";
                        		        foreach ($xrefs as $xref){
                                 	        $id = $xref->getId();
-                                       	 	$db = $xref->getSystem(); # code or name?
-						if ($db == $code || $db = $s){
+                                       	 	$db = $xref->getSystem(); # system name
+						if ($db == $s){
 							if ($id && $id != '' && $id != ' '){
-                                                   		$tmp .= $id . ',';
-								$xrefCount[$s]++;
+                                                   		$tmp .= $id .',';
                                                 	}
                                         	}
                                	 	}	
@@ -234,7 +244,6 @@ function processPathways($species, $fh, $datasourceList) {
 					$tmp = "";
 					foreach($xrefList as $xref) {
 						$tmp .= $xref . ',';
-						$xrefCount[$s]++;
 					}
  					perlChop($tmp); //remove final comma from generated list
 					$datasourceXrefMap[$s] = $tmp;
@@ -245,7 +254,7 @@ function processPathways($species, $fh, $datasourceList) {
 		
 			//Print gene content data
 			if ($outputFormat =='html') {
-				fwrite($fh, $xrefCount[$updatedDatasourceList[0]]); //writing count for first datasource only (for simplicity)
+				fwrite($fh, $xrefCount); 
 				foreach($updatedDatasourceList as $s) {
 					//append with space character toprovide for empty cells in html table 
 					fwrite($fh, "<TD>{$datasourceXrefMap[$s]}&nbsp</TD>");
@@ -254,7 +263,7 @@ function processPathways($species, $fh, $datasourceList) {
 			} elseif ($outputFormat == 'excel'){
 				//TODO
 			} else {
-				fwrite($fh, $xrefCount[$updatedDatasourceList[0]]); //writing count for first datasource only (for simplicity)
+				fwrite($fh, $xrefCount); 
 				foreach($updatedDatasourceList as $s) {
 					//append with space character toprovide for empty cells in html table 
 					fwrite($fh, "\t{$datasourceXrefMap[$s]}");
