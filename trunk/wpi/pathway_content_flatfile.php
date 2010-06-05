@@ -40,12 +40,17 @@ if(!$species){
 $cacheFile = WPI_CACHE_PATH . "/wikipathways_data_$species.$outputFormat";
 if($mappingPref == 'off'){$cacheFile = WPI_CACHE_PATH . "/wikipathways_native_data_$species.$outputFormat";}
 
-if(file_exists($cacheFile) && $updateCache != 'yes' ) {
-#	$latest = wfTimestamp(TS_UNIX, MwUtils::getLatestTimestamp(NS_PATHWAY));
-#	if($latest <= filemtime($cacheFile)) {
+if(file_exists($cacheFile)) {
+	if($updateCache == 'no' ) {
 		returnCached(); //Redirect to cached (exits script)
-#	}
+	} else {
+		$latest = wfTimestamp(TS_UNIX, MwUtils::getLatestTimestamp(NS_PATHWAY));
+		if($latest <= filemtime($cacheFile)) {
+			returnCached(); 
+		}
+	}
 }
+// all else...
 generateContent($species); //Update cache
 returnCached();
 
