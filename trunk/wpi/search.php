@@ -49,6 +49,47 @@ class IndexClient {
 		}
 	}
 	
+	private static function postQuery($url, $ids, $codes){
+		$r = new HttpRequest($url, HttpRequest::METH_POST);
+		$r->addPostFields (
+			array (
+				'id' => '210',
+				'code' => 'L'
+			));
+		try {
+		       $r->send();
+		} catch (Exception $e) {
+                        throw new IndexNotFoundException();
+                }
+		if ($r->getResponseCode() == 200) {
+                        $xml = new SimpleXMLElement($r->getBody());
+                        $results = array();
+                        //Convert the response to SearchHit objects
+                        foreach($xml->SearchResult as $resultNode) {
+                                $score = $resultNode['Score'];
+                                $fields = array();
+                                foreach($resultNode->Field as $fieldNode) {
+                                        $fields[(string)$fieldNode['Name']][] = (string)$fieldNode['Value'];
+                                }
+                                //Remove duplicate values
+                                foreach(array_keys($fields) as $fn) {
+                                        $fields[$fn] = array_unique($fields[$fn]);
+                                }
+                                $results[] = new SearchHit($score, $fields);
+                        }
+                        return $results;
+                } else {
+                        $txt = $r->getResponseBody();
+                        if(strpos($txt, '<?xml')) {
+                                $xml = new SimpleXMLElement($r->getResponseBody());
+                                throw new Exception($xml->message);
+                        } else {
+                                throw new Exception($r->getResponseBody());
+                        }
+                }
+        }
+
+			
 	/**
 	 * Performs a query on the index service and returns the results
 	 * as an array of SearchHit objects.
@@ -73,6 +114,7 @@ class IndexClient {
 			$url .= '&code=' . implode('&code=', $enc_codes);
 		}
 		return self::doQuery($url);
+		#return self::postQuery($url, $ids, $codes);
 	}
 	
 	/**
