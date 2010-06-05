@@ -9,6 +9,8 @@ chdir($dir);
 $operation = '';
 if(preg_match("/Body>(.*?)>/us", $HTTP_RAW_POST_DATA, $match)) {
 	$operation = trim($match[1]);
+#} else if(preg_match("/Body>(.*?)>/us", file_get_contents('php://input'), $match)){
+#	$operation = trim($match[1]);
 } else if(in_array("wsdl", array_keys($_REQUEST))) { //WSDL requests
 	$operation = "wsdl";
 } else if($_SERVER["PATH_INFO"]) {
