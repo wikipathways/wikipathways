@@ -1,4 +1,5 @@
 <?php
+require_once('Organism.php');
 require_once('PathwayData.php');
 require_once('CategoryHandler.php');
 require_once('MetaDataCache.php');
@@ -9,31 +10,6 @@ Class that represents a Pathway on WikiPathways
 class Pathway {
 	public static $ID_PREFIX = 'WP';
 	public static $DELETE_PREFIX = "Deleted pathway: ";
-	
-	private static $spName2Code = array(
-		'Anopheles gambiae' => 'Ag',
-		'Arabidopsis thaliana' => 'At',
-		'Bos taurus' => 'Bt',
-		'Bacillus subtilis' => 'Bs',
-		'Caenorhabditis elegans' => 'Ce',
-		'Canis familiaris' => 'Cf',
-		'Danio rerio' => 'Dr',
-		'Drosophila melanogaster' => 'Dm',
-		'Escherichia coli' => 'Ec',
-		'Equus caballus' => 'Qc',
-		'Gallus gallus' => 'Gg',
-		'Homo sapiens' => 'Hs', 
-		'Mus musculus' => 'Mm',
-		'Mycobacterium tuberculosis' => 'Mx',
-		'Oryza sativa' => 'Oj',
-		'Pan troglodytes' => 'Pt',
-		'Rattus norvegicus' => 'Rn', 
-		'Saccharomyces cerevisiae' => 'Sc',
-		'Sus scrofa' => 'Ss',
-		'Xenopus tropicalis' => 'Xt',
-		'Zea mays' => 'Zm',
-	);
-	private static $spCode2Name; //TODO: complete species
 	
 	private static $fileTypes = array(
 				FILETYPE_IMG => FILETYPE_IMG, 
@@ -253,12 +229,10 @@ class Pathway {
 	 Convert a species code to a species name (e.g. Hs to Human)
 	*/	
 	public static function speciesFromCode($code) {
-		if(!Pathway::$spCode2Name) {
-			foreach(array_keys(Pathway::$spName2Code) as $name) {
-				Pathway::$spCode2Name[Pathway::$spName2Code[$name]] = $name;
-			}
+		$org = Organism::getByCode($code);
+		if($org) {
+			return $org->getLatinName();
 		}
-		return Pathway::$spCode2Name[$code];
 	}
 	
 	public static function getAllPathways($species = false) {
@@ -295,7 +269,10 @@ class Pathway {
 	 Convert a species name to species code (e.g. Human to Hs)
 	*/
 	public static function codeFromSpecies($species) {
-		return Pathway::$spName2Code[$species];
+		$org = Organism::getByLatinName($species);
+		if($org) {
+			return $org->getCode();
+		}
 	}
 	
 	/**
@@ -369,7 +346,7 @@ class Pathway {
 	 * Returns a list of species
 	 */
 	public static function getAvailableSpecies() {
-		return array_keys(Pathway::$spName2Code);
+		return array_keys(Organism::listOrganisms());
 	}
 
 	/**
@@ -497,7 +474,10 @@ class Pathway {
 	 * Get the species code (abbrevated species name, e.g. Hs for Human)
 	 */
 	public function getSpeciesCode() {
-		return Pathway::$spName2Code[$this->getSpecies()];
+		$org = Organism::getByLatinName($this->getSpecies());
+		if($org) {
+			return $org->getCode();
+		}
 	}
 
 	/**
@@ -1177,5 +1157,4 @@ class Pathway {
 		wfDebug("PNG CACHE SAVED: $output, $ex;\n");
 	}
 }
-
 ?>

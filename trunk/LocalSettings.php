@@ -68,6 +68,8 @@ $wgDBserver         = "localhost";
 $wgDBport           = "5432";
 $wgDBprefix         = "";
 
+# Load organism registry
+require_once('wpi/Organism.php');
 # Load passwords/usernames
 require('pass.php');
 # Load globals
