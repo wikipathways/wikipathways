@@ -87,7 +87,7 @@ class StatisticsCache
 	{
 		global $wgScriptPath;
 
-		$databases = DataSource:getDatasourcesByType('gene'); 
+		$databases = DataSource::getDatasourcesByType('gene'); 
 		$geneList = array();
 		$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
 		$all_pathways = self::getAllPathways();

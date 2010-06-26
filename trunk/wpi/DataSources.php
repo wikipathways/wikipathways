@@ -157,7 +157,7 @@ class DataSource {
 	public static function getDatasourcesByType($type){
 		if(!self::$types) {
 			self::initTypes();
-		{
+		}	
 		$dsList = array();
 		foreach(array_keys(self::$types) as $name){
 			if(self::$types[$name] === $type){
