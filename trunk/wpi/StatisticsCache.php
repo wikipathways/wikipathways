@@ -2,6 +2,8 @@
 
 require_once("wpi.php");
 require_once("Pathway.php");
+require_once("DataSources.php");
+
 
 if($argv[0] == "StatisticsCache.php") { //Called from commandline, update cache
 	ini_set("memory_limit", "256M");
@@ -85,49 +87,7 @@ class StatisticsCache
 	{
 		global $wgScriptPath;
 
-		$databases = array(
-			'HUGO',
-			'HsGene',
-			'Entrez Gene',
-			'EcoGene',
-			'BioGrid',
-			'IRGSP Gene',
-			'MaizeGDB',
-			'NASC Gene',
-			'PlantGDB',
-			'WikiGene',
-			'EC Number',
-			'Ensembl',
-			'Rice Ensembl Gene',
-                        'Ensembl Mosquito',
-                        'Ensembl Bsubtilis',
-                        'Ensembl Cow',
-                        'Ensembl Celegans',
-                        'Ensembl Dog',
-                        'Ensembl Fruitfly',
-                        'Ensembl Zebrafish',
-                        'Ensembl Ecoli',
-                        'Ensembl Chicken',
-                        'Ensembl Human',
-                        'Ensembl Mouse',
-                        'Ensembl Chimp',
-                        'Ensembl Horse',
-                        'Ensembl Rat',
-                        'Ensembl Scerevisiae',
-                        'Ensembl Xenopus',
-                        'Gramene Rice',
-			'SwissProt',
-			'UniGene',
-			'RefSeq',
-			'MGI',
-			'RGD',
-			'ZFIN',
-			'FlyBase',
-			'WormBase',
-			'SGD',
-			'TAIR'
-		);
-		
+		$databases = DataSource:getDatasourcesByType('gene'); 
 		$geneList = array();
 		$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
 		$all_pathways = self::getAllPathways();
