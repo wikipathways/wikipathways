@@ -175,6 +175,7 @@ function listPathways($organism = false) {
 function getPathway($pwId, $revision = 0) {
 	try {
 		$pathway = new Pathway($pwId);
+		if($revision) $pathway->setActiveRevision($revision);
 		$pwi = new WSPathway($pathway);
 		return array("pathway" => $pwi);
 	} catch(Exception $e) {
