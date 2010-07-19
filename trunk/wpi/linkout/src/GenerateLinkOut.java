@@ -159,7 +159,7 @@ public class GenerateLinkOut {
 			linkout.setUrlBase(pargs.baseUrl);
 			Map<DataSource, String> dsm = new HashMap<DataSource, String>();
 			dsm.put(BioDataSource.ENTREZ_GENE, "Gene");
-			dsm.put(BioDataSource.PUBCHEM, "Pubchem");
+			dsm.put(BioDataSource.PUBCHEM, "PCCompound");
 			
 			for(DataSource ds : dsm.keySet()) {
 				Document doc = linkout.createLinkOuts(cache.getFiles(), ds, dsm.get(ds));
