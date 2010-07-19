@@ -31,6 +31,7 @@ import org.pathvisio.model.ConverterException;
 import org.pathvisio.model.Pathway;
 import org.pathvisio.wikipathways.WikiPathwaysCache;
 import org.pathvisio.wikipathways.WikiPathwaysClient;
+import org.pathvisio.wikipathways.webservice.WSCurationTag;
 import org.pathvisio.wikipathways.webservice.WSPathwayInfo;
 
 
@@ -42,11 +43,22 @@ public class GenerateLinkOut {
 	private String urlBase;
 	private GdbProvider idmp;
 	
-	WikiPathwaysCache cache;
+	/**
+	 * Pathways tagged with these tags will not be included.
+	 */
+	private String[] filterTags = new String[] {
+		"Curation:ProposedDeletion",
+		"Curation:Tutorial",
+		"Curation:UnderConstruction"
+	};
 	
-	public GenerateLinkOut(WikiPathwaysCache cache, GdbProvider idmp) {
+	WikiPathwaysCache cache;
+	WikiPathwaysClient client;
+	
+	public GenerateLinkOut(WikiPathwaysCache cache, WikiPathwaysClient client, GdbProvider idmp) {
 		this.cache = cache;
 		this.idmp = idmp;
+		this.client = client;
 	}
 	
 	public void setProviderId(String providerId) {
@@ -57,7 +69,7 @@ public class GenerateLinkOut {
 		this.urlBase = urlBase;
 	}
 	
-	public Document createLinkOuts(Collection<File> pathwayFiles, DataSource tgtDs, String database) throws IDMapperException, FileNotFoundException, IOException, ConverterException {
+	public Document createLinkOuts(Collection<File> pathwayFiles, DataSource tgtDs, String database, boolean addSpecies) throws IDMapperException, FileNotFoundException, IOException, ConverterException {
 		linkId = 0; //Reset link id for this linkset
 		
 		Document doc = new Document();
@@ -69,10 +81,26 @@ public class GenerateLinkOut {
 		Element root = new Element("LinkSet");
 		doc.setRootElement(root);
 		
+		log.info("Getting list of pathways to filter out based on curation tag");
+		Set<String> filterIds = new HashSet<String>();
+		for(String tag : filterTags) {
+			for(WSCurationTag t : client.getCurationTagsByName(tag)) {
+				filterIds.add(t.getPathway().getId());
+			}
+		}
+		log.info("Filtering out " + filterIds.size() + " pathways.");
+		
 		//For each pathway
 		int i = 0;
 		for(File f : pathwayFiles) {
 			if(i % 10 == 0) log.info("Processing pathway " + ++i + " out of " + pathwayFiles.size());
+			
+			WSPathwayInfo info = cache.getPathwayInfo(f);
+			if(filterIds.contains(info.getId())) {
+				log.info("Skipping " + info.getId() + ", filtered out by curation tag");
+				continue;
+			}
+			
 			Pathway p = new Pathway();
 			p.readFromXml(f, false);
 			
@@ -112,8 +140,6 @@ public class GenerateLinkOut {
 				objList.addContent(objId);
 			}
 			
-			WSPathwayInfo info = cache.getPathwayInfo(f);
-			
 			Element objUrl = new Element("ObjectUrl");
 			link.addContent(objUrl);
 
@@ -125,7 +151,7 @@ public class GenerateLinkOut {
 			rule.setText("/index.php/Pathway:" + info.getId());
 			Element urlName = new Element("UrlName");
 			objUrl.addContent(urlName);
-			urlName.setText(info.getName());
+			urlName.setText(info.getName() + (addSpecies ? " (" + info.getSpecies() + ")" : ""));
 		}
 		return doc;
 	}
@@ -154,23 +180,34 @@ public class GenerateLinkOut {
 			WikiPathwaysCache cache = new WikiPathwaysCache(client, pargs.cacheFile);
 			cache.update();
 			
-			GenerateLinkOut linkout = new GenerateLinkOut(cache, idmp);
+			GenerateLinkOut linkout = new GenerateLinkOut(cache, client, idmp);
 			linkout.setProviderId(pargs.provId);
 			linkout.setUrlBase(pargs.baseUrl);
-			Map<DataSource, String> dsm = new HashMap<DataSource, String>();
-			dsm.put(BioDataSource.ENTREZ_GENE, "Gene");
-			dsm.put(BioDataSource.PUBCHEM, "PCCompound");
-			
-			for(DataSource ds : dsm.keySet()) {
-				Document doc = linkout.createLinkOuts(cache.getFiles(), ds, dsm.get(ds));
+			EntrezSource[] sources = new EntrezSource[] {
+					new EntrezSource(BioDataSource.ENTREZ_GENE, "Gene", false),
+					new EntrezSource(BioDataSource.PUBCHEM, "PCCompound", true),
+			};
+			for(EntrezSource s : sources) {
+				Document doc = linkout.createLinkOuts(cache.getFiles(), s.ds, s.name, s.addSpecies);
 				XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-	            FileWriter writer = new FileWriter(new File(pargs.outFile, dsm.get(ds) + ".xml"));
+	            FileWriter writer = new FileWriter(new File(pargs.outFile, s.name + ".xml"));
 	            out.output(doc, writer);
 	            writer.flush();
 	            writer.close();
 			}
 		} catch(Exception e) {
 			log.log(Level.SEVERE, "Fatal error", e);
+		}
+	}
+	
+	private static class EntrezSource {
+		DataSource ds;
+		String name;
+		boolean addSpecies;
+		public EntrezSource(DataSource ds, String name, boolean addSpecies) {
+			this.ds = ds;
+			this.name = name;
+			this.addSpecies = addSpecies;
 		}
 	}
 	
