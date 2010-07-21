@@ -64,7 +64,7 @@ $channel_element = $dom->createElement('channel');
 $channel = $rss->appendChild($channel_element);
 
 //Add Wikipathways main info
-$mainTitleElement = $dom->createElement('title', 'WikiPathways-test');
+$mainTitleElement = $dom->createElement('title', 'WikiPathways');
 $mainLinkElement = $dom->createElement('link', 'http://www.wikipathways.org');
 $mainDescriptionElement = $dom->createElement('description', 'Wikipathways: Pathways for the people');
 $channel->appendChild($mainTitleElement);
