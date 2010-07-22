@@ -1,14 +1,7 @@
 <?php
    require_once('../wpi.php');
    
-   function getRecentChanges($timestamp)
-{
-        //check safety of $timestamp, must be exactly 14 digits and nothing else.
-        if (!preg_match ("/^\d{14}$/", $timestamp))
-        {
-                throw new WSFault("Sender", "Invalid timestamp " . htmlentities ($timestamp));
-        }
-
+   function getRecentChanges() {
         $dbr =& wfGetDB( DB_SLAVE );
         $forceclause = $dbr->useIndexClause("rc_timestamp");
         $recentchanges = $dbr->tableName( 'recentchanges');
@@ -20,8 +13,6 @@
                         FROM $recentchanges $forceclause
                         WHERE 
                                 rc_namespace = " . NS_PATHWAY . "
-                                AND
-                                rc_timestamp > '$timestamp'
                         GROUP BY rc_title
                         ORDER BY rc_timestamp DESC
                 ";
@@ -65,7 +56,7 @@ $channel = $rss->appendChild($channel_element);
 
 //Add Wikipathways main info
 $mainTitleElement = $dom->createElement('title', 'WikiPathways');
-$mainLinkElement = $dom->createElement('link', 'http://www.wikipathways.org');
+$mainLinkElement = $dom->createElement('link', SITE_URL);
 $mainDescriptionElement = $dom->createElement('description', 'Wikipathways: Pathways for the people');
 $channel->appendChild($mainTitleElement);
 $channel->appendChild($mainLinkElement);
@@ -73,9 +64,12 @@ $channel->appendChild($mainDescriptionElement);
 
 //Add items
 
-   $changedPathways = getRecentChanges('20090820121212');
+   $changedPathways = getRecentChanges();
    //var_dump($changedPathways); /*
-   $GetTags = explode(",", $_GET["tags"]);
+   $GetTags = $_GET["tags"];
+   if($GetTags) $GetTags = explode(",", $GetTags);
+   else $GetTags = array();
+   
    $printItem = false;
    foreach ($changedPathways["pathways"] as $p){
       $mwtitle = $p->getTitleObject();
@@ -87,7 +81,7 @@ $channel->appendChild($mainDescriptionElement);
            $pathwayTags[]=substr($tag->getName(), 9);
         }
         $intersectedTagArray = array_intersect($GetTags, $pathwayTags);
-        if ((count($GetTags)== 0) || (count($intersectedTagArray)>0)){
+        if (!$GetTags || (count($intersectedTagArray)>0)){
             $printItem = true;
         }
         else $printItem = false;
