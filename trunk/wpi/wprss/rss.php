@@ -8,8 +8,8 @@
 
         $sql = "SELECT  
                                 rc_namespace, 
-                                rc_title, 
-                                MAX(rc_timestamp)
+                                rc_title,
+                                rc_this_oldid
                         FROM $recentchanges $forceclause
                         WHERE 
                                 rc_namespace = " . NS_PATHWAY . "
@@ -58,9 +58,18 @@ $channel = $rss->appendChild($channel_element);
 $mainTitleElement = $dom->createElement('title', 'WikiPathways');
 $mainLinkElement = $dom->createElement('link', SITE_URL);
 $mainDescriptionElement = $dom->createElement('description', 'Wikipathways: Pathways for the people');
+$mainImageElement = $dom->createElement('image');
+$imageUrl = $dom->createElement('url', $wgLogo);
+$imageCaption = $dom->createElement('title', 'WikiPathways');
+$imageLink = $dom->createElement('link', SITE_URL);
+$mainImageElement->appendChild($imageUrl);
+$mainImageElement->appendChild($imageCaption);
+$mainImageElement->appendChild($imageLink);
+
 $channel->appendChild($mainTitleElement);
 $channel->appendChild($mainLinkElement);
 $channel->appendChild($mainDescriptionElement);
+$channel->appendChild($mainImageElement);
 
 //Add items
 
@@ -72,6 +81,8 @@ $channel->appendChild($mainDescriptionElement);
    
    $printItem = false;
    foreach ($changedPathways["pathways"] as $p){
+		if(!$p->isReadable()) continue; //Skip private pathways
+		
       $mwtitle = $p->getTitleObject();
 
         $pageid = $mwtitle->getArticleID();
@@ -102,8 +113,6 @@ $channel->appendChild($mainDescriptionElement);
       $item->appendChild($itemLinkElement);
       $item->appendChild($itemPubDate);
 
-
-
       $mwtitle = $p->getTitleObject();
 	
 	$pageid = $mwtitle->getArticleID();
@@ -121,6 +130,7 @@ $channel->appendChild($mainDescriptionElement);
       $itemDescriptionElement = $dom->createElement('description', $edit_description);
       $item->appendChild($itemAuthorElement);
       $item->appendChild($itemDescriptionElement);
+
 }}
 echo $dom->saveXML();
 ?>
