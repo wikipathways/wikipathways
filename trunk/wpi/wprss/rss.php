@@ -1,6 +1,13 @@
 <?php
    require_once('../wpi.php');
    
+	function getThumb($pathway, $width = 200) {
+		$pathway->updateCache(FILETYPE_IMG);
+		$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
+		$img->loadFromFile();
+		return $img->getThumbnail( $width, -1 );
+	}
+	
    function getRecentChanges() {
         $dbr =& wfGetDB( DB_SLAVE );
         $forceclause = $dbr->useIndexClause("rc_timestamp");
@@ -27,6 +34,7 @@
                 try {
                                 $ts = $row['rc_title'];
                         $p = Pathway::newFromTitle($ts);
+                        $p->setActiveRevision($row['rc_this_oldid']);
                         if(!$p->getTitleObject()->isRedirect() && $p->isReadable()) {
                                 $objects[] = $p;
                         }
@@ -127,10 +135,21 @@ $channel->appendChild($mainImageElement);
       $latest_user = $latestRev->getUser();
       
       $itemAuthorElement = $dom->createElement('author', User::newFromId($latest_user)->getName());
-      $itemDescriptionElement = $dom->createElement('description', $edit_description);
+      
+      $itemDescriptionElement = $dom->createElement('description');
+      
+      $description = $edit_description;
+      //Add thumbnail to description
+        if(!$p->isDeleted()) {
+            $thumb = getThumb($p);
+            $url = SITE_URL . $thumb->getUrl();
+            $description = "<img src='${url}' align='left' border='0'> ${description}";
+        }
+        $descriptionCdata = $dom->createCDATASection($description);
+        $itemDescriptionElement->appendChild($descriptionCdata);
+        
       $item->appendChild($itemAuthorElement);
       $item->appendChild($itemDescriptionElement);
-
 }}
 echo $dom->saveXML();
 ?>
