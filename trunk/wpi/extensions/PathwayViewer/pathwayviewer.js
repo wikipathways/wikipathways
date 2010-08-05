@@ -617,6 +617,16 @@ GpmlModel.load = function(info){
         
         //Get the species
         gpml.species = gpml.$data.find('Pathway').attr('Organism');
+        
+        //Determine the translation factor from GPML to svg coordinates
+        var r = 1;
+        var gpmlNs = gpml.$data.find('Pathway').attr('xmlns');
+        var res = gpmlNs.match(/([0-9]{4})[a-z]{0,1}$/);
+        if(res) {
+            var ver = res[1];
+            if(ver < 2010) r = 1 / 15;
+        }
+        gpml.scale = r;
     }
     
     gpml.getHoverObject = function($svgObject, svg, e){
@@ -635,9 +645,8 @@ GpmlModel.load = function(info){
             y: (e.pageY - offset.top) / svg.currentScale - svg.currentTranslate.getY()
         }
         
-        //Translate coordinates from gpml to svg
-        r = 1 / 15;
-        
+        var r = gpml.scale;
+                
         for (var i in gpml.hoverObjects) {
             obj = gpml.hoverObjects[i];
             
