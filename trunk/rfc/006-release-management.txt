@@ -394,14 +394,14 @@ and: http://svnbook.red-bean.com/en/1.4/svn.branchmerge.copychanges.html
 This section lists the steps to take for a typical milestone release. Note that you have to replace some milestone and revision numbers.
 
 # Update version number in code:
-These files need to be updated:
+Only these files needs to be updated:
 
+pathvisio.iss
 build.xml
-GuiMain.java
 
 # Tag for WikiPathways code
-svn cp http://svn.bigcat.unimaas.nl/wikipathways/trunk http://svn.bigcat.unimaas.nl/wikipathways/branches/milestone_10.x
-svn cp http://svn.bigcat.unimaas.nl/wikipathways/branches/milestone_10.x http://svn.bigcat.unimaas.nl/wikipathways/tags/milestone_10.0
+svn cp http://svn.bigcat.unimaas.nl/wikipathways/trunk http://svn.bigcat.unimaas.nl/wikipathways/branches/milestone_23.x
+svn cp http://svn.bigcat.unimaas.nl/wikipathways/branches/milestone_23.x http://svn.bigcat.unimaas.nl/wikipathways/tags/milestone_23.0
 
 # Tag for PathVisio code
 svn cp http://svn.bigcat.unimaas.nl/pathvisio/trunk http://svn.bigcat.unimaas.nl/pathvisio/branches/milestone_10.x
@@ -457,11 +457,18 @@ ant install-wpi \
 	# Copy new / updated pages and messages
 	# Update news section (also add items to news archive page)
 	
-# Update the pathvisio webstart & tar
-	# Webstart must be compiled with Java 5. First make sure that you're on java 5
-	javac -version
-	java -version
+# (If needed): update biopax converter
 
+	cd ~/code/pvplugins-biopax3/
+	svn update
+	svn-clean
+	ant -Dpathvisio.dir=../pathvisio-release
+	cp Biopax3GPML.jar /var/www/wikipathways/wpi/bin
+
+	# clean cache of owl files, otherwise converter is not invoked
+	find /var/www/wikipathways-test -iname "*.owl" -exec rm -f '{}' \;
+
+# Update the pathvisio webstart & tar
 	# switch to the current release tag
 	# note that you must use a pure svn repository, not git-svn
 	
@@ -472,7 +479,7 @@ ant install-wpi \
 	# compile webstart and publish
 	# ant.properties should define the keystore.password property.
 	ant prepare-webstart -propertyfile ~/ant.properties -Ddebug.mode=false
-	scp -r webstart/www/* pathvisio@www.pathvisio.org:/home/pathvisio/webstart
+	scp -r webstart/www/* pathvisio@www.pathvisio.org:webstart
 	
 	# Update version no. on download page
 	go to http://pathvisio.org/Download
@@ -481,20 +488,27 @@ ant install-wpi \
 	Click on download link
 	Check revision no in about box
 	
-	# create tar.gz and publish
+	# create tar.gz 
 	ant tar -Ddebug.mode=false
-	scp release/pathvisio_[bs]* pathvisio@www.pathvisio.org:/home/pathvisio/data/releases
-	
-	# create tar.gz of webservice client library and publish
+	# create tar.gz of webservice client
 	ant tarbin-wpclient -Ddebug.mode=false -Dwsdl.url=http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl
-	scp release/wikipathways_client_* pathvisio@www.pathvisio.org:/home/pathvisio/data
+	
+	# make a release directory
+	ssh pathvisio@www.pathvisio.org
+	mkdir data/releases/<#.#.#>
+	rm data/releases/current
+	ln -s ~/data/releases/<#.#.#> data/releases/current
+	exit
+	
+	# publish both
+	scp release/* pathvisio@www.pathvisio.org:data/releases/<#.#.#>
 
 	# update front page and release notes
 	http://pathvisio.org/Release_Notes
 	http://pathvisio.org/PathVisio
 	
-	# newsletter has been sent out on milestones 16, 18
-	# send out newsletter on milestones 21, 24, 27, 30, 33
+	# newsletter has been sent out on milestones 16, 18, 22
+	# send out newsletter on milestones 25, 28, 31, 34
 	# On other milestones, send out a message to wikipathways-discuss
 	# Using the following template:
 
@@ -515,4 +529,4 @@ For details, see the roadmap[3] and the release notes[4]
 [1] http://www.wikipathways.org
 [2] http://pathvisio.org/wiki/PathVisioDownload
 [3] http://pathvisio.org/roadmap
-[4] http://pathvisio.org/Release_Notes 
+[4] http://pathvisio.org/wiki/ReleaseNotes
