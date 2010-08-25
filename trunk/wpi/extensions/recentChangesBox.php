@@ -79,6 +79,7 @@ class RecentChangesBox {
 			"SELECT rc_title, max(rc_timestamp) as rc_timestamp
 			FROM recentchanges
 			WHERE rc_namespace = {$this->namespace}
+			AND rc_deleted = '0'
 			GROUP BY rc_title
 			ORDER BY rc_timestamp DESC
 			LIMIT 0 , {$query_limit}"

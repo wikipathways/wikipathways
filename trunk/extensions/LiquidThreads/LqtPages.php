@@ -1050,10 +1050,18 @@ HTML
 		
 		// TODO: in theory, two fast-acting sysops could undo each others' work.
 		$is_deleted_already = $this->thread->type() == Threads::TYPE_DELETED;
+                $dbw = wfGetDB( DB_MASTER );
+                $ns = $this->thread->title()->getNamespace();
+                $t = $this->thread->title()->getDBkey();
+
 		if ( $is_deleted_already ) {
 			$this->thread->undelete($reason);
+			$dbw->update( 'recentchanges', array( 'rc_deleted' => '0' ),
+                                array( 'rc_namespace' => $ns, 'rc_title' => $t ), 'RecentChange::set_deleted');
 		} else {
 			$this->thread->delete($reason);
+			$dbw->update( 'recentchanges', array( 'rc_deleted' => '1' ),
+  				array( 'rc_namespace' => $ns, 'rc_title' => $t ), 'RecentChange::set_deleted');
 		}
 		$this->showSuccessMessage( $is_deleted_already );
 	}
