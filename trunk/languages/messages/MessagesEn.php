@@ -764,6 +764,7 @@ See [[Special:Version|version page]].',
 
 # Short words for each namespace, by default used in the namespace tab in monobook
 'nstab-main'      => 'Page',
+'nstab-pathway'   => 'Pathway',
 'nstab-user'      => 'User page',
 'nstab-media'     => 'Media page',
 'nstab-special'   => 'Special',
