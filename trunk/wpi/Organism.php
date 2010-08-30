@@ -35,8 +35,8 @@ class Organism {
 	 */
 	public static function register($latinName, $code) {
 		$org = new Organism();
-		$org->$latinName = $latinName;
-		$org->$code = $code;
+		$org->latinName = $latinName;
+		$org->code = $code;
 		self::$byLatinName[$latinName] = $org;
 		self::$byCode[$code] = $org;
 	}
