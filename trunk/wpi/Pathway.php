@@ -120,12 +120,12 @@ class Pathway {
 	 * revision. Set another revision number to retrieve older
 	 * versions of this pathway.
 	 */
-	public function setActiveRevision($revision) {
+	public function setActiveRevision($revision, $updateCache = true) {
 		if($this->revision != $revision) {
 			$this->revision = $revision;
 			$this->pwData = null; //Invalidate loaded pathway data
 			$this->pwCategories = null; //Invalidate category data
-			$this->updateCache(); //Make sure the cache for this revision is up to date	
+			if($updateCache) $this->updateCache(); //Make sure the cache for this revision is up to date	
 		}
 	}
 	

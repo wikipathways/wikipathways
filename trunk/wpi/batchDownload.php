@@ -263,7 +263,7 @@ class BatchDownloader {
 					$tag = new MetaTag($this->tag, $id);
 					$rev = $tag->getPageRevision();
 					if($rev) {
-						$p->setActiveRevision($rev);
+						$p->setActiveRevision($rev, false);
 					}
 					$filtered[$p->getIdentifier()] = $p;
 				}
