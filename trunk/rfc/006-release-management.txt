@@ -501,7 +501,7 @@ ant install-wpi \
 	exit
 	
 	# publish both
-	scp release/* pathvisio@www.pathvisio.org:data/releases/<#.#.#>
+	scp release/* pathvisio@www.pathvisio.org:data/releases/current
 
 	# update front page and release notes
 	http://pathvisio.org/Release_Notes
