@@ -179,6 +179,20 @@ $wgSVGConverters['inkscape'] = '$path/inkscape -z -b white -w $width -f $input -
 # Allow direct linking to external images (so we don't have to upload them to the wiki)
 $wgAllowExternalImages = true;
 
+# Ontology data
+
+# Ontologies in JSON format for use in the Javascript
+# Format : ["<Ontology Name>", <Ontology Id>, <Version Id>]
+$wgOntologiesJSON = '[' . '["Pathway Ontology","PW:0000001",1035,39997]' . ',' . '["Disease","DOID:4",1009,40256]' . ',' . '["Cell Type","CL:0000000",1006,40177]]';
+# Ontologies Array to be used in the PHP Code
+$wgOntologiesArray = json_decode($wgOntologiesJSON);
+# Email address for the User Identification parameter to be used while making REST calls to BioPortal
+$wgOntologiesBioPortalEmail =  "apico@gladstone.ucsf.edu";
+# Maximum number of search results returned while searching BioPortal
+$wgOntologiesBioPortalSearchHits =  12;
+# Time after which data in the cache is refreshed (in Seconds)
+$wgOntologiesExpiryTime = 60*60*24*7;
+
 ##Custom namespaces
 define("NS_PATHWAY", 102); //NS_PATHWAY is same as NS_GPML since refactoring
 define("NS_PATHWAY_TALK", 103);
@@ -316,6 +330,8 @@ require_once('wpi/extensions/PrivatePathways/ListPrivatePathways.php' );
 require_once('wpi/extensions/PrivatePathways/PrivateContributions.php' );
 require_once('wpi/extensions/recentChangesBox.php');
 require_once('wpi/extensions/pathwayBibliography.php');
+require_once('wpi/extensions/otag/otags_main.php');
+require_once('wpi/extensions/ontologyindex/ontologyindex.php');
 require_once('wpi/extensions/PathwayViewer/PathwayViewer.php');
 require_once('wpi/extensions/StubManager/StubManager.php');
 require_once('wpi/extensions/ParserFunctionsHelper/ParserFunctionsHelper.php');

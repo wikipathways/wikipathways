@@ -1,0 +1,103 @@
+#index_mode {
+    border:1px solid grey;
+    clear:both;
+    margin-bottom:10px;
+    margin-top:10px;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    width:400px;
+    cursor:pointer;
+}
+#container_left {
+    border:1px solid grey;
+    float:left;
+    padding:5px 15px 0;
+    width:200px;
+}
+#ontology_list li {
+    cursor:pointer;
+}
+#species_list li {
+    cursor:pointer;
+}
+#container_right {
+    margin-left:20px;
+    margin-right:auto;
+    padding:20px 0 10px 25px;
+    width:65%;
+    float:left
+}
+#treeDiv {
+    text-align:left;
+}
+#pathway_list_left {
+    float: left;
+    padding-right: 0.3em;
+    background: #fff;
+}
+#pathway_list_right {
+    float: right;
+    padding-left: 12em;
+    padding-right: 0.3em;
+    background: #fff;
+    text-align:left;
+}
+div.btns{
+	zoom:1;
+	white-space:nowrap;
+	clear:both;
+	margin-bottom:0px;
+	margin-left:auto;
+	margin-right:auto;
+	text-align:center;
+	width:250px;
+	cursor:pointer;
+}
+
+div.btns:after
+{
+	display:block;
+	clear:both;
+	content:'';
+}
+
+div.btns a.btn{
+	float:left;
+	background:buttonface url(border-2.gif) no-repeat;cursor:pointer;font-size:0;text-align:center;
+	text-align:center;
+	display:block;
+	_width:70px;
+	min-width:70px;
+	text-decoration:none;
+	margin:3px 2px;
+}
+
+div.btns a.btn:hover span{
+	
+	opacity:0.6;
+	filter:alpha(opacity:80);
+}
+
+div.btns a.btn span
+{
+	padding:3px 8px 4px 8px;
+	
+	text-align:center;
+	position:relative;
+	left:1px;top:1px;
+	display:block;
+	text-decoration:none;
+	background:url(border.gif) right bottom no-repeat;
+	font:small/1 Verdana;
+	color:#002BB8;
+	
+}
+
+/*
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
+*/
+.ygtvitem{}.ygtvitem table{margin-bottom:0;border:none;}.ygtvrow td{border:none;padding:0;}.ygtvrow td a{text-decoration:none;}.ygtvtn{width:18px;height:22px;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -5600px no-repeat;}.ygtvtm{width:18px;height:22px;cursor:pointer;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -4000px no-repeat;}.ygtvtmh,.ygtvtmhh{width:18px;height:22px;cursor:pointer;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -4800px no-repeat;}.ygtvtp{width:18px;height:22px;cursor:pointer;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -6400px no-repeat;}.ygtvtph,.ygtvtphh{width:18px;height:22px;cursor:pointer;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -7200px no-repeat;}.ygtvln{width:18px;height:22px;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -1600px no-repeat;}.ygtvlm{width:18px;height:22px;cursor:pointer;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 0px no-repeat;}.ygtvlmh,.ygtvlmhh{width:18px;height:22px;cursor:pointer;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -800px no-repeat;}.ygtvlp{width:18px;height:22px;cursor:pointer;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -2400px no-repeat;}.ygtvlph,.ygtvlphh{width:18px;height:22px;cursor:pointer;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -3200px no-repeat;}.ygtvloading{width:18px;height:22px;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-loading.gif) 0 0 no-repeat;}.ygtvdepthcell{width:18px;height:22px;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -8000px no-repeat;}.ygtvblankdepthcell{width:18px;height:22px;}.ygtvchildren{}* html .ygtvchildren{height:2%;}.ygtvlabel,.ygtvlabel:link,.ygtvlabel:visited,.ygtvlabel:hover{margin-left:2px;text-decoration:none;background-color:white;cursor:pointer;}.ygtvcontent{cursor:default;}.ygtvspacer{height:22px;width:12px;}.ygtvfocus{background-color:#c0e0e0;border:none;}.ygtvfocus .ygtvlabel,.ygtvfocus .ygtvlabel:link,.ygtvfocus .ygtvlabel:visited,.ygtvfocus .ygtvlabel:hover{background-color:#c0e0e0;}.ygtvfocus a,.ygtvrow td a{outline-style:none;}.ygtvok{width:18px;height:22px;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -8800px no-repeat;}.ygtvok:hover{background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -8844px no-repeat;}.ygtvcancel{width:18px;height:22px;background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -8822px no-repeat;}.ygtvcancel:hover{background:url(http://yui.yahooapis.com/2.7.0/build/treeview/assets/skins/sam/treeview-sprite.gif) 0 -8866px no-repeat;}.ygtv-label-editor{background-color:#f2f2f2;border:1px solid silver;position:absolute;display:none;overflow:hidden;margin:auto;z-index:9000;}.ygtv-edit-TextNode{width:190px;}.ygtv-edit-TextNode .ygtvcancel,.ygtv-edit-TextNode .ygtvok{border:none;}.ygtv-edit-TextNode .ygtv-button-container{float:right;}.ygtv-edit-TextNode .ygtv-input input{width:140px;}.ygtv-edit-DateNode .ygtvcancel{border:none;}.ygtv-edit-DateNode .ygtvok{display:none;}.ygtv-edit-DateNode .ygtv-button-container{text-align:right;margin:auto;}

@@ -54,6 +54,10 @@ $operations = array(
 	"findInteractions",
 	"getXrefList",
 	"findPathwaysByLiterature",
+    "getOntologyTermsByPathway",
+    "getOntologyTermsByOntology",
+    "getPathwaysByOntologyTerm",
+    "getPathwaysByParentOntologyTerm"
 );
 $opParams = array(
 	"listOrganisms" => "MIXED",
@@ -77,6 +81,10 @@ $opParams = array(
 	"findInteractions" => "MIXED",
 	"getXrefList" => "MIXED",
 	"findPathwaysByLiterature" => "MIXED",
+    "getOntologyTermsByPathway" => "MIXED",
+    "getOntologyTermsByOntology" => "MIXED",
+    "getPathwaysByOntologyTerm" => "MIXED",
+    "getPathwaysByParentOntologyTerm" => "MIXED"
 );
 
 $classmap = array(); //just let the engine know you prefer classmap mode
@@ -110,6 +118,39 @@ $restmap = array(
 		"HTTPMethod" =>"GET",
 		"RESTLocation" => "findInteractions"
 	),
+<<<<<<< .working
+	"findPathwaysByLiterature" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "findPathwaysByLiterature"
+	),
+	"getXrefList" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getXrefList"
+	),
+	"getPathwayHistory" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getPathwayHistory"
+	),
+	"getRecentChanges" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getRecentChanges"
+	),
+	"getOntologyTermsByPathway" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getOntologyTermsByPathway"
+	),
+	"getOntologyTermsByOntology" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getOntologyTermsByOntology"
+	),
+	"getPathwaysByOntologyTerm" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getPathwaysByOntologyTerm"
+	),
+	"getPathwaysByParentOntologyTerm" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getPathwaysByParentOntologyTerm"
+	)
 	"findPathwaysByLiterature" => array(
 		"HTTPMethod" =>"GET",
 		"RESTLocation" => "findPathwaysByLiterature"
@@ -706,6 +747,125 @@ function authenticate($username, $token, $write = false) {
 	}
 }
 
+/**
+ * Get a list of ontology terms for a given pathway
+ * @param string $pwId The pathway identifier
+ * @return array of object WSOntologyTerm $terms The ontology terms
+ **/
+function getOntologyTermsByPathway($pwId) {
+      try {
+              $pw = new Pathway($pwId);
+              $terms = array();
+              $dbr = wfGetDB( DB_SLAVE );
+              $res = $dbr->select(
+                      'ontology',
+                      array('*'),
+                      array('pw_id = ' . $dbr->addQuotes($pwId))
+              );
+
+              $terms = array();
+              $count = 0;
+              while($row = $dbr->fetchObject( $res )) {
+                      $term = new WSOntologyTerm();
+                      $term->id = $row->term_id;
+                      $term->name = $row->term;
+                      $term->ontology = $row->ontology;
+                      $terms[] = $term;
+                      $count++;
+              }
+              $dbr->freeResult( $res );
+
+              $termObjects = array();
+  } catch(Exception $e) {
+              throw new WSFault("Receiver", "Unable to get ontology
+terms: " . $e);
+      }
+  return array("terms" => $terms);
+}
+
+/**
+ * Get a list of ontology terms from a given ontology
+ * @param string $ontology The Ontology name
+ * @return array of object WSOntologyTerm $terms The ontology terms 
+ **/
+function getOntologyTermsByOntology($ontology) {
+      try {
+              $terms = array();
+              $dbr = wfGetDB( DB_SLAVE );
+              $res = $dbr->select(
+                      'ontology',
+                      array('*'),
+                      array('ontology = ' . $dbr->addQuotes($ontology))
+              );
+
+              $terms = array();
+              $count = 0;
+              while($row = $dbr->fetchObject( $res )) {
+                      $term = new WSOntologyTerm();
+                      $term->id = $row->term_id;
+                      $term->name = $row->term;
+                      $term->ontology = $row->ontology;
+                      $terms[] = $term;
+                      $count++;
+              }
+              $dbr->freeResult( $res );
+
+              $termObjects = array();
+  } catch(Exception $e) {
+              throw new WSFault("Receiver", "Unable to get ontology
+terms: " . $e);
+      }
+  return array("terms" => $terms);
+}
+
+/**
+ * Get a list of pathways tagged with a given ontology term
+ * @param string $term The Ontology term
+ * @return array of object WSPathwayInfo $pathways Array of pathway info objects
+ **/
+function getPathwaysByOntologyTerm($term) {
+      try {
+              $dbr = wfGetDB( DB_SLAVE );
+              $res = $dbr->select(
+                      'ontology',
+                      array('*'),
+                      array('term_id = ' . $dbr->addQuotes($term))
+              );
+              $objects = array();
+              while($row = $dbr->fetchObject( $res )) {
+                    $pathway = Pathway::newFromTitle($row->pw_id);
+                    $objects[] = new WSPathwayInfo($pathway);
+              }
+              $dbr->freeResult( $res );
+  } catch(Exception $e) {
+              throw new WSFault("Receiver", "Unable to get Pathways: " . $e);
+      }
+      return array("pathways" => $objects);
+}
+
+/**
+ * Get a list of pathways tagged with a ontology term which is the child of the given Ontology term
+ * @param string $term The Ontology term
+ * @return array of object WSPathwayInfo $pathways Array of pathway info objects
+ **/
+function getPathwaysByParentOntologyTerm($term) {
+      try {
+              $term = mysql_escape_string($term);
+              $dbr = wfGetDB( DB_SLAVE );
+              $query = "SELECT * FROM `ontology` " . "WHERE `term_path` LIKE '%$term%' ";
+              $res = $dbr->query($query);
+              $objects = array();
+              while($row = $dbr->fetchObject( $res )) {
+                    $pathway = Pathway::newFromTitle($row->pw_id);
+                    $objects[] = new WSPathwayInfo($pathway);
+              }
+              $dbr->freeResult( $res );
+  } catch(Exception $e) {
+              throw new WSFault("Receiver", "Unable to get Pathways: " . $e);
+      }
+      return array("pathways" => $objects);
+}
+
 function formatXml($xml) {
 	if(is_array($xml)) {
 		return array_map(htmlentities, $xml);
@@ -980,4 +1140,26 @@ class WSCurationTagHistory {
 	 */
 	public $time;
 }
+
+
+ /**
+ * @namespace http://www.wikipathways.org/webservice
+ */
+ class WSOntologyTerm {
+
+      /**
+       * @var string $ontology - the ontology to which the term belongs
+       */
+      public $ontology;
+      /**
+       * @var string $id - the ontology term identifier
+       */
+      public $id;
+
+       /**
+       * @var string $name - the ontology term name
+       */
+      public $name;
+ }
+
 ?>
