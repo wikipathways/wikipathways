@@ -118,7 +118,6 @@ $restmap = array(
 		"HTTPMethod" =>"GET",
 		"RESTLocation" => "findInteractions"
 	),
-<<<<<<< .working
 	"findPathwaysByLiterature" => array(
 		"HTTPMethod" =>"GET",
 		"RESTLocation" => "findPathwaysByLiterature"
@@ -150,7 +149,7 @@ $restmap = array(
 	"getPathwaysByParentOntologyTerm" => array(
 		"HTTPMethod" =>"GET",
 		"RESTLocation" => "getPathwaysByParentOntologyTerm"
-	)
+	),
 	"findPathwaysByLiterature" => array(
 		"HTTPMethod" =>"GET",
 		"RESTLocation" => "findPathwaysByLiterature"
