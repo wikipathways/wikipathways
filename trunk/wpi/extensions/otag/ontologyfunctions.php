@@ -45,7 +45,16 @@ class ontologyfunctions
         $namespaces = $entry->getNameSpaces(true);
         $bp = $entry->children($namespaces['bp']);
 
-        $node = $xml->Biopax->addChild("bp:openControlledVocabulary","","http://www.biopax.org/release/biopax-level2.owl#");
+				$ns = "http://www.biopax.org/release/biopax-level3.owl#";
+				
+				$gpmlVersion = $xml->getNamespaces(false);
+				$gpmlVersion = $gpmlVersion[''];
+				if(preg_match("@http://genmapp.org/GPML/([0-9]{4})@", $gpmlVersion, $res)) {
+					if($res[1] < 2010) {
+						$ns = "http://www.biopax.org/release/biopax-level2.owl#";
+					}				
+				}
+        $node = $xml->Biopax->addChild("bp:openControlledVocabulary","",$ns);
         $node->addChild("TERM",$tag);
         $node->addChild("ID",$tagId);
         $node->addChild("Ontology",$ontology);
