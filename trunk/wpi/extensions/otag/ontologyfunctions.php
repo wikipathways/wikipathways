@@ -15,7 +15,10 @@ class ontologyfunctions
         $namespaces = $entry->getNameSpaces(true);
         $bp = $entry->children($namespaces['bp']);
 
-        for($i=0; $i<count($bp->openControlledVocabulary); $i++)
+				$level = self::getBiopaxLevel($xml);
+				$voc = self::getControlledVocabularyElement($level);
+				
+        for($i=0; $i<count($bp->$voc); $i++)
             {
                 if($bp->openControlledVocabulary[$i]->ID == $tagId)
                     unset($bp->openControlledVocabulary[$i]);
@@ -29,13 +32,46 @@ class ontologyfunctions
         echo "SUCCESS";
     }
 
+		private static function getBiopaxLevel($xml) {
+			$level = 3;
+			
+			$gpmlVersion = $xml->getNamespaces(false);
+			$gpmlVersion = $gpmlVersion[''];
+			if(preg_match("@http://genmapp.org/GPML/([0-9]{4})@", $gpmlVersion, $res)) {
+				if($res[1] < 2010) {
+					$level = 2;
+				}				
+			}
+			return $level;
+		}
+		
+		private static function getControlledVocabularyElement($level) {
+			switch($level) {
+			case '2':
+				return "bp:openControlledVocabulary";
+			case '3':
+			default:
+				return "bp:ControlledVocabulary";
+			}
+		}
+
+		private static function getBiopaxNS($level) {
+			switch($level) {
+			case '2':
+				return "http://www.biopax.org/release/biopax-level2.owl#";
+			case '3':
+			default:
+				return "http://www.biopax.org/release/biopax-level3.owl#";
+			}
+		}
+		
     public static function addOntologyTag($tagId, $tag, $pwTitle)
     {
         $comment = "Ontology Term : '$tag' added !";
         $pathway = Pathway::newFromTitle($pwTitle);
         $ontology = ontologyfunctions::getOntologyName($tagId);
         $path = ontologyfunctions::getOntologyTagPath($tagId);
-		$gpml = $pathway->getGpml();
+				$gpml = $pathway->getGpml();
         $xml = simplexml_load_string($gpml);
 
         if(!isset($xml->Biopax[0]))
@@ -45,16 +81,11 @@ class ontologyfunctions
         $namespaces = $entry->getNameSpaces(true);
         $bp = $entry->children($namespaces['bp']);
 
-				$ns = "http://www.biopax.org/release/biopax-level3.owl#";
+				$level = self::getBiopaxLevel($xml);
+				$ns = self::getBiopaxNS($level);
+				$voc = self::getControlledVocabularyElement($level);
 				
-				$gpmlVersion = $xml->getNamespaces(false);
-				$gpmlVersion = $gpmlVersion[''];
-				if(preg_match("@http://genmapp.org/GPML/([0-9]{4})@", $gpmlVersion, $res)) {
-					if($res[1] < 2010) {
-						$ns = "http://www.biopax.org/release/biopax-level2.owl#";
-					}				
-				}
-        $node = $xml->Biopax->addChild("bp:openControlledVocabulary","",$ns);
+        $node = $xml->Biopax->addChild($voc,"",$ns);
         $node->addChild("TERM",$tag);
         $node->addChild("ID",$tagId);
         $node->addChild("Ontology",$ontology);
