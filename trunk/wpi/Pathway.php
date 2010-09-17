@@ -120,7 +120,7 @@ class Pathway {
 	 * revision. Set another revision number to retrieve older
 	 * versions of this pathway.
 	 */
-	public function setActiveRevision($revision, $updateCache = true) {
+	public function setActiveRevision($revision, $updateCache = false) {
 		if($this->revision != $revision) {
 			$this->revision = $revision;
 			$this->pwData = null; //Invalidate loaded pathway data
@@ -762,8 +762,6 @@ class Pathway {
 			$this->invalidateMetaDataCache();
 			//Update category links
 			$this->updateCategories();
-			//Update file cache
-			$this->updateCache();
 		} else {
 			throw new Exception("Unable to save GPML, are you logged in?");
 		}
