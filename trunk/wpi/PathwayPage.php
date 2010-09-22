@@ -152,12 +152,14 @@ TEXT;
 	}
 	
 
-        function ontologyTags() {
-        $otags = "== Ontology Tags ==\n" .
-               "<OntologyTags></OntologyTags>";
-               return $otags;
-
-       }
+	function ontologyTags() {
+		global $wpiEnableOtag;
+		if($wpiEnableOtag) {
+			$otags = "== Ontology Tags ==\n" .
+				"<OntologyTags></OntologyTags>";
+			return $otags;
+		}
+	}
 
 
 	function bibliographyText() {
