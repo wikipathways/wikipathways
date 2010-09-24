@@ -239,7 +239,28 @@ class PathwayIndex {
 		}
 		return IndexClient::query($query);
 	}
-	
+
+	/**
+	 * Searches Pathway title
+	 * @parameter $query The query (e.g. 'apoptosis')
+	 * @parameter $organism Optional, specify organism name to limit search by organism.
+	 * Leave empty to search on all organisms.
+	 * @return An array with the results as PathwayDocument objects
+	 **/
+	public static function searchByTitle($query, $organism = false) {
+		$query = self::queryToAllFields(
+			$query,
+			array(
+				self::$f_name,
+			)
+		);
+
+		if($organism) {
+			$query = "($query) AND " . self::$f_organism . ":\"$organism\"";
+		}
+		return IndexClient::query($query);
+	}
+        
 	/**
 	 * Searches on literature fields:
 	 * literature.pubmed, literature.author, literature.title

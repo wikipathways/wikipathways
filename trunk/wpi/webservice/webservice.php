@@ -2,6 +2,7 @@
 chdir(dirname(realpath(__FILE__)) . "/../");
 require_once('wpi.php');
 require_once('search.php');
+require_once('relations.php');
 chdir($dir);
 
 ## Log the request ##
@@ -57,7 +58,8 @@ $operations = array(
     "getOntologyTermsByPathway",
     "getOntologyTermsByOntology",
     "getPathwaysByOntologyTerm",
-    "getPathwaysByParentOntologyTerm"
+    "getPathwaysByParentOntologyTerm",
+    "getRelations"
 );
 $opParams = array(
 	"listOrganisms" => "MIXED",
@@ -84,7 +86,8 @@ $opParams = array(
     "getOntologyTermsByPathway" => "MIXED",
     "getOntologyTermsByOntology" => "MIXED",
     "getPathwaysByOntologyTerm" => "MIXED",
-    "getPathwaysByParentOntologyTerm" => "MIXED"
+    "getPathwaysByParentOntologyTerm" => "MIXED",
+    "getRelations" => "MIXED"
 );
 
 $classmap = array(); //just let the engine know you prefer classmap mode
@@ -150,22 +153,10 @@ $restmap = array(
 		"HTTPMethod" =>"GET",
 		"RESTLocation" => "getPathwaysByParentOntologyTerm"
 	),
-	"findPathwaysByLiterature" => array(
+	"getRelations" => array(
 		"HTTPMethod" =>"GET",
-		"RESTLocation" => "findPathwaysByLiterature"
-	),
-	"getXrefList" => array(
-		"HTTPMethod" =>"GET",
-		"RESTLocation" => "getXrefList"
-	),
-	"getPathwayHistory" => array(
-		"HTTPMethod" =>"GET",
-		"RESTLocation" => "getPathwayHistory"
-	),
-	"getRecentChanges" => array(
-		"HTTPMethod" =>"GET",
-		"RESTLocation" => "getRecentChanges"
-	),
+		"RESTLocation" => "getRelations"
+	)
 );
 
 $svr = new WSService(array(
@@ -723,6 +714,35 @@ function getColoredPathway($pwId, $revision, $graphId, $color, $fileType) {
 	return array("data" => $data);
 }
 
+/**
+ * Get the relations for the given pathways.
+ * @param string $type The type of relation for the score has to be fetched (optional).
+ * @param string $pwId_1 The id of the Pathway for the relation has to be fetched (optional).
+ * @param string $pwId_2 The id of the second Pathway for the relation has to be fetched (optional).
+ * @param float $minScore The minimum score for which the relations are fetched (optional).
+ * @param string $species Limit the query by species.
+ * @param string $species Limit the query by species.
+ * @return array of object WSRelation $relations The Relations
+ **/
+function getRelations($type = "", $pwId_1 = "", $pwId_2 = "", $minScore = 0, $species = "") {
+
+        try{
+            $relations = array();
+            $relations = Relations::fetchRelations($type, $pwId_1, $pwId_2, $minScore, $species);
+
+            $wsRelations = array();
+            foreach($relations as $relation) {
+                    $wsRelation = new WSRelation($relation);
+                    $wsRelations[] = $wsRelation;
+            }
+            return array("relations" => $wsRelations);
+            
+	} catch(Exception $e) {
+		wfDebug(__METHOD__ . " (ERROR): $e\n");
+		throw new WSFault("Receiver", $e);
+	}
+}
+
 //Non ws functions
 function authenticate($username, $token, $write = false) {
 	global $wgUser, $wgAuth;
@@ -1140,7 +1160,6 @@ class WSCurationTagHistory {
 	public $time;
 }
 
-
  /**
  * @namespace http://www.wikipathways.org/webservice
  */
@@ -1160,5 +1179,46 @@ class WSCurationTagHistory {
        */
       public $name;
  }
+
+ /**
+ * @namespace http://www.wikipathways.org/webservice
+ */
+ class WSRelation {
+
+	public function __construct($result) {
+                if($result->pwId_1) {
+                    $this->pathway1 = new WSPathwayInfo(
+                            Pathway::newFromTitle($result->pwId_1)
+                    );
+		}
+                if($result->pwId_2) {
+                    $this->pathway2 = new WSPathwayInfo(
+                            Pathway::newFromTitle($result->pwId_2)
+                    );
+		}
+                $this->type = $result->type;
+                $this->score = (float)$result->score;
+	}
+
+	/**
+	 * @var object WSPathwayInfo $pathway1 for the first pathway
+	 */
+	public $pathway1;
+
+	/**
+	 * @var object WSPathwayInfo $pathway2 for the second pathway
+	 */
+	public $pathway2;
+
+	/**
+	 *@var string $type The type of the relation
+	 */
+	public $type;
+
+	/**
+	 *@var float $score The degree of relativeness(score) between the pair of pathways
+	 */
+	public $score;
+}
 
 ?>
