@@ -235,20 +235,15 @@ class WikiPathwaysTemplate extends QuickTemplate {
         <div id="p-search" class="portlet">
                 <h5><label for="searchInput">search</label></h5>
                 <div id="googleSearch" class="pBody">
-<!-- Google CSE Search Box Begins -->
-  <form id="searchbox_cref" action="http://www.wikipathways.org/index.php/WikiPathways:GoogleSearch">
-    <table BORDER=0 CELLSPACING=0 CELLPADDING=0 >
-    <tr><td>
-    <input type="hidden" name="cref" value="http://www.wikipathways.org/wp_cse_context.xml" />
-    <input type="hidden" value="011541552088579423722:rset6ep3k64" name="cx">
-    <input type="hidden" name="cof" value="FORID:11" />
-    <input type="hidden" name="filter" value="0" /> <!--set filter=0 to disable omitting similiar hits-->
-    <input class="searchboxBgImage" name="q" type="text" size="14%" value="" />
-    </td></tr>
-    </table>
-</form>
-<script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=searchbox_cref"></script>
-<!-- Google CSE Search Box Ends -->
+		<form id="searchbox_cref" action="http://test.wikipathways.org/index.php/Special:SearchPathways">
+		<table  BORDER=0 CELLSPACING=0 CELLPADDING=0>
+		<tr>
+		<td>
+		<input class="searchboxBgImage" name="query" type="text" size="14%" value="" />
+		<input type='hidden' name='doSearch' value='1'>
+		</td>
+		</tr>
+		</table></form>
                 </div>
         </div>
 
