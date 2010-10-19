@@ -70,12 +70,19 @@ class SearchPathways extends SpecialPage
         function showResults($query, $species = '', $ids = '', $codes = '', $type) {
                 global $wgRequest, $wgOut, $wpiScriptURL;
 
-		$client = new
-		SoapClient('http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl');
+		$client = new SoapClient('http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl');
 
-		//$results = $client->findPathwaysByText(array('query'=>$query, 'species'=>$species));
-		$results = array('WP1487', 'WP554', 'WP1435', 'WP78');
-		foreach ($results as $pwid){
+		$results = $client->findPathwaysByText(array('query'=>$query, 'species'=>$species));
+		if(!$results->result){
+			$wgOut->addHTML("</br>No Results");
+			return;
+		}
+		//print_r($results);
+		foreach ($results->result as $resObj){
+			if (!is_array($results->result))
+				$pwid = $results->result->id;
+			else 
+				$pwid = $resObj->id;
 		   	$pathway = new Pathway($pwid);
 			$name = $pathway->name();
 			$species = $pathway->getSpecies();
@@ -91,20 +98,14 @@ class SearchPathways extends SpecialPage
            	}
                 if(count($pwArray)>0)
                 {
-                        $resultArray = "<table cellspacing='5' cellpadding='5'><tbody>";
+                        $resultArray = "<table cellspacing='5' cellpadding='5'><tbody><td>";
 			$count = 1;
                         foreach($pwArray as $url=>$pwTitle)
                         {
                             $pwTitle = substr($pwTitle, strpos($pwTitle,"|-|")+ 3);
-                            if($count%3 == 0)
-                                $resultArray .= "<td>$pwTitle</span></td></tr>";
-			    else if($count%2 == 0)
-				$resultArray .= "<td>$pwTitle</td>";
-                            else
-                                $resultArray .= "<tr valign='bottom'><td align='left'>$pwTitle</td>";
-                            $count++;
+			    $resultArray .= "<div style='float:left; vertical-align:bottom;width:220px;height:350px'>$pwTitle</div>";
                         }
-                        $resultArray .= "</tbody></table>";
+                        $resultArray .= "</td></tbody></table>";
                	}
 
 	  	$wgOut->addHTML("$resultArray");
