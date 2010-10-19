@@ -183,7 +183,7 @@ $wgAllowExternalImages = true;
 
 # Ontologies in JSON format for use in the Javascript
 # Format : ["<Ontology Name>", <Ontology Id>, <Version Id>]
-$wgOntologiesJSON = '[' . '["Pathway Ontology","PW:0000001",1035,39997]' . ',' . '["Disease","DOID:4",1009,40256]' . ',' . '["Cell Type","CL:0000000",1006,40177]]';
+$wgOntologiesJSON = '[' . '["Pathway Ontology","PW:0000001",1035,42912]' . ',' . '["Disease","DOID:4",1009,44546]' . ',' . '["Cell Type","CL:0000000",1006,44324]]';
 # Ontologies Array to be used in the PHP Code
 $wgOntologiesArray = json_decode($wgOntologiesJSON);
 # Email address for the User Identification parameter to be used while making REST calls to BioPortal
@@ -293,7 +293,8 @@ require_once('wpi/extensions/DynamicPageList2.php');
 require_once('wpi/extensions/LabeledSectionTransclusion/compat.php');
 require_once('wpi/extensions/LabeledSectionTransclusion/lst.php');
 require_once('wpi/extensions/LabeledSectionTransclusion/lsth.php');
-require_once('wpi/extensions/googleSearch.php');
+require_once('wpi/extensions/SearchPathways/SearchPathways.php');
+require_once('wpi/extensions/SearchPathways/searchPathwaysBox.php');
 require_once('wpi/extensions/button.php');
 require_once('wpi/extensions/pathwayThumb.php');
 require_once('wpi/extensions/imageLink.php');
