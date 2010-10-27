@@ -131,7 +131,7 @@ function generateContent($species) {
 }
 
 function processPathways($species, $fh, $datasourceList) { 
-        global $outputFormat, $cacheFile;
+        global $outputFormat, $cacheFile, $mappingPref;
 
 	$pathwayList = Pathway::getAllPathways($species);
 
