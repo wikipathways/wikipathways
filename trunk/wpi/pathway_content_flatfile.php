@@ -214,7 +214,7 @@ function processPathways($species, $fh, $datasourceList) {
 				$code = DataSource::getCode($s);
 
 				## id mapping = off
-				if($mappingPref = 'off'){
+				if($mappingPref == 'off'){
 		                        try
                		         	{
                        		         $xrefs = $pathway->getUniqueXrefs();
