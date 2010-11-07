@@ -18,12 +18,12 @@ class SearchPathways extends SpecialPage
 		$query = $_GET['query'];
 		$species = $_GET['species'];
                 $ids = $_GET['ids'];
-		$code = $_GET['code'];
+		$codes = $_GET['codes'];
 		$type = $_GET['type'];
 		
 		// SET DEFAULTS
-		if (!$query || $query =='') $query = 'glucose';
 		if (!$type || $type == '') $type = 'query';
+                if ((!$query || $query =='') && $type == 'query') $query = 'glucose';
 		if ($species == 'ALL SPECIES') $species = '';
 	
 		if($_GET['doSearch'] == '1') { //Submit button pressed
@@ -43,10 +43,10 @@ class SearchPathways extends SpecialPage
                 $search_form =" <FORM action='$this->this_url' method='get'>
 				<table cellspacing='7'><tr valign='middle'><td>"
 				//<input type='radio' name='type' value='query' CHECKED>Keywords
-				//<input type='radio' name='type' value='ids'>Identifiers
+				//<input type='radio' name='type' value='xref'>Identifiers
 				//<tr><td>
 				."Search for:
-                                <input type='text' name='$type' value='$query'>
+                                <input type='text' name='$type' value='$query' size='25'>
 				</td><td><select name='species'>";
                 $allSpecies = Pathway::getAvailableSpecies();
 		$search_form .= "<option value='ALL SPECIES'" . ($species == '' ? ' SELECTED' : ''). ">ALL SPECIES";
@@ -57,7 +57,7 @@ class SearchPathways extends SpecialPage
                 $search_form .= "<input type='hidden' name='title' value='Special:SearchPathways'>
 				<input type='hidden' name='doSearch' value='1'>
 				</td><td><input type='submit' value='Search'></td></tr> 
-				<tr valign='top'><td colspan='3'><font size='-3'><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tip: use AND, OR, *, ?, parentheses or quotes</i></font></td></tr>
+				<tr valign='top'><td colspan='3'><font size='-3'><i>&nbsp;&nbsp;&nbsp;Tip: use AND, OR, *, ?, parentheses or quotes</i></font></td></tr>
 				</table></FORM><BR>";
 
 	        $wgOut->addHTML("
@@ -70,14 +70,25 @@ class SearchPathways extends SpecialPage
         function showResults($query, $species = '', $ids = '', $codes = '', $type) {
                 global $wgRequest, $wgOut, $wpiScriptURL;
 
-		$client = new SoapClient('http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl');
+                $client = new SoapClient('http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl');
+		$results;
 
-		$results = $client->findPathwaysByText(array('query'=>$query, 'species'=>$species));
-		if(!$results->result){
-			$wgOut->addHTML("</br>No Results");
-			return;
+		if($type == 'query'){
+			$results = $client->findPathwaysByText(array('query'=>$query, 'species'=>$species));
+		} elseif ($type == 'xref'){
+			$results = $client->findPathwaysByXref(array('ids'=>$ids, 'codes'=>$codes));
 		}
+
+                if(!$results->result){
+                        $wgOut->addHTML("<b>No Results</b>");
+                        return;
+                }
 		//print_r($results);
+
+		$count = count($results->result);	
+		$wgOut->addHTML("<b>$count pathways found</b>");
+
+		$maxheight = 0;
 		foreach ($results->result as $resObj){
 			if (!is_array($results->result))
 				$pwid = $results->result->id;
@@ -86,15 +97,14 @@ class SearchPathways extends SpecialPage
 		   	$pathway = new Pathway($pwid);
 			$name = $pathway->name();
 			$species = $pathway->getSpecies();
-    			$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
     			$href = $pathway->getFullUrl();
-        		$caption = "<a href=\"$href\">$species:$name</a>";
-        		$caption = html_entity_decode($caption);         //This can be quite dangerous (injection),
-                                                            //we would rather parse wikitext, let me know if
-                                                            //you know a way to do that (TK)
+        		$caption = "<a href=\"$href\">$name ($species)</a>";
+        		$caption = html_entity_decode($caption);         //This can be quite dangerous (injection)
     			$output = $this->makeThumbNail($pathway, $caption, $href, '', 'left', 'thumb', 200);
-
                         $pwArray[$href] = strtoupper(substr($name,0,1)) . substr($name,1) . " |-| " . $output;
+			preg_match('/height="(\d+)"/', $output, $matches);
+			$height = $matches[1] + 60;
+			if ($height > $maxheight) $maxheight = $height;
            	}
                 if(count($pwArray)>0)
                 {
@@ -103,7 +113,7 @@ class SearchPathways extends SpecialPage
                         foreach($pwArray as $url=>$pwTitle)
                         {
                             $pwTitle = substr($pwTitle, strpos($pwTitle,"|-|")+ 3);
-			    $resultArray .= "<div style='float:left; vertical-align:bottom;width:220px;height:350px'>$pwTitle</div>";
+			    $resultArray .= "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
                         }
                         $resultArray .= "</td></tbody></table>";
                	}
@@ -114,12 +124,17 @@ class SearchPathways extends SpecialPage
 	function makeThumbNail( $pathway, $label = '', $href = '', $alt, $align = 'right', $id = 'thumb', $boxwidth = 300, $boxheight=false, $framed=false ) {
             global $wgStylePath, $wgContLang;
 
-                        $pathway->updateCache(FILETYPE_IMG);
-            $img = new Image($pathway->getFileTitle(FILETYPE_IMG));
-
-            $img->loadFromFile();
-
-            $imgURL = $img->getURL();
+	try {
+            	$pathway->updateCache(FILETYPE_IMG);
+	        $img = new Image($pathway->getFileTitle(FILETYPE_IMG));
+        	$img->loadFromFile();
+              	$imgURL = $img->getURL();
+	} catch (Exception $e) {
+		$blank = "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width:200px;\">";
+		$blank .= "Image does not exist";
+		$blank .= '  <div class="thumbcaption" style="text-align:right">'.$label."</div></div></div>";
+            	return str_replace("\n", ' ', $blank);
+	}	
 
             $thumbUrl = '';
             $error = '';
