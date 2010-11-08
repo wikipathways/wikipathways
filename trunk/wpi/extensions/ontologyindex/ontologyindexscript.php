@@ -1,6 +1,6 @@
 <?php
 
-include('../otag/ontologyfunctions.php');
+require_once('../otag/OntologyFunctions.php');
 
 $ontology_id = $_GET['ontology_id'];
 $concept_id = $_GET['concept_id'];
@@ -35,6 +35,7 @@ function fetchPathwayList($imageMode)
                 {
                     $pathways = Pathway::getAllPathways();
 
+		    $maxheight = 0;
                     foreach($pathways as $p) {
                         if($p->isDeleted()) continue;
                         if($p->getSpecies() != $_GET['species']  && $_GET['species'] != "All Species")
@@ -56,21 +57,32 @@ function fetchPathwayList($imageMode)
                         $pwName = $p->name();
                         $pwUrl = "<a href='" . $p->getFullUrl() . "' >" . $pwName . "</a>";
                         $display = ($imageMode)?process($p->getTitleObject()->getDbKey(), $pwUrl):$pwUrl;
+			if($imageMode) {
+				preg_match('/height="(\d+)"/', $display, $matches);
+				$height = $matches[1] + 60;
+                        	if ($height > $maxheight) $maxheight = $height;
+			}
                         $pwArray[$p->getFullUrl()] = strtoupper(substr($pwName,0,1)) . substr($pwName,1) . " |-| " . $display;
                     }
                     if(count($pwArray)>0)
                     {
                         asort($pwArray,SORT_STRING);
-                        echo '<table width="100%"><tbody>';
+                        echo '<table width="100%" ><tbody>';
+			if ($imageMode) echo '<td>';
                         foreach($pwArray as $url=>$pwTitle)
                         {
                             $pwTitle = substr($pwTitle, strpos($pwTitle,"|-|")+ 3);
+			    if ($imageMode){
+			    	echo "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
+			    } else {
                             if($count%2 == 0)
                                 echo "<tr><td>$pwTitle</span></td>";
                             else
                                 echo "<td align='left'>$pwTitle</td></tr>";
                             $count++;
+			    }
                         }
+			if ($imageMode) echo '</td>';
                         echo "</tbody></table>";
                     }
                     break;
@@ -96,8 +108,8 @@ function fetchPathwayList($imageMode)
                     {
                         $pathwayArray[$row->title] = $row->value;
                     }
-                    arsort($pathwayArray);
-                    echo '<table width="100%"><tbody>';
+
+		    $maxheight = 0;
                     foreach($pathwayArray as $title=>$value )
                     {
                         $p = Pathway::newFromTitle($title);
@@ -118,17 +130,33 @@ function fetchPathwayList($imageMode)
                         }
                         $pwUrl = "<a href='{$p->getFullUrl()}'>{$p->name()}</a><br /> (" . $value ." Revisions)";
                         $display = ($imageMode)?process($title, $pwUrl):$pwUrl;
-                        if($count%2 == 0)
-                        {
-                            echo "<tr><td>$display</td>";;
+                        if($imageMode) {
+                                preg_match('/height="(\d+)"/', $display, $matches);
+                                $height = $matches[1] + 60;
+                                if ($height > $maxheight) $maxheight = $height;
                         }
-                        else
+			$pwArray[$p->getFullUrl()] = $display;
+		    }
+                    if(count($pwArray)>0)
+                    {
+                        asort($pwArray,SORT_STRING);
+                        echo '<table width="100%" ><tbody>';
+                        if ($imageMode) echo '<td>';
+                        foreach($pwArray as $url=>$pwTitle)
                         {
-                            echo "<td>$display</td></tr>";;
+                            if ($imageMode){
+                                echo "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
+                            } else {
+                            if($count%2 == 0)
+                                echo "<tr><td>$pwTitle</span></td>";
+                            else
+                                echo "<td align='left'>$pwTitle</td></tr>";
+                            $count++;
+                            }
                         }
-                        $count++;
+                        if ($imageMode) echo '</td>';
+                    	echo "</tbody></table>"; 
                     }
-                    echo "</tbody></table>";
                     break;
                }
             case 'Popular':
@@ -147,9 +175,9 @@ function fetchPathwayList($imageMode)
                             while($row = $dbr->fetchObject($res))
                             {
                                 $pathwayArray[$row->title] = $row->value;
-                                arsort($pathwayArray);
                             }
-                            echo "<table  width='100%'><tbody>";
+
+			    $maxheight = 0;
                             foreach($pathwayArray as $title=>$value )
                             {
                                 $p = Pathway::newFromTitle($title);
@@ -171,19 +199,34 @@ function fetchPathwayList($imageMode)
                                 }
                                 $pwUrl = "<a href='{$p->getFullUrl()}'>{$p->name()}</a><br /> (" . $value ." Views)";
                                 $display = ($imageMode)?process($title, $pwUrl):$pwUrl;
-                                if($count%2 == 0)
-                                {
-                                    echo "<tr><td>$display</td>";;
-                                }
-                                else
-                                {
-                                    echo "<td>$display</td></tr>";;
-                                }
-                                $count++;
-
+                        	if($imageMode) {
+                                	preg_match('/height="(\d+)"/', $display, $matches);
+                                	$height = $matches[1] + 60;
+                                	if ($height > $maxheight) $maxheight = $height;
+                        	}
+                        $pwArray[$p->getFullUrl()] = $display;
+                    }
+                    if(count($pwArray)>0)
+                    {
+                        asort($pwArray,SORT_STRING);
+                        echo '<table width="100%" ><tbody>';
+                        if ($imageMode) echo '<td>';
+                        foreach($pwArray as $url=>$pwTitle)
+                        {
+                            if ($imageMode){
+                                echo "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
+                            } else {
+                            if($count%2 == 0)
+                                echo "<tr><td>$pwTitle</span></td>";
+                            else
+                                echo "<td align='left'>$pwTitle</td></tr>";
+                            $count++;
                             }
+                        }
+                        if ($imageMode) echo '</td>';
                             echo "</tbody></table>";
-                            break;
+		    }
+                    break;
                 }
             case 'last_edited':
                {
@@ -210,7 +253,8 @@ function fetchPathwayList($imageMode)
                                 $date = date('M d, Y', mktime(0,0,0,$month, $day, $year));
                                 $pathwayArray[$row->title] = $date;
                             }
-                            echo "<table width='100%'><tbody>";
+
+			    $maxheight = 0;
                             foreach($pathwayArray as $title=>$value )
                             {
                                 $p = Pathway::newFromTitle($title);
@@ -232,19 +276,34 @@ function fetchPathwayList($imageMode)
                                 }
                                 $pwUrl = "<a href='{$p->getFullUrl()}'>{$p->name()}</a><br /> (Edited on <b>" . $pathwayArray[$title] . "</b>) </li>";
                                 $display = ($imageMode)?process($title, $pwUrl):$pwUrl;
-                                if($count%2 == 0)
-                                {
-                                    echo "<tr><td>$display</td>";;
+                                if($imageMode) {
+                                        preg_match('/height="(\d+)"/', $display, $matches);
+                                        $height = $matches[1] + 60;
+                                        if ($height > $maxheight) $maxheight = $height;
                                 }
-                                else
-                                {
-                                    echo "<td>$display</td></tr>";;
-                                }
-                                $count++;
-
+                        $pwArray[$p->getFullUrl()] = $display;
+                    }
+                    if(count($pwArray)>0)
+                    {
+                        asort($pwArray,SORT_STRING);
+                        echo '<table width="100%" ><tbody>';
+                        if ($imageMode) echo '<td>';
+                        foreach($pwArray as $url=>$pwTitle)
+                        {
+                            if ($imageMode){
+                                echo "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
+                            } else {
+                            if($count%2 == 0)
+                                echo "<tr><td>$pwTitle</span></td>";
+                            else
+                                echo "<td align='left'>$pwTitle</td></tr>";
+                            $count++;
                             }
+                        }
+                        if ($imageMode) echo '</td>';
                             echo "</tbody></table>";
-                            break;
+                    }
+                    break;
                 }
 
          }
