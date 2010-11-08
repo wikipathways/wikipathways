@@ -102,8 +102,8 @@ class SearchPathways extends SpecialPage
     			$output = $this->makeThumbNail($pathway, $caption, $href, '', 'left', 'thumb', 200);
 			preg_match('/height="(\d+)"/', $output, $matches);
 			$height = $matches[1];
-			if ($height > 200){
-				$output = preg_replace('/height="(\d+)"/', 'height="200px"', $output);
+			if ($height > 160){
+				$output = preg_replace('/height="(\d+)"/', 'height="160px"', $output);
 			}
 			$pwArray[$href] = strtoupper(substr($name,0,1)) . substr($name,1) . " |-| " . $output;
            	}
@@ -114,7 +114,7 @@ class SearchPathways extends SpecialPage
                         foreach($pwArray as $url=>$pwTitle)
                         {
                             $pwTitle = substr($pwTitle, strpos($pwTitle,"|-|")+ 3);
-			    $resultArray .= "<div style='float:left; vertical-align:bottom;width:220px;height:260px'>$pwTitle</div>";
+			    $resultArray .= "<div style='float:left; vertical-align:bottom;width:220px;height:220px'>$pwTitle</div>";
                         }
                         $resultArray .= "</td></tbody></table>";
                	}
