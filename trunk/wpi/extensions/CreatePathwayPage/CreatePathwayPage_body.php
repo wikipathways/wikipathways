@@ -150,7 +150,7 @@ class CreatePathwayPage extends SpecialPage
 		}
 		if($private2) $private2 = 'CHECKED';
                 $html_upload = "<FORM action='$this->this_url' method='post' enctype='multipart/form-data'>
-				<table><td>
+				<table style='margin-left: 20px;'><td>
         			<INPUT type='file' name='gpml' size='40'>
        				<tr><td>
         			<INPUT type='checkbox' name='private2' value='1' $private2> $this->create_priv_msg
@@ -158,7 +158,7 @@ class CreatePathwayPage extends SpecialPage
 				<input type='hidden' name='title' value='Special:CreatePathwayPage'>
         			<tr><td><INPUT type='submit' value='Upload pathway'></table></FORM>";
                 $html_editor =" <FORM action='$this->this_url' method='get'>
-				<table><td>Pathway name:
+				<table style='margin-left: 20px;'><td>Pathway name:
                                 <td><input type='text' name='pwName' value='$pwName'>
                                 <tr><td>Species:<td>
                                 <select name='pwSpecies'>";
