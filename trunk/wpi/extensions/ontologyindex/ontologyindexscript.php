@@ -26,7 +26,7 @@ switch($_GET['action'])
 
 
 function fetchPathwayList($imageMode)
-{
+ { global $wgOut;
 
     $term = $_GET['term'];
     switch($_GET['filter'])
@@ -67,23 +67,23 @@ function fetchPathwayList($imageMode)
                     if(count($pwArray)>0)
                     {
                         asort($pwArray,SORT_STRING);
-                        echo '<table width="100%" ><tbody>';
-			if ($imageMode) echo '<td>';
+                        $resultTable = '<table width="100%" ><tbody>';
+			if ($imageMode) $resultTable .= '<td>';
                         foreach($pwArray as $url=>$pwTitle)
                         {
                             $pwTitle = substr($pwTitle, strpos($pwTitle,"|-|")+ 3);
 			    if ($imageMode){
-			    	echo "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
+			    	$resultTable .= "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
 			    } else {
                             if($count%2 == 0)
-                                echo "<tr><td>$pwTitle</span></td>";
+                                $resultTable .= "<tr><td>$pwTitle</span></td>";
                             else
-                                echo "<td align='left'>$pwTitle</td></tr>";
+                                $resultTable .= "<td align='left'>$pwTitle</td></tr>";
                             $count++;
 			    }
                         }
-			if ($imageMode) echo '</td>';
-                        echo "</tbody></table>";
+			if ($imageMode) $resultTable .= '</td>';
+                        $resultTable .= "</tbody></table>";
                     }
                     break;
                 }
@@ -140,22 +140,22 @@ function fetchPathwayList($imageMode)
                     if(count($pwArray)>0)
                     {
                         asort($pwArray,SORT_STRING);
-                        echo '<table width="100%" ><tbody>';
-                        if ($imageMode) echo '<td>';
+                        $resultTable = '<table width="100%" ><tbody>';
+                        if ($imageMode) $resultTable .= '<td>';
                         foreach($pwArray as $url=>$pwTitle)
                         {
                             if ($imageMode){
-                                echo "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
+                                $resultTable .= "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
                             } else {
                             if($count%2 == 0)
-                                echo "<tr><td>$pwTitle</span></td>";
+                                $resultTable .= "<tr><td>$pwTitle</span></td>";
                             else
-                                echo "<td align='left'>$pwTitle</td></tr>";
+                                $resultTable .= "<td align='left'>$pwTitle</td></tr>";
                             $count++;
                             }
                         }
-                        if ($imageMode) echo '</td>';
-                    	echo "</tbody></table>"; 
+                        if ($imageMode) $resultTable .= '</td>';
+                    	$resultTable .= "</tbody></table>"; 
                     }
                     break;
                }
@@ -209,22 +209,22 @@ function fetchPathwayList($imageMode)
                     if(count($pwArray)>0)
                     {
                         asort($pwArray,SORT_STRING);
-                        echo '<table width="100%" ><tbody>';
-                        if ($imageMode) echo '<td>';
+                        $resultTable = '<table width="100%" ><tbody>';
+                        if ($imageMode) $resultTable .= '<td>';
                         foreach($pwArray as $url=>$pwTitle)
                         {
                             if ($imageMode){
-                                echo "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
+                                $resultTable .= "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
                             } else {
                             if($count%2 == 0)
-                                echo "<tr><td>$pwTitle</span></td>";
+                                $resultTable .= "<tr><td>$pwTitle</span></td>";
                             else
-                                echo "<td align='left'>$pwTitle</td></tr>";
+                                $resultTable .= "<td align='left'>$pwTitle</td></tr>";
                             $count++;
                             }
                         }
-                        if ($imageMode) echo '</td>';
-                            echo "</tbody></table>";
+                        if ($imageMode) $resultTable .= '</td>';
+                            $resultTable .= "</tbody></table>";
 		    }
                     break;
                 }
@@ -286,27 +286,28 @@ function fetchPathwayList($imageMode)
                     if(count($pwArray)>0)
                     {
                         asort($pwArray,SORT_STRING);
-                        echo '<table width="100%" ><tbody>';
-                        if ($imageMode) echo '<td>';
+                        $resultTable = '<table width="100%" ><tbody>';
+                        if ($imageMode) $resultTable .= '<td>';
                         foreach($pwArray as $url=>$pwTitle)
                         {
                             if ($imageMode){
-                                echo "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
+                                $resultTable .= "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
                             } else {
                             if($count%2 == 0)
-                                echo "<tr><td>$pwTitle</span></td>";
+                                $resultTable .= "<tr><td>$pwTitle</span></td>";
                             else
-                                echo "<td align='left'>$pwTitle</td></tr>";
+                                $resultTable .= "<td align='left'>$pwTitle</td></tr>";
                             $count++;
                             }
                         }
-                        if ($imageMode) echo '</td>';
-                            echo "</tbody></table>";
+                        if ($imageMode) $resultTable .= '</td>';
+                            $resultTable .= "</tbody></table>";
+
                     }
                     break;
                 }
-
-         }
+        } 
+	echo $resultTable;
 }
 
 function fetch_tree()
