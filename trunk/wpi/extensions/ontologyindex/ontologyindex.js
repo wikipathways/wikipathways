@@ -39,7 +39,7 @@ addOnloadHook(
         "</div>" +
         "<div id='container_right'>" +
         "<div id='pathway_list'></div>" +
-        "<div id='treeDiv'>Please select a top level Ontology term !</div>" +
+        "<div id='treeDiv'>Please select an ontology term</div>" +
         "</div>" ;
 
        document.getElementById(page_mode + "Mode").style.color = "#FF0000";
