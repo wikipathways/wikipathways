@@ -88,7 +88,6 @@ class SearchPathways extends SpecialPage
 		$count = count($results->result);	
 		$wgOut->addHTML("<b>$count pathways found</b>");
 
-		$maxheight = 0;
 		foreach ($results->result as $resObj){
 			if (!is_array($results->result))
 				$pwid = $results->result->id;
@@ -101,10 +100,12 @@ class SearchPathways extends SpecialPage
         		$caption = "<a href=\"$href\">$name ($species)</a>";
         		$caption = html_entity_decode($caption);         //This can be quite dangerous (injection)
     			$output = $this->makeThumbNail($pathway, $caption, $href, '', 'left', 'thumb', 200);
-                        $pwArray[$href] = strtoupper(substr($name,0,1)) . substr($name,1) . " |-| " . $output;
 			preg_match('/height="(\d+)"/', $output, $matches);
-			$height = $matches[1] + 60;
-			if ($height > $maxheight) $maxheight = $height;
+			$height = $matches[1];
+			if ($height > 200){
+				$output = preg_replace('/height="(\d+)"/', 'height="200px"', $output);
+			}
+			$pwArray[$href] = strtoupper(substr($name,0,1)) . substr($name,1) . " |-| " . $output;
            	}
                 if(count($pwArray)>0)
                 {
@@ -113,7 +114,7 @@ class SearchPathways extends SpecialPage
                         foreach($pwArray as $url=>$pwTitle)
                         {
                             $pwTitle = substr($pwTitle, strpos($pwTitle,"|-|")+ 3);
-			    $resultArray .= "<div style='float:left; vertical-align:bottom;width:220px;height:".$maxheight."px'>$pwTitle</div>";
+			    $resultArray .= "<div style='float:left; vertical-align:bottom;width:220px;height:260px'>$pwTitle</div>";
                         }
                         $resultArray .= "</td></tbody></table>";
                	}
