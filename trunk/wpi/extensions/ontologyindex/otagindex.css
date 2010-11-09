@@ -22,11 +22,10 @@
     cursor:pointer;
 }
 #container_right {
-    margin-left:20px;
-    margin-right:auto;
+    position:absolute;
+    left:220px;
     padding:20px 0 10px 25px;
-    width:65%;
-    float:left
+    width:75%;
 }
 #treeDiv {
     text-align:left;
