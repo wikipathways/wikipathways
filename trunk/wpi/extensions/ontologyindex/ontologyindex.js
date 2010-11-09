@@ -39,7 +39,7 @@ addOnloadHook(
         "</div>" +
         "<div id='container_right'>" +
         "<div id='pathway_list'></div>" +
-        "<div id='treeDiv'>Please select an ontology term</div>" +
+        "<div id='treeDiv'><div style='margin: 20px 0 0 80px'>Loading...</div></div>" +
         "</div>" ;
 
        document.getElementById(page_mode + "Mode").style.color = "#FF0000";
@@ -245,7 +245,7 @@ function getPathwaysList()
     if(o.responseText != " ")
         document.getElementById("treeDiv").innerHTML = "<ul>" + o.responseText + "</ul>";
     else
-        document.getElementById("treeDiv").innerHTML = "No pathways found !";
+        document.getElementById("treeDiv").innerHTML = "<div style='margin: 20px 0 0 80px'>No pathways found</div>";
 }
 
 var handleFailure = function(o){
@@ -267,7 +267,7 @@ var callback =
         var sUrl = opath + "/ontologyindexscript.php?filter=" + filter + "&action=" + page_mode + "&species="+ species + "&term=" + last_select;
     else
         var sUrl = opath + "/ontologyindexscript.php?filter=" + filter + "&action=" + page_mode + "&species="+ species + "&term=";
-    document.getElementById("treeDiv").innerHTML = "Loading...";
+    document.getElementById("treeDiv").innerHTML = "<div style='margin: 20px 0 0 80px'>Loading...</div>";
     var request = YAHOO.util.Connect.asyncRequest('GET', sUrl, callback);
 
 }
