@@ -1,5 +1,6 @@
 <?php
 require_once("wpi/wpi.php");
+require_once("wpi/search.php");
 
 class SearchPathways extends SpecialPage
 {
@@ -28,7 +29,12 @@ class SearchPathways extends SpecialPage
 	
 		if($_GET['doSearch'] == '1') { //Submit button pressed
 			$this->showForm($query, $species, $ids, $codes, $type);
-			$this->showResults($query, $species, $ids, $codes, $type);
+			try {
+				$this->showResults($query, $species, $ids, $codes, $type);
+			} catch(Exception $e) {
+				$wgOut->addHTML("<b>Error: {$e->getMessage()}</b>");
+				$wgOut->addHTML("<pre>$e</pre>");
+			}
                 } else {
 			$this->showForm($query, $species, $ids, $codes, $type);
 		}
@@ -70,30 +76,33 @@ class SearchPathways extends SpecialPage
         function showResults($query, $species = '', $ids = '', $codes = '', $type) {
                 global $wgRequest, $wgOut, $wpiScriptURL;
 
-                $client = new SoapClient('http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl');
-		$results;
-
-		if($type == 'query'){
-			$results = $client->findPathwaysByText(array('query'=>$query, 'species'=>$species));
-		} elseif ($type == 'xref'){
-			$results = $client->findPathwaysByXref(array('ids'=>$ids, 'codes'=>$codes));
-		}
-
-                if(!$results->result){
-                        $wgOut->addHTML("<b>No Results</b>");
-                        return;
-                }
+					if($type == 'query'){
+						$results = PathwayIndex::searchByText($query, $species);
+					} elseif ($type == 'xref'){
+							$xrefs = explode(',', $ids);
+							$codes = explode(',', $codes);
+							if(count($xrefs) > count($codes)) $singleCode = $codes[0];
+							$objects = array();
+							for($i = 0; $i < count($ids); $i += 1) {
+								if($singleCode) $c = $singleCode;
+								else $c = $codes[$i];
+								$x = new XRef($ids[$i], $c);
+								$xrefs[] = $x;
+							}
+							$results = PathwayIndex::searchByXref($xrefs, true);
+					}
+						
+			if(count($results) == 0){
+				$wgOut->addHTML("<b>No Results</b>");
+				return;
+			}
 		//print_r($results);
 
-		$count = count($results->result);	
+		$count = count($results);	
 		$wgOut->addHTML("<b>$count pathways found</b>");
 
-		foreach ($results->result as $resObj){
-			if (!is_array($results->result))
-				$pwid = $results->result->id;
-			else 
-				$pwid = $resObj->id;
-		   	$pathway = new Pathway($pwid);
+		foreach ($results as $resObj){
+		   	$pathway = $resObj->getPathway();
 			$name = $pathway->name();
 			$species = $pathway->getSpecies();
     			$href = $pathway->getFullUrl();
