@@ -67,7 +67,7 @@ class SearchPathways extends SpecialPage
 				
       	$form_method = "get";
       	$form_extra = "";
-        $search_form ="$xrefInfo<FORM $hide id='searchForm' action='javascript:SearchPathways.doSearch();' method='get'>
+        $search_form ="$xrefInfo<FORM $hide id='searchForm' action='$this->this_url' method='get'>
 				<table cellspacing='7'><tr valign='middle'><td>"
 				//<input type='radio' name='type' value='query' CHECKED>Keywords
 				//<input type='radio' name='type' value='xref'>Identifiers
@@ -117,64 +117,6 @@ class SearchPathways extends SpecialPage
 		);
 	}
 	
-        function showResults_old($query, $species = '', $ids = '', $codes = '', $type) {
-                global $wgRequest, $wgOut, $wpiScriptURL;
-
-					if($type == 'query'){
-						$results = PathwayIndex::searchByText($query, $species);
-					} elseif ($type == 'xref'){
-							$xrefs = explode(',', $ids);
-							$codes = explode(',', $codes);
-							if(count($xrefs) > count($codes)) $singleCode = $codes[0];
-							$objects = array();
-							for($i = 0; $i < count($ids); $i += 1) {
-								if($singleCode) $c = $singleCode;
-								else $c = $codes[$i];
-								$x = new XRef($ids[$i], $c);
-								$xrefs[] = $x;
-							}
-							$results = PathwayIndex::searchByXref($xrefs, true);
-					}
-						
-			if(count($results) == 0){
-				$wgOut->addHTML("<b>No Results</b>");
-				return;
-			}
-		//print_r($results);
-
-		$count = count($results);	
-		$wgOut->addHTML("<b>$count pathways found</b>");
-
-		foreach ($results as $resObj){
-		   	$pathway = $resObj->getPathway();
-			$name = $pathway->name();
-			$species = $pathway->getSpecies();
-    			$href = $pathway->getFullUrl();
-        		$caption = "<a href=\"$href\">$name ($species)</a>";
-        		$caption = html_entity_decode($caption);         //This can be quite dangerous (injection)
-    			$output = $this->makeThumbNail($pathway, $caption, $href, '', 'left', 'thumb', 200);
-			preg_match('/height="(\d+)"/', $output, $matches);
-			$height = $matches[1];
-			if ($height > 160){
-				$output = preg_replace('/height="(\d+)"/', 'height="160px"', $output);
-			}
-			$pwArray[$href] = strtoupper(substr($name,0,1)) . substr($name,1) . " |-| " . $output;
-           	}
-                if(count($pwArray)>0)
-                {
-                        $resultArray = "<table cellspacing='5' cellpadding='5'><tbody><td>";
-			$count = 1;
-                        foreach($pwArray as $url=>$pwTitle)
-                        {
-                            $pwTitle = substr($pwTitle, strpos($pwTitle,"|-|")+ 3);
-			    $resultArray .= "<div style='float:left; vertical-align:bottom;width:220px;height:220px'>$pwTitle</div>";
-                        }
-                        $resultArray .= "</td></tbody></table>";
-               	}
-
-	  	$wgOut->addHTML("$resultArray");
-	}
-
 	static function makeThumbNail( $pathway, $label = '', $href = '', $alt, $align = 'right', $id = 'thumb', $boxwidth = 300, $boxheight=false, $framed=false ) {
             global $wgStylePath, $wgContLang;
 
