@@ -52,6 +52,7 @@ SearchPathways.processResults = function(xhr) {
 		var div = document.getElementById(SearchPathways.resultId);
 		if(nodes.length == 0) {
 			div.innerHTML = "<b>No Results</b>";
+			SearchPathways.hideProgress();
 		} else {
 			div.innerHTML = "<div class='resultCounter'><b>" + nodes.length + " pathways found</b></div>";
 			//Now load the results in batches
