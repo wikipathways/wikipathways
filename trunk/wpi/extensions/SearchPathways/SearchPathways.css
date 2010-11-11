@@ -19,4 +19,5 @@ div.thumbholder {
 #more {
 	font-weight: bold;
 	text-align: center;
+	clear: both;
 }
