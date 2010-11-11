@@ -15,13 +15,16 @@ function wfSearchPathwaysBox_Magic( &$magicWords, $langCode ) {
 
 # The callback function for converting the input text to HTML output
 function renderSearchPathwaysBox(&$parser) {
+	global $siteURL;
+	
         $parser->disableCache();
         $output= <<<SEARCH
-<form id="searchbox_cref" action="http://test.wikipathways.org/index.php/Special:SearchPathways">
+<form id="searchbox_cref" action="$siteURL/index.php">
 <table width="190" frame="void" border="0">
 <tr>
 <td align="center" bgcolor="#eeeeee" border="0">
 <input name="query" type="text" size="20%" />
+<input type='hidden' name='title' value='Special:SearchPathways'>
 <input type='hidden' name='doSearch' value='1'>
 <tr><td valign="top" align="center" border="0"><input type="submit" name="sa" value="Search" />
 </tr>

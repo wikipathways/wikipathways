@@ -12,4 +12,7 @@ $wgAutoloadClasses['SearchPathways'] = dirname(__FILE__) . '/SearchPathways_body
 $wgSpecialPages['SearchPathways'] = 'SearchPathways';
 $wgHooks['LoadAllMessages'][] = 'SearchPathways::loadMessages';
 
+$wfSearchPagePath = WPI_URL . "/extensions/SearchPathways";
+
+require_once("SearchPathwaysAjax.php");
 ?>
