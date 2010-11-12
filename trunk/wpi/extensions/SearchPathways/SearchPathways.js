@@ -8,7 +8,7 @@ SearchPathways.moreId = "more";
 SearchPathways.currentSearchId = null;
 SearchPathways.currentIndex = 0;
 SearchPathways.currentResults = [];
-SearchPathways.batchSize = 10;
+SearchPathways.batchSize = 12;
 SearchPathways.untilMore = 2;
 
 SearchPathways.doSearch = function() {
@@ -96,6 +96,17 @@ SearchPathways.more = function() {
 	SearchPathways.loadBatch();
 }
 
+SearchPathways.all = function() {
+	var div = document.getElementById(SearchPathways.moreId);
+	div.innerHTML = "";
+	
+	SearchPathways.untilMore = -1;
+	
+	SearchPathways.showProgress();
+		
+	SearchPathways.loadBatch();
+}
+
 SearchPathways.processBatch = function(xhr) {
 	if(SearchPathways.checkResponse(xhr)) {
 		var xml = SearchPathways.getRequestXML(xhr);
@@ -107,15 +118,15 @@ SearchPathways.processBatch = function(xhr) {
 			var div = document.getElementById(SearchPathways.resultId);
 			div.innerHTML += htmlNode.textContent;
 		
-			if(SearchPathways.currentIndex >= SearchPathways.batchSize * SearchPathways.untilMore) {
+			if(SearchPathways.untilMore > 0 && SearchPathways.currentIndex >= SearchPathways.batchSize * SearchPathways.untilMore) {
 			SearchPathways.hideProgress();
 			var div = document.getElementById(SearchPathways.moreId);
 			div.innerHTML = "";
 		
 			if(SearchPathways.currentIndex < SearchPathways.currentResults.length) {
 				var more = document.createElement("a");
-				more.href = "javascript:SearchPathways.more();";
-				more.innerHTML = "Show more results";
+				more.href = "javascript:SearchPathways.all();";
+				more.innerHTML = "Show all results";
 				div.appendChild(more);
 				return;
 			}
