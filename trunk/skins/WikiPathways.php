@@ -50,7 +50,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
 	 */
 	function execute() {
 		global $wgRequest;
-		global $wgTitle, $wgUser; //Leave this on separate line (for merging with original MW skin)
+		global $wgTitle, $wgUser, $siteURL; //Leave this on separate line (for merging with original MW skin)
 		$this->skin = $skin = $this->data['skin'];
 		$action = $wgRequest->getText( 'action' );
 
@@ -235,7 +235,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
         <div id="p-search" class="portlet">
                 <h5><label for="searchInput">search</label></h5>
                 <div id="googleSearch" class="pBody">
-		<form id="searchbox_cref" action="http://test.wikipathways.org/index.php/Special:SearchPathways">
+		<form id="searchbox_cref" action="<?php $siteURL?>/index.php/Special:SearchPathways">
 		<table  BORDER=0 CELLSPACING=0 CELLPADDING=0>
 		<tr>
 		<td>
