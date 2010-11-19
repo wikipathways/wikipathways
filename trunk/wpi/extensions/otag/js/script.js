@@ -13,17 +13,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 */
 
 var opentag_id = -1;
-var div = document.getElementById('ontologyTags');
 var otagroot = document.getElementById('ontologyContainer');
 var treeRoot = document.getElementById('ontologyTrees');
+var oACInput = document.getElementById('ontologyACInput');
 var save_img = document.getElementById('save_img');
 var save_link = document.getElementById('save_link');
 var title = wgPageName;
 var ontologies = YAHOO.lang.JSON.parse(ontologiesJSON);
+var oTagsCount = new Array();
 
 for(i=0;i<ontologies.length;i++)
 {
-    div.innerHTML += "<div id='" + ontologies[i][0] + "'><b>" + ontologies[i][0] + "</b> : </div>";
+    document.getElementById('ontologyTags').innerHTML += "<div id='" + ontologies[i][0] + "'><b>" + ontologies[i][0] + "</b> : </div>";
+    oTagsCount[ontologies[i][0]] = 0;
 }
 fetchTags();
 
@@ -78,7 +80,6 @@ function loadNodeData(node, fnLoadComplete)  {
     //Get the node's label and urlencode it; this is the word/s
     //on which we'll search for related words:
     // encodeURI(node.label);
-    var ontology_id = getOntologyId(0,node.c_id);
     var sUrl = opath + "/otags.php?action=tree&tagId=" + encodeURI(node.c_id);
     var callback = {
         success: function(oResponse) {
@@ -120,6 +121,7 @@ function loadNodeData(node, fnLoadComplete)  {
 }
 
     ontologySearch = function () {
+
         var oDS = new YAHOO.util.XHRDataSource( opath + "/otags.php");
         // Set the responseType
         oDS.responseType = YAHOO.util.XHRDataSource.TYPE_JSON;
@@ -130,9 +132,9 @@ function loadNodeData(node, fnLoadComplete)  {
         };
         oDS.maxCacheEntries = 15;
         // Instantiate the AutoComplete
-        var oAC = new YAHOO.widget.AutoComplete("myInput", "myContainer", oDS);
+        var oAC = new YAHOO.widget.AutoComplete("ontologyACInput", "myContainer", oDS);
         // Throttle requests sent
-        oAC.queryDelay = 0.2;
+        oAC.queryDelay = 0.5;
         oAC.minQueryLength = 3;
         oAC.useShadow = true;
         oAC.prehighlightClassName = "yui-ac-prehighlight";
@@ -154,16 +156,24 @@ function loadNodeData(node, fnLoadComplete)  {
 
         var itemSelectHandler = function(sType, aArgs) {
             var oData = aArgs[2]; // object literal of data for the result
-            if(oData.label == "No results !")
-            {
-            }
-            else
+            if(oData.label != "No results !")
             {
                 displayTag(oData.label,oData.id,"true");
             }
         };
 
         oAC.itemSelectEvent.subscribe(itemSelectHandler);
+        oAC.dataRequestEvent.subscribe(function(){
+                oACInput.style.backgroundImage = 'url(' + opath + '/img/progress.gif)';
+                oACInput.style.backgroundPosition = 'right';
+                oACInput.style.backgroundRepeat = 'no-repeat';
+            }
+        );
+        oAC.containerPopulateEvent  .subscribe(function(){
+                oACInput.style.backgroundImage = '';
+            }
+        );
+
 
         return {
             oDS: oDS,
@@ -213,7 +223,8 @@ function removeTag(conceptId)
 {
     disableSave();
     var rand = Math.random();
-
+    var ontology = getOntologyName(conceptId);
+    
     var handleSuccess = function(o){
         enableSave();
         if(o.responseText != "SUCCESS"){
@@ -222,6 +233,8 @@ function removeTag(conceptId)
         else
         {
             document.getElementById(conceptId).style.display = "none";
+            oTagsCount[ontology]--;
+            toggleOntologyDisplay();
         }
     };
 
@@ -259,7 +272,9 @@ function addTag(concept, conceptId)
         }
         else
         {
-            document.getElementById(ontology_name).innerHTML += " <a class='ontologyTag' href='javascript:displayTag(\"" + concept + "\",\"" + conceptId + "\");' id=\"" + conceptId + "\">" + concept + "</a> ";
+            document.getElementById(ontology).innerHTML += " <a class='ontologyTag' href='javascript:displayTag(\"" + escape(concept) + "\",\"" + conceptId + "\");' id=\"" + conceptId + "\">" + concept + "</a> ";
+            oTagsCount[ontology]++;
+            toggleOntologyDisplay();
         }
     };
 
@@ -281,24 +296,40 @@ function addTag(concept, conceptId)
 function fetchTags()
 {
     var rand = Math.random();
+    var tags = new Array();
     var handleSuccess = function(o){
-        if(o.responseText != "SUCCESS"){
+        if(o.responseText != "ERROR"){
 
             var tagsJSON = YAHOO.lang.JSON.parse(o.responseText);
-            var tags = tagsJSON.Resultset;
-
-            for(i=0;i<tags.length;i++)
+            var totalTagsCount = 0;
+            if(o.responseText != "[]")
             {
-                var ontologyName = tags[i].ontology;
-                var concept = tags[i].term;
-                var conceptId = tags[i].term_id;
-                document.getElementById(ontologyName).innerHTML += " <a  class='ontologyTag' href='javascript:displayTag(\"" + concept + "\",\"" + conceptId + "\");' id=\"" + conceptId + "\">" + concept + "</a> ";
+                var tags = tagsJSON.Resultset;
+                for(i=0;i<tags.length;i++)
+                {
+                    var ontologyName = tags[i].ontology;
+                    var concept = tags[i].term;
+                    var conceptId = tags[i].term_id;
+                    document.getElementById(ontologyName).innerHTML += " <a  class='ontologyTag' href='javascript:displayTag(\"" + escape(concept) + "\",\"" + conceptId + "\");' id=\"" + conceptId + "\">" + concept + "</a> ";
+                    oTagsCount[ontologyName]++;
+                    totalTagsCount++;
+                }
             }
+
+            toggleOntologyDisplay();
+            
+            if(totalTagsCount < 3 && otagloggedIn == 1)
+                toggleOntologyControls();
+
+            if(totalTagsCount == 0)
+                    document.getElementById('ontologyMessage').style.display = "block";
+            else
+                document.getElementById('ontologyTags').style.display = "block";
         }
     };
 
     var handleFailure = function(o){
-        alert("Sorry the tag cannot be fetched! Please try again!");
+        alert("Sorry the tags cannot be fetched! Please try again!");
     };
 
     var callback =
@@ -315,6 +346,7 @@ function fetchTags()
 
 function displayTag(concept, conceptId, newTag)
 {
+
     if(opentag_id != conceptId)
     {
         ontology_version_id = getOntologyId("version",conceptId);
@@ -324,9 +356,10 @@ function displayTag(concept, conceptId, newTag)
         + "<a href='" + url + "'  title='View more Info on BioPortal !' target='_blank'><img src='" + opath + "/img/info.png'></a>&nbsp;"
 
         if(otagloggedIn == 1)
+        {
             if(newTag == "true")
             {
-                output += "<a title='Add' href='javascript:addTag(\"" + concept +  "\",\""+conceptId + "\");'><img src='" + opath + "/img/apply.png' /></a>&nbsp;";
+                output += "<a title='Add' href='javascript:addTag(\"" + escape(concept) +  "\",\""+conceptId + "\");'><img src='" + opath + "/img/apply.png' /></a>&nbsp;";
                 output += "<a title='Close' href='javascript:closeTag();'><img src='" + opath + "/img/cancel.png' /></a><br></div>";
             }
             else
@@ -334,6 +367,8 @@ function displayTag(concept, conceptId, newTag)
                 output += "<a title='Close' href='javascript:closeTag();'><img src='" + opath + "/img/apply.png' /></a>&nbsp;";
                 output += "<a title='Remove' href='javascript:removeTag(\"" + conceptId +  "\");'><img src='" + opath + "/img/cancel.png' /></a><br></div>";
             }
+        }
+        
         opentag_id = conceptId;
     }
     else
@@ -354,7 +389,7 @@ function closeTag()
 
 function clearBox()
 {
-    document.getElementById('myInput').value='';
+    document.getElementById('ontologyACInput').value='';
 }
 
 function enableSave(opacity)
@@ -370,4 +405,37 @@ function disableSave(opacity)
     closeTag();
     document.getElementById('otagprogress').style.display = "block";
 
+}
+
+function toggleOntologyControls()
+{
+    var controlsElement = document.getElementById('ontologyEdit');
+    var labelElement = document.getElementById('ontologyEditLabel');
+    var status = controlsElement.style.display;
+    if(status != 'none')
+    {
+        controlsElement.style.display = "none";
+        labelElement.innerHTML = "Add Ontology tags!";
+    }
+    else
+    {
+        controlsElement.style.display = "block";
+        labelElement.innerHTML = "Hide Ontology Options";
+    }
+}
+
+function toggleOntologyDisplay()
+{
+    for(i=0;i<ontologies.length;i++)
+    {
+        var ontologyName = ontologies[i][0];
+        
+        if(oTagsCount[ontologyName] > 0)
+            document.getElementById(ontologyName).style.display = "Block";
+        else
+            document.getElementById(ontologyName).style.display = "none";
+    }
+
+    document.getElementById('ontologyMessage').style.display = "none";
+    document.getElementById('ontologyTags').style.display = "block";
 }

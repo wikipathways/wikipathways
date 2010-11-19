@@ -8,22 +8,41 @@ $concept_id = $_GET['concept_id'];
 $xml = "";
 $res_array = array();
 
-switch($_GET['action'])
-{
-    case 'tree':
-        fetch_tree();
-        break;
-    case 'species':
-        fetch_species();
-        break;
-    case 'list':
-        fetchPathwayList(false);
-        break;
-    case 'image':
-        fetchPathwayList(true);
-        break;
-}
+$cacheParams = implode(',', $_GET);
+$cacheResult = OntologyCache::fetchBrowseCache($cacheParams);
 
+if($cacheResult)
+{
+    echo $cacheResult;
+    die();
+}
+else
+{
+    $output = '';
+    ob_start();
+
+    switch($_GET['action'])
+    {
+        case 'tree':
+            fetch_tree();
+            break;
+        case 'species':
+            fetch_species();
+            break;
+        case 'list':
+            fetchPathwayList(false);
+            break;
+        case 'image':
+            fetchPathwayList(true);
+            break;
+    }
+
+    $output = ob_get_contents();
+    OntologyCache::updateCache('browse', $cacheParams, $output);
+
+    ob_end_clean();
+    echo $output;
+}
 
 function fetchPathwayList($imageMode)
  { global $wgOut;
