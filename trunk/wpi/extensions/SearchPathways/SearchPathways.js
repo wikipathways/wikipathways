@@ -45,7 +45,7 @@ SearchPathways.processResults = function(xhr) {
 		//Collect the results
 		for(i=0;i<nodes.length;i++) {
 			var n = nodes[i];
-			var pw = n.textContent;
+			var pw = n.firstChild.nodeValue;
 			SearchPathways.currentResults.push(pw);
 		}
 		
@@ -79,7 +79,6 @@ SearchPathways.loadBatch = function() {
 	}
 	
 	SearchPathways.currentIndex = end;
-	
 	sajax_do_call(
 		"SearchPathwaysAjax::getResults",
 		[batch, SearchPathways.currentSearchId],
@@ -112,11 +111,11 @@ SearchPathways.processBatch = function(xhr) {
 		var xml = SearchPathways.getRequestXML(xhr);
 		var htmlNode = xml.getElementsByTagName("htmlcontent")[0];
 		var sid = xml.getElementsByTagName("searchid")[0];
-		sid = sid.textContent;
+		sid = sid.firstChild.nodeValue;
 		
 		if(sid == SearchPathways.currentSearchId) {
 			var div = document.getElementById(SearchPathways.resultId);
-			div.innerHTML += htmlNode.textContent;
+			div.innerHTML += htmlNode.firstChild.nodeValue;
 		
 			if(SearchPathways.untilMore > 0 && SearchPathways.currentIndex >= SearchPathways.batchSize * SearchPathways.untilMore) {
 			SearchPathways.hideProgress();
