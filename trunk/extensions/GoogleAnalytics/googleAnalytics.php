@@ -20,7 +20,7 @@ $wgGoogleAnalyticsAccount = "";
 $wgGoogleAnalyticsIgnoreSysops = true;
 $wgGoogleAnalyticsIgnoreBots = true;
 
-function efGoogleAnalyticsHookText(&$skin, &$text='') {
+function efGoogleAnalyticsHookText($skin, &$text='') {
 	$text .= efAddGoogleAnalytics();
 	return true;
 }
