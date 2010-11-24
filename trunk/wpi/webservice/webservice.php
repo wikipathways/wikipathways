@@ -156,6 +156,14 @@ $restmap = array(
 	"getRelations" => array(
 		"HTTPMethod" =>"GET",
 		"RESTLocation" => "getRelations"
+	),
+	"getCurationTags" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getCurationTags"
+	),
+	"getCurationTagsByName" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getCurationTagsByName"
 	)
 );
 
@@ -1068,9 +1076,10 @@ class WSCurationTag {
 		$this->displayName = CurationTag::getDisplayName($this->name);
 		$title = Title::newFromId($metatag->getPageId());
 		if($title) {
-			$this->pathway = new WSPathwayInfo(
-				Pathway::newFromTitle($title)
-			);
+			$pathway = Pathway::newFromTitle($title);
+			if($pathway->isReadable() && !$pathway->isDeleted()) {
+				$this->pathway = new WSPathwayInfo($pathway);
+			}
 		}
 
 		$this->revision = $metatag->getPageRevision();
