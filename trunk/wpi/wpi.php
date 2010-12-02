@@ -69,9 +69,7 @@ function wpiAddXrefPanelScripts() {
 	$wpiJavascriptSources[] = $jsJQueryUI;
 	$wpiJavascriptSources[] = "$wgScriptPath/wpi/js/xrefpanel.js";
 	
-	if($wikipathwaysSearchUrl) {
-		$wpiJavascriptSnippets[] = 'XrefPanel_searchUrl = "' . $wikipathwaysSearchUrl . '/#type=id&text=$ID&system=$DATASOURCE";';
-	}
+	$wpiJavascriptSnippets[] = 'XrefPanel_searchUrl = "' . SITE_URL . '/index.php?title=Special:SearchPathways&doSearch=1&ids=$ID&codes=$DATASOURCE&type=xref";';
 	
 }
 		

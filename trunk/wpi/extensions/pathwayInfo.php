@@ -99,7 +99,9 @@ TABLE;
 			$table .= '<td>' . $datanode['BackpageHead'];
 			$table .= '<td>';
 			$xref = $datanode->Xref;
-			$link = DataSource::getLinkout((string)$xref['ID'], (string)$xref['Database']);
+			$xid = (string)$xref['ID'];
+			$xds = (string)$xref['Database'];
+			$link = DataSource::getLinkout($xid, $xds);
 			if($link) {
 				$link = "<a href='$link'>{$xref['ID']} ({$xref['Database']})</a>";
 			} else {
@@ -108,7 +110,11 @@ TABLE;
 					$link .= ' (' . $xref['Database'] . ')';
 				}
 			}
-			$table .= $link;
+			//Add xref info button
+			$html = $link;
+			if($xid && $xds) $html = wpiXrefHTML($xid, $xds, $datanode['TextLabel'], $link, $this->getOrganism());
+			
+			$table .= $html;
 		}
 		$table .= '</tbody></table>';
 		return array($button . $table, 'isHTML'=>1, 'noparse'=>1);

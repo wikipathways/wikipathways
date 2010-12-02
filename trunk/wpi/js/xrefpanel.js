@@ -7,6 +7,13 @@ if (typeof(XrefPanel_searchUrl) == "undefined")
     var XrefPanel_searchUrl = false;
 
 /**
+ * Change this if the base path of the script (and resource files) is
+ * different than the page root.
+ */
+if (typeof(XrefPanel_imgPath) == "undefined") 
+    var XrefPanel_imgPath = wgServer + '/' + wgScriptPath + '/skins/common/images/';
+    
+/**
  * A panel that displays information for an xref.
  * The xref information is provided by a bridgedb web service.
  */
@@ -20,6 +27,11 @@ var XrefPanel = {};
 XrefPanel.linkoutPatterns = {};
 
 /**
+ * Contains the system code for each datasource.
+ */
+XrefPanel.systemCodes = {};
+
+/**
  * Add hook functions to customize the external
  * references list for an xref (e.g. to add a
  * custom datasource link).
@@ -30,18 +42,8 @@ XrefPanel.linkoutPatterns = {};
  */
 XrefPanel.xrefHooks = [];
 
-/**
- * Add an xref hook for Gene Wiki (Wikipedia).
- */
-XrefPanel.linkoutPatterns['Gene Wiki'] = 'http://plugins.gnf.org/cgi-bin/wp.cgi?id=$ID'
-XrefPanel.xrefHooks.push(function(xrefs){
-    if (xrefs['Entrez Gene']) 
-        xrefs['Gene Wiki'] = xrefs['Entrez Gene'];
-    return xrefs;
-});
-
 XrefPanel.createLoadImage = function(){
-    return '<img src="' + PathwayViewer_basePath + 'img/loading_small.gif" />';
+    return '<img src="' + XrefPanel_imgPath + '/progress.gif" />';
 }
 
 /**
@@ -115,7 +117,7 @@ XrefPanel.infoHooks.push(function(id, datasource, symbol, species){
  */
 XrefPanel.infoHooks.push(function(id, datasource, symbol, species){
     if (XrefPanel_searchUrl && id && datasource) {
-        var url = XrefPanel_searchUrl.replace('$ID', id).replace('$DATASOURCE', datasource);
+        var url = XrefPanel_searchUrl.replace('$ID', id).replace('$DATASOURCE', XrefPanel.systemCodes[datasource]);
         var $div = $('<div />');
         var $a = $('<a target="_blank" href="' + url + '"></a>').attr('title', 'Find other pathways with ' + symbol + '...').html('<span style="float:left" class="ui-icon ui-icon-search" />Find pathways with ' + symbol + '...');
         var $p = $('<p />');
@@ -124,16 +126,6 @@ XrefPanel.infoHooks.push(function(id, datasource, symbol, species){
         return $div;
     }
     return false;
-});
-
-/**
- * Add an xref hook for Gene Wiki (Wikipedia).
- */
-XrefPanel.linkoutPatterns['Gene Wiki'] = 'http://plugins.gnf.org/cgi-bin/wp.cgi?id=$ID'
-XrefPanel.xrefHooks.push(function(xrefs){
-    if (xrefs['Entrez Gene']) 
-        xrefs['Gene Wiki'] = xrefs['Entrez Gene'];
-    return xrefs;
 });
 
 /**
@@ -161,19 +153,24 @@ XrefPanel.unCacheContent = function(id, datasource, species, symbol){
     XrefPanel.cacheContent[id + datasource + species + symbol] = null;
 }
 
-/**
- * Creates a jquery dialog that contains information on the given
- * xref.
- * @param {string} id The xref id
- * @param {string} datasource The xref data source
- * @param {string} species The xref species
- * @param {string} The entity symbol (e.g. 'TP53')
- */
-XrefPanel.createDialog = function(id, datasource, species, symbol){
-    $content = XrefPanel.create(id, datasource, species, symbol);
-    return $content.dialog({
-        autoOpen: false
-    });
+XrefPanel.currentTriggerDialog = null;
+
+XrefPanel.registerTrigger = function(elm, id, datasource, species, symbol) {
+	$elm = $(elm);
+	$elm.click(function() {
+		if(XrefPanel.currentTriggerDialog) {
+			XrefPanel.currentTriggerDialog.dialog("close");
+			XrefPanel.currentTriggerDialog.dialog("destroy");
+		}
+		$content = XrefPanel.create(id, datasource, species, symbol);
+		var x = $(this).offset().left + $(this).width() - $(window).scrollLeft();
+		var y = $(this).offset().top - $(window).scrollTop();
+		console.log([x,y]);
+		$dialog = $content.dialog({
+			position: [x,y]
+		});
+		XrefPanel.currentTriggerDialog = $dialog;
+	});
 }
 
 /**
@@ -307,7 +304,7 @@ XrefPanel.createXrefLink = function(id, datasource, withDataSourceLabel){
     var label = withDataSourceLabel ? id + ' (' + datasource + ')' : id;
     var html = '';
     if (url) {
-        url = url.replace('$ID', id);
+        url = url.replace('$id', id);
         html = '<a target="_blank" href="' + url + '">' + label + '</a>';
     }
     else {
@@ -356,8 +353,12 @@ XrefPanel.loadDataSources = function(){
             var lines = data.split("\n");
             for (var l in lines) {
                 var cols = lines[l].split("\t", -1);
+                if (cols.length > 1) XrefPanel.systemCodes[cols[0]] = cols[1];
                 if (cols.length > 3 && cols[3]) {
-                    XrefPanel.linkoutPatterns[cols[0]] = cols[3];
+                	var ds = cols[0];
+                	if(ds == "WikiGenes") XrefPanel.linkoutPatterns["WikiGene"] = cols[3];
+                	if(ds == "Gene Wiki") XrefPanel.linkoutPatterns["GeneWiki"] = cols[3];
+						XrefPanel.linkoutPatterns[cols[0]] = cols[3];
                 }
             }
         }
