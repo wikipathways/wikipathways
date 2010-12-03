@@ -39,7 +39,7 @@ class DeletePathway extends SpecialPage {
 	<TABLE><TBODY><TR>
 	<TD>Reason:
 	<TD><INPUT name="reason" type="text">$reason</INPUT>
-	<INPUT type="hidden" name="id" value="{$id}"
+	<INPUT type="hidden" name="id" value="{$id}"/>
 	<INPUT type="hidden" name="title" value="Special:DeletePathway"/>
 	<TD><INPUT name="doit" type="submit" value="Delete"/>
 	</TBODY></TABLE>
