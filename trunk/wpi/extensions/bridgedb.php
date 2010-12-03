@@ -1,5 +1,8 @@
 <?php
-require_once('../../pass.php'); //Load user variables
+$dir = getcwd();
+chdir("../"); //Ugly, but we need to change to the MediaWiki install dir to include these files, otherwise we'll get an error
+require_once('wpi.php');
+chdir($dir);
 
 /**
  * Simple proxy to support remote bridgedb web service calls

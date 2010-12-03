@@ -5,6 +5,8 @@ if (typeof(XrefPanel_bridgeUrl) == "undefined")
     var XrefPanel_bridgeUrl = ''; //Disable bridgedb webservice queries if url is not specified
 if (typeof(XrefPanel_searchUrl) == "undefined") 
     var XrefPanel_searchUrl = false;
+if (typeof(XrefPanel_lookupAttributes) == "undefined")
+	var XrefPanel_lookupAttributes = true;
 
 /**
  * Change this if the base path of the script (and resource files) is
@@ -101,16 +103,18 @@ XrefPanel.createErrorCallback = function($div, msg){
     }
 }
 
-XrefPanel.infoHooks.push(function(id, datasource, symbol, species){
-    if (XrefPanel_bridgeUrl) {
-        var $div = $('<div id="bridgeInfo">' + XrefPanel.createLoadImage() + ' loading info...</div>');
-        XrefPanel.queryProperties(id, datasource, species, XrefPanel.createInfoCallback($div), XrefPanel.createErrorCallback($div, 'Unable to load info.'));
-        return $div;
-    }
-    else {
-        return false;
-    }
-});
+if(XrefPanel_lookupAttributes) {
+	XrefPanel.infoHooks.push(function(id, datasource, symbol, species){
+		 if (XrefPanel_bridgeUrl) {
+		     var $div = $('<div id="bridgeInfo">' + XrefPanel.createLoadImage() + ' loading info...</div>');
+		     XrefPanel.queryProperties(id, datasource, species, XrefPanel.createInfoCallback($div), XrefPanel.createErrorCallback($div, 'Unable to load info.'));
+		     return $div;
+		 }
+		 else {
+		     return false;
+		 }
+	});
+}
 
 /**
  * Add an info hook for search.wikipathways.org.
