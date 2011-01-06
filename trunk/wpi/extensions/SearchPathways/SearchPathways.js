@@ -115,7 +115,7 @@ SearchPathways.processBatch = function(xhr) {
 		
 		if(sid == SearchPathways.currentSearchId) {
 			var div = document.getElementById(SearchPathways.resultId);
-			div.innerHTML += htmlNode.firstChild.nodeValue;
+			div.innerHTML += SearchPathways.getNodeText(htmlNode);
 		
 			if(SearchPathways.untilMore > 0 && SearchPathways.currentIndex >= SearchPathways.batchSize * SearchPathways.untilMore) {
 			SearchPathways.hideProgress();
@@ -134,6 +134,14 @@ SearchPathways.processBatch = function(xhr) {
 			SearchPathways.loadBatch();
 		}
 	}
+}
+
+//Workaround for size limit of nodeValue in FF
+//From: http://stackoverflow.com/questions/4411229/size-limit-to-javascript-node-nodevalue-field
+SearchPathways.getNodeText = function(xmlNode) {
+    if(!xmlNode) return '';
+    if(typeof(xmlNode.textContent) != "undefined") return xmlNode.textContent;
+    return xmlNode.firstChild.nodeValue;
 }
 
 SearchPathways.clearResults = function() {
