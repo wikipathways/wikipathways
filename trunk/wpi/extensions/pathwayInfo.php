@@ -82,8 +82,8 @@ TABLE;
 		$nrShow = 5;
 		$nrNodes = count($nodes);
 		if(count($nodes) > $nrShow) {
-			$expand = "<B>View all $nrNodes DataNodes</B>";
-			$collapse = "<B>View last " . ($nrShow) . " DataNodes</B>";
+			$expand = "<B>View all $nrNodes...</B>";
+			$collapse = "<B>View last " . ($nrShow) . "...</B>";
 			$button = "<table><td width='51%'> <div onClick='toggleRows(\"dnTable\", this, \"$expand\", 
 				\"$collapse\", " . ($nrShow + 1) . ", true)' style='cursor:pointer;color:#0000FF'>$expand<td width='45%'></table>";
 		}
