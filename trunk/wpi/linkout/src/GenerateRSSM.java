@@ -1,6 +1,5 @@
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -342,7 +341,7 @@ private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName
 		for(PathwayElement pwe : p.getDataObjects()) {
 			if(pwe.getObjectType() == ObjectType.DATANODE) {
 				Xref x = pwe.getXref();
-				if(x == null || x.getId() == null || x.getDataSource() == null) continue;
+				if(x == null || x.getId() == null || "".equals(x.getId()) || x.getId().matches("^\\s+$")|| x.getDataSource() == null) continue;
 				for(IDMapper idm : idms) for(Xref xx : idm.mapID(x, ds)) xrefs.put(xx, pwe);
 				if(ds.equals(x.getDataSource())) xrefs.put(x, pwe);
 			}
