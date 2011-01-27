@@ -360,8 +360,6 @@ XrefPanel.loadDataSources = function(){
                 if (cols.length > 1) XrefPanel.systemCodes[cols[0]] = cols[1];
                 if (cols.length > 3 && cols[3]) {
                 	var ds = cols[0];
-                	if(ds == "WikiGenes") XrefPanel.linkoutPatterns["WikiGene"] = cols[3];
-                	if(ds == "Gene Wiki") XrefPanel.linkoutPatterns["GeneWiki"] = cols[3];
 						XrefPanel.linkoutPatterns[cols[0]] = cols[3];
                 }
             }
