@@ -243,7 +243,7 @@ private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName
 		for(PublicationXref x : refs) {
 			Element citation = new Element("citation");
 			citations.addContent(citation);
-			if(!"".equals(x.getPubmedId()) && x.getPubmedId() != null) {
+			if(!"".equals(x.getPubmedId()) && x.getPubmedId() != null && x.getPubmedId().matches("^[1-9]{1}[0-9]*$")) {
 				Element pmid = new Element("pmid");
 				pmid.setText(x.getPubmedId());
 				citation.addContent(pmid);
@@ -342,6 +342,9 @@ private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName
 			if(pwe.getObjectType() == ObjectType.DATANODE) {
 				Xref x = pwe.getXref();
 				if(x == null || x.getId() == null || "".equals(x.getId()) || x.getId().matches("^\\s+$")|| x.getDataSource() == null) continue;
+				if(
+						(BioDataSource.PUBCHEM.equals(ds) || BioDataSource.ENTREZ_GENE.equals(ds)) 
+						&& !x.getId().matches("^[1-9]{1}[0-9]*$")) continue; //Also check for sanity of Entrez identifiers
 				for(IDMapper idm : idms) for(Xref xx : idm.mapID(x, ds)) xrefs.put(xx, pwe);
 				if(ds.equals(x.getDataSource())) xrefs.put(x, pwe);
 			}

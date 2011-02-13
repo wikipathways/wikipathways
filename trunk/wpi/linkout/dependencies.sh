@@ -3,7 +3,7 @@
 ## Downloads dependencies for the linkout script ##
 ## Run this before compiling the script with ant ##
 
-CLIENT_FILE=$(wget -q -O - http://www.pathvisio.org/data/releases/current/ | grep -m 1 -o -E 'wikipathways_client_bin-[0-9]\.[0-9]\.[0-9]-r[0-9]+\.tar\.gz' | head -n1)
+CLIENT_FILE=$(wget -q -O - http://www.pathvisio.org/data/releases/current/ | grep -m 1 -o -E 'wikipathways_client_bin-[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+\.tar\.gz' | head -n1)
 
 wget -m -nd "http://www.pathvisio.org/data/releases/current/$CLIENT_FILE"
 
