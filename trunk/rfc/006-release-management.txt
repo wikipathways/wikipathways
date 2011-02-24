@@ -494,12 +494,12 @@ ant install-wpi \
 	ant tarbin-wpclient -Ddebug.mode=false -Dwsdl.url=http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl
 	
 	# make a release directory
-	ssh pathvisio@www.pathvisio.org
-	mkdir data/releases/<#.#.#>
-	rm data/releases/current
-	ln -s ~/data/releases/<#.#.#> data/releases/current
-	exit
 	
+	RELEASE=<#.#.#> ssh pathvisio@www.pathvisio.org \
+	"mkdir data/releases/$RELEASE;\
+	rm data/releases/current;\
+	ln -s ~/data/releases/$RELEASE data/releases/current"
+		
 	# publish both
 	scp release/* pathvisio@www.pathvisio.org:data/releases/current
 
@@ -507,8 +507,8 @@ ant install-wpi \
 	http://pathvisio.org/Release_Notes
 	http://pathvisio.org/PathVisio
 	
-	# newsletter has been sent out on milestones 16, 18, 22
-	# send out newsletter on milestones 25, 28, 31, 34
+	# newsletter has been sent out on milestones 16, 18, 22, 26
+	# send out newsletter on milestones 29, 32, 35
 	# On other milestones, send out a message to wikipathways-discuss
 	# Using the following template:
 
