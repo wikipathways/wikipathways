@@ -17,11 +17,11 @@ if (typeof(PathwayViewer_basePath) == "undefined")
 PathwayViewer_pathwayInfo = [];
 
 /**
- After page is loaded:
+ After page is ready:
  1. Load the svg objects in the background
  2. Add the buttons for starting the viewer when loading is finished
  */
-$(window).load(function() {
+$(window).ready(function() {
 	$.each(PathwayViewer_pathwayInfo, function(i, info) {
 	   var viewer = new PathwayViewer(info);
 	   PathwayViewer.viewers[info.imageId] = viewer;
@@ -121,8 +121,17 @@ PathwayViewer.prototype.startSVG = function() {
     
     this.removeStartButton();
     
+	//Test if a suitable renderer has been found
+	if (!this.isFlashSupported()) {
+		//If not, instead of loading the svg, add a notification
+		//to help the user to install flash
+		this.addFlashNotification();
+		return;
+	}
+    
     //Replace the image by the container with the svgweb object and xref panel
     var $img = this.getImg(this.info.imageId);
+    this.removeImgAnchor($img);
     
     var w = '100%'; if(this.info.width) w = this.info.width;
     var h = '500px'; if(this.info.height) h = this.info.height;
@@ -190,6 +199,8 @@ PathwayViewer.prototype.startSVG = function() {
         //SVG to stretch on resizing the parent
         obj.setAttribute('width', screen.width + 'px');
         obj.setAttribute('height', screen.height + 'px');
+        //obj.setAttribute('width', that.$viewer.width() + 'px');
+        //obj.setAttribute('height', that.$viewer.height() + 'px');
         obj.addEventListener('SVGLoad', function() {
         		that.$svgObject = $('#' + that.info.imageId + PathwayViewer.idSvgObject);
         		that.svgRoot = that.$svgObject.get(0).contentDocument.rootElement;
@@ -215,13 +226,50 @@ PathwayViewer.prototype.startSVG = function() {
             height: 'auto'
         }, 300, afterAnimate);
     }
-    
-    
+}
+
+PathwayViewer.prototype.removeImgAnchor = function($img) {
+	//If the img tag is nested in an anchor tag,
+	//remove it
+	if ($img.parent().is('a')) {
+		var $oldParent = $img.parent();
+		var $newParent = $oldParent.parent();
+		$oldParent.after($img);
+		$oldParent.remove();
+	}
+}
+
+//Flash version detection copied from http://www.prodevtips.com/2008/11/20/detecting-flash-player-version-with-javascript/
+PathwayViewer.prototype.isFlashSupported = function() {
+	function getFlashVersion() {
+		// ie
+		try {
+			try {
+				// avoid fp6 minor version lookup issues
+				// see: http://blog.deconcept.com/2006/01/11/getvariable-setvariable-crash-internet-explorer-flash-6/
+				var axo = new ActiveXObject('ShockwaveFlash.ShockwaveFlash.6');
+				try { axo.AllowScriptAccess = 'always'; }
+				catch(e) { return '6,0,0'; }
+			} catch(e) {}
+				return new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version').replace(/\D+/g, ',').match(/^,?(.+),?$/)[1];
+				// other browsers
+			} catch(e) {
+				try {
+					if(navigator.mimeTypes["application/x-shockwave-flash"].enabledPlugin){
+					return (navigator.plugins["Shockwave Flash 2.0"] || navigator.plugins["Shockwave Flash"]).description.replace(/\D+/g, ",").match(/^,?(.+),?$/)[1];
+					}
+				} catch(e) {}
+		}
+		return '0,0,0';
+	}
+	
+	var version = getFlashVersion().split(',').shift();
+	return version >= 10;
 }
 
 PathwayViewer.prototype.addStartButton = function(){
-    //Test if a suitable renderer has been found by svgweb
-    if (!svgweb.config.use) {
+    //Test if a suitable renderer has been found
+    if (!this.isFlashSupported()) {
         //If not, instead of loading the svg, add a notification
         //to help the user to install flash
         this.addFlashNotification();
@@ -230,14 +278,7 @@ PathwayViewer.prototype.addStartButton = function(){
     
     var $img = this.getImg();
     
-    //If the img tag is nested in an anchor tag,
-    //remove it
-    if ($img.parent().is('a')) {
-        var $oldParent = $img.parent();
-        var $newParent = $oldParent.parent();
-        $oldParent.after($img);
-        $oldParent.remove();
-    }
+    this.removeImgAnchor($img);
     
     //Create a start image
     var $parent = $img.parent()
@@ -357,7 +398,6 @@ PathwayViewer.prototype.svgLoaded = function($xrefContainer, layout) {
 	this.svgHeight = this.svgRoot.height.baseVal.value;
 	
 	this.$svgObject.disableSelection()
-	this.$viewer.disableSelection()
 	
 	//Add event handlers
 	drag = this.newDragState(this.$svgObject, this.svgRoot);

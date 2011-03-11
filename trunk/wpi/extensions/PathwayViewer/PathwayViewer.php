@@ -46,12 +46,15 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 		}
 		$svg = $pathway->getFileURL(FILETYPE_IMG);
 		$gpml = $pathway->getFileURL(FILETYPE_GPML);
-			      
+			     
+		$start = '';
+		if($_GET['startViewer']) $start = ',start: true'; 
+		
 		$script = <<<SCRIPT
 	var pwInfo = {
 		imageId: "$imgId",
 		svgUrl: "$svg",
-		gpmlUrl: "$gpml"
+		gpmlUrl: "$gpml"$start
 	}
 	PathwayViewer_pathwayInfo.push(pwInfo);
 SCRIPT;
