@@ -53,7 +53,7 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 		svgUrl: "$svg",
 		gpmlUrl: "$gpml"
 	}
-	PathwayViewer.pathwayInfo.push(pwInfo);
+	PathwayViewer_pathwayInfo.push(pwInfo);
 SCRIPT;
 		$script = "<script type=\"{$wgJsMimeType}\">" . $script . "</script>\n";
 		return array($script, 'isHTML'=>1, 'noparse'=>1);

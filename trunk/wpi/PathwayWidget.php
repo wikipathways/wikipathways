@@ -67,7 +67,7 @@ font-size:12px;
 	echo <<<SCRIPT
 <script type="text/javascript">
 	PathwayViewer_basePath = '$wfPathwayViewerPath/';
-	PathwayViewer.pathwayInfo.push({
+	PathwayViewer_pathwayInfo.push({
 		imageId: "pathwayImage",
 		svgUrl: "$svg",
 		gpmlUrl: "$gpml",
