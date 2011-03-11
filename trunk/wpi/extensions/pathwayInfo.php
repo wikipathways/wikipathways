@@ -112,7 +112,7 @@ TABLE;
 			}
 			//Add xref info button
 			$html = $link;
-			if($xid && $xds) $html = wpiXrefHTML($xid, $xds, $datanode['TextLabel'], $link, $this->getOrganism());
+			if($xid && $xds) $html = XrefPanel::getXrefHTML($xid, $xds, $datanode['TextLabel'], $link, $this->getOrganism());
 			
 			$table .= $html;
 		}

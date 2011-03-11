@@ -5,7 +5,12 @@
 $wgHooks['OutputPageParserOutput'][] = 'wpiAddJavascript';
 
 function wpiAddJavascript(&$out, $parseroutput) {
-	global $wgJsMimeType, $wpiJavascriptSnippets, $wpiJavascriptSources;
+	global $wgJsMimeType, $wpiJavascriptSnippets, $wpiJavascriptSources, $jsRequireJQuery, $jsJQuery;
+	
+	//First add JQuery if required
+	if($jsRequireJQuery) {
+		$out->addScript("<script src=\"{$jsJQuery}\" type=\"{$wgJsMimeType}\"></script>\n");
+	}
 	
 	//Array containing javascript source files to add
 	if(!isset($wpiJavascriptSources)) $wpiJavascriptSources = array();
@@ -18,7 +23,6 @@ function wpiAddJavascript(&$out, $parseroutput) {
 	foreach($wpiJavascriptSnippets as $snippet) {
 		$out->addScript("<script type=\"{$wgJsMimeType}\">$snippet</script>\n");
 	}
-	
 	foreach($wpiJavascriptSources as $src) {
 		$out->addScript("<script src=\"{$src}\" type=\"{$wgJsMimeType}\"></script>\n");
 	}

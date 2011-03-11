@@ -68,6 +68,9 @@ $wgDBserver         = "localhost";
 $wgDBport           = "5432";
 $wgDBprefix         = "";
 
+if(!$wpiJavascriptSnippets) $wpiJavascriptSnippets = array();
+if(!$wpiJavascriptSources) $wpiJavascriptSources = array();
+
 # Load organism registry
 require_once('wpi/Organism.php');
 # Load passwords/usernames
@@ -76,9 +79,11 @@ require('pass.php');
 require_once('wpi/globals.php');
 
 # Default javascript locations
-if(!isset($jsJQuery)) $jsJQuery = "$wgScriptPath/wpi/js/jquery/jquery-1.3.2.js";
-if(!isset($jsJQueryUI)) $jsJQueryUI = "$wgScriptPath/wpi/js/jquery-ui/jquery-ui-1.7.2.custom.min.js";
+if(!isset($jsJQuery)) $jsJQuery = "$wgScriptPath/wpi/js/jquery/jquery-1.5.1.js";
+if(!isset($jsJQueryUI)) $jsJQueryUI = "$wgScriptPath/wpi/js/jquery-ui/jquery-ui-1.8.10.custom.min.js";
+if(!isset($cssJQueryUI)) $cssJQueryUI = "$wgScriptPath/wpi/js/jquery-ui/jquery-ui-1.8.10.custom.css";
 if(!isset($jsSvgWeb)) $jsSvgWeb = "$wgScriptPath/wpi/js/svgweb/svg-uncompressed.js\" data-path=\"$wgScriptPath/wpi/js/svgweb";
+$jsRequireJQuery = false; //Only load jquery when required by extension
 
 # Schemas for Postgres
 $wgDBmwschema       = "mediawiki";
@@ -389,17 +394,6 @@ $wgReadOnlyFile = "readonly.enable";
 
 //Increase recent changes retention time
 $wgRCMaxAge = 60 * 24 * 3600;
-
-//Setup xrefpanel
-$wpiJavascriptSnippets[] = "XrefPanel_dataSourcesUrl = '" . WPI_CACHE_URL . "/datasources.txt';";
-if($wpiBridgeUrl !== false) { //bridgedb web service support can be disabled by setting $wpiBridgeDb to false
-	if(!isset($wpiBridgeUrl) || $wpiBridgeUseProxy) {
-		//Point to bridgedb proxy by default
-		$wpiJavascriptSnippets[] = "XrefPanel_bridgeUrl = '" . WPI_URL . '/extensions/bridgedb.php' . "';";
-	} else {
-		$wpiJavascriptSnippets[] = "XrefPanel_bridgeUrl = '$wpiBridgeUrl';";
-	}
-}
 
 //Lastly, include javascripts (that may have been added by other extensions)
 require_once('wpi/Javascript.php');

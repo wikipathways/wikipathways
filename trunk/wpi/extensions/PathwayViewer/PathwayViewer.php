@@ -19,7 +19,9 @@ function wfPathwayViewer_Magic( &$magicWords, $langCode ) {
 
 function displayPathwayViewer(&$parser, $pwId, $imgId) {
 	global $wgOut, $wgStylePath, $wfPathwayViewerPath, $wpiJavascriptSources, $wgScriptPath,
-		$wpiJavascriptSnippets, $wgJsMimeType, $jsJQuery, $jsSvgWeb, $jsJQueryUI, $jsJQueryXML;
+		$wpiJavascriptSnippets, $jsRequireJQuery;
+	
+	$jsRequireJQuery = true;
 	
 	try {
 		$parser->disableCache();
@@ -29,10 +31,9 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 		$wgOut->addMeta('svg.render.forceflash', 'true');
 		
 		//Add javascript dependencies
-		wpiAddXrefPanelScripts();
-		foreach(PathwayViewer::getJsDependencies() as $js) {
-			$wpiJavascriptSources[] = $js;
-		}
+		XrefPanel::addXrefPanelScripts();
+		$wpiJavascriptSources = array_merge($wpiJavascriptSources, PathwayViewer::getJsDependencies());
+		
 		$script = "PathwayViewer_basePath = '" . $wfPathwayViewerPath . "/';";
 		$wpiJavascriptSnippets[] = $script;
 
@@ -68,9 +69,9 @@ class PathwayViewer {
 		
 		return array(
 			"$wgScriptPath/wpi/js/jquery/plugins/jquery.mousewheel.js",
-			"$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.2.0.js",
-			"$wfPathwayViewerPath/pathwayviewer.js",
+			"$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.3.0.js",
 			$jsSvgWeb,
+			"$wfPathwayViewerPath/pathwayviewer.js",
 		);
 	}
 }

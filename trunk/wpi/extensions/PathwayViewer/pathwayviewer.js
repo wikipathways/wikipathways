@@ -1,6 +1,7 @@
-
-//TODO: hyperlink cursor when over clickable object
-//TODO: make viewer resizable (currently hard because resizing the flash object stretches the svg, maybe adjust viewport will help)
+//TODO: clickable literature references
+//TODO: search and highlight (also via url)
+//TODO: hyperlink cursor when over clickable object (requires fix for http://code.google.com/p/svgweb/issues/detail?id=493)
+//TODO: test immediate start on pathway page (prevent clicking before viewer is loaded)
 
 /**
  * Change this if the base path of the script (and resource files) is
@@ -39,7 +40,7 @@ PathwayViewer.icons = {
 /**
  * The amount of zoom ratio change per zoom step.
  */
-PathwayViewer.zoomStep = 0.1;
+PathwayViewer.zoomStep = 0.2;
 
 /**
  * The number of pixels to move per step (for panning controls).
@@ -106,6 +107,7 @@ PathwayViewer.onPageLoad = function(){
     }
     PathwayViewer.loadGPML();
 }
+
 $(window).load(PathwayViewer.onPageLoad);
 
 PathwayViewer.showLoadProgress = function($container){
@@ -299,14 +301,20 @@ PathwayViewer.startSVG = function(info){
         
         var obj = document.createElement('object', true);
         obj.id = obj_id;
-        obj.setAttribute('type', 'image/svg+xml');
-        obj.setAttribute('data', info.svgUrl);
+        
+        if($.browser.msie && $.browser.version < 9) {
+           obj.setAttribute('classid', 'image/svg+xml');
+           obj.setAttribute('src', info.svgUrl);
+        } else {
+		     obj.setAttribute('type', 'image/svg+xml');
+		     obj.setAttribute('data', info.svgUrl);
+        }
         //Set to maximum size, so all content will be displayed after resizing parent
         //Ideally we would use relative size here ('100%'), but this causes the
         //SVG to stretch on resizing the parent
         obj.setAttribute('width', screen.width + 'px');
         obj.setAttribute('height', screen.height + 'px');
-        obj.addEventListener('load', function(){
+        obj.addEventListener('SVGLoad', function(){
             var $svgObject = $('#' + info.imageId + PathwayViewer.idSvgObject);
             var svgRoot = $svgObject.get(0).contentDocument.rootElement;
             PathwayViewer.svgLoaded(info, $viewerpane, $xrefpane, $svgObject, svgRoot, layoutUtil);
@@ -340,8 +348,8 @@ PathwayViewer.svgLoaded = function(info, $container, $xrefContainer, $svgObject,
     var drag = PathwayViewer.newDragState($svgObject, svgRoot);
     PathwayViewer.draggers[info.imageId] = drag;
     
-    $svgObject.mousedown(drag.mouseDown);
-    $svgObject.mouseup(drag.mouseUp);
+    $container.mousedown(drag.mouseDown);
+    $container.mouseup(drag.mouseUp);
     
     //Add the mouseup and mouse move to the document,
     //so we can continue dragging outside the svg object
@@ -350,22 +358,25 @@ PathwayViewer.svgLoaded = function(info, $container, $xrefContainer, $svgObject,
     
     var gpml = GpmlModel.models[info.imageId];
     if (gpml) {
-        $svgObject.mousemove(function(e){
+        $container.mousemove(function(e){
             if (!drag.dragging) {
                 gpml.mouseMove($svgObject, svgRoot, e);
             }
         });
-        $svgObject.mousedown(function(e){
+        $container.mousedown(function(e){
             gpml.mouseDown(layout, $xrefContainer, $svgObject, svgRoot, e);
         });
     }
-    $svgObject.mousewheel(function(e){
+    $container.mousewheel(function(e){
         PathwayViewer.mouseWheel(e, svgRoot, $svgObject);
     });
     
     //Show the pan and zoom buttons
     PathwayViewer.addControls($container, svgRoot, info.imageId + PathwayViewer.idControls);
     PathwayViewer.zoomFit(svgRoot, $container.width(), $container.height());
+    
+    svgRoot.setAttribute('width', screen.width + 'px');
+    svgRoot.setAttribute('height', screen.height + 'px');
 }
 
 PathwayViewer.addControls = function($container, svgRoot, id){
@@ -671,14 +682,11 @@ GpmlModel.load = function(info){
     
     gpml.mouseMove = function($svgObject, svg, e){
         var hover = gpml.getHoverObject($svgObject, svg, e);
-        //TODO: set cursor to svg
         if (hover) {
             svg.setAttribute('cursor', 'pointer');
-            //document.body.style.cursor = 'pointer';
         }
         else {
             svg.setAttribute('cursor', 'default');
-            //document.body.style.cursor = 'default';
         }
     }
     

@@ -34,31 +34,25 @@ font-size:12px;
 </STYLE>
 <meta name="svg.render.forceflash" content="true" />
 <?php
-	echo '<link rel="stylesheet" href="' . $wgScriptPath . '/wpi/js/jquery-ui/jquery-ui-1.7.2.custom.css" type="text/css" />' . "\n";
-	echo '<script type="text/javascript" src="' . $jsJQuery . '"></script>' . "\n";
-	echo '<script type="text/javascript" src="' . $jsJQueryUI . '"></script>' . "\n";	
-	echo '<script type="text/javascript" src="' . $wgScriptPath . '/wpi/js/xrefpanel.js"></script>' . "\n";		
+	echo '<link rel="stylesheet" href="' . $cssJQueryUI . '" type="text/css" />' . "\n";
 
 	//Initialize javascript
-	foreach(PathwayViewer::getJsDependencies() as $js) {
+	echo '<script type="text/javascript" src="' . $jsJQuery . '"></script>' . "\n";
+	
+	$jsSnippets = XrefPanel::getJsSnippets();
+	foreach($jsSnippets as $js) {
+		echo "<script type=\"text/javascript\">$js</script>\n";
+	}
+	
+	$imgPath = "$wgServer/$wgScriptPath/skins/common/images/";
+	echo "<script type=\"text/javascript\">XrefPanel_imgPath = '$imgPath';</script>";
+
+	$jsSrc = PathwayViewer::getJsDependencies();
+	$jsSrc = array_merge($jsSrc, XrefPanel::getJsDependencies());
+	foreach($jsSrc as $js) {
 		echo '<script type="text/javascript" src="' . $js . '"></script>' . "\n";
 	}
-
-	$search = '';
-	if($wikipathwaysSearchUrl) {
-		$search = 'XrefPanel_searchUrl = "' . $wikipathwaysSearchUrl . '/#type=id&text=$ID&system=$DATASOURCE";';
-	}
-
-	$bridge = "XrefPanel_dataSourcesUrl = '" . WPI_CACHE_URL . "/datasources.txt';\n";
-	if($wpiBridgeUrl !== false) { //bridgedb web service support can be disabled by setting $wpiBridgeDb to false
-		if(!isset($wpiBridgeUrl) || $wpiBridgeUseProxy) {
-			//Point to bridgedb proxy by default
-			$bridge .= "XrefPanel_bridgeUrl = '" . WPI_URL . '/extensions/bridgedb.php' . "';\n";
-		} else {
-			$bridge .= "XrefPanel_bridgeUrl = '$wpiBridgeUrl';\n";
-		}
-	}
-
+	
 	$id = $_REQUEST['id'];
 	$rev = $_REQUEST['rev'];
 	

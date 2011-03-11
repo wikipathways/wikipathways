@@ -55,24 +55,7 @@ try {
  * Utility function to import the required javascript for the xref panel
  */
 function wpiAddXrefPanelScripts() {
-	global $wpiJavascriptSources, $wpiJavascriptSnippets, $jsJQuery, $jsJQueryUI, 
-		$wgScriptPath, $wgStylePath, $wgOut, $wikipathwaysSearchUrl, $wpiXrefPanelDisableAttributes;
-	
-	//Add CSS
-	//Hack to add a css that's not in the skins directory
-	$oldStylePath = $wgStylePath;
-	$wgStylePath = $wgScriptPath . '/wpi/js/jquery-ui';
-	$wgOut->addStyle("jquery-ui-1.7.2.custom.css");
-	$wgStylePath = $oldStylePath;
-	
-	$wpiJavascriptSources[] = $jsJQuery;
-	$wpiJavascriptSources[] = $jsJQueryUI;
-	$wpiJavascriptSources[] = "$wgScriptPath/wpi/js/xrefpanel.js";
-	
-	$wpiJavascriptSnippets[] = 'XrefPanel_searchUrl = "' . SITE_URL . '/index.php?title=Special:SearchPathways&doSearch=1&ids=$ID&codes=$DATASOURCE&type=xref";';
-	if($wpiXrefPanelDisableAttributes) {
-		$wpiJavascriptSnippets[] = 'XrefPanel_lookupAttributes = false;';
-	}
+	XrefPanel::addXrefPanelScripts();
 }
 		
 function createPathwayObject($pwTitle, $oldid) {
