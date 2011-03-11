@@ -1,4 +1,4 @@
-//TODO: highlight via url
+//TODO: highlight via url (with mapping?)
 //TODO: hyperlink cursor when over clickable object (requires fix for http://code.google.com/p/svgweb/issues/detail?id=493)
 //TODO: test immediate start on pathway page (prevent clicking before viewer is loaded)
 
@@ -24,6 +24,7 @@ PathwayViewer_pathwayInfo = [];
 $(window).load(function() {
 	$.each(PathwayViewer_pathwayInfo, function(i, info) {
 	   var viewer = new PathwayViewer(info);
+	   PathwayViewer.viewers[info.imageId] = viewer;
 	   viewer.loadGPML();
 		if(info.start) {
         	viewer.startSVG(info);
@@ -52,6 +53,8 @@ function PathwayViewer(info) {
 	this.info = info;
 	this.highlights = [];
 }
+
+PathwayViewer.viewers = {};
 
 /**
  * Urls to icons.
@@ -353,6 +356,9 @@ PathwayViewer.prototype.svgLoaded = function($xrefContainer, layout) {
 	this.svgWidth = this.svgRoot.width.baseVal.value;
 	this.svgHeight = this.svgRoot.height.baseVal.value;
 	
+	this.$svgObject.disableSelection()
+	this.$viewer.disableSelection()
+	
 	//Add event handlers
 	drag = this.newDragState(this.$svgObject, this.svgRoot);
 	this.drag = drag;
@@ -397,7 +403,8 @@ PathwayViewer.prototype.addControls = function() {
 
 	var totalWidth = (w + s) * 3;
 
-	var $controls = jQuery('<div />').attr('unselectable', 'on').attr('id', id);
+	var $controls = jQuery('<div />').attr('id', id);
+	$controls.disableSelection();
 
 	var create = function(src, fn, left, top, title) {
 		var btn = $('<div />').addClass('').css({
