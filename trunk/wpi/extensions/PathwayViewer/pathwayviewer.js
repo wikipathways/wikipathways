@@ -527,9 +527,12 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 		window.setTimeout(function(){doit(now,lastChange)}, 500);
 	}
 	
-	var onEnter = function() {
+	var onEnter = function(event, ui) {
 		lastChange.time = new Date().getTime(); //Don't execute onChange
-		that.search($input.attr('value'));	
+		var value = $input.attr('value');
+		if(ui) value = String(ui.item.value);
+		console.log('onenter: ' + value);
+		that.search(value);
 		//TODO: on hitting enter, focus on result and traverse
 	}
 	
@@ -652,8 +655,9 @@ PathwayViewer.prototype.zoomFit = function() {
 	this.svgRoot.currentScale = r;
 
 	//Center
-	this.svgRoot.currentTranslate.setX(0.5 * fw / r - w / 2);
-	this.svgRoot.currentTranslate.setY(0.5 * fh / r - h / 2);
+	this.svgRoot.currentTranslate.setXY(
+		0.5 * fw / r - w / 2, 0.5 * fh / r - h / 2
+	);
 }
 
 PathwayViewer.prototype.panUp = function() {
@@ -674,6 +678,10 @@ PathwayViewer.prototype.panRight = function() {
 PathwayViewer.prototype.panDown = function() {
     this.svgRoot.currentTranslate.setY(
     	this.svgRoot.currentTranslate.getY() - PathwayViewer.moveStep);
+}
+
+PathwayViewer.prototype.panTo = function(x, y) {
+	this.svgRoot.currentTranslate.setXY(x,y);
 }
 
 PathwayViewer.prototype.mouseWheel = function(e) {
@@ -744,10 +752,9 @@ PathwayViewer.prototype.newDragState = function() {
         
         var dx = e.pageX - drag.pMouseDown.x;
         var dy = e.pageY - drag.pMouseDown.y;
-        that.svgRoot.currentTranslate.setX(
-        		drag.pTransDown.x + dx / that.svgRoot.currentScale);
-        that.svgRoot.currentTranslate.setY(
-        		drag.pTransDown.y + dy / that.svgRoot.currentScale);
+        var x = drag.pTransDown.x + dx / that.svgRoot.currentScale;
+        var y = drag.pTransDown.y + dy / that.svgRoot.currentScale;
+        that.svgRoot.currentTranslate.setXY(x, y);
     }
     
     drag.mouseUp = function(evt){
