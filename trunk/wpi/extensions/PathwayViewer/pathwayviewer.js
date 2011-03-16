@@ -186,15 +186,9 @@ PathwayViewer.prototype.startSVG = function() {
         
         var obj = document.createElement('object', true);
         obj.id = obj_id;
-        
-        if($.browser.msie && $.browser.version < 9) {
-           obj.setAttribute('classid', 'image/svg+xml');
-           obj.setAttribute('src', that.info.svgUrl);
-        } else {
-		     obj.setAttribute('type', 'image/svg+xml');
-		     obj.setAttribute('data', that.info.svgUrl);
-        }
-        //Set to maximum size, so all content will be displayed after resizing parent
+	     obj.setAttribute('type', 'image/svg+xml');
+	     obj.setAttribute('data', that.info.svgUrl);
+	     
         //Ideally we would use relative size here ('100%'), but this causes the
         //SVG to stretch on resizing the parent
         obj.setAttribute('width', screen.width + 'px');
@@ -521,14 +515,13 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 		//Delay to prevent unwanted searches during typing
 		var now = new Date().getTime()
 		lastChange.time = now;
-		
 		var doit = function(now, lastChange) {
 			if(lastChange.time == now) {
 				that.search($input.attr('value'));	
 			} else {
 			}
 		}
-		window.setTimeout(doit, 500, now, lastChange);
+		window.setTimeout(function(){doit(now,lastChange)}, 500);
 	}
 	
 	var onEnter = function() {
