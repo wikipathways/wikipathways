@@ -450,6 +450,9 @@ PathwayViewer.prototype.addControls = function() {
 			'background-image': 'url(' + src + ')'
 		});
 		btn.click(bind(that, fn));
+		btn.bind('mousedown', function(e) {
+			e.stopPropagation(); //Prevent dragging viewer when clicking control
+		});
 		btn.attr("title", title);
 		return btn;
 	};
@@ -537,7 +540,6 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 	$input.addClass('ui-corner-all');
 	$input.bind('keyup', onChange);
 	$input.bind('change', onEnter);
-	
 	$box.append($input);
 	
 	this.$searchInput = $input;
@@ -559,6 +561,10 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 	});
 	
 	$box.append($icon);
+	
+	$box.bind('mousedown', function(e) {
+		e.stopPropagation(); //Prevent dragging viewer when clicking search box
+	});
 	return $box;
 }
 
