@@ -27,7 +27,7 @@ GraphBuilder.prototype.drawVisualizations = function() {
 	try { this.drawCollectionCounts(); } catch(err) { this.error(err); }
 	try { this.drawEditCounts(); } catch(err) { this.error(err); }
 	try { this.drawUserFrequencies(); } catch(err) { this.error(err); }
-	try { this.drawContentHistograms(); } catch(err) { this.error(err); }
+	try { this.drawContentFrequencies(); } catch(err) { this.error(err); }
 	try { this.drawViewFrequencies(); } catch(err) { this.error(err); }
 	try { this.drawEditFrequencies(); } catch(err) { this.error(err); }
 	try { this.addSummary(); } catch(err) { this.error(err); }
@@ -154,42 +154,42 @@ GraphBuilder.prototype.drawViewFrequencies = function() {
 	});
 }
 
-GraphBuilder.prototype.drawContentHistograms = function() {
+GraphBuilder.prototype.drawContentFrequencies = function() {
 	var that = this;
-	var xref_cont = document.getElementById('xref_histogram_graph');
-	var lit_cont = document.getElementById('lit_histogram_graph');
-	var int_cont = document.getElementById('int_histogram_graph');
+	var xref_cont = document.getElementById('xref_frequencies_graph');
+	var lit_cont = document.getElementById('lit_frequencies_graph');
+	var int_cont = document.getElementById('int_frequencies_graph');
 
-	var xref_vis = new google.visualization.ColumnChart(xref_cont);
-	var lit_vis = new google.visualization.ColumnChart(lit_cont);
-	var int_vis = new google.visualization.ColumnChart(int_cont);
+	var xref_vis = new google.visualization.AreaChart(xref_cont);
+	var lit_vis = new google.visualization.AreaChart(lit_cont);
+	var int_vis = new google.visualization.AreaChart(int_cont);
 
-	jQuery.get(GraphBuilder.dataPath + 'contentHistograms.txt.xrefs', function(data) {
+	jQuery.get(GraphBuilder.dataPath + 'contentFrequencies.txt.xrefs', function(data) {
 		var table = that.parseText(data);
 		
 		xref_vis.draw(table, {
-			hAxis: {title:'Number of xrefs', showTextEvery:50}, 
-			vAxis: {title:'Number of pathways'},	
+			hAxis: {title:'Pathway rank (by nr. xrefs)', showTextEvery:100}, 
+			vAxis: {title:'Number of xrefs'},	
 			legend: 'none'
 		});
 	});
 	
-	jQuery.get(GraphBuilder.dataPath + 'contentHistograms.txt.lit', function(data) {
+	jQuery.get(GraphBuilder.dataPath + 'contentFrequencies.txt.lit', function(data) {
 		var table = that.parseText(data);
 			
 		lit_vis.draw(table, {
-			hAxis: {title:'Number of literature references', showTextEvery:50}, 
-			vAxis: {title:'Number of pathways'},	
+			hAxis: {title:'Pathway rank (by nr. literature references)', showTextEvery:100}, 
+			vAxis: {title:'Number of literature references'},	
 			legend: 'none'
 		});
 	});
 	
-	jQuery.get(GraphBuilder.dataPath + 'contentHistograms.txt.int', function(data) {
+	jQuery.get(GraphBuilder.dataPath + 'contentFrequencies.txt.int', function(data) {
 		var table = that.parseText(data);
 			
 		int_vis.draw(table, {
-			hAxis: {title:'Number of linked lines', showTextEvery:50}, 
-			vAxis: {title:'Number of pathways'},	
+			hAxis: {title:'Pathway rank (by nr. connected lines)', showTextEvery:100}, 
+			vAxis: {title:'Number of connected lines'},	
 			legend: 'none'
 		});
 	});

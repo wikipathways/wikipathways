@@ -42,7 +42,7 @@ $allTasks = array(
 	'collectionCounts' => 'writeCollectionCounts',
 	'editCounts' => 'writeEditCounts',
 	'userFrequencies' => 'writeUserFrequencies',
-	'contentHistograms' => 'writeContentHistograms',
+	'contentFrequencies' => 'writeContentFrequencies',
 	'usageFrequencies' => 'writeUsageFrequencies',
 	'summary' => 'writeSummary',
 	'webservice' => 'writeWebserviceCounts',
@@ -225,19 +225,10 @@ EDITS;
 			if(count($edits) > 0) $editCounts[$u->getName()] = count($edits);
 		}
 		
-		arsort($editCounts);
 		$fout = fopen($file, 'w');
 		fwrite($fout, "string\tstring\tnumber\n");
 		fwrite($fout, "User\tUser rank\tNumber of edits\n");
-
-		$i = 0;
-		foreach(array_keys($editCounts) as $u) {
-			$row = array(
-				$u, $i, $editCounts[$u]
-			);
-			fwrite($fout, implode("\t", $row) . "\n");
-			$i += 1;
-		}
+		self::writeFrequencies($fout, $editCounts, true);
 
 		fclose($fout);
 	}
@@ -496,46 +487,41 @@ EDITS;
 			array_push($editCounts, $p->getNrRevisions());
 		}
 		
-		arsort($editCounts);
 		$fout = fopen($file . ".edits", 'w');
 		fwrite($fout, "string\tnumber\n");
-		fwrite($fout, "Pathway rank\tNumber of edits\n");
+		fwrite($fout, "Pathway rank (by number of edits)\tNumber of edits\n");
 
-		$i = 0;
-		foreach(array_keys($editCounts) as $u) {
-			$row = array(
-				$i, $editCounts[$u]
-			);
-			fwrite($fout, implode("\t", $row) . "\n");
-			$i += 1;
-		}
-
+		self::writeFrequencies($fout, $viewCounts);
+		
 		fclose($fout);
 		
-		arsort($viewCounts);
 		$fout = fopen($file . ".views", 'w');
 		fwrite($fout, "string\tnumber\n");
-		fwrite($fout, "Pathway rank\tNumber of views\n");
+		fwrite($fout, "Pathway rank (by number of views)\tNumber of views\n");
 
-		$i = 0;
-		foreach(array_keys($viewCounts) as $u) {
-			$row = array(
-				$i, $viewCounts[$u]
-			);
-			fwrite($fout, implode("\t", $row) . "\n");
-			$i += 1;
-		}
+		self::writeFrequencies($fout, $viewCounts);
 
 		fclose($fout);
 	}
 	
+	static function writeFrequencies($fout, $counts, $includeKey = 0) {
+		arsort($counts);
+		$i = 0;
+		foreach(array_keys($counts) as $u) {
+			$row = array($i, $counts[$u]);
+			if($includeKey) array_unshift($row, $u);
+			fwrite($fout, implode("\t", $row) . "\n");
+			$i += 1;
+		}
+	}
+	
 	/**
-	 * Histogram of several patwhay statistics:
+	 * Frequencies of several pathway statistics:
 	 * - xrefs
 	 * - literature references
 	 * - linked lines (interactions)
 	 */
-	static function writeContentHistograms($file, $times) {
+	static function writeContentFrequencies($file, $times) {
 			$tsCurr = array_pop($times);
 			
 			$xrefCounts = array();
@@ -562,82 +548,24 @@ EDITS;
 				array_push($litCounts, $lc);
 				array_push($intCounts, $ic);
 			}
-			
-			$xrefHist = self::histCounts($xrefCounts);
-			$litHist = self::histCounts($litCounts);
-			$intHist = self::histCounts($intCounts);
-			
+		
 			$fout = fopen("$file.xrefs", 'w');
 			fwrite($fout, "string\tnumber\n");
-			fwrite($fout, "Number of xrefs\tNumber of pathways\n");
-			array_walk($xrefHist, 'WikiPathwaysStatistics::kvpaste');
-			fwrite($fout, implode("\n", $xrefHist));
+			fwrite($fout, "Pathway rank (by number of xrefs)\tNumber of xrefs\n");
+			self::writeFrequencies($fout, $xrefCounts);
 			fclose($fout);
 			
 			$fout = fopen("$file.lit", 'w');
 			fwrite($fout, "string\tnumber\n");
-			fwrite($fout, "Number of literature references\tNumber of pathways\n");
-			array_walk($litHist, 'WikiPathwaysStatistics::kvpaste');
-			fwrite($fout, implode("\n", $litHist));
+			fwrite($fout, "Pathway rank (by number of literature references)\tNumber of literature references\n");
+			self::writeFrequencies($fout, $litCounts);
 			fclose($fout);
 			
 			$fout = fopen("$file.int", 'w');
 			fwrite($fout, "string\tnumber\n");
-			fwrite($fout, "Number of linked lines\tNumber of pathways\n");
-			array_walk($intHist, 'WikiPathwaysStatistics::kvpaste');
-			fwrite($fout, implode("\n", $intHist));
+			fwrite($fout, "Pathway rank (by number of connected lines)\tNumber of connected lines\n");
+			self::writeFrequencies($fout, $intCounts);
 			fclose($fout);
-	}
-	
-	static function kvpaste(&$v, $k) {
-		$v = "$k\t$v";
-	}
-	
-	static function histCounts($values, $min = -1, $max = -1, $binSize = -1) {
-		if($min < 0) $min = min($values);
-		if($max < 0) $max = max($values);
-		if($min == $max) return array($min => count($values));
-		
-		$range = $max - $min;
-		
-		$bins = intval($range);
-		
-		if($binSize > 0) {
-			$bins = $range / $binSize;
-		}
-		
-		$hist = array();
-		
-		$delta = $range / $bins;
-		$lower = $min;
-		while($lower <= $max) {
-			$upper = $lower + $delta;
-			$middle = $lower + ($upper - $lower) / 2;
-			$count = 0;
-			foreach($values as $v) {
-				if($v >= $lower && $v < $upper) $count += 1;
-			}
-			$f_middle = intval($middle);
-			if($f_middle >= 1000) 
-				$f_middle = self::cutzero(sprintf("%e", $f_middle));
-			$f_lower = intval($lower);
-			if($f_lower >= 1000) 
-				$f_lower = self::cutzero(sprintf("%e", $f_lower));
-			$f_upper = intval($upper);
-			if($f_upper >= 1000) 
-				$f_upper = self::cutzero(sprintf("%e", $f_upper));
-			
-			if($bins == $range) $key = $f_middle;
-			else $key = "$f_lower to $f_upper";
-			$hist[$key] = $count;
-			$lower = $upper;
-		}
-		
-		return $hist;
-	}
-	
-	static function cutzero($value) { 
-		return preg_replace("/(\.\d+?)0+(e.+$)/", "$1$2", $value);
 	}
 	
 	static function writeXrefCounts($file, $times) {
