@@ -345,6 +345,7 @@ require_once('wpi/extensions/SecureHTML/SecureHTML.php');
 require_once('wpi/extensions/RSS/rss.php');
 require_once('wpi/extensions/Relations/Relations.php');
 require_once('wpi/extensions/XrefPanel.php');
+require_once('wpi/statistics/StatisticsHook.php');
 
 /* This shouldn't be in LocalSettings.php, since that's checked
 in to the svn repository. Put it in pass.php instead!
