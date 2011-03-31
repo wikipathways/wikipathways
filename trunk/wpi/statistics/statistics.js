@@ -5,7 +5,7 @@
 
 // Load the Visualization API
 google.load('visualization', '1', {'packages':['corechart']});
-google.load('jquery', '1.5.0');
+google.load('jquery', '1.5.1');
 
 // Set a callback to run when the Google Visualization API is loaded.
 drawVisualizations = function() {
@@ -14,293 +14,520 @@ drawVisualizations = function() {
 }
 google.setOnLoadCallback(drawVisualizations);
 
+function CheckDone(total, callback) {
+	this.cb = callback;
+	this.goal = total;
+	this.done = 0;
+}
+CheckDone.prototype.isDone = function() {
+	this.done++;
+	if(this.done >= this.goal){
+		this.cb();
+	}
+}
+
 function GraphBuilder() { }
 
 GraphBuilder.dataPath = '';
 if(typeof(wgScriptPath) != 'undefined') { //Loaded from MW page
 	GraphBuilder.dataPath = wgServer + wgScriptPath + '/wpi/statistics/';
+	GraphBuilder.errorImg = wgServer + wgScriptPath + '/skins/common/images/cancel.gif';
 }
 
 GraphBuilder.prototype.drawVisualizations = function() {
-	try { this.drawPathwayCounts(); } catch(err) { this.error(err); }
-	try { this.drawUserCounts(); } catch(err) { this.error(err); }
-	try { this.drawCollectionCounts(); } catch(err) { this.error(err); }
-	try { this.drawEditCounts(); } catch(err) { this.error(err); }
-	try { this.drawUserFrequencies(); } catch(err) { this.error(err); }
-	try { this.drawContentFrequencies(); } catch(err) { this.error(err); }
-	try { this.drawViewFrequencies(); } catch(err) { this.error(err); }
-	try { this.drawEditFrequencies(); } catch(err) { this.error(err); }
-	try { this.addSummary(); } catch(err) { this.error(err); }
-	try { this.drawWebserviceCounts(); } catch(err) { this.error(err); }
+	var that = this;
+	
+	var req = this.addSummary();
+	req.then(function() { req = that.drawPathwayCounts(); });
+	req.then(function() { req = that.drawUserCounts(); });
+	req.then(function() { req = that.drawCollectionCounts(); });
+	req.then(function() { req = that.drawEditCounts(); });
+	req.then(function() { req = that.drawUserFrequencies(); });
+	req.then(function() { req = that.drawLitFrequencies(); });
+	req.then(function() { req = that.drawXrefFrequencies(); });
+	req.then(function() { req = that.drawIntFrequencies(); });
+	req.then(function() { req = that.drawViewFrequencies(); });
+	req.then(function() { req = that.drawEditFrequencies(); });
+	req.then(function() { req = that.drawWebserviceCounts(); });
+}
+
+/**
+ * Some browsers load interactive charts very slow. Determine whether not to draw
+ * or fallback on static charts in these cases.
+ */
+GraphBuilder.prototype.slowBrowser = function() {
+	if($.browser.msie && $.browser.version.slice(0,1) <= 8) {
+		return true;
+	}
+	return false;
+}
+
+GraphBuilder.prototype.browserNotice = function(container) {
+	$(container).html("Unable to draw graph in this browser. Please update your browser to the newest version.");
+	$(container).prepend(
+		$('<img>').attr('src', GraphBuilder.errorImg)
+	);
+	$(container).width('auto');
+	$(container).height('auto');
 }
 
 GraphBuilder.prototype.addSummary = function() {
 	var container = document.getElementById('summary');
-	jQuery.get(GraphBuilder.dataPath + 'summary.txt', function(data) {
+	if(!container) {
+		var dfd = $.Deferred();
+		dfd.resolve();
+		return dfd.promise();
+	}
+	
+	return $.get(GraphBuilder.dataPath + 'summary.txt', function(data) {
 		$(container).html(data);
 	});
 }
 
 GraphBuilder.prototype.drawUserCounts = function() {
 	var that = this;
+
+	var dfd = $.Deferred();
+	var check = new CheckDone(2, dfd.resolve);
+	
 	//Draw 2 graphs: cumulative users and active users per month
 	var regContainer = document.getElementById('user_registered_graph');
 	var actContainer = document.getElementById('user_active_graph');
+	if(!regContainer && !actContainer) {
+		dfd.resolve();
+		return dfd.promise();
+	}
+	$.get(GraphBuilder.dataPath + 'userCounts.txt', function(data) {
+		try {
 
-	var regVis = new google.visualization.AreaChart(regContainer);
-	var actVis = new google.visualization.ColumnChart(actContainer);
-
-	jQuery.get(GraphBuilder.dataPath + 'userCounts.txt', function(data) {
-		var table = that.parseText(data);
-		var formatter = new google.visualization.DateFormat(
-			{pattern: 'MMMM yyyy'}
-		);
-		formatter.format(table, 0);
+			var regVis = new google.visualization.AreaChart(regContainer);
+			var actVis = new google.visualization.ColumnChart(actContainer);
+		
+			var table = that.parseText(data);
+			var formatter = new google.visualization.DateFormat(
+				{pattern: 'MMMM yyyy'}
+			);
+			formatter.format(table, 0);
 	
-		var regView = new google.visualization.DataView(table);
-		regView.setColumns([0, 2, 1]);
-		var actView = new google.visualization.DataView(table);
-		actView.setColumns([0, 3]);
+			var regView = new google.visualization.DataView(table);
+			regView.setColumns([0, 2, 1]);
+			var actView = new google.visualization.DataView(table);
+			actView.setColumns([0, 3]);
 	
-		regVis.draw(regView, { isStacked: true });
-	
-		actVis.draw(actView, { legend: 'none' });
+			google.visualization.events.addListener(regVis, 'ready', function() {
+				check.isDone();
+			});
+			google.visualization.events.addListener(actVis, 'ready', function() { 
+				check.isDone();
+			});
+			regVis.draw(regView, { isStacked: true });
+			actVis.draw(actView, { legend: 'none' });
+		} catch(e) {
+			that.error(e);
+			dfd.reject(e);
+		}
 	});
+	
+	return dfd.promise();
 }
 
 GraphBuilder.prototype.drawEditCounts = function() {
 	var that = this;
+
+	var dfd = $.Deferred();
+	var check = new CheckDone(2, dfd.resolve);
+	
 	//Draw 2 graphs: cumulative edits and edits per month
 	var totContainer = document.getElementById('edit_graph');
 	var intContainer = document.getElementById('edit_interval_graph');
+	if(!totContainer && !intContainer) {
+		dfd.resolve();
+		return dfd.promise();
+	}
+	$.get(GraphBuilder.dataPath + 'editCounts.txt', function(data) {
+		try {
 
-	var regVis = new google.visualization.AreaChart(totContainer);
-	var actVis = new google.visualization.ColumnChart(intContainer);
-
-	jQuery.get(GraphBuilder.dataPath + 'editCounts.txt', function(data) {
-		var table = that.parseText(data);
-		//Modify column names (remove 'in month')
-		table.setColumnLabel(2, table.getColumnLabel(1));
-		table.setColumnLabel(4, table.getColumnLabel(3));
-		table.setColumnLabel(6, table.getColumnLabel(5));
-		var formatter = new google.visualization.DateFormat(
-			{pattern: 'MMMM yyyy'}
-		);
-		formatter.format(table, 0);
+			var regVis = new google.visualization.AreaChart(totContainer);
+			var actVis = new google.visualization.ColumnChart(intContainer);
+			var table = that.parseText(data);
+			//Modify column names (remove 'in month')
+			table.setColumnLabel(2, table.getColumnLabel(1));
+			table.setColumnLabel(4, table.getColumnLabel(3));
+			table.setColumnLabel(6, table.getColumnLabel(5));
+			var formatter = new google.visualization.DateFormat(
+				{pattern: 'MMMM yyyy'}
+			);
+			formatter.format(table, 0);
 	
-		var totView = new google.visualization.DataView(table);
-		totView.setColumns([0, 1, 3, 5]);
-		var intView = new google.visualization.DataView(table);
-		intView.setColumns([0, 2, 4, 6]);
+			var totView = new google.visualization.DataView(table);
+			totView.setColumns([0, 1, 3, 5]);
+			var intView = new google.visualization.DataView(table);
+			intView.setColumns([0, 2, 4, 6]);
 	
-		regVis.draw(totView, { isStacked: true });
-	
-		actVis.draw(intView, { isStacked: true });
+			google.visualization.events.addListener(regVis, 'ready', function() {
+				check.isDone();
+			});
+			google.visualization.events.addListener(actVis, 'ready', function() { 
+				check.isDone();
+			});
+		
+			regVis.draw(totView, { isStacked: true });
+			actVis.draw(intView, { isStacked: true });
+		} catch(e) {
+			that.error(e);
+			dfd.reject(e);
+		}
 	});
+	
+	return dfd.promise();
 }
 
 GraphBuilder.prototype.drawWebserviceCounts = function() {
 	var that = this;
-	var container = document.getElementById('webservice_graph');
 
-	var vis = new google.visualization.ColumnChart(container);
-
-	jQuery.get(GraphBuilder.dataPath + 'webservice.txt', function(data) {
-		var table = that.parseText(data);
-		var formatter = new google.visualization.DateFormat(
-			{pattern: 'MMMM yyyy'}
-		);
-		formatter.format(table, 0);
+	var dfd = $.Deferred();
 	
-		vis.draw(table, { isStacked: true });
+	var container = document.getElementById('webservice_graph');
+	if(!container) {
+		dfd.resolve();
+		return dfd.promise();
+	}
+	$.get(GraphBuilder.dataPath + 'webservice.txt', function(data) {
+		try {
+
+			var vis = new google.visualization.ColumnChart(container);
+			var table = that.parseText(data);
+			var formatter = new google.visualization.DateFormat(
+				{pattern: 'MMMM yyyy'}
+			);
+			formatter.format(table, 0);
+			google.visualization.events.addListener(vis, 'ready', dfd.resolve);
+			vis.draw(table, { isStacked: true });
+		} catch(e) {
+			that.error(e);
+			dfd.reject(e);
+		}
 	});
+	
+	return dfd.promise();
 }
 
 GraphBuilder.prototype.drawEditFrequencies = function() {
 	var that = this;
+
+	var dfd = $.Deferred();
+
 	var cont = document.getElementById('edits_frequencies_graph');
+	if(!cont) {
+		dfd.resolve();
+		return dfd.promise();
+	}
+	$.get(GraphBuilder.dataPath + 'usageFrequencies.txt.edits', function(data) {
+		try {
 
-	var vis = new google.visualization.AreaChart(cont);
-
-	jQuery.get(GraphBuilder.dataPath + 'usageFrequencies.txt.edits', function(data) {
-		var table = that.parseText(data);
-		
-		vis.draw(table, {
-			hAxis: {
-				title:'Pathway rank (by number of edits)', showTextEvery:100
-			}, 
-			vAxis: {title:'Number of pathways'},	
-			legend: 'none'
-		});
+			if(that.slowBrowser()) {
+				that.browserNotice(cont);
+				dfd.reject();
+				return;
+			}
+			var vis = new google.visualization.LineChart(cont);
+			var table = that.parseText(data);
+			google.visualization.events.addListener(vis, 'ready', dfd.resolve);
+			vis.draw(table, {
+				hAxis: {
+					title:'Pathway rank (by number of edits)', showTextEvery:100
+				}, 
+				vAxis: {title:'Number of pathways'},	
+				legend: 'none',
+				categoryLabels: 50
+			});
+		} catch(e) {
+			that.error(e);
+			dfd.reject(e);
+		}
 	});
+	
+	return dfd.promise();
 }
 
 GraphBuilder.prototype.drawViewFrequencies = function() {
 	var that = this;
+
+	var dfd = $.Deferred();
+
 	var cont = document.getElementById('views_frequencies_graph');
+	if(!cont) {
+		dfd.resolve();
+		return dfd.promise();
+	}
+	$.get(GraphBuilder.dataPath + 'usageFrequencies.txt.views', function(data) {
+		try {
 
-	var vis = new google.visualization.AreaChart(cont);
-
-	jQuery.get(GraphBuilder.dataPath + 'usageFrequencies.txt.views', function(data) {
-		var table = that.parseText(data);
-		
-		vis.draw(table, {
-			hAxis: {
-				title:'Pathway rank (by number of views)', showTextEvery:100
-			}, 
-			vAxis: {title:'Number of pathways'},	
-			legend: 'none'
-		});
+			if(that.slowBrowser()) {
+				that.browserNotice(cont);
+				dfd.reject();
+				return;
+			}
+			var vis = new google.visualization.LineChart(cont);
+			var table = that.parseText(data);
+			google.visualization.events.addListener(vis, 'ready', dfd.resolve);
+			vis.draw(table, {
+				hAxis: {
+					title:'Pathway rank (by number of views)', showTextEvery:100
+				}, 
+				vAxis: {title:'Number of pathways'},	
+				legend: 'none'
+			});
+		} catch(e) {
+			that.error(e);
+			dfd.reject(e);
+		}
 	});
+	
+	return dfd.promise();
 }
 
-GraphBuilder.prototype.drawContentFrequencies = function() {
+GraphBuilder.prototype.drawXrefFrequencies = function() {
 	var that = this;
-	var xref_cont = document.getElementById('xref_frequencies_graph');
-	var lit_cont = document.getElementById('lit_frequencies_graph');
-	var int_cont = document.getElementById('int_frequencies_graph');
+	var dfd = $.Deferred();
+	var cont = document.getElementById('xref_frequencies_graph');
+	if(!cont) {
+		dfd.resolve();
+		return dfd.promise();
+	}
+	$.get(GraphBuilder.dataPath + 'contentFrequencies.txt.xrefs', function(data) {
+		try {
+			if(that.slowBrowser()) {
+				that.browserNotice(cont);
+				dfd.reject();
+				return;
+			}
+			var vis = new google.visualization.LineChart(cont);
+			var table = that.parseText(data);
+			google.visualization.events.addListener(vis, 'ready', dfd.resolve);
+			vis.draw(table, {
+				hAxis: {title:'Pathway rank (by nr. xrefs)', showTextEvery:100}, 
+				vAxis: {title:'Number of xrefs'},	
+				legend: 'none'
+			});
+		} catch(e) {
+			that.error(e);
+			dfd.reject(e);
+		}
+	});
+	return dfd.promise();
+}
 
-	var xref_vis = new google.visualization.AreaChart(xref_cont);
-	var lit_vis = new google.visualization.AreaChart(lit_cont);
-	var int_vis = new google.visualization.AreaChart(int_cont);
+GraphBuilder.prototype.drawLitFrequencies = function() {
+	var that = this;
+	var dfd = $.Deferred();
+	var cont = document.getElementById('lit_frequencies_graph');
+	if(!cont) {
+		dfd.resolve();
+		return dfd.promise();
+	}
+	$.get(GraphBuilder.dataPath + 'contentFrequencies.txt.lit', function(data) {
+		try {
+			if(that.slowBrowser()) {
+				that.browserNotice(cont);
+				dfd.reject();
+				return;
+			}
+			var vis = new google.visualization.LineChart(cont);
+			var table = that.parseText(data);
+			google.visualization.events.addListener(vis, 'ready', dfd.resolve);
+			vis.draw(table, {
+				hAxis: {title:'Pathway rank (by nr. literature references)', showTextEvery:100}, 
+				vAxis: {title:'Number of literature references'},	
+				legend: 'none'
+			});
+		} catch(e) {
+			that.error(e);
+			dfd.reject(e);
+		}
+	});
+	return dfd.promise();
+}
 
-	jQuery.get(GraphBuilder.dataPath + 'contentFrequencies.txt.xrefs', function(data) {
-		var table = that.parseText(data);
-		
-		xref_vis.draw(table, {
-			hAxis: {title:'Pathway rank (by nr. xrefs)', showTextEvery:100}, 
-			vAxis: {title:'Number of xrefs'},	
-			legend: 'none'
-		});
+GraphBuilder.prototype.drawIntFrequencies = function() {
+	var that = this;
+	var dfd = $.Deferred();
+	var cont = document.getElementById('int_frequencies_graph');
+	if(!cont) {
+		dfd.resolve();
+		return dfd.promise();
+	}
+	$.get(GraphBuilder.dataPath + 'contentFrequencies.txt.int', function(data) {
+		try {
+			if(that.slowBrowser()) {
+				that.browserNotice(cont);
+				dfd.reject();
+				return;
+			}
+			var vis = new google.visualization.LineChart(cont);
+			var table = that.parseText(data);
+			google.visualization.events.addListener(vis, 'ready', dfd.resolve);
+			vis.draw(table, {
+				hAxis: {title:'Pathway rank (by nr. connected lines)', showTextEvery:100}, 
+				vAxis: {title:'Number of connected lines'},	
+				legend: 'none'
+			});
+		} catch(e) {
+			that.error(e);
+			dfd.reject(e);
+		}
 	});
-	
-	jQuery.get(GraphBuilder.dataPath + 'contentFrequencies.txt.lit', function(data) {
-		var table = that.parseText(data);
-			
-		lit_vis.draw(table, {
-			hAxis: {title:'Pathway rank (by nr. literature references)', showTextEvery:100}, 
-			vAxis: {title:'Number of literature references'},	
-			legend: 'none'
-		});
-	});
-	
-	jQuery.get(GraphBuilder.dataPath + 'contentFrequencies.txt.int', function(data) {
-		var table = that.parseText(data);
-			
-		int_vis.draw(table, {
-			hAxis: {title:'Pathway rank (by nr. connected lines)', showTextEvery:100}, 
-			vAxis: {title:'Number of connected lines'},	
-			legend: 'none'
-		});
-	});
+	return dfd.promise();
 }
 
 GraphBuilder.prototype.drawUserFrequencies = function() {
 	var that = this;
-	//Draw 2 graphs: all users, most active users
+	var dfd = $.Deferred();
+	
+	var check = new CheckDone(2, dfd.resolve);
 	var freqContainer = document.getElementById('user_frequencies_graph');
 	var actContainer = document.getElementById('most_active_graph');
-
-	var freqVis = new google.visualization.AreaChart(freqContainer);
-	var actVis = new google.visualization.ColumnChart(actContainer);
-
-	jQuery.get(GraphBuilder.dataPath + 'userFrequencies.txt', function(data) {
-		var table = that.parseText(data);
+	if(!freqContainer && !actContainer) {
+		dfd.resolve();
+		return dfd.promise();
+	}
+	$.get(GraphBuilder.dataPath + 'userFrequencies.txt', function(data) {
+		try {
+			//Draw 2 graphs: all users, most active users
+			var table = that.parseText(data);
 			
-		var freqView = new google.visualization.DataView(table);
-		freqView.setColumns([1, 2]);
-		var actView = new google.visualization.DataView(table);
-		actView.setColumns([0, 2]);
-		actView.setRows(0, 14);
-		
-		/* Use this to set correct axis range when using log scale
-		var maxX = freqView.getColumnRange(0).max;
-		maxX = Math.pow(10, Math.ceil(Math.log(maxX) / Math.log(10))) + 1;
-		
-		var maxY = freqView.getColumnRange(1).max;
-		maxY = Math.pow(10, Math.ceil(Math.log(maxY) / Math.log(10))) + 1;
-		*/
-		
-		freqVis.draw(freqView, { 
-			hAxis: {title:'User rank (by number of edits)', showTextEvery:20}, 
-			vAxis: {title:'Number of edits'},
-			legend: 'none'
-		});
+			if(freqContainer) {
+				var freqVis = new google.visualization.LineChart(freqContainer);
+				var freqView = new google.visualization.DataView(table);
+				freqView.setColumns([1, 2]);
+				google.visualization.events.addListener(freqVis, 'ready', function() {
+					check.isDone();
+				});
+
+				freqVis.draw(freqView, { 
+					hAxis: {title:'User rank (by number of edits)', showTextEvery:20}, 
+					vAxis: {title:'Number of edits'},
+					legend: 'none'
+				});
+			} else {
+				check.isDone();
+			}
+			if(actContainer) {
+				var actVis = new google.visualization.ColumnChart(actContainer);
+				var actView = new google.visualization.DataView(table);
+				actView.setColumns([0, 2]);
+				actView.setRows(0, 14);
+				google.visualization.events.addListener(actVis, 'ready', function() {
+					check.isDone();
+				});
 	
-		actVis.draw(actView, { 
-			hAxis: {showTextEvery: 1, slantedText: true},
-			vAxis: {title: 'Number of edits'},
-			legend: 'none'
-		});
+				actVis.draw(actView, { 
+					hAxis: {showTextEvery: 1, slantedText: true},
+					vAxis: {title: 'Number of edits'},
+					legend: 'none', isVertical: true
+				});
+			} else {
+				check.isDone();
+			}
+		} catch(e) {
+			that.error(e);
+			dfd.reject(e);
+		}
 	});
+	return dfd.promise();
 }
 
 GraphBuilder.prototype.drawPathwayCounts = function() {
 	var that = this;
+	var dfd = $.Deferred();
 	var container = document.getElementById('pathway_counts_graph');
-	var vis = new google.visualization.AreaChart(container);
-	jQuery.get(GraphBuilder.dataPath + 'pathwayCounts.txt', function(data) {
-		var table = that.parseText(data);
+	if(!container) {
+		dfd.resolve();
+		return dfd.promise();
+	}
+	$.get(GraphBuilder.dataPath + 'pathwayCounts.txt', function(data) {
+		try {
+			var vis = null;
+			var opt = null;
 
-		var formatter = new google.visualization.DateFormat(
-			{pattern: 'MMMM yyyy'}
-		);
-		formatter.format(table, 0);
+			vis = new google.visualization.LineChart(container);
+			opt = { isStacked: true };
+			var table = that.parseText(data);
 
-		var vizopt = { isStacked: true };
-	
-		//Add species selector
-		var species = new Array();
-		for(var i = 1; i < table.getNumberOfColumns(); i++) {
-			species[i] = table.getColumnLabel(i);
-		}
-		$.each(species, function(index, value) {   
-			$('#species_combo').prepend(
-				$("<option></option>")
-				.attr("value", index)
-				.text(value)
+			var formatter = new google.visualization.DateFormat(
+				{pattern: 'MMMM yyyy'}
 			);
-		});
-		$('#species_combo').prepend(
-			$('<option></option>')
-			.attr("value", -1)
-			.text("All organisms")
-			.attr("selected", true)
-		);
-		$('#species_combo').change(function() {
+			formatter.format(table, 0);
+
+			//Add species selector
+			var species = new Array();
+			for(var i = 1; i < table.getNumberOfColumns(); i++) {
+				species[i] = table.getColumnLabel(i);
+			}
+			
+			var selected = 1;
+			$.each(species, function(index, value) {  
+			 	var s = $("<option></option>")
+					.attr("value", index)
+					.text(value);
+
+				if(value == 'All species') {
+					selected = index;
+					s.attr('selected', true);
+				}
+				
+				$('#species_combo').append(s);
+			});
+			
+			todraw = new google.visualization.DataView(table);
+			todraw.setColumns([0,selected]);
+			opt.legend = 'none';
+			
+			$('#species_combo').change(function() {
 				var s = $('#species_combo option:selected').text();
 				var i = parseInt($('#species_combo option:selected').val());
-				if(i < 0) {
-					vizopt.legend = 'right';
-					vis.draw(table, vizopt);
-				} else {
-					var view = new google.visualization.DataView(table);
-					view.setColumns([0,i]);
-		
-					vizopt.legend = 'none';
-					vis.draw(view, vizopt);
-				}
-		});
+				var view = new google.visualization.DataView(table);
+				view.setColumns([0,i]);
+
+				opt.legend = 'none';
+				vis.draw(view, opt);
+			});
 	
-		vis.draw(table, vizopt);
+			google.visualization.events.addListener(vis, 'ready', dfd.resolve);
+			vis.draw(todraw, opt);
+		} catch(e) {
+			that.error(e);
+			dfd.reject(e);
+		}
 	});
+	return dfd.promise();
 }
 
 GraphBuilder.prototype.drawCollectionCounts = function() {
 	var that = this;
+	var dfd = $.Deferred();
 	var container = document.getElementById('collection_counts_graph');
-
-	var vis = new google.visualization.LineChart(container);
-
-	jQuery.get(GraphBuilder.dataPath + 'collectionCounts.txt', function(data) {
-		var table = that.parseText(data);
-		var formatter = new google.visualization.DateFormat(
-			{pattern: 'MMMM yyyy'}
-		);
-		formatter.format(table, 0);
+	if(!container) {
+		dfd.resolve();
+		return dfd.promise();
+	}
+	$.get(GraphBuilder.dataPath + 'collectionCounts.txt', function(data) {
+		try {
+			var vis = new google.visualization.LineChart(container);
+			var table = that.parseText(data);
+			var formatter = new google.visualization.DateFormat(
+				{pattern: 'MMMM yyyy'}
+			);
+			formatter.format(table, 0);
 	
-		vis.draw(table);
+			google.visualization.events.addListener(vis, 'ready', dfd.resolve);
+			vis.draw(table);
+		} catch(e) {
+			that.error(e);
+			dfd.reject(e);
+		}
 	});
+	return dfd.promise();
 }
 
 GraphBuilder.prototype.parseText = function(text) {

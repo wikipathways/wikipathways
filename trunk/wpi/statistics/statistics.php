@@ -65,8 +65,6 @@ foreach($tasks as $task) {
 	call_user_func(array('WikiPathwaysStatistics', $allTasks[$task]), $f, $times);
 }
 
-$file = '/pathway_count_species.txt';
-
 /**
  * Implements functions to extract the statistics.
  */
@@ -77,7 +75,7 @@ class WikiPathwaysStatistics {
 	
 	static function writeSummary($file, $times) {
 		$tsCurr = date('YmdHis');
-		$date = date('Y-m-d', wfTimestamp(TS_UNIX, $tsCurr));
+		$date = date('Y/m/d', wfTimestamp(TS_UNIX, $tsCurr));
 		
 		$fout = fopen($file, 'w');
 		
@@ -160,11 +158,12 @@ EDITS;
 		$allCounts = array();
 
 		foreach($times as $tsCurr) {
-			$date = date('Y-m-d', wfTimestamp(TS_UNIX, $tsCurr));
+			$date = date('Y/m/d', wfTimestamp(TS_UNIX, $tsCurr));
 			logger($date . ":\t", "");
 			$snapshot = StatPathway::getSnapshot($tsCurr);
 			logger(count($snapshot));
 	
+			$total = 0;
 			$counts = array();
 			foreach($snapshot as $p) {
 				if(in_array($p->getPageId(), $exclude)) continue;
@@ -175,24 +174,23 @@ EDITS;
 				} else {
 					$counts[$s] = 1;
 				}
+				$total += 1;
 			}
-	
-			foreach(array_keys($counts) as $s) {
-				$c = $counts[$s];
-			}
+			$counts['All species'] = $total;
 			$allCounts[$date] = $counts;
 		}
 
 		unset($allSpecies['undefined']);
 		$allSpecies = array_keys($allSpecies);
-
+		sort($allSpecies);
+		array_unshift($allSpecies, "All species");
+		
 		$fout = fopen($file, 'w');
 		fwrite($fout, "date\t" . 
 			implode("\t", array_fill(0, count($allSpecies), "number")) . "\n");
 		fwrite($fout, "Time\t" . 
 			implode("\t", $allSpecies) . "\n");
 
-		rsort($allSpecies);
 		foreach(array_keys($allCounts) as $date) {
 			$counts = $allCounts[$date];
 			$values = array();
@@ -243,7 +241,7 @@ EDITS;
 		
 		$tsPrev = array_shift($times);
 		foreach($times as $tsCurr) {
-			$date = date('Y-m-d', wfTimestamp(TS_UNIX, $tsCurr));
+			$date = date('Y/m/d', wfTimestamp(TS_UNIX, $tsCurr));
 			logger($date);
 			
 			$users = StatUser::getSnapshot($tsCurr);
@@ -297,7 +295,7 @@ EDITS;
 		
 		$tsPrev = array_shift($times);
 		foreach($times as $tsCurr) {
-			$date = date('Y-m-d', wfTimestamp(TS_UNIX, $tsCurr));
+			$date = date('Y/m/d', wfTimestamp(TS_UNIX, $tsCurr));
 			logger($date);
 			
 			$ipCounts = StatWebservice::getCountsByIp($tsPrev, $tsCurr);			
@@ -352,7 +350,7 @@ EDITS;
 		
 		$tsPrev = array_shift($times);
 		foreach($times as $tsCurr) {
-			$date = date('Y-m-d', wfTimestamp(TS_UNIX, $tsCurr));
+			$date = date('Y/m/d', wfTimestamp(TS_UNIX, $tsCurr));
 			logger($date);
 			
 			$users = StatUser::getSnapshot($tsCurr);
@@ -422,7 +420,7 @@ EDITS;
 		);
 		
 		foreach($times as $tsCurr) {
-			$date = date('Y-m-d', wfTimestamp(TS_UNIX, $tsCurr));
+			$date = date('Y/m/d', wfTimestamp(TS_UNIX, $tsCurr));
 			logger($date);
 			
 			$snapshot = StatTag::getSnapshot($tsCurr, $collections);
@@ -591,7 +589,7 @@ EDITS;
 		$mappingCache = array();
 		
 		foreach($times as $tsCurr) {
-			$date = date('Y-m-d', wfTimestamp(TS_UNIX, $tsCurr));
+			$date = date('Y/m/d', wfTimestamp(TS_UNIX, $tsCurr));
 			logger($date);
 			
 			$xrefsPerSpecies = array();
