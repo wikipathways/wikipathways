@@ -4,7 +4,7 @@
 */
 
 // Load the Visualization API
-google.load('visualization', '1', {'packages':['corechart']});
+google.load('visualization', '1', {'packages':['corechart', 'table']});
 google.load('jquery', '1.5.1');
 
 // Set a callback to run when the Google Visualization API is loaded.
@@ -49,6 +49,7 @@ GraphBuilder.prototype.drawVisualizations = function() {
 	req.then(function() { req = that.drawViewFrequencies(); });
 	req.then(function() { req = that.drawEditFrequencies(); });
 	req.then(function() { req = that.drawWebserviceCounts(); });
+	req.then(function() { req = that.drawUniquePerSpecies(); });
 }
 
 /**
@@ -527,6 +528,56 @@ GraphBuilder.prototype.drawCollectionCounts = function() {
 			dfd.reject(e);
 		}
 	});
+	return dfd.promise();
+}
+
+GraphBuilder.prototype.drawUniquePerSpecies = function() {
+	var that = this;
+	var dfd = $.Deferred();
+	var check = new CheckDone(2, dfd.resolve);
+	
+	var chart = null;
+	var histTable = null;
+	var graphCont = document.getElementById('unique_per_species_graph');
+	if(graphCont) {
+		$.get(GraphBuilder.dataPath + 'uniquePerSpecies.txt', function(data) {
+			try {
+				chart = new google.visualization.ColumnChart(graphCont);
+				histTable = that.parseText(data);
+	
+				google.visualization.events.addListener(
+					chart, 'ready', function() { check.done(); });
+				chart.draw(histTable, { legend: 'none',
+					vAxis: {title: 'Number of pathway titles'},
+					hAxis: {title: 'Present in number of species' }
+				});
+			} catch(e) {
+				that.error(e);
+				check.isDone();
+			}
+		});
+	} else {
+		check.isDone();
+	}
+	
+	var tblCont = document.getElementById('unique_per_species_table');
+	if(tblCont) {
+		$.get(GraphBuilder.dataPath + 'uniquePerSpecies.txt.titles', function(data) {
+			try {
+				var props = { height: '250' };
+				var vis = new google.visualization.Table(tblCont);
+				var table = that.parseText(data);
+				vis.draw(table, props);
+				check.isDone();
+			} catch(e) {
+				that.error(e);
+				check.isDone();
+			}
+		});
+	} else {
+		check.isDone();
+	}
+	
 	return dfd.promise();
 }
 
