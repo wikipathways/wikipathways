@@ -43,11 +43,6 @@ if($mappingPref == 'off'){$cacheFile = WPI_CACHE_PATH . "/wikipathways_native_da
 if(file_exists($cacheFile)) {
 	if($updateCache == 'no' ) {
 		returnCached(); //Redirect to cached (exits script)
-	} else {
-		$latest = wfTimestamp(TS_UNIX, MwUtils::getLatestTimestamp(NS_PATHWAY));
-		if($latest <= filemtime($cacheFile)) {
-			returnCached(); 
-		}
 	}
 }
 // all else...
