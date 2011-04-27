@@ -169,7 +169,6 @@ XrefPanel.registerTrigger = function(elm, id, datasource, species, symbol) {
 		$content = XrefPanel.create(id, datasource, species, symbol);
 		var x = $(this).offset().left + $(this).width() - $(window).scrollLeft();
 		var y = $(this).offset().top - $(window).scrollTop();
-		console.log([x,y]);
 		$dialog = $content.dialog({
 			position: [x,y]
 		});
@@ -313,7 +312,7 @@ XrefPanel.createXrefLink = function(id, datasource, withDataSourceLabel){
     }
     else {
 	   html = label;
-        console.log("Unable to create link for " + id + ", " + datasource);
+      XrefPanel.log("Unable to create link for " + id + ", " + datasource);
     }
     return '<span style="font-size:12px;">' + html + '<br></span>';
 }
@@ -366,4 +365,8 @@ XrefPanel.loadDataSources = function(){
         }
     }
     $.get(XrefPanel_dataSourcesUrl, {}, callback);
+}
+
+XrefPanel.log = function(msg) {
+	if(console && console.log) console.log(msg);
 }
