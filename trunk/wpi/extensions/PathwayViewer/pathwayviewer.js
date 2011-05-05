@@ -1,6 +1,7 @@
 //TODO: highlight via url (with mapping?)
 //TODO: hyperlink cursor when over clickable object (requires fix for http://code.google.com/p/svgweb/issues/detail?id=493)
 //TODO: test immediate start on pathway page (prevent clicking before viewer is loaded)
+//TODO: link to svg/pdf url when no flash available
 
 /**
  * Change this if the base path of the script (and resource files) is
@@ -51,11 +52,14 @@ $(window).ready(function() {
  */
 function PathwayViewer(info) {
 	this.info = info;
-	this.highlights = [];
+	this.highlights = {};
 }
 
 PathwayViewer.viewers = {};
 
+PathwayViewer.highlightColor = 'yellow';
+
+PathwayViewer.focusColor = 'orange';
 /**
  * Urls to icons.
  */
@@ -510,60 +514,144 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 		border: '1px solid #AAAAAA'
 	});
 	
-	var $input = $('<input id="PathwayViewerSearch"/>').css({ width: '100px' });
+	var $input = $('<input/>').css({ width: '100px' });
+	var $number = $('<div/>').css({ 
+		position: 'absolute',
+		'font-size': '75%',
+		'background-color': 'white'
+	});
+	$number.addClass('ui-corner-all');
+	$number.hide();
 	
-	var lastChange = { time: -1 };
+	var lastSearch = {
+		time: -1,
+		query: '',
+		results: [],
+		focus: -1
+	};
+	
+	var updateNumber = function() {
+		if(!lastSearch.query) {
+			$number.hide();
+			return;
+		}
+		
+		var n = lastSearch.results.length;
+		var txt = n + ' hit';
+		if(n != 1) txt += 's';
+		
+		if(n == 0) {
+			$number.css({
+				'color': 'black',
+				'background-color': '#FF6666'
+			});
+		} else {
+			$number.css({
+				'background-color': 'white',
+				'color': '#AFAFAF'
+			});
+		}
+
+		if(lastSearch.focus > -1) {
+			txt = (lastSearch.focus + 1) + ' of ' + n;
+		}
+		
+		$number.text(txt);
+	
+		$number.show();		
+		$number.position({
+			my: "right center", at: "right center",
+			of: $input, offset: "-3 0"
+		});
+	}
+	
+	var searchAndHighlight = function() {
+		lastSearch.results = that.search(lastSearch.query);
+		updateNumber();
+		$.each(lastSearch.results, function(i,v) { that.highlight(i, v); });
+		lastSearch.focus = -1;
+	}
 	
 	var onChange = function() {
 		//Delay to prevent unwanted searches during typing
 		var now = new Date().getTime()
-		lastChange.time = now;
-		var doit = function(now, lastChange) {
-			if(lastChange.time == now) {
-				that.search($input.attr('value'));	
-			} else {
+		lastSearch.time = now;
+		var doit = function(now, lastSearch) {
+			if(lastSearch.time == now) {
+				lastSearch.query = $input.attr('value');
+				searchAndHighlight();
 			}
 		}
-		window.setTimeout(function(){doit(now,lastChange)}, 500);
+		window.setTimeout(function(){doit(now,lastSearch)}, 500);
 	}
 	
+	//On pressing enter:
+	//seach if value changed and focus+traverse results.
 	var onEnter = function(event, ui) {
-		lastChange.time = new Date().getTime(); //Don't execute onChange
+		lastSearch.time = new Date().getTime(); //Don't execute next onChange
+		
 		var value = $input.attr('value');
-		if(ui) value = String(ui.item.value);
-		console.log('onenter: ' + value);
-		that.search(value);
-		//TODO: on hitting enter, focus on result and traverse
+		if(ui && ui.item) value = String(ui.item.value);
+		
+		if(value != lastSearch.query) {
+			lastSearch.query = value;
+			searchAndHighlight();
+		}
+		
+		if(lastSearch.results.length > 0) {
+			lastSearch.focus++;
+			if(lastSearch.focus >= lastSearch.results.length) {
+				lastSearch.focus = lastSearch.focus - lastSearch.results.length;
+			}
+			that.focus(lastSearch.focus, lastSearch.results[lastSearch.focus]);
+		}
+		
+		updateNumber();
 	}
 	
 	$input.autocomplete({ 
-		source: [], select: onEnter,
-		position: { my: "right top", at: "right bottom" }
+		source: [], select: onChange,
+		position: { my: "right top", at: "right bottom" },
+		minLength: 2,
+		
 	});
 	$input.addClass('ui-corner-all');
-	$input.bind('keyup', onChange);
-	$input.bind('change', onEnter);
+	$input.bind('keyup', function(event) {
+		if(event.keyCode == 13) { //When pressing enter
+			$input.autocomplete('close'); //Close autocomplete dialog
+			onEnter(event);
+		} else {
+			onChange();
+		}
+	});
 	$box.append($input);
 	
 	this.$searchInput = $input;
 	this.initSearchTerms();
 	
 	var $icon = $('<img />').
-		attr('src', PathwayViewer_basePath + PathwayViewer.icons.search).
-		css({ 'vertical-align' : 'middle' });
+		attr('src', PathwayViewer_basePath + PathwayViewer.icons.search);
 	
 	var origWidth = $input.width();
 	
 	$icon.click(function() {
 		if($input.is(':visible')) {
-			$input.animate({width: '1px'}, 300, function() { $input.hide(); });
+			$number.hide();
+			lastSearch.focus = -1;
+			$input.animate({width: '1px'}, 300, function() {
+				$input.hide();
+				that.clearHighlights();
+			});
 		} else {
 			$input.show();
-			$input.animate({width: '100px'}, 300);
+			$input.animate({width: '100px'}, 300, function() {
+				searchAndHighlight();
+			});
 		}
 	});
 	
 	$box.append($icon);
+	$box.append($number);
 	
 	$box.bind('mousedown', function(e) {
 		e.stopPropagation(); //Prevent dragging viewer when clicking search box
@@ -577,20 +665,39 @@ PathwayViewer.prototype.initSearchTerms = function() {
 		$.each(this.gpml.searchObjects, function(i, v) {
 			if($.inArray(v.textLabel, terms) < 0) terms.push(v.textLabel);
 		});
+		terms.sort();
 		this.$searchInput.autocomplete("option", "source", terms);
 	}
 }
 
 PathwayViewer.prototype.search = function(query) {
 	var that = this;
-	this.clearHighlight();
+	this.clearHighlights();
+	var results = [];
 	if(query && this.gpml && this.gpml.searchObjects) {
-		var results = this.gpml.search(query);
-		$.each(results, function(i,v) { that.highlight(v); });
+		results = this.gpml.search(query);
+	}
+	return results;
+}
+
+PathwayViewer.prototype.focus = function(id, obj) {
+	var that = this;
+	if(obj) {
+		this.svgRoot.currentScale = 1;
+		var w = obj.right - obj.left;
+		var h = obj.bottom - obj.top;
+		this.panTo(obj.left + w * 0.5, obj.top + h * 0.5);
+		
+		//Make sure other highlights are yellow
+		$.each(this.highlights, function(i, v) {
+			v.setAttribute('stroke', PathwayViewer.highlightColor);
+		});
+		//Make focused highlight orange
+		this.highlights[id].setAttribute('stroke', PathwayViewer.focusColor);
 	}
 }
 
-PathwayViewer.prototype.highlight = function(obj) {
+PathwayViewer.prototype.highlight = function(id, obj) {
 	var left = obj.left * this.gpml.scale;
 	var right = obj.right * this.gpml.scale;
 	var top = obj.top * this.gpml.scale;
@@ -601,21 +708,21 @@ PathwayViewer.prototype.highlight = function(obj) {
 	rect.setAttribute('y', top);
 	rect.setAttribute('width', right - left);
 	rect.setAttribute('height', bottom - top);
-	rect.setAttribute('stroke', 'yellow');
+	rect.setAttribute('stroke', PathwayViewer.highlightColor);
 	rect.setAttribute('stroke-width', '5');
 	rect.setAttribute('fill-opacity', '0');
 	rect.setAttribute('opacity', '0.5');
 	this.svgRoot.appendChild(rect);
 	
-	this.highlights.push(rect);
+	this.highlights[id] = rect;
 }
 
-PathwayViewer.prototype.clearHighlight = function() {
+PathwayViewer.prototype.clearHighlights = function() {
 	var that = this;
 	$.each(this.highlights, function(i, v) {
 		that.svgRoot.removeChild(v);
 	});
-	this.highlights = [];
+	this.highlights = {};
 }
 
 PathwayViewer.prototype.zoomTo = function(factor, x, y){
@@ -680,8 +787,23 @@ PathwayViewer.prototype.panDown = function() {
     	this.svgRoot.currentTranslate.getY() - PathwayViewer.moveStep);
 }
 
+/**
+ * Set the panning so the given svg coordinate will be
+ * in the center of the viewer.
+ */
 PathwayViewer.prototype.panTo = function(x, y) {
-	this.svgRoot.currentTranslate.setXY(x,y);
+	var svg = this.svgRoot;
+	
+	var fw = this.$viewer.width();
+	var fh = this.$viewer.height();
+	
+	var cx = 0.5 * fw / svg.currentScale;
+	var cy = 0.5 * fh / svg.currentScale;
+	
+	var dx = x - cx;
+	var dy = y - cy;
+	
+	svg.currentTranslate.setXY(-dx, -dy);
 }
 
 PathwayViewer.prototype.mouseWheel = function(e) {
