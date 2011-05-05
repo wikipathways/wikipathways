@@ -2,6 +2,7 @@
 //TODO: hyperlink cursor when over clickable object (requires fix for http://code.google.com/p/svgweb/issues/detail?id=493)
 //TODO: test immediate start on pathway page (prevent clicking before viewer is loaded)
 //TODO: link to svg/pdf url when no flash available
+//TODO: Fix zoom in IE9
 
 /**
  * Change this if the base path of the script (and resource files) is
@@ -120,11 +121,11 @@ PathwayViewer.idLayout = '_layout';
  * Start the viewer (after start button is clicked).
  */
 PathwayViewer.prototype.startSVG = function() {
-    var that = this;
-    console.log("Starting svg viewer for " + this.info.imageId);
-    
-    this.removeStartButton();
-    
+	var that = this;
+	console.log("Starting svg viewer for " + this.info.imageId);
+
+	this.removeStartButton();
+
 	//Test if a suitable renderer has been found
 	if (!this.isFlashSupported()) {
 		//If not, instead of loading the svg, add a notification
@@ -132,98 +133,122 @@ PathwayViewer.prototype.startSVG = function() {
 		this.addFlashNotification();
 		return;
 	}
-    
-    //Replace the image by the container with the svgweb object and xref panel
-    var $img = this.getImg(this.info.imageId);
-    this.removeImgAnchor($img);
-    
-    var w = '100%'; if(this.info.width) w = this.info.width;
-    var h = '500px'; if(this.info.height) h = this.info.height;
-    
-    var $container = $('<div />')
-    	.attr('id', this.info.imageId + PathwayViewer.idContainer)
-    	.css({
-        width: w,
-        height: h
+
+	//Replace the image by the container with the svgweb object and xref panel
+	var $img = this.getImg(this.info.imageId);
+	this.removeImgAnchor($img);
+
+	var w = '100%'; if(this.info.width) w = this.info.width;
+	var h = '500px'; if(this.info.height) h = this.info.height;
+
+	var $container = $('<div />')
+		.attr('id', this.info.imageId + PathwayViewer.idContainer)
+		.css({
+		width: w,
+		height: h
+	});
+
+	var $parent = $img.parent();
+	$img.after($container);
+	$img.remove();
+
+	//Create the layout pane
+	var $layout = $('<div/>')
+	.attr('id', this.info.imageId + PathwayViewer.idLayout).css({
+		width: '100%',
+		height: '100%'
+	});
+	this.$viewer = $('<div/>').addClass('ui-layout-center').css({
+		border: '1px solid #BBBBBB',
+		'background-color': '#FFFFFF'
+	});
+	var $xrefpane = $('<div/>').addClass('ui-layout-east');
+	$layout.append(this.$viewer);
+	$layout.append($xrefpane);
+
+	var afterAnimate = function() {
+		//Apply the layout
+		$container.append($layout);
+		var east_width = 300;
+		if(east_width > $container.width() * 0.5) {
+			east_width = $container.width() * 0.5; //Cover half of the viewer max
+		}
+		var layoutUtil = $layout.layout({
+			applyDefaultStyles: true,
+			center__applyDefaultStyles: false,
+			east__size: east_width
 		});
-    
-    var $parent = $img.parent();
-    $img.after($container);
-    $img.remove();
-    
-    //Create the layout pane
-    var $layout = $('<div/>')
-    	.attr('id', this.info.imageId + PathwayViewer.idLayout).css({
-        width: '100%',
-        height: '100%'
-    });
-    this.$viewer = $('<div/>').addClass('ui-layout-center').css({
-        border: '1px solid #BBBBBB',
-        'background-color': '#FFFFFF'
-    });
-    var $xrefpane = $('<div/>').addClass('ui-layout-east');
-    $layout.append(this.$viewer);
-    $layout.append($xrefpane);
-    
-    var afterAnimate = function() {
-        //Apply the layout
-        $container.append($layout);
-        var east_width = 300;
-        if(east_width > $container.width() * 0.5) {
-        	east_width = $container.width() * 0.5; //Cover half of the viewer max
-        }
-        var layoutUtil = $layout.layout({
-            applyDefaultStyles: true,
-            center__applyDefaultStyles: false,
-            east__size: east_width
-        });
-        layoutUtil.close('east');
-        
-        that.$viewer.css({
-            overflow: 'hidden',
-            'background-color': '#F9F9F9'
-        });
-        that.showLoadProgress($layout);
-        
-        //Add the SVG object to the center panel
-        var obj_id = that.info.imageId + PathwayViewer.idSvgObject;
-        
-        var obj = document.createElement('object', true);
-        obj.id = obj_id;
-	     obj.setAttribute('type', 'image/svg+xml');
-	     obj.setAttribute('data', that.info.svgUrl);
-	     
-        //Ideally we would use relative size here ('100%'), but this causes the
-        //SVG to stretch on resizing the parent
-        obj.setAttribute('width', screen.width + 'px');
-        obj.setAttribute('height', screen.height + 'px');
-        //obj.setAttribute('width', that.$viewer.width() + 'px');
-        //obj.setAttribute('height', that.$viewer.height() + 'px');
-        obj.addEventListener('SVGLoad', function() {
-        		that.$svgObject = $('#' + that.info.imageId + PathwayViewer.idSvgObject);
-        		that.svgRoot = that.$svgObject.get(0).contentDocument.rootElement;
-            that.svgLoaded($xrefpane, layoutUtil);
-            //Remove progress when loaded
-            that.hideLoadProgress($layout);
-        }, false);
-        
-        svgweb.appendChild(obj, that.$viewer.get(0));
-    }
-    
-    //Change the size of the image parent
-    if ($.browser.msie) { //Animate gives problems in IE, just change style directly 
-        $parent.css({
-            width: '100%',
-            height: 'auto'
-        });
-        afterAnimate();
-    }
-    else { //Animate for smooth transition
-        $parent.animate({
-            width: '100%',
-            height: 'auto'
-        }, 300, afterAnimate);
-    }
+		layoutUtil.close('east');
+
+		that.$viewer.css({
+			overflow: 'hidden',
+			'background-color': '#F9F9F9'
+		});
+		that.showLoadProgress($layout);
+
+		//Add the SVG object to the center panel
+		var obj_id = that.info.imageId + PathwayViewer.idSvgObject;
+
+		if(that.useFlash()) {
+			var obj = document.createElement('object', true);
+			obj.id = obj_id;
+			obj.setAttribute('type', 'image/svg+xml');
+			obj.setAttribute('data', that.info.svgUrl);
+
+			//Ideally we would use relative size here ('100%'), but this causes the
+			//SVG to stretch on resizing the parent
+			obj.setAttribute('width', screen.width + 'px');
+			obj.setAttribute('height', screen.height + 'px');
+			//obj.setAttribute('width', that.$viewer.width() + 'px');
+			//obj.setAttribute('height', that.$viewer.height() + 'px');
+			obj.addEventListener('SVGLoad', function() {
+				that.$svgObject = $('#' + that.info.imageId + PathwayViewer.idSvgObject);
+				that.svgRoot = that.$svgObject.get(0).contentDocument.rootElement;
+				that.svgLoaded($xrefpane, layoutUtil);
+				//Remove progress when loaded
+				that.hideLoadProgress($layout);
+			}, false);
+
+			svgweb.appendChild(obj, that.$viewer.get(0));
+		} else {
+			//Add <svg> tag for HTML5 compliant browsers
+			var $svgDiv = $('<div id="' + obj_id + '"/>');
+			$svgDiv.width('100%');
+			$svgDiv.height('100%');
+
+			that.$viewer.append($svgDiv);
+
+			$.ajax({
+				url: that.info.svgUrl,
+				dataType: 'text',
+				success: function(txt) {
+				$svgDiv.html(txt);
+				that.$svgObject = $svgDiv;
+				that.svgRoot = $svgDiv.get(0).firstElementChild;
+				that.svgLoaded($xrefpane, layoutUtil);
+				that.hideLoadProgress($layout);
+				}	
+			});
+		}
+	}
+	//Change the size of the image parent
+	if ($.browser.msie) { //Animate gives problems in IE, just change style directly 
+		$parent.css({
+		width: '100%',
+		height: 'auto'
+		});
+		afterAnimate();
+	} else { //Animate for smooth transition
+		$parent.animate({
+			width: '100%',
+			height: 'auto'
+		}, 300, afterAnimate);
+	}
+}
+
+PathwayViewer.prototype.useFlash = function() {
+	//Use flash unless browser is IE9 (use <svg> tag in that case)
+	return !($.browser.msie && $.browser.version.slice(0,1) == 9);
 }
 
 PathwayViewer.prototype.removeImgAnchor = function($img) {
@@ -411,12 +436,12 @@ PathwayViewer.prototype.svgLoaded = function($xrefContainer, layout) {
 
 	this.$viewer.mousemove(function(e) {
 		if (!drag.dragging) {
-			that.gpml.mouseMove(that.$svgObject.offset(), that.svgRoot, e);
+			that.gpml.mouseMove(that.$svgObject.offset(), that, e);
 		}
 	});
 	this.$viewer.mousedown(function(e) {
 		that.gpml.mouseDown(
-			layout, $xrefContainer, that.$svgObject.offset(), that.svgRoot, e);
+			layout, $xrefContainer, that.$svgObject.offset(), that, e);
 	});
 	this.$viewer.mousewheel(function(e) {
 		that.mouseWheel(e);
@@ -731,8 +756,8 @@ PathwayViewer.prototype.zoomTo = function(factor, x, y){
     var dx = x / svg.currentScale - x / factor;
     var dy = y / svg.currentScale - y / factor;
     svg.currentScale = factor;
-    svg.currentTranslate.setX(svg.currentTranslate.getX() - dx);
-    svg.currentTranslate.setY(svg.currentTranslate.getY() - dy);
+    this.setX(this.getX() - dx);
+    this.setY(this.getY() - dy);
 }
 
 PathwayViewer.prototype.zoomIn = function() {
@@ -749,6 +774,47 @@ PathwayViewer.prototype.zoomOut = function() {
 	);
 }
 
+PathwayViewer.prototype.setXY = function(x, y) {
+	if(this.svgRoot.currentTranslate.setXY) { //using SVGWeb
+		this.svgRoot.currentTranslate.setXY(x, y);
+	} else { //using <svg> tag
+		this.svgRoot.currentTranslate.x = x;
+		this.svgRoot.currentTranslate.y = y;
+	}
+}
+
+PathwayViewer.prototype.setX = function(x) {
+	if(this.svgRoot.currentTranslate.setX) { //using SVGWeb
+		this.svgRoot.currentTranslate.setX(x);
+	} else { //using <svg> tag
+		this.svgRoot.currentTranslate.x = x;
+	}
+}
+
+PathwayViewer.prototype.setY = function(y) {
+	if(this.svgRoot.currentTranslate.setY) { //using SVGWeb
+		this.svgRoot.currentTranslate.setY(y);
+	} else { //using <svg> tag
+		this.svgRoot.currentTranslate.y = y;
+	}
+}
+
+PathwayViewer.prototype.getX = function() {
+	if(this.svgRoot.currentTranslate.getX) { //using SVGWeb
+		return this.svgRoot.currentTranslate.getX();
+	} else { //using <svg> tag
+		return this.svgRoot.currentTranslate.x;
+	}
+}
+
+PathwayViewer.prototype.getY = function() {
+	if(this.svgRoot.currentTranslate.getY) { //using SVGWeb
+		return this.svgRoot.currentTranslate.getY();
+	} else { //using <svg> tag
+		return this.svgRoot.currentTranslate.y;
+	}
+}
+
 PathwayViewer.prototype.zoomFit = function() {
 	var w = this.svgWidth;
 	var h = this.svgHeight;
@@ -762,29 +828,29 @@ PathwayViewer.prototype.zoomFit = function() {
 	this.svgRoot.currentScale = r;
 
 	//Center
-	this.svgRoot.currentTranslate.setXY(
+	this.setXY(
 		0.5 * fw / r - w / 2, 0.5 * fh / r - h / 2
 	);
 }
 
 PathwayViewer.prototype.panUp = function() {
-    this.svgRoot.currentTranslate.setY(
+    this.setY(
     	this.svgRoot.currentTranslate.getY() + PathwayViewer.moveStep);
 }
 
 PathwayViewer.prototype.panLeft = function() {
-    this.svgRoot.currentTranslate.setX(
+    this.setX(
     	this.svgRoot.currentTranslate.getX() + PathwayViewer.moveStep);
 }
 
 PathwayViewer.prototype.panRight = function() {
-    this.svgRoot.currentTranslate.setX(
-    	this.svgRoot.currentTranslate.getX() - PathwayViewer.moveStep);
+    this.setX(
+    	this.getX() - PathwayViewer.moveStep);
 }
 
 PathwayViewer.prototype.panDown = function() {
-    this.svgRoot.currentTranslate.setY(
-    	this.svgRoot.currentTranslate.getY() - PathwayViewer.moveStep);
+    this.setY(
+    	this.getY() - PathwayViewer.moveStep);
 }
 
 /**
@@ -861,8 +927,8 @@ PathwayViewer.prototype.newDragState = function() {
                 y: e.pageY
             };
             drag.pTransDown = {
-                x: that.svgRoot.currentTranslate.getX(),
-                y: that.svgRoot.currentTranslate.getY()
+                x: that.getX(),
+                y: that.getY()
             };
         }
     }
@@ -876,7 +942,7 @@ PathwayViewer.prototype.newDragState = function() {
         var dy = e.pageY - drag.pMouseDown.y;
         var x = drag.pTransDown.x + dx / that.svgRoot.currentScale;
         var y = drag.pTransDown.y + dy / that.svgRoot.currentScale;
-        that.svgRoot.currentTranslate.setXY(x, y);
+        that.setXY(x, y);
     }
     
     drag.mouseUp = function(evt){
@@ -1001,18 +1067,18 @@ GpmlModel.prototype.loaded = function(data, textStatus, callback) {
 	if(callback) callback(this);
 }
 
-GpmlModel.prototype.mouseMove = function(offset, svg, e){
-	var hover = this.getHoverObject(offset, svg, e);
+GpmlModel.prototype.mouseMove = function(offset, viewer, e){
+	var hover = this.getHoverObject(offset, viewer, e);
 	if (hover) {
-		svg.setAttribute('cursor', 'pointer');
+		viewer.svgRoot.setAttribute('cursor', 'pointer');
 	}
 	else {
-		svg.setAttribute('cursor', 'default');
+		viewer.svgRoot.setAttribute('cursor', 'default');
 	}
 }
     
-GpmlModel.prototype.mouseDown = function(layout, $xrefContainer, offset, svg, e){
-	var hover = this.getHoverObject(offset, svg, e);
+GpmlModel.prototype.mouseDown = function(layout, $xrefContainer, offset, viewer, e){
+	var hover = this.getHoverObject(offset, viewer, e);
 	if (hover) {
 		//Get the xref properties
 		var jqxref = hover.$data.find('Xref');
@@ -1030,17 +1096,18 @@ GpmlModel.prototype.mouseDown = function(layout, $xrefContainer, offset, svg, e)
 	}
 }
     
-GpmlModel.prototype.getHoverObject = function(offset, svg, e) {
+GpmlModel.prototype.getHoverObject = function(offset, viewer, e) {
 	var hover = null;
-
+	var svg = viewer.svgRoot;
+	
 	var svgSize = {
 		width: svg.getAttribute('width'),
 		height: svg.getAttribute('height')
 	};
 
 	var p = {
-		x: (e.pageX - offset.left) / svg.currentScale - svg.currentTranslate.getX(),
-		y: (e.pageY - offset.top) / svg.currentScale - svg.currentTranslate.getY()
+		x: (e.pageX - offset.left) / svg.currentScale - viewer.getX(),
+		y: (e.pageY - offset.top) / svg.currentScale - viewer.getY()
 	}
 
 	var r = this.scale;
@@ -1055,7 +1122,6 @@ GpmlModel.prototype.getHoverObject = function(offset, svg, e) {
 			top: obj.top * r
 		}
 
-		//console.log(robj);
 		var inx = p.x >= robj.left && p.x <= robj.right;
 		var iny = p.y >= robj.top && p.y <= robj.bottom;
 		if (inx && iny) {
