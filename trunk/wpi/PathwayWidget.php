@@ -14,9 +14,10 @@ You can include a pathway viewer in another website using an iframe:
 	require_once('wpi.php');
 	require_once('extensions/PathwayViewer/PathwayViewer.php');
 ?>
-<HTML>
-<HEAD>
-<STYLE>
+<!DOCTYPE HTML>
+<html>
+<head>
+<style  type="text/css">
 a#wplink { 
 text-decoration:none;
 font-family:serif;
@@ -31,8 +32,20 @@ font-size:12px;
 	z-index:2;
 	opacity: 0.8;
 }
-</STYLE>
-<meta name="svg.render.forceflash" content="true" />
+html, body {
+	width:100%;
+	height:100%;
+}
+#pathwayImage {
+	position:fixed;
+	top:0;
+	left:0;
+	font-size:12px;
+	width:100%;
+	height:100%;
+}
+</style>
+<meta name="svg.render.forceflash" content="true">
 <?php
 	echo '<link rel="stylesheet" href="' . $cssJQueryUI . '" type="text/css" />' . "\n";
 
@@ -80,10 +93,11 @@ font-size:12px;
 </script>
 SCRIPT;
 ?>
-</HEAD>
-<BODY>
-<div id="pathwayImage" style="font-size:12px;"><img src="test" /></div>
-<div style="position:relative;height:0px;overflow:visible;">
+<title>WikiPathways Pathway Viewer</title>
+</head>
+<body>
+<div id="pathwayImage"><img src="test" /></div>
+<div style="position:absolute;height:0px;overflow:visible;bottom:0;right:0;">
 	<div id="logolink">
 		<?php
 			echo "<a id='wplink' target='top' href='{$pathway->getFullUrl()}'>View at "; 
@@ -91,5 +105,5 @@ SCRIPT;
 		?>
 	</div>
 </div>
-</BODY>
-</HTML>
+</body>
+</html>

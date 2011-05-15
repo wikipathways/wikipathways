@@ -2,7 +2,7 @@
 //TODO: hyperlink cursor when over clickable object (requires fix for http://code.google.com/p/svgweb/issues/detail?id=493)
 //TODO: test immediate start on pathway page (prevent clicking before viewer is loaded)
 //TODO: link to svg/pdf url when no flash available
-//TODO: Fix zoom in IE9
+//TODO: IE9: Fix highlight
 
 /**
  * Change this if the base path of the script (and resource files) is
@@ -141,6 +141,10 @@ PathwayViewer.prototype.startSVG = function() {
 	var w = '100%'; if(this.info.width) w = this.info.width;
 	var h = '500px'; if(this.info.height) h = this.info.height;
 
+	if(PathwayViewer.isIE9() && this.info.height == '100%') {
+		h = $(document).height();
+	}
+	
 	var $container = $('<div />')
 		.attr('id', this.info.imageId + PathwayViewer.idContainer)
 		.css({
@@ -189,7 +193,7 @@ PathwayViewer.prototype.startSVG = function() {
 		//Add the SVG object to the center panel
 		var obj_id = that.info.imageId + PathwayViewer.idSvgObject;
 
-		if(that.useFlash()) {
+		if(PathwayViewer.useFlash()) {
 			var obj = document.createElement('object', true);
 			obj.id = obj_id;
 			obj.setAttribute('type', 'image/svg+xml');
@@ -222,11 +226,11 @@ PathwayViewer.prototype.startSVG = function() {
 				url: that.info.svgUrl,
 				dataType: 'text',
 				success: function(txt) {
-				$svgDiv.html(txt);
-				that.$svgObject = $svgDiv;
-				that.svgRoot = $svgDiv.get(0).firstElementChild;
-				that.svgLoaded($xrefpane, layoutUtil);
-				that.hideLoadProgress($layout);
+					$svgDiv.html(txt);
+					that.$svgObject = $svgDiv;
+					that.svgRoot = $svgDiv.children("svg").get(0);
+					that.svgLoaded($xrefpane, layoutUtil);
+					that.hideLoadProgress($layout);
 				}	
 			});
 		}
@@ -246,9 +250,13 @@ PathwayViewer.prototype.startSVG = function() {
 	}
 }
 
-PathwayViewer.prototype.useFlash = function() {
+PathwayViewer.isIE9 = function() {
+	return $.browser.msie && $.browser.version.slice(0,1) == 9;
+}
+
+PathwayViewer.useFlash = function() {
 	//Use flash unless browser is IE9 (use <svg> tag in that case)
-	return !($.browser.msie && $.browser.version.slice(0,1) == 9);
+	return !PathwayViewer.isIE9();
 }
 
 PathwayViewer.prototype.removeImgAnchor = function($img) {
@@ -416,7 +424,6 @@ PathwayViewer.prototype.getImg = function() {
 
 PathwayViewer.prototype.svgLoaded = function($xrefContainer, layout) {
 	var that = this;
-	
 	this.svgWidth = this.svgRoot.width.baseVal.value;
 	this.svgHeight = this.svgRoot.height.baseVal.value;
 	
@@ -637,8 +644,7 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 	$input.autocomplete({ 
 		source: [], select: onChange,
 		position: { my: "right top", at: "right bottom" },
-		minLength: 2,
-		
+		minLength: 2
 	});
 	$input.addClass('ui-corner-all');
 	$input.bind('keyup', function(event) {
@@ -750,15 +756,27 @@ PathwayViewer.prototype.clearHighlights = function() {
 	this.highlights = {};
 }
 
-PathwayViewer.prototype.zoomTo = function(factor, x, y){
-	var svg = this.svgRoot;
-    //Zoom and ensure that x, y keeps pointing to the same svg coordinate after zooming
-    var dx = x / svg.currentScale - x / factor;
-    var dy = y / svg.currentScale - y / factor;
-    svg.currentScale = factor;
-    this.setX(this.getX() - dx);
-    this.setY(this.getY() - dy);
+if(PathwayViewer.isIE9()) {
+	PathwayViewer.prototype.zoomTo = function(factor, x, y) {
+		var svg = this.svgRoot;
+		var dx = (x - this.getX() * svg.currentScale) / svg.currentScale - 
+			(x - this.getX() * svg.currentScale) / factor;
+		var dy = (y - this.getY() * svg.currentScale) / svg.currentScale - 
+			(y - this.getY() * svg.currentScale) / factor;
+		svg.currentScale = factor;
+		this.setXY(this.getX() - dx, this.getY() - dy);
+	}
+} else {
+	PathwayViewer.prototype.zoomTo = function(factor, x, y){
+		var svg = this.svgRoot;
+		 var dx = x / svg.currentScale - x / factor;
+		 var dy = y / svg.currentScale - y / factor;
+		 svg.currentScale = factor;
+		 this.setXY(this.getX() - dx, this.getY() - dy);
+	}
 }
+
+
 
 PathwayViewer.prototype.zoomIn = function() {
 	this.zoomTo(
@@ -774,44 +792,38 @@ PathwayViewer.prototype.zoomOut = function() {
 	);
 }
 
-PathwayViewer.prototype.setXY = function(x, y) {
-	if(this.svgRoot.currentTranslate.setXY) { //using SVGWeb
+if(PathwayViewer.useFlash()) {
+	PathwayViewer.prototype.setXY = function(x, y) {
 		this.svgRoot.currentTranslate.setXY(x, y);
-	} else { //using <svg> tag
-		this.svgRoot.currentTranslate.x = x;
-		this.svgRoot.currentTranslate.y = y;
 	}
-}
-
-PathwayViewer.prototype.setX = function(x) {
-	if(this.svgRoot.currentTranslate.setX) { //using SVGWeb
+	PathwayViewer.prototype.setX = function(x) {
 		this.svgRoot.currentTranslate.setX(x);
-	} else { //using <svg> tag
-		this.svgRoot.currentTranslate.x = x;
 	}
-}
-
-PathwayViewer.prototype.setY = function(y) {
-	if(this.svgRoot.currentTranslate.setY) { //using SVGWeb
+	PathwayViewer.prototype.setY = function(y) {
 		this.svgRoot.currentTranslate.setY(y);
-	} else { //using <svg> tag
-		this.svgRoot.currentTranslate.y = y;
 	}
-}
-
-PathwayViewer.prototype.getX = function() {
-	if(this.svgRoot.currentTranslate.getX) { //using SVGWeb
+	PathwayViewer.prototype.getX = function() {
 		return this.svgRoot.currentTranslate.getX();
-	} else { //using <svg> tag
-		return this.svgRoot.currentTranslate.x;
 	}
-}
-
-PathwayViewer.prototype.getY = function() {
-	if(this.svgRoot.currentTranslate.getY) { //using SVGWeb
+	PathwayViewer.prototype.getY = function() {
 		return this.svgRoot.currentTranslate.getY();
-	} else { //using <svg> tag
-		return this.svgRoot.currentTranslate.y;
+	}
+} else {
+	PathwayViewer.prototype.setXY = function(x, y) {
+		this.svgRoot.currentTranslate.x = x * this.svgRoot.currentScale;
+		this.svgRoot.currentTranslate.y = y * this.svgRoot.currentScale;
+	}
+	PathwayViewer.prototype.setX = function(x) {
+		this.svgRoot.currentTranslate.x = x * this.svgRoot.currentScale;
+	}
+	PathwayViewer.prototype.setY = function(y) {
+		this.svgRoot.currentTranslate.y = y * this.svgRoot.currentScale;
+	}
+	PathwayViewer.prototype.getX = function() {
+		return this.svgRoot.currentTranslate.x  / this.svgRoot.currentScale;
+	}
+	PathwayViewer.prototype.getY = function() {
+		return this.svgRoot.currentTranslate.y  / this.svgRoot.currentScale;
 	}
 }
 
@@ -835,22 +847,22 @@ PathwayViewer.prototype.zoomFit = function() {
 
 PathwayViewer.prototype.panUp = function() {
     this.setY(
-    	this.svgRoot.currentTranslate.getY() + PathwayViewer.moveStep);
+    	this.getY() + PathwayViewer.moveStep / this.svgRoot.currentScale);
 }
 
 PathwayViewer.prototype.panLeft = function() {
     this.setX(
-    	this.svgRoot.currentTranslate.getX() + PathwayViewer.moveStep);
+    	this.getX() + PathwayViewer.moveStep / this.svgRoot.currentScale);
 }
 
 PathwayViewer.prototype.panRight = function() {
     this.setX(
-    	this.getX() - PathwayViewer.moveStep);
+    	this.getX() - PathwayViewer.moveStep / this.svgRoot.currentScale);
 }
 
 PathwayViewer.prototype.panDown = function() {
     this.setY(
-    	this.getY() - PathwayViewer.moveStep);
+    	this.getY() - PathwayViewer.moveStep / this.svgRoot.currentScale);
 }
 
 /**
@@ -869,7 +881,7 @@ PathwayViewer.prototype.panTo = function(x, y) {
 	var dx = x - cx;
 	var dy = y - cy;
 	
-	svg.currentTranslate.setXY(-dx, -dy);
+	this.setXY(-dx, -dy);
 }
 
 PathwayViewer.prototype.mouseWheel = function(e) {
