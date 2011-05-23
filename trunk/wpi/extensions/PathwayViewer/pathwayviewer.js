@@ -2,7 +2,6 @@
 //TODO: hyperlink cursor when over clickable object (requires fix for http://code.google.com/p/svgweb/issues/detail?id=493)
 //TODO: test immediate start on pathway page (prevent clicking before viewer is loaded)
 //TODO: link to svg/pdf url when no flash available
-//TODO: IE9: Fix highlight
 
 /**
  * Change this if the base path of the script (and resource files) is
@@ -733,8 +732,8 @@ PathwayViewer.prototype.highlight = function(id, obj) {
 	var right = obj.right * this.gpml.scale;
 	var top = obj.top * this.gpml.scale;
 	var bottom = obj.bottom * this.gpml.scale;
-	
-	var rect = document.createElementNS(svgns, 'rect');
+
+	var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
 	rect.setAttribute('x', left);
 	rect.setAttribute('y', top);
 	rect.setAttribute('width', right - left);
@@ -744,7 +743,6 @@ PathwayViewer.prototype.highlight = function(id, obj) {
 	rect.setAttribute('fill-opacity', '0');
 	rect.setAttribute('opacity', '0.5');
 	this.svgRoot.appendChild(rect);
-	
 	this.highlights[id] = rect;
 }
 

@@ -1,4 +1,6 @@
 <?php
+require_once('DetectBrowserOS.php');
+
 /*
  * Loads an interactive pathway viewer using svgweb.
  */
@@ -70,12 +72,18 @@ class PathwayViewer {
 	static function getJsDependencies() {
 		global $jsSvgWeb, $wgScriptPath, $wfPathwayViewerPath;
 		
-		return array(
+		$scripts = array(
 			"$wgScriptPath/wpi/js/jquery/plugins/jquery.mousewheel.js",
 			"$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.3.0.js",
-			$jsSvgWeb,
 			"$wfPathwayViewerPath/pathwayviewer.js",
 		);
+		
+		//Do not load svgweb when using HTML5 version of svg viewer (IE9)
+		if(browser_detection('ie_version') != 'ie9x') {
+			array_unshift($scripts, $jsSvgWeb);
+		}
+		
+		return $scripts;
 	}
 }
 ?>
