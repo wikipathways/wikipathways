@@ -64,7 +64,7 @@ function createDiffApplet($pathway, $revOld, $revNew) {
 		codebase="{$base}" 
 		archive="{$base}/diffview.jar" 
 		type="application/x-java-applet" 
-		code="org.pathvisio.gpmldiff.AppletMain.class">
+		code="org.wikipathways.gpmldiff.AppletMain.class">
 		<param name="old" value="$file1"/>
 		<param name="new" value="$file2"/>
 	</applet>

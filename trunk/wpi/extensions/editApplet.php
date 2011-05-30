@@ -41,7 +41,7 @@ function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $n
 	$parser->disableCache();
 	
 	$param = array(); //Extra parameters
-	$main = 'org.pathvisio.gui.wikipathways.';
+	$main = 'org.wikipathways.applet.gui.';
 	$noresize = 'false';
 	switch($type) {
 		case 'bibliography': 
