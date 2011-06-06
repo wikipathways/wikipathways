@@ -21,7 +21,7 @@ function wfPathwayViewer_Magic( &$magicWords, $langCode ) {
 
 function displayPathwayViewer(&$parser, $pwId, $imgId) {
 	global $wgOut, $wgStylePath, $wfPathwayViewerPath, $wpiJavascriptSources, $wgScriptPath,
-		$wpiJavascriptSnippets, $jsRequireJQuery;
+		$wpiJavascriptSnippets, $jsRequireJQuery, $wpiAutoStartViewer;
 	
 	$jsRequireJQuery = true;
 	
@@ -48,17 +48,25 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 		}
 		$svg = $pathway->getFileURL(FILETYPE_IMG);
 		$gpml = $pathway->getFileURL(FILETYPE_GPML);
-			     
-		$start = '';
-		if($_GET['startViewer']) $start = ',start: true'; 
+		
+		$dostart = ',start: true';
+		$start = $dostart; //Autostart by default
+		
+		//First switch by variable in pass.php
+		if(!$wpiAutoStartViewer) $start = $dostart;
+		
+		//Allow override via get parameter
+		$getStart = $_GET['startViewer'];
+		if($getStart == 'false' || $getStart == '0') $start = '';
+		if($getStart == 'true' || $getStart == '1') $start = $dostart;
 		
 		$script = <<<SCRIPT
-	var pwInfo = {
+	var viewer = new PathwayViewer({
 		imageId: "$imgId",
 		svgUrl: "$svg",
 		gpmlUrl: "$gpml"$start
-	}
-	PathwayViewer_pathwayInfo.push(pwInfo);
+	});
+	PathwayViewer_viewers.push(viewer);
 SCRIPT;
 		$script = "<script type=\"{$wgJsMimeType}\">" . $script . "</script>\n";
 		return array($script, 'isHTML'=>1, 'noparse'=>1);
@@ -76,6 +84,7 @@ class PathwayViewer {
 			"$wgScriptPath/wpi/js/jquery/plugins/jquery.mousewheel.js",
 			"$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.3.0.js",
 			"$wfPathwayViewerPath/pathwayviewer.js",
+			"$wfPathwayViewerPath/highlightByElement.js"
 		);
 		
 		//Do not load svgweb when using HTML5 version of svg viewer (IE9)

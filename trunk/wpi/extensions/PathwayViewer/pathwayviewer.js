@@ -1,7 +1,4 @@
-//TODO: highlight via url (with mapping?)
 //TODO: hyperlink cursor when over clickable object (requires fix for http://code.google.com/p/svgweb/issues/detail?id=493)
-//TODO: test immediate start on pathway page (prevent clicking before viewer is loaded)
-//TODO: link to svg/pdf url when no flash available
 
 /**
  * Change this if the base path of the script (and resource files) is
@@ -11,11 +8,10 @@ if (typeof(PathwayViewer_basePath) == "undefined")
     var PathwayViewer_basePath = '';
 
 /**
- * Array with information about pathways to which
- * the viewer should be applied. Add the argument
- * to the PathwayViewer contstructor.
+ * Array with PathwayViewer instances, that will be
+ * started on request.
  */
-PathwayViewer_pathwayInfo = [];
+PathwayViewer_viewers = [];
 
 /**
  After page is ready:
@@ -23,14 +19,13 @@ PathwayViewer_pathwayInfo = [];
  2. Add the buttons for starting the viewer when loading is finished
  */
 $(window).ready(function() {
-	$.each(PathwayViewer_pathwayInfo, function(i, info) {
-	   var viewer = new PathwayViewer(info);
-	   PathwayViewer.viewers[info.imageId] = viewer;
+	$.each(PathwayViewer_viewers, function(i, viewer) {
+	   PathwayViewer.viewers[viewer.info.imageId] = viewer;
 	   viewer.loadGPML();
-		if(info.start) {
-        	viewer.startSVG(info);
+		if(viewer.info.start) {
+        	viewer.startSVG();
       } else {
-        	viewer.addStartButton(info);
+        	viewer.addStartButton();
       }
 	});
 });
@@ -49,10 +44,19 @@ $(window).ready(function() {
  * fields:
  * - imageId, the id of the element that contains the png image
  * - svgUrl, the url where the svg content can be downloaded from
+ * - gpmlUrl, the url to the GPML from which the svg has been generated
+ * - start, set to true if the viewer has to start immediately
  */
 function PathwayViewer(info) {
 	this.info = info;
 	this.highlights = {};
+	this.searchHighlights = {};
+	
+	/**
+	 * Listeners to be executed when
+	 * the GPML has been loaded.
+	 */
+	this.svgLoadListeners = [];
 }
 
 PathwayViewer.viewers = {};
@@ -342,9 +346,10 @@ PathwayViewer.prototype.loadGPML = function() {
 	var that = this;
 	if(this.info.gpmlUrl) {
 		this.gpml = new GpmlModel(this.info.gpmlUrl);
-		this.gpml.load(function(gpml) {
+		this.gpml.gpmlLoadListeners.push(function(gpml) {
 			that.initSearchTerms();
 		});
+		this.gpml.load();
 	}
 }
 
@@ -386,6 +391,8 @@ PathwayViewer.prototype.addFlashNotification = function(){
     var $img = this.getImg();
     var $parent = $img.parent()
     if ($parent.is('a')) {
+        //Set link to svg url
+			$parent.attr('href', this.info.svgUrl);
         $parent = $parent.parent();
     }
     
@@ -460,6 +467,13 @@ PathwayViewer.prototype.svgLoaded = function($xrefContainer, layout) {
 	//Force SVG to be as wide as the object it is in (to avoid clipping)
 	this.svgRoot.setAttribute('width', this.$svgObject.width() + 'px');
 	this.svgRoot.setAttribute('height', this.$svgObject.height() + 'px');
+	
+	$.each(this.svgLoadListeners, function(k, v) {
+		try { v(that); } catch(e) { 
+			console.log("Unable to execute svg load listener");
+			console.log(e);
+		}
+	});
 }
 
 PathwayViewer.prototype.addControls = function() {
@@ -599,7 +613,10 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 	var searchAndHighlight = function() {
 		lastSearch.results = that.search(lastSearch.query);
 		updateNumber();
-		$.each(lastSearch.results, function(i,v) { that.highlight(i, v); });
+		$.each(lastSearch.results, function(i,v) {
+			var h = that.highlight(i, v, PathwayViewer.highlightColor); 
+			that.searchHighlights[i] = h;
+		});
 		lastSearch.focus = -1;
 	}
 	
@@ -634,9 +651,16 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 			if(lastSearch.focus >= lastSearch.results.length) {
 				lastSearch.focus = lastSearch.focus - lastSearch.results.length;
 			}
-			that.focus(lastSearch.focus, lastSearch.results[lastSearch.focus]);
+			that.focus(lastSearch.results[lastSearch.focus]);
+			
+			//Make sure other highlights are yellow
+			$.each(that.searchHighlights, function(i, v) {
+				v.setAttribute('stroke', PathwayViewer.highlightColor);
+			});
+			//Make focused highlight orange
+			that.searchHighlights[lastSearch.focus].setAttribute(
+				'stroke', PathwayViewer.focusColor);
 		}
-		
 		updateNumber();
 	}
 	
@@ -670,7 +694,7 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 			lastSearch.focus = -1;
 			$input.animate({width: '1px'}, 300, function() {
 				$input.hide();
-				that.clearHighlights();
+				that.clearSearchHighlights();
 			});
 		} else {
 			$input.show();
@@ -702,7 +726,7 @@ PathwayViewer.prototype.initSearchTerms = function() {
 
 PathwayViewer.prototype.search = function(query) {
 	var that = this;
-	this.clearHighlights();
+	this.clearSearchHighlights();
 	var results = [];
 	if(query && this.gpml && this.gpml.searchObjects) {
 		results = this.gpml.search(query);
@@ -710,24 +734,16 @@ PathwayViewer.prototype.search = function(query) {
 	return results;
 }
 
-PathwayViewer.prototype.focus = function(id, obj) {
-	var that = this;
+PathwayViewer.prototype.focus = function(obj) {
 	if(obj) {
 		this.svgRoot.currentScale = 1;
 		var w = obj.right - obj.left;
 		var h = obj.bottom - obj.top;
 		this.panTo(obj.left + w * 0.5, obj.top + h * 0.5);
-		
-		//Make sure other highlights are yellow
-		$.each(this.highlights, function(i, v) {
-			v.setAttribute('stroke', PathwayViewer.highlightColor);
-		});
-		//Make focused highlight orange
-		this.highlights[id].setAttribute('stroke', PathwayViewer.focusColor);
 	}
 }
 
-PathwayViewer.prototype.highlight = function(id, obj) {
+PathwayViewer.prototype.highlight = function(id, obj, color) {
 	var left = obj.left * this.gpml.scale;
 	var right = obj.right * this.gpml.scale;
 	var top = obj.top * this.gpml.scale;
@@ -738,20 +754,26 @@ PathwayViewer.prototype.highlight = function(id, obj) {
 	rect.setAttribute('y', top);
 	rect.setAttribute('width', right - left);
 	rect.setAttribute('height', bottom - top);
-	rect.setAttribute('stroke', PathwayViewer.highlightColor);
+	rect.setAttribute('stroke', color);
 	rect.setAttribute('stroke-width', '5');
 	rect.setAttribute('fill-opacity', '0');
 	rect.setAttribute('opacity', '0.5');
 	this.svgRoot.appendChild(rect);
 	this.highlights[id] = rect;
+	return rect;
 }
 
-PathwayViewer.prototype.clearHighlights = function() {
+PathwayViewer.prototype.removeHighlight = function(i) {
+	this.svgRoot.removeChild(this.highlights[i]);
+	delete this.highlights[i];
+}
+
+PathwayViewer.prototype.clearSearchHighlights = function() {
 	var that = this;
-	$.each(this.highlights, function(i, v) {
-		that.svgRoot.removeChild(v);
+	$.each(this.searchHighlights, function(i, v) {
+		that.removeHighlight(i);
 	});
-	this.highlights = {};
+	this.searchHighlights = {};
 }
 
 if(PathwayViewer.isIE9()) {
@@ -995,16 +1017,21 @@ GpmlModel = function(gpmlUrl) {
 	* The jquery parsed GPML.
 	*/
 	this.$data = null;
+	
+	/**
+	 * Listeners to be executed when
+	 * the GPML has been loaded.
+	 */
+	this.gpmlLoadListeners = [];
 };
 
-GpmlModel.prototype.load = function(callback) {
+GpmlModel.prototype.load = function() {
 	var that = this;
-	this.callback = callback;
 	
 	$.ajax({
 		url: this.gpmlUrl,
 		success: function(data, textStatus) {
-			that.loaded(data, textStatus, callback);
+			that.loaded(data, textStatus);
 		},
 		error: function(xr, msg, ex){
 			console.log("Error loading gpml: " + msg);
@@ -1014,7 +1041,7 @@ GpmlModel.prototype.load = function(callback) {
 	});
 }
 
-GpmlModel.prototype.loaded = function(data, textStatus, callback) {
+GpmlModel.prototype.loaded = function(data, textStatus) {
 	var that = this;
 	
 	this.$data = $(data);
@@ -1073,8 +1100,13 @@ GpmlModel.prototype.loaded = function(data, textStatus, callback) {
 		if(ver < 2010) r = 1 / 15;
 	}
 	this.scale = r;
-
-	if(callback) callback(this);
+	
+	$.each(this.gpmlLoadListeners, function(k, v) {
+		try { v(that); } catch(e) { 
+			console.log("Unable to execute gpml load listener");
+			console.log(e);
+		}
+	});
 }
 
 GpmlModel.prototype.mouseMove = function(offset, viewer, e){
@@ -1086,14 +1118,21 @@ GpmlModel.prototype.mouseMove = function(offset, viewer, e){
 		viewer.svgRoot.setAttribute('cursor', 'default');
 	}
 }
-    
+
+GpmlModel.prototype.getXref = function(obj) {
+		var jqxref = obj.$data.find('Xref');
+		var id = jqxref.attr('ID');
+		var ds = jqxref.attr('Database');
+		return { id: id, ds: ds };
+}
+
 GpmlModel.prototype.mouseDown = function(layout, $xrefContainer, offset, viewer, e){
 	var hover = this.getHoverObject(offset, viewer, e);
 	if (hover) {
 		//Get the xref properties
-		var jqxref = hover.$data.find('Xref');
-		var id = jqxref.attr('ID');
-		var ds = jqxref.attr('Database');
+		var xref = this.getXref(hover);
+		var id = xref.id;
+		var ds = xref.ds;
 
 		//Open the xref info
 		var title = hover.textLabel + ' (' + hover.type + ')';

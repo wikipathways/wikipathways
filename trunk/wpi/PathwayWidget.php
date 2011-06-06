@@ -80,14 +80,14 @@ html, body {
 	echo <<<SCRIPT
 <script type="text/javascript">
 	PathwayViewer_basePath = '$wfPathwayViewerPath/';
-	PathwayViewer_pathwayInfo.push({
+	PathwayViewer_viewers.push(new PathwayViewer({
 		imageId: "pathwayImage",
 		svgUrl: "$svg",
 		gpmlUrl: "$gpml",
 		start: true,
 		width: '100%',
 		height: '100%'
-	});
+	}));
 	$search
 	$bridge
 </script>
