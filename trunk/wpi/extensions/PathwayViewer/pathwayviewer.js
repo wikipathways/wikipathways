@@ -744,10 +744,10 @@ PathwayViewer.prototype.focus = function(obj) {
 }
 
 PathwayViewer.prototype.highlight = function(id, obj, color) {
-	var left = obj.left * this.gpml.scale;
-	var right = obj.right * this.gpml.scale;
-	var top = obj.top * this.gpml.scale;
-	var bottom = obj.bottom * this.gpml.scale;
+	var left = obj.left;
+	var right = obj.right;
+	var top = obj.top;
+	var bottom = obj.bottom;
 
 	var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
 	rect.setAttribute('x', left);
@@ -1057,10 +1057,10 @@ GpmlModel.prototype.loaded = function(data, textStatus) {
 	};
 
 	var parseObject = function(jq) {
-		var cx = parseFloat(jq.attr('CenterX'));
-		var cy = parseFloat(jq.attr('CenterY'));
-		var w = parseFloat(jq.attr('Width'));
-		var h = parseFloat(jq.attr('Height'));
+		var cx = parseFloat(jq.attr('CenterX')) * that.scale;
+		var cy = parseFloat(jq.attr('CenterY')) * that.scale;
+		var w = parseFloat(jq.attr('Width')) * that.scale;
+		var h = parseFloat(jq.attr('Height')) * that.scale;
 		var obj = {};
 		obj.left = cx - w / 2;
 		obj.top = cy - h / 2;
@@ -1075,19 +1075,6 @@ GpmlModel.prototype.loaded = function(data, textStatus) {
 
 		return obj;
 	}
-	//Get the datanodes
-	this.$data.find('DataNode > Graphics').each(function(){
-		var obj = parseObject($(this));
-		that.hoverObjects.push(obj);
-		that.searchObjects.push(obj);
-	});
-
-	//Get the labels
-	this.$data.find('Label > Graphics').each(function() {
-		var obj = parseObject($(this));
-		that.searchObjects.push(obj);
-	});
-
 	//Get the species
 	this.species = this.$data.find('Pathway').attr('Organism');
 
@@ -1106,6 +1093,19 @@ GpmlModel.prototype.loaded = function(data, textStatus) {
 			console.log("Unable to execute gpml load listener");
 			console.log(e);
 		}
+	});
+
+	//Get the datanodes
+	this.$data.find('DataNode > Graphics').each(function(){
+		var obj = parseObject($(this));
+		that.hoverObjects.push(obj);
+		that.searchObjects.push(obj);
+	});
+
+	//Get the labels
+	this.$data.find('Label > Graphics').each(function() {
+		var obj = parseObject($(this));
+		that.searchObjects.push(obj);
 	});
 }
 
@@ -1159,16 +1159,14 @@ GpmlModel.prototype.getHoverObject = function(offset, viewer, e) {
 		y: (e.pageY - offset.top) / svg.currentScale - viewer.getY()
 	}
 
-	var r = this.scale;
-
 	for (var i in this.hoverObjects) {
 		obj = this.hoverObjects[i];
 
 		var robj = {
-			left: obj.left * r,
-			right: obj.right * r,
-			bottom: obj.bottom * r,
-			top: obj.top * r
+			left: obj.left,
+			right: obj.right,
+			bottom: obj.bottom,
+			top: obj.top
 		}
 
 		var inx = p.x >= robj.left && p.x <= robj.right;
