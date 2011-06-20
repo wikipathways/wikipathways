@@ -130,7 +130,7 @@ PathwayViewer.prototype.startSVG = function() {
 	this.removeStartButton();
 
 	//Test if a suitable renderer has been found
-	if (!this.isFlashSupported()) {
+	if (PathwayViewer.useFlash() && !this.isFlashSupported()) {
 		//If not, instead of loading the svg, add a notification
 		//to help the user to install flash
 		this.addFlashNotification();
@@ -441,7 +441,7 @@ PathwayViewer.prototype.svgLoaded = function($xrefContainer, layout) {
 	
 	this.$viewer.mousedown(drag.mouseDown);
 	this.$viewer.mouseup(drag.mouseUp);
-
+	
 	//Add the mouseup and mouse move to the document,
 	//so we can continue dragging outside the svg object
 	$(document).mouseup(this.drag.mouseUp);
