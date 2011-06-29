@@ -45,7 +45,7 @@ function addPreloaderScript($out) {
 
 	if($wgTitle->getNamespace() == NS_PATHWAY && $wgUser->isLoggedIn()) {
 		$base = $wgScriptPath . "/wpi/applet/";
-		$class = "org.pathvisio.wikipathways.Preloader.class";
+		$class = "org.wikipathways.applet.Preloader.class";
 		
 		$out->addHTML("<applet code='$class' codebase='$base'
 			width='1' height='1' name='preloader'></applet>");

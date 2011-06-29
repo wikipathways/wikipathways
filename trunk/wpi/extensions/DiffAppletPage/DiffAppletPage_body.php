@@ -56,13 +56,22 @@ function createDiffApplet($pathway, $revOld, $revNew) {
 	$file2 = $pathway->getFileURL(FILETYPE_GPML);
 
 	$base = EditApplet::getAppletBase();
+	$archive_string = '';
+	$jardir = WPI_SCRIPT_PATH . '/applet';
+	$cache_archive = explode(' ', file_get_contents("$jardir/cache_archive"));
+	foreach($cache_archive as $jar) {
+		# check for file existence
+		filemtime("$jardir/$jar");
+		$archive_string .= $jar . ', ';
+	}
+
 	$applet = <<<APPLET
 	<applet 
 		width="100%" 
 		height="500" 
 		standby="Loading DiffView applet ..." 
-		codebase="{$base}" 
-		archive="{$base}/diffview.jar" 
+		codebase="$base" 
+		archive="$archive_string" 
 		type="application/x-java-applet" 
 		code="org.wikipathways.gpmldiff.AppletMain.class">
 		<param name="old" value="$file1"/>
