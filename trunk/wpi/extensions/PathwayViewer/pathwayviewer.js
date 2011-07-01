@@ -442,10 +442,13 @@ PathwayViewer.prototype.svgLoaded = function($xrefContainer, layout) {
 	this.$viewer.mousedown(drag.mouseDown);
 	this.$viewer.mouseup(drag.mouseUp);
 	
-	//Add the mouseup and mouse move to the document,
-	//so we can continue dragging outside the svg object
-	$(document).mouseup(this.drag.mouseUp);
-	$(document).mousemove(this.drag.mouseMove);
+	//Only do this if not on Mac, could cause the sticky controls issue
+	if(navigator.platform.indexOf("Mac") == -1) {
+		//Add the mouseup and mouse move to the document,
+		//so we can continue dragging outside the svg object
+		$(document).mouseup(this.drag.mouseUp);
+		$(document).mousemove(this.drag.mouseMove);
+	}
 
 	this.$viewer.mousemove(function(e) {
 		if (!drag.dragging) {
