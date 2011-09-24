@@ -318,7 +318,6 @@ require_once('wpi/extensions/ParserFunctions/ParserFunctions.php' );
 require_once('wpi/extensions/NamespacePermissions.php' );
 require_once('wpi/extensions/CheckGpmlOnSave.php' );
 require_once('wpi/extensions/CreateUserPage.php' );
-require_once('wpi/extensions/recaptcha/ReCaptcha.php'); 
 require_once('wpi/extensions/CurationTags/CurationTags.php');
 require_once('wpi/extensions/UserSnoop.php');
 require_once('wpi/extensions/AuthorInfo/AuthorInfo.php');
@@ -346,14 +345,13 @@ require_once('wpi/extensions/RSS/rss.php');
 require_once('wpi/extensions/Relations/Relations.php');
 require_once('wpi/extensions/XrefPanel.php');
 require_once('wpi/statistics/StatisticsHook.php');
+require_once( "extensions/ConfirmEdit/ConfirmEdit.php" );
 
-/* This shouldn't be in LocalSettings.php, since that's checked
-in to the svn repository. Put it in pass.php instead!
-// Sign up for keys at http://recaptcha.net/api/getKey
-$recaptcha_public_key = '***********';
-$recaptcha_private_key = '**********';
-*/
-//Recaptcha keys need to be defined again after loading the recaptcha extension
+require_once( "extensions/ConfirmEdit/FancyCaptcha.php" );
+$wgCaptchaClass = 'FancyCaptcha';
+$wgCaptchaDirectory = "captcha";
+
+//Load captcha keyphrase
 require("pass.php");
 
 require_once( "wpi/extensions/ContributionScores/ContributionScores.php" );
