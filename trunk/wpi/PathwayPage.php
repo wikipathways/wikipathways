@@ -104,16 +104,7 @@ TEXT;
 	}
 	
 	function curationTags() {
-		$button = $this->editButton(
-			'javascript:CurationTags.editTags();', 
-			'Edit curation tags', 
-			'tagEdit'
-		);
-		$description = $this->data->getWikiDescription();
-		if(!$description) {
-			$description = "<I>No description</I>";
-		}
-		$tags = "== Curation Tags ==\n" .
+ 		$tags = "== Curation Tags ==\n" .
 			"<CurationTags></CurationTags>";
 		return $tags;
 	}
