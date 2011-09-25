@@ -111,15 +111,16 @@ TEXT;
 	
 	function descriptionText() {
 		//Get WikiPathways description
-		$button = $this->editButton('javascript:;', 'Edit description', 'descEdit');
-		$description = $this->data->getWikiDescription();
+		$content = $this->data->getWikiDescription();
+		
+		$description = $content;
 		if(!$description) {
 			$description = "<I>No description</I>";
 		}
-		$description = "== Description ==\n<div id='descr'>" .
-			"<div style='float:right'>$button</div>\n" . $description . "</div>\n";
-		$id = $this->pathway->getIdentifier();
-		$description .= "{{#editApplet:descEdit|descr|0|$id|description|0|250px}}\n";
+		$description = "== Description ==\n<div id='descr'>"
+			 . $description . "</div>";
+			 
+		$description .= "<pageEditor id='descr' type='description'>$content</pageEditor>\n";
 		
 		//Get additional comments
 		$comments = '';

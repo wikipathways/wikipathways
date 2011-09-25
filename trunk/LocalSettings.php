@@ -346,6 +346,7 @@ require_once('wpi/extensions/Relations/Relations.php');
 require_once('wpi/extensions/XrefPanel.php');
 require_once('wpi/statistics/StatisticsHook.php');
 require_once( "extensions/ConfirmEdit/ConfirmEdit.php" );
+require_once('wpi/extensions/PageEditor/PageEditor.php');
 
 require_once( "extensions/ConfirmEdit/FancyCaptcha.php" );
 $wgCaptchaClass = 'FancyCaptcha';
