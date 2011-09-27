@@ -13,8 +13,12 @@ function wfPageEditor() {
 }
 
 function displayPageEditor($input, $argv, &$parser) {
-	global $wgOut, $wfPageEditorPath;
+	global $wgOut, $wfPageEditorPath, $wgUser;
 
+	//Check user rights
+	if( !$wgUser->isLoggedIn() || wfReadOnly()) {
+		return ""; //Don't return any applet code
+	}
 	
 	//Add CSS
 	//Hack to add a css that's not in the skins directory
