@@ -12,6 +12,7 @@ $wgAjaxExportList[] = "CurationTagsAjax::saveTag";
 $wgAjaxExportList[] = "CurationTagsAjax::removeTag";
 $wgAjaxExportList[] = "CurationTagsAjax::getAvailableTags";
 $wgAjaxExportList[] = "CurationTagsAjax::getTagHistory";
+$wgAjaxExportList[] = "CurationTagsAjax::getTags";
 
 $wgExtensionFunctions[] = "wfCurationTags";
 
@@ -283,17 +284,6 @@ class CurationTagsAjax {
 	}
 	
 	/**
-	 * Get the tag information encoded in XML
-	 */
-	public static function getTag($name, $pageId) {
-		$tag = new MetaTag($name, $pageId);
-		
-		$resp = new AjaxResponse(self::xmlFromTag($tag));
-		$resp->setContentType("text/xml");
-		return $resp;
-	}
-	
-	/**
 	 * Remove the given tag
 	 * @return an XML snipped containing the tagname of the removed tag:
 	 * <Name>tagname</Name>
@@ -378,6 +368,25 @@ class CurationTagsAjax {
 	}
 	
 	/**
+	 * Get all curation tags (and their contents) at once.
+	 */
+	public static function getTags($pageId, $pageRev = 0) {
+		$tags = CurationTag::getCurationTags($pageId);
+		$doc = new DOMDocument();
+		$root = $doc->createElement("Tags");
+		$doc->appendChild($root);
+		
+		foreach($tags as $t) {
+			$elm = self::getTagXml($doc, $t, $pageRev);
+			$root->appendChild($elm);
+		}
+		
+		$resp = new AjaxResponse(trim($doc->saveXML()));
+		$resp->setContentType("text/xml");
+		return $resp;
+	}
+	
+	/**
 	 * Get the data for this tag.
 	 * @return An xml encoded response, in the form:
 	 * <Tag name='tagname' ...(other tag attributes)>
@@ -386,13 +395,25 @@ class CurationTagsAjax {
 	 * 	</Tag>
 	 */
 	public static function getTagData($name, $pageId, $pageRev = 0) {
-		//Create a template call and use the parser to
-		//convert this to HTML
-		
 		$tag = new MetaTag($name, $pageId);
 
+		$doc = new DOMDocument();
+		$elm = self::getTagXML($doc, $tag, $pageRev);
+		$doc->appendChild($elm);
+		
+		$resp = new AjaxResponse($doc->saveXML());
+		$resp->setContentType("text/xml");
+		return $resp;
+	}
+	
+	public static function getTagXML($doc, $tag, $pageRev = 0) {
+		//Create a template call and use the parser to
+		//convert this to HTML
 		$userAdd = User::newFromId($tag->getUserAdd());
 		$userMod = User::newFromId($tag->getUserMod());
+		
+		$name = $tag->getName();
+		$pageId = $tag->getPageId();
 		
 		$tmp = $name;
 		$tmp .= "|tag_name={$tag->getName()}";
@@ -417,29 +438,25 @@ class CurationTagsAjax {
 		$out = $parser->parse($tmp, Title::newFromID($pageId), new ParserOptions());
 		$html = $out->getText();
 		
-		$doc = new DOMDocument();
-		$root = $doc->createElement("Tag");
-		$doc->appendChild($root);
-		$root->setAttribute('name', $tag->getName());
-		$root->setAttribute('page_id', $tag->getPageId());
-		$root->setAttribute('user_add', $tag->getUserAdd());
-		$root->setAttribute('time_add', $tag->getTimeAdd());
-		$root->setAttribute('user_mod', $tag->getUserMod());
-		$root->setAttribute('time_mod', $tag->getTimeMod());
+		$elm = $doc->createElement("Tag");
+		$elm->setAttribute('name', $tag->getName());
+		$elm->setAttribute('page_id', $tag->getPageId());
+		$elm->setAttribute('user_add', $tag->getUserAdd());
+		$elm->setAttribute('time_add', $tag->getTimeAdd());
+		$elm->setAttribute('user_mod', $tag->getUserMod());
+		$elm->setAttribute('time_mod', $tag->getTimeMod());
 		if($tag->getPageRevision()) {
-			$root->setAttribute('revision', $tag->getPageRevision());
+			$elm->setAttribute('revision', $tag->getPageRevision());
 		}
 		$elm_text = $doc->createElement("Text");
 		$elm_text->appendChild($doc->createTextNode($tag->getText()));
-		$root->appendChild($elm_text);
+		$elm->appendChild($elm_text);
 		
 		$elm_html = $doc->createElement("Html");
 		$elm_html->appendChild($doc->createTextNode($html));
-		$root->appendChild($elm_html);
+		$elm->appendChild($elm_html);
 		
-		$resp = new AjaxResponse($doc->saveXML());
-		$resp->setContentType("text/xml");
-		return $resp;
+		return $elm;
 	}
 	
 	/**

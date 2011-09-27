@@ -422,8 +422,8 @@ CurationTags.loadTags = function() {
 	
 	//Get all tags and their info by calling the AJAX functions
 	sajax_do_call(
-		"CurationTagsAjax::getTagNames", 
-		[CurationTags.pageId], 
+		"CurationTagsAjax::getTags", 
+		[CurationTags.pageId, CurationTags.pageRevision], 
 		CurationTags.loadTagsCallback
 	);
 }
@@ -432,11 +432,10 @@ CurationTags.loadTagsCallback = function(xhr) {
 	if(CurationTags.checkResponse(xhr)) {
 		var xml = CurationTags.getRequestXML(xhr);
 		var nodes = xml.documentElement.childNodes;
-		
 		for(i=0;i<nodes.length;i++) {
-			var tagname = nodes[i].firstChild.nodeValue;
-			if(tagname) {
-			CurationTags.loadTag(tagname);
+			var tagnode = nodes[i];
+			if(tagnode) {
+				CurationTags.parseTagXml(tagnode);
 			}
 		}
 		CurationTags.refreshNoTagsMsg();
@@ -452,110 +451,113 @@ CurationTags.loadTag = function(tagName) {
 	);
 }
 
+CurationTags.parseTagXml = function(tagElm) {
+	var tagName = tagElm.getAttribute("name");
+	var tagRevision = tagElm.getAttribute("revision");
+	
+	if(!tagRevision) {
+		tagRevision = false;
+	}
+
+	var html = tagElm.getElementsByTagName("Html")[0].firstChild.nodeValue;
+	var tagText = "";
+	var textNode = tagElm.getElementsByTagName("Text")[0];
+	if(textNode.hasChildNodes()) {
+		tagText = textNode.firstChild.nodeValue;
+	}
+	
+	var elm = CurationTags.tagElements[tagName];
+	var tagContent = document.getElementById( CurationTags.makeId("tagContent_" + tagName));
+	
+	if(!elm) { //New tag
+		var elm = document.createElement("div");
+		elm.id =  CurationTags.makeId("tagDiv_" + tagName);
+		elm.className = "tagcontainer";
+		
+		//TODO: Only showing buttons on mouseover on tag works great under FF
+		//but I can't get it to work under IE7
+		//Fix is to make buttons semi-transparent by default, 
+		//and solid on mouseover
+		elm.onmouseover = function() { CurationTags.showTagButtons(tagName); }
+		elm.onmouseout = function() { CurationTags.hideTagButtons(tagName); }
+		
+		//Store the element in the tagElements array
+		CurationTags.tagElements[tagName] = elm;
+		//Add to display panel
+		CurationTags.displayDiv.appendChild(elm);
+		
+		if(CurationTags.mayEdit) {
+			var btns = document.createElement("div");
+			btns.id =  CurationTags.makeId("tagBtns_" + tagName);
+			btns.className = "tagbuttons transparent";
+			remove = "<A title='Remove' " +
+				"href='javascript:CurationTags.removeTag(\"" + tagName + "\")'>" +
+				"<IMG src='" + CurationTags.extensionPath + "/cancel.png'/></A>";
+			edit = "<A title='Edit' " +
+				"href='javascript:CurationTags.showEditDiv(\"" + tagName + "\")'>" +
+				"<IMG src='" + CurationTags.extensionPath + "/edit.png'/></A>";
+			btns.innerHTML = remove + edit;
+			elm.appendChild(btns);
+		}
+		
+		tagContent = document.createElement("div");
+		tagContent.className = "tagcontents";
+		tagContent.id =  CurationTags.makeId("tagContent_" + tagName);
+	
+		elm.appendChild(tagContent);
+	}
+	
+	tagd = {};
+	tagd.name = tagName;
+	tagd.revision = tagRevision;
+	tagd.text = tagText;
+	CurationTags.tagData[tagName] = tagd;
+	
+	if(CurationTags.mayEdit) {
+		//Replace {{{update_link}}} with a link to apply the tag to the most
+		//recent revision
+		html = html.replace("{{{update_link}}}", 
+			"<a href='javascript:CurationTags.updateTag(\"" + tagName + "\")'>Click here</a> to apply to current revision.");
+	} else {
+		html = html.replace("{{{update_link}}}", "");
+	}
+	//To make the message show up when hovering over tag:
+	//part 1: replace UNIQUEID placeholder with tag name
+       html = html.replace(/UNIQUEID/g, CurationTags.makeId(tagName));
+		
+	tagContent.innerHTML = html;
+	
+	//To make the message show up when hovering over tag:
+	//part 2: insert event listeners
+     var control = document.getElementById( CurationTags.makeId(tagName + "_hover"));
+     var show = document.getElementById( CurationTags.makeId(tagName + "_show"));
+	if (show && control) {
+		var funOver = function(e){
+			show.style.display = '';
+		}
+		var funOut = function(e){
+			show.style.display = 'none';
+		}
+		if (control.addEventListener) {
+			control.addEventListener('mouseover', funOver, false);
+			control.addEventListener('mouseout', funOut, false);
+		}
+		else 
+			if (control.attachEvent) {
+				control.attachEvent('onmouseover', funOver);
+				control.attachEvent('onmouseout', funOut);
+			}
+	}
+		
+	CurationTags.refreshNoTagsMsg();
+	CurationTags.updatePageHistory(tagName);
+}
+
 CurationTags.loadTagCallback = function(xhr) {
 	if (CurationTags.checkResponse(xhr)){
 		var xml = CurationTags.getRequestXML(xhr);
-		var tagName = xml.documentElement.getAttribute("name");
-		var tagRevision = xml.documentElement.getAttribute("revision");
-		
-		if(!tagRevision) {
-			tagRevision = false;
-		}
-
-		var root = xml.documentElement;
-		
-		var html = root.getElementsByTagName("Html")[0].firstChild.nodeValue;
-		var tagText = "";
-		var textNode = root.getElementsByTagName("Text")[0];
-		if(textNode.hasChildNodes()) {
-			tagText = textNode.firstChild.nodeValue;
-		}
-		
-		var elm = CurationTags.tagElements[tagName];
-		var tagContent = document.getElementById( CurationTags.makeId("tagContent_" + tagName));
-		
-		if(!elm) { //New tag
-			var elm = document.createElement("div");
-			elm.id =  CurationTags.makeId("tagDiv_" + tagName);
-			elm.className = "tagcontainer";
-			
-			//TODO: Only showing buttons on mouseover on tag works great under FF
-			//but I can't get it to work under IE7
-			//Fix is to make buttons semi-transparent by default, 
-			//and solid on mouseover
-			elm.onmouseover = function() { CurationTags.showTagButtons(tagName); }
-			elm.onmouseout = function() { CurationTags.hideTagButtons(tagName); }
-			
-			//Store the element in the tagElements array
-			CurationTags.tagElements[tagName] = elm;
-			//Add to display panel
-			CurationTags.displayDiv.appendChild(elm);
-			
-			if(CurationTags.mayEdit) {
-				var btns = document.createElement("div");
-				btns.id =  CurationTags.makeId("tagBtns_" + tagName);
-				btns.className = "tagbuttons transparent";
-				remove = "<A title='Remove' " +
-					"href='javascript:CurationTags.removeTag(\"" + tagName + "\")'>" +
-					"<IMG src='" + CurationTags.extensionPath + "/cancel.png'/></A>";
-				edit = "<A title='Edit' " +
-					"href='javascript:CurationTags.showEditDiv(\"" + tagName + "\")'>" +
-					"<IMG src='" + CurationTags.extensionPath + "/edit.png'/></A>";
-				btns.innerHTML = remove + edit;
-				elm.appendChild(btns);
-			}
-			
-			tagContent = document.createElement("div");
-			tagContent.className = "tagcontents";
-			tagContent.id =  CurationTags.makeId("tagContent_" + tagName);
-		
-			elm.appendChild(tagContent);
-		}
-		
-		tagd = {};
-		tagd.name = tagName;
-		tagd.revision = tagRevision;
-		tagd.text = tagText;
-		CurationTags.tagData[tagName] = tagd;
-		
-		if(CurationTags.mayEdit) {
-			//Replace {{{update_link}}} with a link to apply the tag to the most
-			//recent revision
-			html = html.replace("{{{update_link}}}", 
-				"<a href='javascript:CurationTags.updateTag(\"" + tagName + "\")'>Click here</a> to apply to current revision.");
-		} else {
-			html = html.replace("{{{update_link}}}", "");
-		}
-		//To make the message show up when hovering over tag:
-		//part 1: replace UNIQUEID placeholder with tag name
-          html = html.replace(/UNIQUEID/g, CurationTags.makeId(tagName));
-			
-		tagContent.innerHTML = html;
-		
-		//To make the message show up when hovering over tag:
-		//part 2: insert event listeners
-        var control = document.getElementById( CurationTags.makeId(tagName + "_hover"));
-        var show = document.getElementById( CurationTags.makeId(tagName + "_show"));
-		if (show && control) {
-			var funOver = function(e){
-				show.style.display = '';
-			}
-			var funOut = function(e){
-				show.style.display = 'none';
-			}
-			if (control.addEventListener) {
-				control.addEventListener('mouseover', funOver, false);
-				control.addEventListener('mouseout', funOut, false);
-			}
-			else 
-				if (control.attachEvent) {
-					control.attachEvent('onmouseover', funOver);
-					control.attachEvent('onmouseout', funOut);
-				}
-		}
-			
-		CurationTags.refreshNoTagsMsg();
-		CurationTags.updatePageHistory(tagName);
+		var elm = xml.documentElement;
+		CurationTags.parseTagXml(elm);
 	}
 }
 
