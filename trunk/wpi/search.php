@@ -230,10 +230,12 @@ class PathwayIndex {
 				self::$f_name,
 				self::$f_textlabel,
 				self::$f_category,
-				self::$f_description
+				self::$f_description,
+				self::$f_ontology,
+				self::$f_ontology_id,
+				self::$f_source_id
 			)
 		);
-		
 		if($organism) {
 			$query = "($query) AND " . self::$f_organism . ":\"$organism\"";
 		}
@@ -325,5 +327,8 @@ class PathwayIndex {
 	static $f_literature_author = 'literature.author';
 	static $f_literature_title = 'literature.title';
 	static $f_literature_pubmed = 'literature.pubmed';
+	static $f_ontology = 'ontology';
+	static $f_ontology_id = 'ontologyId';
+	static $f_source_id = 'sourceId';
 }
 ?>
