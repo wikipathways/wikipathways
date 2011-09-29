@@ -62,7 +62,6 @@ class PathwayInfo extends PathwayData {
 <tbody>
 <th>Name
 <th>Type
-<th>Backpage Header
 <th>Database reference
 
 TABLE;
@@ -96,7 +95,6 @@ TABLE;
 			$table .= "<tr $doShow>";
 			$table .= '<td>' . $datanode['TextLabel'];
 			$table .= '<td>' . $datanode['Type'];
-			$table .= '<td>' . $datanode['BackpageHead'];
 			$table .= '<td>';
 			$xref = $datanode->Xref;
 			$xid = (string)$xref['ID'];
