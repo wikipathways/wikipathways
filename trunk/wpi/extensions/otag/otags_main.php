@@ -27,7 +27,6 @@ $text = preg_replace(
 
 function ofunction( $input, $argv, &$parser ) {
      global $wgTitle , $wgOut, $opath, $wgOntologiesJSON,$wgStylePath;
-    
      $oldStylePath = $wgStylePath;
 	 $wgStylePath = $opath . "/css/";
 
@@ -58,7 +57,7 @@ function ofunction( $input, $argv, &$parser ) {
     if($loggedIn)
 
 $output = <<<HTML
-<div id="otagprogress" style="display:none" align='center'><span><img src='$opath/img/progress.gif'> Saving...</span></div>
+<div id="otagprogress" style="display:none" align='center'><span><img src='$wgStylePath/common/images/progress.gif'> Saving...</span></div>
 <div id="ontologyContainer" class="yui-skin-sam">
     <div id="ontologyMessage" style="display:none;">No Tags!</div>
     <div id="ontologyTags" style="display:none;"></div>
@@ -84,7 +83,7 @@ HTML;
     else
 
 $output = <<<HTML
-<div id="otagprogress" style="display:none" align='center'><span><img src='$opath/progress.gif'> Saving...</span></div>
+<div id="otagprogress" style="display:none" align='center'><span><img src='$wgStylePath/common/images/progress.gif'> Saving...</span></div>
 <div id="ontologyContainer" class="yui-skin-sam">
 <div id="ontologyMessage" style="display:none;">No Tags!</div>
 <div id="ontologyTags" style="display:none;"> </div>
