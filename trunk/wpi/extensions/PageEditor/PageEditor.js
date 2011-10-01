@@ -14,7 +14,7 @@ PageEditor.images = {
 
 PageEditor.prototype.addEditButton = function() {
 	var that = this;
-	this.$edit = $('<img class="pageEditBtn" src="' + PageEditor.images.edit + '" />');
+	this.$edit = $('<img class="pageEditBtn" src="' + PageEditor.images.edit + '" />').attr('title', 'Edit ' + this.type);
 	this.$target.before(this.$edit);
 	this.$edit.click(function() { that.startEditor(); });
 }
@@ -35,6 +35,13 @@ PageEditor.prototype.startEditor = function() {
 			this.$editor.append($check);
 			this.$editor.append(cat + '<br>');
 		}
+	} else if(this.type == "title") {
+		this.$editor = $('<input type="text" />')
+			.attr('value', this.content)
+			.css({
+				width: '100%',
+				'font-size': 'x-large'
+			});
 	} else { //Text area by default
 		this.$editor = $('<textarea class="pageEditText">' + this.content + '</textarea>');
 	}	

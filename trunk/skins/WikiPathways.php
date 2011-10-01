@@ -156,7 +156,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
 	<div id="content">
 		<a name="top" id="top"></a>
 		<?php if($this->data['sitenotice']) { ?><div id="siteNotice"><?php $this->html('sitenotice') ?></div><?php } ?>
-		<h1 class="firstHeading"><?php 
+		<h1 id="pageTitle" class="firstHeading"><?php 
 		/** TK: set custom title for pathway pages **/
 		$ns = $wgTitle->getNameSpace();
 		if($pathway) {

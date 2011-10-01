@@ -74,6 +74,7 @@ class PathwayPage {
 
 	function getContent() {	
 		$text = <<<TEXT
+{$this->titleEditor()}
 {$this->privateWarning()}
 {{Template:PathwayPage:Top}}
 {$this->curationTags()}
@@ -84,6 +85,11 @@ class PathwayPage {
 {{Template:PathwayPage:Bottom}}
 TEXT;
 		return $text;
+	}
+	
+	function titleEditor() {
+		$title = $this->pathway->getName();
+		return "<pageEditor id='pageTitle' type='title'>$title</pageEditor>\n";
 	}
 	
 	function privateWarning() {

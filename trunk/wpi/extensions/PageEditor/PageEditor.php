@@ -78,13 +78,21 @@ class PageEditor {
 		
 					//Save the new GPML
 					$gpml = $doc->saveXML();
-					$pathway->updatePathway($gpml, "Modified " + $type);
+					$pathway->updatePathway($gpml, "Modified " . $type);
 					break;
 				case "category":
 					$categories = json_decode($content);
 					$handler = new CategoryHandler($pathway);
 					$handler->setCategories((array)$categories);
-				break;
+					break;
+				case "title":
+					$doc = new DOMDocument();
+					$gpml = $pathway->getGpml();
+					$doc->loadXML($gpml);
+					$doc->documentElement->setAttribute("Name", $content);
+					$gpml = $doc->saveXML();
+					$pathway->updatePathway($gpml, "Modified " . $type);
+					break;
 			}
 		} catch(Exception $e) {
 			$r = new AjaxResponse($e);
