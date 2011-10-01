@@ -96,7 +96,7 @@ SCRIPT;
 <title>WikiPathways Pathway Viewer</title>
 </head>
 <body>
-<div id="pathwayImage"><img src="test" /></div>
+<div id="pathwayImage"><img src="" /></div>
 <div style="position:absolute;height:0px;overflow:visible;bottom:0;right:0;">
 	<div id="logolink">
 		<?php
