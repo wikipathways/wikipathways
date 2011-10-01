@@ -211,7 +211,6 @@ class OntologyFunctions
         $ontologyId = self::getOntologyVersion($termId);
         $url = self::getBioPortalURL("tree", array("ontologyId" => $ontologyId, "conceptId" => $termId));
         $xml = simplexml_load_string(OntologyCache::fetchCache("tree",$url));
-
         foreach($xml->data->classBean->relations->entry as $entry )
         {
             if($entry->string == "SubClass")

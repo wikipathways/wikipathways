@@ -250,7 +250,7 @@ function addTag(concept, conceptId)
 
     if(document.getElementById(ontology).innerHTML.indexOf(conceptId)>0)
     {
-        document.getElementById('ontologyTagDisplay').innerHTML = "<div class='otag'><font color='red'>Error : The pathway is already tagged with this term !</font><br><a title='Close' href='javascript:closeTag();'><img src='" + opath + "/img/cancel.png' /></a><br></div>";
+        document.getElementById('ontologyTagDisplay').innerHTML = "<div class='otag'><font color='red'>Error : The pathway is already tagged with this term !</font><br><a title='Close' href='javascript:closeTag();'><img src='" + stylepath + "/common/images/cancel.png' /></a><br></div>";
         return;
     }
     
@@ -358,7 +358,7 @@ function displayTag(concept, conceptId, newTag)
         {
             if(newTag == "true")
             {
-                output += "<a title='Close' href='javascript:closeTag();'><img src='" + opath + "/img/cancel.png' /></a>&nbsp;";
+                output += "<a title='Close' href='javascript:closeTag();'><img src='" + stylepath + "/common/images/cancel.png' /></a>&nbsp;";
                 output += "<a title='Add' href='javascript:addTag(\"" + escape(concept) +  "\",\""+conceptId + "\");'><img src='" + stylepath + "/common/images/apply.png' /></a>&nbsp;";
             }
             else

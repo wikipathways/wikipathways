@@ -5,6 +5,11 @@ require_once('wpi.php');
 class OntologyCache
 {
     
+static function addKey($url) {
+	global $wpiBioportalKey;
+	return $url . '&apikey=' . $wpiBioportalKey;
+}
+
 public static function updateCache($function,$params,$response)
 {
     $dbw =& wfGetDB( DB_MASTER );
@@ -24,8 +29,9 @@ public static function updateCache($function,$params,$response)
 
 public static function fetchCache($function,$params, $timeOut = 0)
 {
-
     global $wgOntologiesExpiryTime;
+    
+    $params = self::addKey($params);
     
     if($timeOut == 0)
         $time = time() - $wgOntologiesExpiryTime;
