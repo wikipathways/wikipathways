@@ -1,17 +1,6 @@
-/*
-Copyright (c) 2009, Yahoo! Inc.
-All rights reserved.
-
-Redistribution and use of this software in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and the
-      following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-    * Neither the name of Yahoo! Inc. nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission of Yahoo! Inc.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
+/**
+ * Javascript functions for ontology tagging feature.
+ */
 var opentag_id = -1;
 var otagroot = document.getElementById('ontologyContainer');
 var treeRoot = document.getElementById('ontologyTrees');
@@ -164,7 +153,7 @@ function loadNodeData(node, fnLoadComplete)  {
 
         oAC.itemSelectEvent.subscribe(itemSelectHandler);
         oAC.dataRequestEvent.subscribe(function(){
-                oACInput.style.backgroundImage = 'url(' + opath + '/img/progress.gif)';
+                oACInput.style.backgroundImage = 'url(' + stylepath + '/common/images/progress.gif)';
                 oACInput.style.backgroundPosition = 'right';
                 oACInput.style.backgroundRepeat = 'no-repeat';
             }
@@ -351,24 +340,34 @@ function displayTag(concept, conceptId, newTag)
     {
         ontology_version_id = getOntologyId("version",conceptId);
         var output = " ";
-        var url = "http://bioportal.bioontology.org/visualize/" + ontology_version_id + "/" + conceptId;
-        output="<div class='otag'><b>Term</b> : " + concept + "<br/><b>ID</b> : " + conceptId + "<br/>"
-        + "<a href='" + url + "'  title='View more Info on BioPortal !' target='_blank'><img src='" + opath + "/img/info.png'></a>&nbsp;"
 
+		output += "<div class='otag'><b>Term</b> : " + concept + "<br/><b>ID</b> : " + conceptId + "<br/>";
+		
+		 //Info link
+         var url = "http://bioportal.bioontology.org/visualize/" + ontology_version_id + "/" + conceptId;
+        
+        output += "<a href='" + url + "'  title='More info at BioPortal' target='_blank'><img src='" + stylepath + "/common/images/info_large.png'></a>&nbsp;"
+        
+        //Other pathways search link
+        var term = conceptId.replace(/:/g, '');
+        url = "?query=" + term + "&species=ALL+SPECIES&title=Special%3ASearchPathways&doSearch=1&type=query";
+        url = wgServer + wgScriptPath + url;
+        output += "<a title='More pathways with this term' href='" + url + "'><img src='" + stylepath + "/common/images/search_circle.png' /></a>&nbsp;";
+		
         if(otagloggedIn == 1)
         {
             if(newTag == "true")
             {
-                output += "<a title='Add' href='javascript:addTag(\"" + escape(concept) +  "\",\""+conceptId + "\");'><img src='" + opath + "/img/apply.png' /></a>&nbsp;";
-                output += "<a title='Close' href='javascript:closeTag();'><img src='" + opath + "/img/cancel.png' /></a><br></div>";
+                output += "<a title='Close' href='javascript:closeTag();'><img src='" + opath + "/img/cancel.png' /></a>&nbsp;";
+                output += "<a title='Add' href='javascript:addTag(\"" + escape(concept) +  "\",\""+conceptId + "\");'><img src='" + stylepath + "/common/images/apply.png' /></a>&nbsp;";
             }
             else
             {
-                output += "<a title='Close' href='javascript:closeTag();'><img src='" + opath + "/img/apply.png' /></a>&nbsp;";
-                output += "<a title='Remove' href='javascript:removeTag(\"" + conceptId +  "\");'><img src='" + opath + "/img/cancel.png' /></a><br></div>";
+                output += "<a title='Remove' href='javascript:removeTag(\"" + conceptId +  "\");'><img src='" + stylepath + "/common/images/cancel.png' /></a>&nbsp;";
+                output += "<a title='Close' href='javascript:closeTag();'><img src='" + stylepath + "/common/images/apply.png' /></a>&nbsp;";
             }
         }
-        
+        output += "</div>";
         opentag_id = conceptId;
     }
     else
