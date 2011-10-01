@@ -43,7 +43,7 @@ function displayPageEditor($input, $argv, &$parser) {
 	
 	$wgOut->addScript("<script type=\"{$wgJsMimeType}\" src=\"{$wfPageEditorPath}/PageEditor.js\"></script>\n");
 	
-	$script = "<script type='{$wgJsMimeType}'>new PageEditor('$targetId', '$type', $content, '$pwId');</script>";
+	$script = "<script type='{$wgJsMimeType}'>var p = new PageEditor('$targetId', '$type', $content, '$pwId');$categories</script>";
 
 	return $script;
 }
@@ -52,32 +52,40 @@ class PageEditor {
 	public static function save($pwId, $type, $content) {
 		try {
 			$pathway = new Pathway($pwId);
-			$gpml = $pathway->getGpml();
-			$doc = new DOMDocument();
-			$doc->loadXML($gpml);
-				
-			//Save description
-			$description = false;
-			$root = $doc->documentElement;
-			foreach($root->childNodes as $n) {
-				if($n->nodeName == "Comment" && 
-					$n->getAttribute('Source') == COMMENT_WP_DESCRIPTION) {
-					$description = $n;
+			
+			switch($type) {
+				case "description":
+					$doc = new DOMDocument();
+					$gpml = $pathway->getGpml();
+					$doc->loadXML($gpml);
+					//Save description
+					$description = false;
+					$root = $doc->documentElement;
+					foreach($root->childNodes as $n) {
+						if($n->nodeName == "Comment" && 
+							$n->getAttribute('Source') == COMMENT_WP_DESCRIPTION) {
+							$description = $n;
+							break;
+						}
+					}
+		
+					if(!$description) {
+						$description = $doc->createElement("Comment");
+						$description->setAttribute("Source", COMMENT_WP_DESCRIPTION);
+						$root->insertBefore($description, $root->firstChild);
+					}
+					$description->nodeValue = $content;
+		
+					//Save the new GPML
+					$gpml = $doc->saveXML();
+					$pathway->updatePathway($gpml, "Modified " + $type);
 					break;
-				}
+				case "category":
+					$categories = json_decode($content);
+					$handler = new CategoryHandler($pathway);
+					$handler->setCategories((array)$categories);
+				break;
 			}
-		
-			if(!$description) {
-				$description = $doc->createElement("Comment");
-				$description->setAttribute("Source", COMMENT_WP_DESCRIPTION);
-				$root->appendChild($description);
-			}
-			$description->nodeValue = $content;
-		
-			//Save the new GPML
-			$gpml = $doc->saveXML();
-						
-			$pathway->updatePathway($gpml, "Modified " + $type);
 		} catch(Exception $e) {
 			$r = new AjaxResponse($e);
 			$r->setResponseCode(500);

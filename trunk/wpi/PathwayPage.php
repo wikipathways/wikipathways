@@ -193,9 +193,18 @@ TEXT;
 		}
 		$button = $this->editButton('javascript:;', 'Edit categories', 'catEdit');
 		$title = $this->pathway->getIdentifier();
-		return "== Categories ==\n<div id='catdiv'>\n" .
-			"<div style='float:right'>$button</div>\n" . 
-			"$catlist</div>\n{{#editApplet:catEdit|catdiv|0|$id|categories|0|250px}}";
+		
+		$cats = "== Categories ==\n<div id='catdiv'>\n$catlist</div>\n";
+		
+		$catArray = array();
+		foreach(Pathway::getAvailableCategories() as $c) {
+			$present = 0;
+			if(in_array(str_replace(' ', '_', $c), $categories)) $present = 1;
+			$catArray[$c] = $present;
+		}
+		$catValue = json_encode($catArray);
+		$cats .= "<pageEditor id='catdiv' type='category'>$catValue</pageEditor>\n";
+		return $cats;
 	}
 	
 	function editButton($href, $title, $id = '') {

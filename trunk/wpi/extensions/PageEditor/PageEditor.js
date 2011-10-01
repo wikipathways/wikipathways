@@ -24,7 +24,20 @@ PageEditor.prototype.startEditor = function() {
 	
 	this.$container = $('<div>');
 	
-	this.$editor = $('<textarea class="pageEditText">' + this.content + '</textarea>');
+	if(this.type == "category") {
+		this.$editor = $('<div>');
+		var categories = $.parseJSON(this.content);
+		for(var cat in categories) {
+			var checked = "";
+			if(categories[cat]) checked = "checked";
+			var $check = $('<input type="checkbox" name="category" ' + checked + '/>')
+				.attr('value', cat);
+			this.$editor.append($check);
+			this.$editor.append(cat + '<br>');
+		}
+	} else { //Text area by default
+		this.$editor = $('<textarea class="pageEditText">' + this.content + '</textarea>');
+	}	
 	
 	this.$container.append(this.$editor);
 	
@@ -65,10 +78,23 @@ PageEditor.prototype.save = function() {
 		of: this.$container
 	});
 	
+	var val = "";
+	if(this.type == "category") {
+		val = '{';
+		this.$editor.find(':checkbox').each(function() {
+			var cat = $(this).val();
+			var checked = $(this).is(':checked') ? 1 : 0;
+			val += '"' + cat + '":' + checked + ',';
+		});
+		val = val.substring(0, val.length-1) + '}';
+	} else {
+		val = this.$editor.val();
+	}
+	
 	//Perform save
 	sajax_do_call(
 		"PageEditor::save", 
-		[this.pwId, this.type, this.$editor.val()], 
+		[this.pwId, this.type, val], 
 		function(xhr) { that.afterSave(xhr); }
 	);
 }
