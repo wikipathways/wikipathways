@@ -23,9 +23,13 @@ class XrefPanel {
 	}
 
 	static function getXrefHTML($id, $datasource, $label, $text, $species) {
+		$datasource = json_encode($datasource);
+		$label = json_encode($label);
+		$id = json_encode($id);
+		$species = json_encode($species);
 		$url = SITE_URL . '/skins/common/images/info.png';
-		$fun = "XrefPanel.registerTrigger(this, '$id', '$datasource', '$species', '$label');";
-		$html = $text . " <img title='Show additional info and linkouts' style='cursor:pointer;' onload=\"$fun\" src='$url'/>";
+		$fun = "XrefPanel.registerTrigger(this, $id, $datasource, $species, $label);";
+		$html = $text . " <img title='Show additional info and linkouts' style='cursor:pointer;' onload='$fun' src='$url'/>";
 		return $html;
 	}
 	
