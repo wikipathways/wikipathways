@@ -397,7 +397,7 @@ This section lists the steps to take for a typical milestone release. Note that 
 Only these files needs to be updated:
 
 pathvisio.iss
-build.xml
+build-common.xml
 
 # Tag for WikiPathways code
 svn cp http://svn.bigcat.unimaas.nl/wikipathways/trunk http://svn.bigcat.unimaas.nl/wikipathways/branches/milestone_23.x
@@ -493,14 +493,22 @@ ant install-wpi \
 	# create tar.gz of webservice client
 	ant tarbin-wpclient -Ddebug.mode=false -Dwsdl.url=http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl
 	
+	# create Setup.exe
+	# For this you need to be in Windows, and you have to have 
+	# InnoSetup installed (http://www.jrsoftware.org/isinfo.php),
+	# together with the InnoSetup pre-processsor (ISPP)
+	open pathvisio.iss in Inno-Setup compiler, and click the compile (play) button.
+	The setup.exe will be generated in the release dir, together with the tar.gz's and zip's.
+
 	# make a release directory
 	
 	RELEASE=<#.#.#> ssh pathvisio@www.pathvisio.org \
 	"mkdir data/releases/$RELEASE;\
 	rm data/releases/current;\
 	ln -s ~/data/releases/$RELEASE data/releases/current"
-		
-	# publish both
+	
+	# check that the release dir now contains 7 files: (zip, tar.gz) for (binary, src, wpclient), and Setup.exe
+	# publish all
 	scp release/* pathvisio@www.pathvisio.org:data/releases/current
 
 	# update front page and release notes
