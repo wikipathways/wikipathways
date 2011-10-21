@@ -212,7 +212,7 @@ function processPathways($species, $fh, $datasourceList) {
 				} else {
 				## id mapping = on
 					try {
-						$xrefList = PathwayIndex::listPathwayXrefs($pathway, $code);			
+						$xrefList = PathwayIndex::listPathwayXrefs($pathway, $code, 'FALSE');			
 			        	} catch(Exception $e) {
          		        		throw new WSFault("Receiver", "Unable to process request: " . $e);
         				}
