@@ -256,21 +256,6 @@ $wgGroupPermissions['bureaucrat'  ]['usersnoop'] = true;
 $wgGroupPermissions['sysop']['list_private_pathways'] = true;
 $wgGroupPermissions['webservice']['webservice_write'] = true;
 
-//AP20071027 
-# Reject user creation from specific domains
-function abortOnBadDomain($user, $message) {
-
-  global $wgRequest;
-  $email = $wgRequest->getText( 'wpEmail' );
-  $emailSplitList = split("@", $email, 2);
-  if ( $emailSplitList[1] == "mail.ru" ||
-       $emailSplitList[1] == "list.ru" ) {
-    $message = "Your e-mail domain has been blocked";
-    return false;
-  }
-  return true;
-}
-
 $wgHooks['AbortNewAccount'][] = 'abortOnBadDomain';
 
 ##Debug
