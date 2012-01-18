@@ -170,7 +170,7 @@ $wgAllowSlowParserFunctions = true;
 $wgLogo = "http://www.wikipathways.org/skins/common/images/earth-or-pathway_text3_beta.png";
 
 #Allow gpml extension and larger image files
-$wgFileExtensions = array( 'png', 'gif', 'jpg', 'jpeg', 'svg', 'gpml', 'mapp');
+$wgFileExtensions = array( 'pdf', 'png', 'gif', 'jpg', 'jpeg', 'svg', 'gpml', 'mapp');
 $wgUploadSizeWarning = 1024 * 1024 * 5;
 
 ## Better SVG converter
