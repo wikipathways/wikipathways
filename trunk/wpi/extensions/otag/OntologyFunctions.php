@@ -21,9 +21,9 @@ class OntologyFunctions
                     unset($bp->openControlledVocabulary[$i]);
                 $i++;
             }
-//        $dbw->immediateBegin();
+//        $dbw->begin();
         $dbw->delete( 'ontology', array( 'pw_id' => $pwTitle,'term_id' => $tagId ), $fname );
-//        $dbw->immediateCommit();
+//        $dbw->commit();
         $gpml = $xml->asXML();
         $pathway->updatePathway($gpml,$comment);
         echo "SUCCESS";
@@ -66,7 +66,7 @@ class OntologyFunctions
         {
             $pathway->updatePathway($gpml,$comment);
             $dbw =& wfGetDB( DB_MASTER );
-            $dbw->immediateBegin();
+            $dbw->begin();
             $dbw->insert( 'ontology', array(
                                             'term_id' => $tagId,
                                             'term'    => $tag,
@@ -75,7 +75,7 @@ class OntologyFunctions
                                             'term_path'  => $path ),
                                             $fname,
                                             'IGNORE' );
-            $dbw->immediateCommit();
+            $dbw->commit();
             return "SUCCESS";
         }
         catch(Exception $e)

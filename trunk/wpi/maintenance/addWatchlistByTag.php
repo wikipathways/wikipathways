@@ -33,12 +33,12 @@ $pages = CurationTag::getPagesForTag($tag);
 echo("Adding " . count($pages) . " pathways to watchlist of user " . $user->getName() . "\n");
 
 $dbw =& wfGetDB(DB_MASTER);
-$dbw->immediateBegin();
+$dbw->begin();
 foreach($pages as $p) {
 	$title = Title::newFromId($p);
 	echo("\tAdding " . $title->getFullText() . "\n");
 	$user->addWatch($title);
 	$user->addWatch($title->getTalkPage()); //Add the talk page as well
 }
-$dbw->immediateCommit();
+$dbw->commit();
 ?>

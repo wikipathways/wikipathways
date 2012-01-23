@@ -13,7 +13,7 @@ static function addKey($url) {
 public static function updateCache($function,$params,$response)
 {
     $dbw =& wfGetDB( DB_MASTER );
-    $dbw->immediateBegin();
+    $dbw->begin();
     $dbw->delete( 'ontologycache',array(
                                     'function' => $function,
                                     'params'    => $params),$fname = 'Database::delete');
@@ -24,7 +24,7 @@ public static function updateCache($function,$params,$response)
                                     'response'   => $response),
                                     $fname,
                                     'IGNORE' );
-    $dbw->immediateCommit();
+    $dbw->commit();
 }
 
 public static function fetchCache($function,$params, $timeOut = 0)
@@ -58,9 +58,9 @@ public static function fetchCache($function,$params, $timeOut = 0)
            else
            {
                 $dbw =& wfGetDB( DB_MASTER );
-                $dbw->immediateBegin();
+                $dbw->begin();
                 $dbw->update('ontologycache',array('timestamp'=>time()) ,array("function"=>$function,"params"=>$params),$fname = 'Database::update', $options = array() );
-                $dbw->immediateCommit();
+                $dbw->commit();
                 return($row->response);
            }
        }

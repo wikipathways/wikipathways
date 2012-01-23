@@ -12,15 +12,15 @@ chdir(dirname(__FILE__));
 echo "*** Creating tables for web service logging ***\n";
 
 $dbw =& wfGetDB(DB_MASTER);
-$dbw->immediateBegin();
+$dbw->begin();
 
 
 $dbw->sourceFile(realpath('./wslog.sql'), false, 'printSql');
 
-$dbw->immediateCommit();
+$dbw->commit();
 
 //Create metatag index
-$dbw->immediateBegin();
+$dbw->begin();
 
 $dbw->query(
 	"CREATE INDEX tag_name ON tag (tag_name)"
@@ -34,14 +34,14 @@ $dbw->query(
 $dbw->query(
 	"CREATE INDEX taghist_page ON tag_history (page_id)"
 );
-$dbw->immediateCommit();
+$dbw->commit();
 
 //Modify metatag table
-$dbw->immediateBegin();
+$dbw->begin();
 
 $dbw->query(
 	"ALTER TABLE tag_history ADD COLUMN text varchar(500)"
 );
 
-$dbw->immediateCommit();
+$dbw->commit();
 ?>

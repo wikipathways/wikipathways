@@ -28,7 +28,7 @@ $values = array(
 	"request_timestamp" => $timestamp,
 );
 $dbw->insert("webservice_log", $values);
-$dbw->immediateCommit();
+$dbw->commit();
 
 //Prevent errors/warnings from messing up the xml response
 ini_set("display_errors", "0");

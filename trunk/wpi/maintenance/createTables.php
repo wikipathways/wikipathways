@@ -14,46 +14,46 @@ chdir(dirname(__FILE__));
 echo "*** Creating table for metatags ***\n";
 
 $dbw =& wfGetDB(DB_MASTER);
-$dbw->immediateBegin();
+$dbw->begin();
 
 
 $dbw->sourceFile(realpath('./metatags.sql'), false, 'printSql');
 $dbw->sourceFile(realpath('./usersnoop.sql'), false, 'printSql');
 
-$dbw->immediateCommit();
+$dbw->commit();
 
 /* Tables for LiquidThreads */
 echo "*** Creating tables for LiquidThreads ***\n";
 
 $dbw =& wfGetDB(DB_MASTER);
-$dbw->immediateBegin();
+$dbw->begin();
 
 
 $dbw->sourceFile(realpath('./lqt.sql'), false, 'printSql');
 
-$dbw->immediateCommit();
+$dbw->commit();
 
 /* Tables for SocialRewarding */
 echo "*** Creating tables for SocialRewarding ***\n";
 
 $dbw =& wfGetDB(DB_MASTER);
-$dbw->immediateBegin();
+$dbw->begin();
 
 
 $dbw->sourceFile(realpath('./SocialRewardingTables.sql'), false, 'printSql');
 
-$dbw->immediateCommit();
+$dbw->commit();
 
 /* Tables for web service logging */
 echo "*** Creating tables for web service logging ***\n";
 
 $dbw =& wfGetDB(DB_MASTER);
-$dbw->immediateBegin();
+$dbw->begin();
 
 
 $dbw->sourceFile(realpath('./wslog.sql'), false, 'printSql');
 
-$dbw->immediateCommit();
+$dbw->commit();
 
 function printSql($txt) {
 	echo "SQL> $txt\n";

@@ -105,12 +105,12 @@ class CategoryHandler {
 		$clFrom = $this->pathway->getTitleObject()->getArticleID();
 		$categorylinks = $dbw->tableName( 'categorylinks' );
 		
-		$dbw->immediateBegin();	
+		$dbw->begin();	
 		//Purge old categories
 		$dbw->delete( $categorylinks, array( 'cl_from' => $clFrom ) );
-		$dbw->immediateCommit();
+		$dbw->commit();
 		
-		$dbw->immediateBegin();
+		$dbw->begin();
 		
 		//Add the GPML categories
 		foreach($this->getGpmlCategories() as $cat) {
@@ -127,7 +127,7 @@ class CategoryHandler {
 					VALUES ({$dbw->addQuotes($clFrom)}, $clTo, $sort)";
 			$dbw->query( $sql, 'SpecialMovepage::doSubmit' );
 		}
-		$dbw->immediateCommit();		
+		$dbw->commit();		
 	}
 	
 	private function getMediaWikiCategories() {
