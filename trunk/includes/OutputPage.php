@@ -2165,6 +2165,14 @@ $templates
 	 */
 	public function addReturnTo( $title, $query = array(), $text = null ) {
 		$this->addLink( array( 'rel' => 'next', 'href' => $title->getFullURL() ) );
+		
+		##TK WP CHANGE
+		if($title && $title->getNamespace() == NS_PATHWAY) {
+			$p = Pathway::newFromTitle($title);
+			$text = "{$p->getName()} ({$p->getSpecies()})";
+		}
+		##END WP CHANGE
+		
 		$link = wfMsgHtml(
 			'returnto',
 			Linker::link( $title, $text, array(), $query )

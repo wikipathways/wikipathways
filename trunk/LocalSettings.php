@@ -46,6 +46,7 @@ $wgScriptPath       = '';
 
 $wgEnableEmail      = true;
 $wgEnableUserEmail  = true;
+$wgPasswordSenderName = 'WikiPathways';
 
 $wgEmergencyContact = "webmaster@localhost";
 $wgPasswordSender = "webmaster@localhost";
