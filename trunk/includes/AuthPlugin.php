@@ -1,23 +1,27 @@
 <?php
 /**
+ * Authentication plugin interface
+ *
+ * Copyright © 2004 Brion Vibber <brion@pobox.com>
+ * http://www.mediawiki.org/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
  */
-# Copyright (C) 2004 Brion Vibber <brion@pobox.com>
-# http://www.mediawiki.org/
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-# http://www.gnu.org/copyleft/gpl.html
 
 /**
  * Authentication plugin interface. Instantiate a subclass of AuthPlugin
@@ -38,9 +42,8 @@ class AuthPlugin {
 	 *
 	 * @param $username String: username.
 	 * @return bool
-	 * @public
 	 */
-	function userExists( $username ) {
+	public function userExists( $username ) {
 		# Override this!
 		return false;
 	}
@@ -54,9 +57,8 @@ class AuthPlugin {
 	 * @param $username String: username.
 	 * @param $password String: user password.
 	 * @return bool
-	 * @public
 	 */
-	function authenticate( $username, $password ) {
+	public function authenticate( $username, $password ) {
 		# Override this!
 		return false;
 	}
@@ -65,9 +67,9 @@ class AuthPlugin {
 	 * Modify options in the login template.
 	 *
 	 * @param $template UserLoginTemplate object.
-	 * @public
+	 * @param $type String 'signup' or 'login'.
 	 */
-	function modifyUITemplate( &$template ) {
+	public function modifyUITemplate( &$template, &$type ) {
 		# Override this!
 		$template->set( 'usedomain', false );
 	}
@@ -76,9 +78,8 @@ class AuthPlugin {
 	 * Set the domain this plugin is supposed to use when authenticating.
 	 *
 	 * @param $domain String: authentication domain.
-	 * @public
 	 */
-	function setDomain( $domain ) {
+	public function setDomain( $domain ) {
 		$this->domain = $domain;
 	}
 
@@ -87,9 +88,8 @@ class AuthPlugin {
 	 *
 	 * @param $domain String: authentication domain.
 	 * @return bool
-	 * @public
 	 */
-	function validDomain( $domain ) {
+	public function validDomain( $domain ) {
 		# Override this!
 		return true;
 	}
@@ -102,14 +102,12 @@ class AuthPlugin {
 	 * The User object is passed by reference so it can be modified; don't
 	 * forget the & on your function declaration.
 	 *
-	 * @param User $user
-	 * @public
+	 * @param $user User object
 	 */
-	function updateUser( &$user ) {
+	public function updateUser( &$user ) {
 		# Override this and do something
 		return true;
 	}
-
 
 	/**
 	 * Return true if the wiki should create a new local account automatically
@@ -122,11 +120,31 @@ class AuthPlugin {
 	 *
 	 * This is just a question, and shouldn't perform any actions.
 	 *
-	 * @return bool
-	 * @public
+	 * @return Boolean
 	 */
-	function autoCreate() {
+	public function autoCreate() {
 		return false;
+	}
+
+	/**
+	 * Allow a property change? Properties are the same as preferences
+	 * and use the same keys. 'Realname' 'Emailaddress' and 'Nickname'
+	 * all reference this.
+	 *
+	 * @param $prop string
+	 *
+	 * @return Boolean
+	 */
+	public function allowPropChange( $prop = '' ) {
+		if ( $prop == 'realname' && is_callable( array( $this, 'allowRealNameChange' ) ) ) {
+			return $this->allowRealNameChange();
+		} elseif ( $prop == 'emailaddress' && is_callable( array( $this, 'allowEmailChange' ) ) ) {
+			return $this->allowEmailChange();
+		} elseif ( $prop == 'nickname' && is_callable( array( $this, 'allowNickChange' ) ) ) {
+			return $this->allowNickChange();
+		} else {
+			return true;
+		}
 	}
 
 	/**
@@ -134,7 +152,7 @@ class AuthPlugin {
 	 *
 	 * @return bool
 	 */
-	function allowPasswordChange() {
+	public function allowPasswordChange() {
 		return true;
 	}
 
@@ -149,9 +167,8 @@ class AuthPlugin {
 	 * @param $user User object.
 	 * @param $password String: password.
 	 * @return bool
-	 * @public
 	 */
-	function setPassword( $user, $password ) {
+	public function setPassword( $user, $password ) {
 		return true;
 	}
 
@@ -160,20 +177,18 @@ class AuthPlugin {
 	 * Return true if successful.
 	 *
 	 * @param $user User object.
-	 * @return bool
-	 * @public
+	 * @return Boolean
 	 */
-	function updateExternalDB( $user ) {
+	public function updateExternalDB( $user ) {
 		return true;
 	}
 
 	/**
 	 * Check to see if external accounts can be created.
 	 * Return true if external accounts can be created.
-	 * @return bool
-	 * @public
+	 * @return Boolean
 	 */
-	function canCreateAccounts() {
+	public function canCreateAccounts() {
 		return false;
 	}
 
@@ -181,17 +196,15 @@ class AuthPlugin {
 	 * Add a user to the external authentication database.
 	 * Return true if successful.
 	 *
-	 * @param User $user - only the name should be assumed valid at this point
-	 * @param string $password
-	 * @param string $email
-	 * @param string $realname
-	 * @return bool
-	 * @public
+	 * @param $user User: only the name should be assumed valid at this point
+	 * @param $password String
+	 * @param $email String
+	 * @param $realname String
+	 * @return Boolean
 	 */
-	function addUser( $user, $password, $email='', $realname='' ) {
+	public function addUser( $user, $password, $email = '', $realname = '' ) {
 		return true;
 	}
-
 
 	/**
 	 * Return true to prevent logins that don't authenticate here from being
@@ -199,10 +212,9 @@ class AuthPlugin {
 	 *
 	 * This is just a question, and shouldn't perform any actions.
 	 *
-	 * @return bool
-	 * @public
+	 * @return Boolean
 	 */
-	function strict() {
+	public function strict() {
 		return false;
 	}
 
@@ -211,10 +223,9 @@ class AuthPlugin {
 	 * If either this or strict() returns true, local authentication is not used.
 	 *
 	 * @param $username String: username.
-	 * @return bool
-	 * @public
+	 * @return Boolean
 	 */
-	function strictUserAuth( $username ) {
+	public function strictUserAuth( $username ) {
 		return false;
 	}
 
@@ -227,10 +238,9 @@ class AuthPlugin {
 	 * forget the & on your function declaration.
 	 *
 	 * @param $user User object.
-	 * @param $autocreate bool True if user is being autocreated on login
-	 * @public
+	 * @param $autocreate Boolean: True if user is being autocreated on login
 	 */
-	function initUser( &$user, $autocreate=false ) {
+	public function initUser( &$user, $autocreate = false ) {
 		# Override this to do something.
 	}
 
@@ -238,7 +248,53 @@ class AuthPlugin {
 	 * If you want to munge the case of an account name before the final
 	 * check, now is your chance.
 	 */
-	function getCanonicalName( $username ) {
+	public function getCanonicalName( $username ) {
 		return $username;
+	}
+
+	/**
+	 * Get an instance of a User object
+	 *
+	 * @param $user User
+	 *
+	 * @return AuthPluginUser
+	 */
+	public function getUserInstance( User &$user ) {
+		return new AuthPluginUser( $user );
+	}
+
+	/**
+	 * Get a list of domains (in HTMLForm options format) used.
+	 *
+	 * @return array
+	 */
+	public function domainList() {
+		return array();
+	}
+}
+
+class AuthPluginUser {
+	function __construct( $user ) {
+		# Override this!
+	}
+
+	public function getId() {
+		# Override this!
+		return -1;
+	}
+
+	public function isLocked() {
+		# Override this!
+		return false;
+	}
+
+	public function isHidden() {
+		# Override this!
+		return false;
+	}
+
+	public function resetAuthToken() {
+		# Override this!
+		return true;
 	}
 }

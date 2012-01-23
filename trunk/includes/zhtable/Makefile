@@ -12,7 +12,7 @@ DIFF = LANG=zh_CN.UTF8 diff
 CC ?= gcc
 
 SF_MIRROR = easynews
-SCIM_TABLES_VER = 0.5.8
+SCIM_TABLES_VER = 0.5.9
 SCIM_PINYIN_VER = 0.5.91
 LIBTABE_VER = 0.2.3
 
@@ -23,7 +23,7 @@ all: ZhConversion.php tradphrases.notsure simpphrases.notsure wordlist toHans.di
 
 # Download Unihan database and Traditional Chinese / Simplified Chinese phrases files
 Unihan.zip:
-	wget -nc ftp://ftp.unicode.org/Public/UNIDATA/Unihan.zip
+	wget -nc http://www.unicode.org/Public/UNIDATA/Unihan.zip
 
 scim-tables-$(SCIM_TABLES_VER).tar.gz:
 	wget -nc http://$(SF_MIRROR).dl.sourceforge.net/sourceforge/scim/scim-tables-$(SCIM_TABLES_VER).tar.gz

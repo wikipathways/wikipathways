@@ -20,6 +20,9 @@ Primary scripts:
     Script that only serve images to logged in users. To configure the wiki
     to use that script, see http://www.mediawiki.org/wiki/Manual:Image_Authorisation.
 
+  load.php
+    Used by ResourceLoader to serve minified, concatenated and gzipped CSS and JS.
+
   opensearch_desc.php
     Returns a OpenSearch description document (see http://www.opensearch.org/)
     that points to the search engines of the wiki.
@@ -35,10 +38,9 @@ Primary scripts:
     to force the profiler to save the informations in the database and apply the
     maintenance/archives/patch-profiling.sql patch to the database.
 
-    To enable the profileinfo.php itself, you'll need to create the
-    AdminSettings.php file (see AdminSettings.sample for more information) and
-    set $wgEnableProfileInfo to true in that file. See also
-    http://www.mediawiki.org/wiki/How_to_debug#Profiling.
+    To enable the profileinfo.php itself, you'll need to set $wgDBadminuser
+    and $wgDBadminpassword in your LocalSettings.php, as well as $wgEnableProfileInfo 
+    See also http://www.mediawiki.org/wiki/How_to_debug#Profiling.
 
   redirect.php
     Script that only redirect to the article passed in the wpDropdown parameter
@@ -59,5 +61,5 @@ There is also a file with a .php5 extension for each script. They can be used if
 the web server needs a .php5 to run the file with the PHP 5 engine and runs .php
 scripts with PHP 4. To use these files, you have to modify $wgScriptExtension to
 '.php5' is LocalSettings.php but it is already done by the config script if you
-used the config/index.php5 script.
+used mw-config/index.php5 for installation.
 

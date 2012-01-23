@@ -1,9 +1,18 @@
 <?php
-/** */
+/**
+ * Functions related to the output of file content
+ *
+ * @file
+ */
 
-/** */
+/**
+ * @param $fname string
+ * @param $headers array
+ */
 function wfStreamFile( $fname, $headers = array() ) {
-	$stat = @stat( $fname );
+	wfSuppressWarnings();
+	$stat = stat( $fname );
+	wfRestoreWarnings();
 	if ( !$stat ) {
 		header( 'HTTP/1.0 404 Not Found' );
 		header( 'Cache-Control: no-cache' );
@@ -31,8 +40,14 @@ function wfStreamFile( $fname, $headers = array() ) {
 		header('Content-type: application/x-wiki');
 	}
 
-	global $wgContLanguageCode;
-	header( "Content-Disposition: inline;filename*=utf-8'$wgContLanguageCode'" . urlencode( basename( $fname ) ) );
+	// Don't stream it out as text/html if there was a PHP error
+	if ( headers_sent() ) {
+		echo "Headers already sent, terminating.\n";
+		return;
+	}
+
+	global $wgLanguageCode;
+	header( "Content-Disposition: inline;filename*=utf-8'$wgLanguageCode'" . urlencode( basename( $fname ) ) );
 
 	foreach ( $headers as $header ) {
 		header( $header );
@@ -42,6 +57,7 @@ function wfStreamFile( $fname, $headers = array() ) {
 		$modsince = preg_replace( '/;.*$/', '', $_SERVER['HTTP_IF_MODIFIED_SINCE'] );
 		$sinceTime = strtotime( $modsince );
 		if ( $stat['mtime'] <= $sinceTime ) {
+			ini_set('zlib.output_compression', 0);
 			header( "HTTP/1.0 304 Not Modified" );
 			return;
 		}
@@ -52,26 +68,55 @@ function wfStreamFile( $fname, $headers = array() ) {
 	readfile( $fname );
 }
 
-/** */
-function wfGetType( $filename ) {
+/**
+ * @param $filename string
+ * @param $safe bool
+ * @return null|string
+ */
+function wfGetType( $filename, $safe = true ) {
 	global $wgTrivialMimeDetection;
+
+	$ext = strrchr($filename, '.');
+	$ext = $ext === false ? '' : strtolower( substr( $ext, 1 ) );
 
 	# trivial detection by file extension,
 	# used for thumbnails (thumb.php)
 	if ($wgTrivialMimeDetection) {
-		$ext= strtolower(strrchr($filename, '.'));
-
 		switch ($ext) {
-			case '.gif': return 'image/gif';
-			case '.png': return 'image/png';
-			case '.jpg': return 'image/jpeg';
-			case '.jpeg': return 'image/jpeg';
+			case 'gif': return 'image/gif';
+			case 'png': return 'image/png';
+			case 'jpg': return 'image/jpeg';
+			case 'jpeg': return 'image/jpeg';
 		}
 
 		return 'unknown/unknown';
 	}
-	else {
-		$magic = MimeMagic::singleton();
-		return $magic->guessMimeType($filename); //full fancy mime detection
+	
+	$magic = MimeMagic::singleton();
+	// Use the extension only, rather than magic numbers, to avoid opening 
+	// up vulnerabilities due to uploads of files with allowed extensions
+	// but disallowed types.
+	$type = $magic->guessTypesForExtension( $ext );
+
+	/**
+	 * Double-check some security settings that were done on upload but might 
+	 * have changed since.
+	 */
+	if ( $safe ) {
+		global $wgFileBlacklist, $wgCheckFileExtensions, $wgStrictFileExtensions, 
+			$wgFileExtensions, $wgVerifyMimeType, $wgMimeTypeBlacklist;
+		list( , $extList ) = UploadBase::splitExtensions( $filename );
+		if ( UploadBase::checkFileExtensionList( $extList, $wgFileBlacklist ) ) {
+			return 'unknown/unknown';
+		}
+		if ( $wgCheckFileExtensions && $wgStrictFileExtensions 
+			&& !UploadBase::checkFileExtensionList( $extList, $wgFileExtensions ) )
+		{
+			return 'unknown/unknown';
+		}
+		if ( $wgVerifyMimeType && in_array( strtolower( $type ), $wgMimeTypeBlacklist ) ) {
+			return 'unknown/unknown';
+		}
 	}
+	return $type;
 }

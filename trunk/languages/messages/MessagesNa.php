@@ -1,6 +1,9 @@
 <?php
 /** Nauru (Dorerin Naoero)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
@@ -19,9 +22,11 @@ $messages = array(
 'friday'    => 'Preidak',
 'saturday'  => 'Tadurdei',
 
-'qbedit'        => 'Kiwiwid',
 'moredotdotdot' => 'Iyuw...',
-'and'           => 'me',
+'and'           => '&#32;me',
+
+# Cologne Blue skin
+'qbedit' => 'Kiwiwid',
 
 'errorpagetitle' => 'Dairinaiya',
 'help'           => 'Ipuok',
@@ -53,10 +58,9 @@ $messages = array(
 'error' => 'Dairinaiya',
 
 # Login and logout pages
-'login'        => 'Metu',
-'logout'       => 'Meta',
-'userlogout'   => 'Meta',
-'yourlanguage' => 'Edorer',
+'login'      => 'Metu',
+'logout'     => 'Meta',
+'userlogout' => 'Meta',
 
 # Edit page toolbar
 'bold_sample'  => 'Eõ mangiyungiy',
@@ -70,11 +74,13 @@ $messages = array(
 'editingsection' => 'Oomo/edar $1 (itubwang)',
 
 # Search results
-'powersearch' => 'Anani ko',
+'searchhelp-url' => 'Help:Oangan',
+'powersearch'    => 'Anani ko',
 
 # Preferences page
-'skin'              => 'Witsin',
+'prefs-skin'        => 'Witsin',
 'searchresultshead' => 'Anani ko',
+'yourlanguage'      => 'Edorer',
 
 # Recent changes
 'recentchanges' => 'Iwiwidit tsimeduw',
@@ -101,14 +107,14 @@ $messages = array(
 'watch'   => 'Aea',
 'unwatch' => 'Eab krak',
 
-# Delete/protect/revert
+# Delete
 'confirm'        => 'Oebwigaga',
 'deletedarticle' => 'iyababa "[[$1]]"',
 
 # Contributions
 'contributions' => 'Mana engame totow inne',
 
-# Special:NewImages
+# Special:NewFiles
 'ilsubmit' => 'Anani ko',
 
 );

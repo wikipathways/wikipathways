@@ -1,11 +1,10 @@
 <?php
-
-/*
+/**
+ *
+ *
  * Created on Oct 22, 2006
  *
- * API for MediaWiki 1.8+
- *
- * Copyright (C) 2008 Roan Kattouw <Firstname>.<Lastname>@home.nl
+ * Copyright © 2008 Roan Kattouw <Firstname>.<Lastname>@gmail.com
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,40 +18,43 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
  */
 
-if (!defined('MEDIAWIKI')) {
+if ( !defined( 'MEDIAWIKI' ) ) {
 	// Eclipse helper - will be ignored in production
-	require_once ('ApiFormatBase.php');
+	require_once( 'ApiFormatBase.php' );
 }
 
 /**
+ * API Text output formatter
  * @ingroup API
  */
 class ApiFormatTxt extends ApiFormatBase {
 
-	public function __construct($main, $format) {
-		parent :: __construct($main, $format);
+	public function __construct( $main, $format ) {
+		parent::__construct( $main, $format );
 	}
 
 	public function getMimeType() {
-		# This looks like it should be text/plain, but IE7 is so
-		# brain-damaged it tries to parse text/plain as HTML if it
-		# contains HTML tags. Using MIME text/text works around this bug
+		// This looks like it should be text/plain, but IE7 is so
+		// brain-damaged it tries to parse text/plain as HTML if it
+		// contains HTML tags. Using MIME text/text works around this bug
 		return 'text/text';
 	}
 
 	public function execute() {
-		$this->printText(print_r($this->getResultData(), true));
+		$this->printText( print_r( $this->getResultData(), true ) );
 	}
 
 	public function getDescription() {
-		return 'Output data in PHP\'s print_r() format' . parent :: getDescription();
+		return 'Output data in PHP\'s print_r() format' . parent::getDescription();
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiFormatTxt.php 35098 2008-05-20 17:13:28Z ialex $';
+		return __CLASS__ . ': $Id: ApiFormatTxt.php 78829 2010-12-22 20:52:06Z reedy $';
 	}
 }

@@ -7,56 +7,45 @@
  * @ingroup SpecialPage
  * @author Rob Church <robchur@gmail.com>
  */
-class ImageQueryPage extends QueryPage {
+abstract class ImageQueryPage extends QueryPage {
 
 	/**
 	 * Format and output report results using the given information plus
 	 * OutputPage
 	 *
-	 * @param OutputPage $out OutputPage to print to
-	 * @param Skin $skin User skin to use
-	 * @param Database $dbr Database (read) connection to use
-	 * @param int $res Result pointer
-	 * @param int $num Number of available result rows
-	 * @param int $offset Paging offset
+	 * @param $out OutputPage to print to
+	 * @param $skin Skin: user skin to use [unused]
+	 * @param $dbr DatabaseBase (read) connection to use
+	 * @param $res Integer: result pointer
+	 * @param $num Integer: number of available result rows
+	 * @param $offset Integer: paging offset
 	 */
 	protected function outputResults( $out, $skin, $dbr, $res, $num, $offset ) {
 		if( $num > 0 ) {
 			$gallery = new ImageGallery();
-			$gallery->useSkin( $skin );
 
 			# $res might contain the whole 1,000 rows, so we read up to
 			# $num [should update this to use a Pager]
 			for( $i = 0; $i < $num && $row = $dbr->fetchObject( $res ); $i++ ) {
-				$image = $this->prepareImage( $row );
-				if( $image ) {
-					$gallery->add( $image->getTitle(), $this->getCellHtml( $row ) );
+				$namespace = isset( $row->namespace ) ? $row->namespace : NS_FILE;
+				$title = Title::makeTitleSafe( $namespace, $row->title );
+				if ( $title instanceof Title && $title->getNamespace() == NS_FILE ) {
+					$gallery->add( $title, $this->getCellHtml( $row ) );
 				}
 			}
 
-			$out->addHtml( $gallery->toHtml() );
+			$out->addHTML( $gallery->toHtml() );
 		}
 	}
 
-	/**
-	 * Prepare an image object given a result row
-	 *
-	 * @param object $row Result row
-	 * @return Image
-	 */
-	private function prepareImage( $row ) {
-		$namespace = isset( $row->namespace ) ? $row->namespace : NS_IMAGE;
-		$title = Title::makeTitleSafe( $namespace, $row->title );
-		return ( $title instanceof Title && $title->getNamespace() == NS_IMAGE )
-			? wfFindFile( $title )
-			: null;
-	}
+	// Gotta override this since it's abstract
+	function formatResult( $skin, $result ) { }
 
 	/**
 	 * Get additional HTML to be shown in a results' cell
 	 *
-	 * @param object $row Result row
-	 * @return string
+	 * @param $row Object: result row
+	 * @return String
 	 */
 	protected function getCellHtml( $row ) {
 		return '';

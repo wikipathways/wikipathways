@@ -1,11 +1,10 @@
 <?php
-
-/*
+/**
+ *
+ *
  * Created on Oct 05, 2007
  *
- * API for MediaWiki 1.8+
- *
- * Copyright (C) 2007 Yuri Astrakhan <Firstname><Lastname>@gmail.com
+ * Copyright © 2007 Yuri Astrakhan <Firstname><Lastname>@gmail.com
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,13 +18,15 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
- * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
  */
 
-if (!defined('MEDIAWIKI')) {
+if ( !defined( 'MEDIAWIKI' ) ) {
 	// Eclipse helper - will be ignored in production
-	require_once ("ApiBase.php");
+	require_once( "ApiBase.php" );
 }
 
 /**
@@ -37,29 +38,36 @@ if (!defined('MEDIAWIKI')) {
  */
 class ApiExpandTemplates extends ApiBase {
 
-	public function __construct($main, $action) {
-		parent :: __construct($main, $action);
+	public function __construct( $main, $action ) {
+		parent::__construct( $main, $action );
 	}
 
 	public function execute() {
-		// Get parameters
-		extract( $this->extractRequestParams() );
-		$retval = '';
+		// Cache may vary on $wgUser because ParserOptions gets data from it
+		$this->getMain()->setCacheMode( 'anon-public-user-private' );
 
-		//Create title for parser
-		$title_obj = Title :: newFromText( $title );
-		if(!$title_obj)
-			$title_obj = Title :: newFromText( "API" );	//  Default title is "API". For example, ExpandTemplates uses "ExpendTemplates" for it
+		// Get parameters
+		$params = $this->extractRequestParams();
+
+		// Create title for parser
+		$title_obj = Title::newFromText( $params['title'] );
+		if ( !$title_obj ) {
+			$title_obj = Title::newFromText( 'API' ); // default
+		}
 
 		$result = $this->getResult();
 
 		// Parse text
 		global $wgParser;
 		$options = new ParserOptions();
-		if ( $generatexml )
-		{
+
+		if ( $params['includecomments'] ) {
+			$options->setRemoveComments( false );
+		}
+
+		if ( $params['generatexml'] ) {
 			$wgParser->startExternalParse( $title_obj, $options, OT_PREPROCESS );
-			$dom = $wgParser->preprocessToDom( $text );
+			$dom = $wgParser->preprocessToDom( $params['text'] );
 			if ( is_callable( array( $dom, 'saveXML' ) ) ) {
 				$xml = $dom->saveXML();
 			} else {
@@ -67,9 +75,9 @@ class ApiExpandTemplates extends ApiBase {
 			}
 			$xml_result = array();
 			$result->setContent( $xml_result, $xml );
-            $result->addValue( null, 'parsetree', $xml_result);
+			$result->addValue( null, 'parsetree', $xml_result );
 		}
-		$retval = $wgParser->preprocess( $text, $title_obj, $options );
+		$retval = $wgParser->preprocess( $params['text'], $title_obj, $options );
 
 		// Return result
 		$retval_array = array();
@@ -78,34 +86,43 @@ class ApiExpandTemplates extends ApiBase {
 	}
 
 	public function getAllowedParams() {
-		return array (
+		return array(
 			'title' => array(
-				ApiBase :: PARAM_DFLT => 'API',
+				ApiBase::PARAM_DFLT => 'API',
 			),
-			'text' => null,
+			'text' => array(
+				ApiBase::PARAM_TYPE => 'string',
+				ApiBase::PARAM_REQUIRED => true,
+			),
 			'generatexml' => false,
+			'includecomments' => false,
 		);
 	}
 
 	public function getParamDescription() {
-		return array (
+		return array(
 			'text' => 'Wikitext to convert',
 			'title' => 'Title of page',
 			'generatexml' => 'Generate XML parse tree',
+			'includecomments' => 'Whether to include HTML comments in the output',
 		);
 	}
 
 	public function getDescription() {
-		return 'This module expand all templates in wikitext';
+		return 'Expands all templates in wikitext';
 	}
 
 	protected function getExamples() {
-		return array (
+		return array(
 			'api.php?action=expandtemplates&text={{Project:Sandbox}}'
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Parsing_wikitext#expandtemplates';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiExpandTemplates.php 35098 2008-05-20 17:13:28Z ialex $';
+		return __CLASS__ . ': $Id: ApiExpandTemplates.php 104449 2011-11-28 15:52:04Z reedy $';
 	}
 }

@@ -1,16 +1,25 @@
 <?php
+/**
+ * Functions to be used with PHP's output buffer
+ *
+ * @file
+ */
 
 /**
  * Standard output handler for use with ob_start
+ * 
+ * @param $s string
+ * 
+ * @return string
  */
 function wfOutputHandler( $s ) {
 	global $wgDisableOutputCompression, $wgValidateAllHtml;
-    $s = wfMangleFlashPolicy( $s );
-    if ( $wgValidateAllHtml ) {
+	$s = wfMangleFlashPolicy( $s );
+	if ( $wgValidateAllHtml ) {
 		$headers = apache_response_headers();
 		$isHTML = true;
 		foreach ( $headers as $name => $value ) {
-			if ( strtolower( $name ) == 'content-type' && strpos( $value, 'text/html' ) === false ) {
+			if ( strtolower( $name ) == 'content-type' && strpos( $value, 'text/html' ) === false && strpos( $value, 'application/xhtml+xml' ) === false ) {
 				$isHTML = false;
 				break;
 			}
@@ -35,9 +44,11 @@ function wfOutputHandler( $s ) {
  * the currently-requested URL.
  * This isn't on WebRequest because we need it when things aren't initialized
  * @private
+ *
+ * @return string
  */
 function wfRequestExtension() {
-	/// @fixme -- this sort of dupes some code in WebRequest::getRequestUrl()
+	/// @todo FIXME: this sort of dupes some code in WebRequest::getRequestUrl()
 	if( isset( $_SERVER['REQUEST_URI'] ) ) {
 		// Strip the query string...
 		list( $path ) = explode( '?', $_SERVER['REQUEST_URI'], 2 );
@@ -59,6 +70,10 @@ function wfRequestExtension() {
 /**
  * Handler that compresses data with gzip if allowed by the Accept header.
  * Unlike ob_gzhandler, it works for HEAD requests too.
+ * 
+ * @param $s string
+ *
+ * @return string
  */
 function wfGzipHandler( $s ) {
 	if( !function_exists( 'gzencode' ) || headers_sent() ) {
@@ -74,12 +89,9 @@ function wfGzipHandler( $s ) {
 		return $s;
 	}
 
-	if( isset( $_SERVER['HTTP_ACCEPT_ENCODING'] ) ) {
-		$tokens = preg_split( '/[,; ]/', $_SERVER['HTTP_ACCEPT_ENCODING'] );
-		if ( in_array( 'gzip', $tokens ) ) {
-			header( 'Content-Encoding: gzip' );
-			$s = gzencode( $s, 3 );
-		}
+	if( wfClientAcceptsGzip() ) {
+		header( 'Content-Encoding: gzip' );
+		$s = gzencode( $s, 6 );
 	}
 
 	// Set vary header if it hasn't been set already
@@ -93,13 +105,20 @@ function wfGzipHandler( $s ) {
 	}
 	if ( !$foundVary ) {
 		header( 'Vary: Accept-Encoding' );
-		header( 'X-Vary-Options: Accept-Encoding;list-contains=gzip' );
+		global $wgUseXVO;
+		if ( $wgUseXVO ) {
+			header( 'X-Vary-Options: Accept-Encoding;list-contains=gzip' );
+		}
 	}
 	return $s;
 }
 
 /**
  * Mangle flash policy tags which open up the site to XSS attacks.
+ *
+ * @param $s string
+ *
+ * @return string
  */
 function wfMangleFlashPolicy( $s ) {
 	# Avoid weird excessive memory usage in PCRE on big articles
@@ -112,6 +131,8 @@ function wfMangleFlashPolicy( $s ) {
 
 /**
  * Add a Content-Length header if possible. This makes it cooperate with squid better.
+ *
+ * @param $length int
  */
 function wfDoContentLength( $length ) {
 	if ( !headers_sent() && $_SERVER['SERVER_PROTOCOL'] == 'HTTP/1.0' ) {
@@ -121,12 +142,15 @@ function wfDoContentLength( $length ) {
 
 /**
  * Replace the output with an error if the HTML is not valid
+ *
+ * @param $s string
+ *
+ * @return string
  */
 function wfHtmlValidationHandler( $s ) {
-	global $IP;
-	$tidy = new tidy;
-	$tidy->parseString( $s, "$IP/includes/tidy.conf", 'utf8' );
-	if ( $tidy->getStatus() == 0 ) {
+
+	$errors = '';
+	if ( MWTidy::checkErrors( $s, $errors ) ) {
 		return $s;
 	}
 
@@ -134,7 +158,7 @@ function wfHtmlValidationHandler( $s ) {
 
 	$out = <<<EOT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" dir="ltr">
 <head>
 <title>HTML validation error</title>
 <style>
@@ -147,7 +171,7 @@ li { white-space: pre }
 <ul>
 EOT;
 
-	$error = strtok( $tidy->errorBuffer, "\n" );
+	$error = strtok( $errors, "\n" );
 	$badLines = array();
 	while ( $error !== false ) {
 		if ( preg_match( '/^line (\d+)/', $error, $m ) ) {
@@ -158,8 +182,9 @@ EOT;
 		$error = strtok( "\n" );
 	}
 
-	$out .= '<pre>' . htmlspecialchars( $tidy->errorBuffer ) . '</pre>';
-	$out .= '<ol>';
+	$out .= '</ul>';
+	$out .= '<pre>' . htmlspecialchars( $errors ) . '</pre>';
+	$out .= "<ol>\n";
 	$line = strtok( $s, "\n" );
 	$i = 1;
 	while ( $line !== false ) {
@@ -168,7 +193,7 @@ EOT;
 		} else {
 			$out .= '<li>';
 		}
-		$out .= htmlspecialchars( $line ) . '</li>';
+		$out .= htmlspecialchars( $line ) . "</li>\n";
 		$line = strtok( "\n" );
 		$i++;
 	}

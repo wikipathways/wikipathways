@@ -1,46 +1,55 @@
 <?php
 /**
- * @todo Use some variant of Pager or something; the pagination here is lousy.
+ * Implements Special:Whatlinkshere
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
  *
  * @file
- * @ingroup SpecialPage
+ * @todo Use some variant of Pager or something; the pagination here is lousy.
  */
 
 /**
- * Entry point
- * @param $par String: An article name ??
- */
-function wfSpecialWhatlinkshere($par = NULL) {
-	global $wgRequest;
-	$page = new WhatLinksHerePage( $wgRequest, $par );
-	$page->execute();
-}
-
-/**
- * implements Special:Whatlinkshere
+ * Implements Special:Whatlinkshere
+ *
  * @ingroup SpecialPage
  */
-class WhatLinksHerePage {
-	// Stored data
-	protected $par;
+class SpecialWhatLinksHere extends SpecialPage {
 
-	// Stored objects
-	protected $opts, $target, $selfTitle;
+	/**
+	 * @var FormOptions
+	 */
+	protected $opts;
 
-	// Stored globals
-	protected $skin, $request;
+	protected $selfTitle;
+
+	/**
+	 * @var Title
+	 */
+	protected $target;
 
 	protected $limits = array( 20, 50, 100, 250, 500 );
 
-	function WhatLinksHerePage( $request, $par = null ) {
-		global $wgUser;
-		$this->request = $request;
-		$this->skin = $wgUser->getSkin();
-		$this->par = $par;
+	public function __construct() {
+		parent::__construct( 'Whatlinkshere' );
 	}
 
-	function execute() {
-		global $wgOut;
+	function execute( $par ) {
+		$out = $this->getOutput();
+		
+		$this->setHeaders();
 
 		$opts = new FormOptions();
 
@@ -54,12 +63,12 @@ class WhatLinksHerePage {
 		$opts->add( 'hidelinks', false );
 		$opts->add( 'hideimages', false );
 
-		$opts->fetchValuesFromRequest( $this->request );
+		$opts->fetchValuesFromRequest( $this->getRequest() );
 		$opts->validateIntBounds( 'limit', 0, 5000 );
 
 		// Give precedence to subpage syntax
-		if ( isset($this->par) ) {
-			$opts->setValue( 'target', $this->par );
+		if ( isset($par) ) {
+			$opts->setValue( 'target', $par );
 		}
 
 		// Bind to member variable
@@ -67,38 +76,39 @@ class WhatLinksHerePage {
 
 		$this->target = Title::newFromURL( $opts->getValue( 'target' ) );
 		if( !$this->target ) {
-			$wgOut->addHTML( $this->whatlinkshereForm() );
+			$out->addHTML( $this->whatlinkshereForm() );
 			return;
 		}
 
-		$this->selfTitle = SpecialPage::getTitleFor( 'Whatlinkshere', $this->target->getPrefixedDBkey() );
+		$this->getSkin()->setRelevantTitle( $this->target );
 
-		$wgOut->setPageTitle( wfMsg( 'whatlinkshere-title', $this->target->getPrefixedText() ) );
-		$wgOut->setSubtitle( wfMsgHtml( 'linklistsub' ) );
 
-		$wgOut->addHTML( wfMsgExt( 'whatlinkshere-barrow', array( 'escapenoentities') ) . ' '  .$this->skin->makeLinkObj($this->target, '', 'redirect=no' )."<br />\n");
+		$this->selfTitle = $this->getTitle( $this->target->getPrefixedDBkey() );
+
+		$out->setPageTitle( wfMsg( 'whatlinkshere-title', $this->target->getPrefixedText() ) );
+		$out->setSubtitle( wfMsg( 'whatlinkshere-backlink', Linker::link( $this->target, $this->target->getPrefixedText(), array(), array( 'redirect' => 'no'  ) ) ) );
 
 		$this->showIndirectLinks( 0, $this->target, $opts->getValue( 'limit' ),
 			$opts->getValue( 'from' ), $opts->getValue( 'back' ) );
 	}
 
 	/**
-	 * @param $level  int     Recursion level
+	 * @param $level int     Recursion level
 	 * @param $target Title   Target title
-	 * @param $limit  int     Number of entries to display
-	 * @param $from   Title   Display from this article ID
-	 * @param $back   Title   Display from this article ID at backwards scrolling
-	 * @private
+	 * @param $limit int     Number of entries to display
+	 * @param $from Title   Display from this article ID
+	 * @param $back Title   Display from this article ID at backwards scrolling
 	 */
 	function showIndirectLinks( $level, $target, $limit, $from = 0, $back = 0 ) {
-		global $wgOut, $wgMaxRedirectLinksRetrieved;
+		global $wgMaxRedirectLinksRetrieved;
+		$out = $this->getOutput();
 		$dbr = wfGetDB( DB_SLAVE );
 		$options = array();
 
 		$hidelinks = $this->opts->getValue( 'hidelinks' );
 		$hideredirs = $this->opts->getValue( 'hideredirs' );
 		$hidetrans = $this->opts->getValue( 'hidetrans' );
-		$hideimages = $target->getNamespace() != NS_IMAGE || $this->opts->getValue( 'hideimages' );
+		$hideimages = $target->getNamespace() != NS_FILE || $this->opts->getValue( 'hideimages' );
 
 		$fetchlinks = (!$hidelinks || !$hideredirs);
 
@@ -168,12 +178,14 @@ class WhatLinksHerePage {
 
 		if( ( !$fetchlinks || !$dbr->numRows($plRes) ) && ( $hidetrans || !$dbr->numRows($tlRes) ) && ( $hideimages || !$dbr->numRows($ilRes) ) ) {
 			if ( 0 == $level ) {
-				$wgOut->addHTML( $this->whatlinkshereForm() );
-				$errMsg = is_int($namespace) ? 'nolinkshere-ns' : 'nolinkshere';
-				$wgOut->addWikiMsg( $errMsg, $this->target->getPrefixedText() );
+				$out->addHTML( $this->whatlinkshereForm() );
+
 				// Show filters only if there are links
 				if( $hidelinks || $hidetrans || $hideredirs || $hideimages )
-					$wgOut->addHTML( $this->getFilterPanel() );
+					$out->addHTML( $this->getFilterPanel() );
+
+				$errMsg = is_int($namespace) ? 'nolinkshere-ns' : 'nolinkshere';
+				$out->addWikiMsg( $errMsg, $this->target->getPrefixedText() );
 			}
 			return;
 		}
@@ -182,29 +194,25 @@ class WhatLinksHerePage {
 		// templatelinks comes second so that the templatelinks row overwrites the
 		// pagelinks row, so we get (inclusion) rather than nothing
 		if( $fetchlinks ) {
-			while ( $row = $dbr->fetchObject( $plRes ) ) {
+			foreach ( $plRes as $row ) {
 				$row->is_template = 0;
 				$row->is_image = 0;
 				$rows[$row->page_id] = $row;
 			}
-			$dbr->freeResult( $plRes );
-
 		}
 		if( !$hidetrans ) {
-			while ( $row = $dbr->fetchObject( $tlRes ) ) {
+			foreach ( $tlRes as $row ) {
 				$row->is_template = 1;
 				$row->is_image = 0;
 				$rows[$row->page_id] = $row;
 			}
-			$dbr->freeResult( $tlRes );
 		}
 		if( !$hideimages ) {
-			while ( $row = $dbr->fetchObject( $ilRes ) ) {
+			foreach ( $ilRes as $row ) {
 				$row->is_template = 0;
 				$row->is_image = 1;
 				$rows[$row->page_id] = $row;
 			}
-			$dbr->freeResult( $ilRes );
 		}
 
 		// Sort by key and then change the keys to 0-based indices
@@ -227,39 +235,42 @@ class WhatLinksHerePage {
 		$prevId = $from;
 
 		if ( $level == 0 ) {
-			$wgOut->addHTML( $this->whatlinkshereForm() );
-			$wgOut->addHTML( $this->getFilterPanel() );
-			$wgOut->addWikiMsg( 'linkshere', $this->target->getPrefixedText() );
+			$out->addHTML( $this->whatlinkshereForm() );
+			$out->addHTML( $this->getFilterPanel() );
+			$out->addWikiMsg( 'linkshere', $this->target->getPrefixedText() );
 
 			$prevnext = $this->getPrevNext( $prevId, $nextId );
-			$wgOut->addHTML( $prevnext );
+			$out->addHTML( $prevnext );
 		}
 
-		$wgOut->addHTML( $this->listStart() );
+		$out->addHTML( $this->listStart( $level ) );
 		foreach ( $rows as $row ) {
 			$nt = Title::makeTitle( $row->page_namespace, $row->page_title );
 
 			if ( $row->page_is_redirect && $level < 2 ) {
-				$wgOut->addHTML( $this->listItem( $row, $nt, true ) );
+				$out->addHTML( $this->listItem( $row, $nt, true ) );
 				$this->showIndirectLinks( $level + 1, $nt, $wgMaxRedirectLinksRetrieved );
-				$wgOut->addHTML( Xml::closeElement( 'li' ) );
+				$out->addHTML( Xml::closeElement( 'li' ) );
 			} else {
-				$wgOut->addHTML( $this->listItem( $row, $nt ) );
+				$out->addHTML( $this->listItem( $row, $nt ) );
 			}
 		}
 
-		$wgOut->addHTML( $this->listEnd() );
+		$out->addHTML( $this->listEnd() );
 
 		if( $level == 0 ) {
-			$wgOut->addHTML( $prevnext );
+			$out->addHTML( $prevnext );
 		}
 	}
 
-	protected function listStart() {
-		return Xml::openElement( 'ul' );
+	protected function listStart( $level ) {
+		return Xml::openElement( 'ul', ( $level ? array() : array( 'id' => 'mw-whatlinkshere-list' ) ) );
 	}
 
 	protected function listItem( $row, $nt, $notClose = false ) {
+		global $wgLang;
+		$dirmark = $wgLang->getDirMark();
+
 		# local message cache
 		static $msgcache = null;
 		if ( $msgcache === null ) {
@@ -267,12 +278,22 @@ class WhatLinksHerePage {
 				'whatlinkshere-links', 'isimage' );
 			$msgcache = array();
 			foreach ( $msgs as $msg ) {
-				$msgcache[$msg] = wfMsgHtml( $msg );
+				$msgcache[$msg] = wfMsgExt( $msg, array( 'escapenoentities' ) );
 			}
 		}
 
-		$suppressRedirect = $row->page_is_redirect ? 'redirect=no' : '';
-		$link = $this->skin->makeKnownLinkObj( $nt, '', $suppressRedirect );
+		if( $row->page_is_redirect ) {
+			$query = array( 'redirect' => 'no' );
+		} else {
+			$query = array();
+		}
+
+		$link = Linker::linkKnown(
+			$nt,
+			null,
+			array(),
+			$query
+		);
 
 		// Display properties (redirect or template)
 		$propsText = '';
@@ -293,8 +314,8 @@ class WhatLinksHerePage {
 		$wlh = Xml::wrapClass( "($wlhLink)", 'mw-whatlinkshere-tools' );
 
 		return $notClose ?
-			Xml::openElement( 'li' ) . "$link $propsText $wlh\n" :
-			Xml::tags( 'li', null, "$link $propsText $wlh" ) . "\n";
+			Xml::openElement( 'li' ) . "$link $propsText $dirmark $wlh\n" :
+			Xml::tags( 'li', null, "$link $propsText $dirmark $wlh" ) . "\n";
 	}
 
 	protected function listEnd() {
@@ -304,14 +325,23 @@ class WhatLinksHerePage {
 	protected function wlhLink( Title $target, $text ) {
 		static $title = null;
 		if ( $title === null )
-			$title = SpecialPage::getTitleFor( 'Whatlinkshere' );
+			$title = $this->getTitle();
 
-		$targetText = $target->getPrefixedUrl();
-		return $this->skin->makeKnownLinkObj( $title, $text, 'target=' . $targetText );
+		return Linker::linkKnown(
+			$title,
+			$text,
+			array(),
+			array( 'target' => $target->getPrefixedText() )
+		);
 	}
 
 	function makeSelfLink( $text, $query ) {
-		return $this->skin->makeKnownLinkObj( $this->selfTitle, $text, $query );
+		return Linker::linkKnown(
+			$this->selfTitle,
+			$text,
+			array(),
+			$query
+		);
 	}
 
 	function getPrevNext( $prevId, $nextId ) {
@@ -326,27 +356,27 @@ class WhatLinksHerePage {
 
 		if ( 0 != $prevId ) {
 			$overrides = array( 'from' => $this->opts->getValue( 'back' ) );
-			$prev = $this->makeSelfLink( $prev, wfArrayToCGI( $overrides, $changed ) );
+			$prev = $this->makeSelfLink( $prev, array_merge( $changed, $overrides ) );
 		}
 		if ( 0 != $nextId ) {
 			$overrides = array( 'from' => $nextId, 'back' => $prevId );
-			$next = $this->makeSelfLink( $next, wfArrayToCGI( $overrides, $changed ) );
+			$next = $this->makeSelfLink( $next, array_merge( $changed, $overrides ) );
 		}
 
 		$limitLinks = array();
 		foreach ( $this->limits as $limit ) {
 			$prettyLimit = $wgLang->formatNum( $limit );
 			$overrides = array( 'limit' => $limit );
-			$limitLinks[] = $this->makeSelfLink( $prettyLimit, wfArrayToCGI( $overrides, $changed ) );
+			$limitLinks[] = $this->makeSelfLink( $prettyLimit, array_merge( $changed, $overrides ) );
 		}
 
-		$nums = implode ( ' | ', $limitLinks );
+		$nums = $wgLang->pipeList( $limitLinks );
 
 		return wfMsgHtml( 'viewprevnext', $prev, $next, $nums );
 	}
 
 	function whatlinkshereForm() {
-		global $wgScript, $wgTitle;
+		global $wgScript;
 
 		// We get nicer value from the title object
 		$this->opts->consumeValue( 'target' );
@@ -358,11 +388,11 @@ class WhatLinksHerePage {
 
 		# Build up the form
 		$f = Xml::openElement( 'form', array( 'action' => $wgScript ) );
-		
+
 		# Values that should not be forgotten
-		$f .= Xml::hidden( 'title', $wgTitle->getPrefixedText() );
+		$f .= Html::hidden( 'title', $this->getTitle()->getPrefixedText() );
 		foreach ( $this->opts->getUnconsumedValues() as $name => $value ) {
-			$f .= Xml::hidden( $name, $value );
+			$f .= Html::hidden( $name, $value );
 		}
 
 		$f .= Xml::fieldset( wfMsg( 'whatlinkshere' ) );
@@ -374,8 +404,10 @@ class WhatLinksHerePage {
 		$f .= ' ';
 
 		# Namespace selector
-		$f .= Xml::label( wfMsg( 'namespace' ), 'namespace' ) . '&nbsp;' .
+		$f .= Xml::label( wfMsg( 'namespace' ), 'namespace' ) . '&#160;' .
 			Xml::namespaceSelector( $namespace, '' );
+
+		$f .= ' ';
 
 		# Submit
 		$f .= Xml::submitButton( wfMsg( 'allpagessubmit' ) );
@@ -386,7 +418,13 @@ class WhatLinksHerePage {
 		return $f;
 	}
 
+	/**
+	 * Create filter panel
+	 *
+	 * @return string HTML fieldset and filter panel with the show/hide links
+	 */
 	function getFilterPanel() {
+		global $wgLang;
 		$show = wfMsgHtml( 'show' );
 		$hide = wfMsgHtml( 'hide' );
 
@@ -395,14 +433,17 @@ class WhatLinksHerePage {
 
 		$links = array();
 		$types = array( 'hidetrans', 'hidelinks', 'hideredirs' );
-		if( $this->target->getNamespace() == NS_IMAGE )
+		if( $this->target->getNamespace() == NS_FILE )
 			$types[] = 'hideimages';
+
+		// Combined message keys: 'whatlinkshere-hideredirs', 'whatlinkshere-hidetrans', 'whatlinkshere-hidelinks', 'whatlinkshere-hideimages'
+		// To be sure they will be find by grep
 		foreach( $types as $type ) {
 			$chosen = $this->opts->getValue( $type );
-			$msg = wfMsgHtml( "whatlinkshere-{$type}", $chosen ? $show : $hide );
+			$msg = $chosen ? $show : $hide;
 			$overrides = array( $type => !$chosen );
-			$links[] = $this->makeSelfLink( $msg, wfArrayToCGI( $overrides, $changed ) );
+			$links[] =  wfMsgHtml( "whatlinkshere-{$type}", $this->makeSelfLink( $msg, array_merge( $changed, $overrides ) ) );
 		}
-		return Xml::fieldset( wfMsg( 'whatlinkshere-filters' ), implode( '&nbsp;|&nbsp;', $links ) );
+		return Xml::fieldset( wfMsg( 'whatlinkshere-filters' ), $wgLang->pipeList( $links ) );
 	}
 }

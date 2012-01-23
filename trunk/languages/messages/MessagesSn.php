@@ -1,6 +1,9 @@
 <?php
 /** Shona (chiShona)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
@@ -41,11 +44,13 @@ $messages = array(
 'november-gen'  => 'Mbudzi',
 'december-gen'  => 'Zvita',
 
-'cancel'         => 'Kanzura',
+'cancel'     => 'Kanzura',
+'mytalk'     => 'Hurukuro dzangu',
+'navigation' => 'Banguranyika',
+
+# Cologne Blue skin
 'qbedit'         => 'Chinja',
 'qbspecialpages' => 'Mapeji akakosha',
-'mytalk'         => 'Hurukuro dzangu',
-'navigation'     => 'Banguranyika',
 
 'help'             => 'Rubatsiro',
 'search'           => 'Tsvaga',
@@ -83,24 +88,22 @@ $messages = array(
 'viewsource' => 'Wona mabviro',
 
 # Login and logout pages
-'welcomecreation'    => '= Tigashire, $1! == 
-
-Akaunzi yako yagadzirwa. Usakanganwe kuchinga mapreferences ako eWikipedia.',
+'welcomecreation'    => '== Tigashire, $1! ==
+Akaunzi yako yagadzirwa.
+Usakanganwe kuchinga [[Special:Preferences|mapreferences ako {{SITENAME}}]].',
 'yourname'           => 'Zita:',
 'yourpassword'       => 'Password:',
 'yourpasswordagain'  => 'Nyorazve password:',
-'remembermypassword' => 'Ndiyeuke',
+'remembermypassword' => 'Ndiyeuke (for a maximum of $1 {{PLURAL:$1|day|days}})',
 'login'              => 'Gamuchirwa',
 'userlogin'          => 'Gamuchirwa / Gadzira Akaunzi',
 'logout'             => 'Chibuda',
 'userlogout'         => 'Chibuda',
 'notloggedin'        => 'Hauna kugamuchirwa',
 'createaccount'      => 'Gadzira Akaunzi',
-'youremail'          => 'E-mail:',
-'username'           => 'Zita:',
 
 # Edit pages
-'summary'     => 'Muchidimbu',
+'summary'     => 'Muchidimbu:',
 'minoredit'   => 'Uku kushandurwa kudiki',
 'watchthis'   => 'Ringa peji rino',
 'savearticle' => 'Kotsa peji',
@@ -115,12 +118,16 @@ Akaunzi yako yagadzirwa. Usakanganwe kuchinga mapreferences ako eWikipedia.',
 'prefsnologin'      => 'Hauna kugamuchirwa',
 'prefs-rc'          => 'Zvaba Kuchinjwa',
 'searchresultshead' => 'Tsvaga',
+'youremail'         => 'E-mail:',
+'username'          => 'Zita:',
 
 # Recent changes
 'recentchanges' => 'Zvaba Kuchinjwa',
 
 # Recent changes linked
-'recentchangeslinked' => 'Zvinoenderana nezvachinjwa',
+'recentchangeslinked'         => 'Zvinoenderana nezvachinjwa',
+'recentchangeslinked-feed'    => 'Zvinoenderana nezvachinjwa',
+'recentchangeslinked-toolbox' => 'Zvinoenderana nezvachinjwa',
 
 # Upload
 'upload'          => 'Isa fayera',
@@ -140,6 +147,9 @@ Akaunzi yako yagadzirwa. Usakanganwe kuchinga mapreferences ako eWikipedia.',
 'mywatchlist'   => 'Zvandakarinda',
 'watch'         => 'Rinda',
 'watchthispage' => 'Ringa peji rino',
+
+# Protect
+'prot_1movedto2' => '[[$1]] rachichinurwa ku [[$2]]',
 
 # Restrictions (nouns)
 'restriction-edit' => 'Chinja',
@@ -174,7 +184,7 @@ Akaunzi yako yagadzirwa. Usakanganwe kuchinga mapreferences ako eWikipedia.',
 'tooltip-p-logo'         => 'Peji Rekutanga',
 
 # Trackbacks
-'trackbackremove' => ' ([$1 Delete])',
+'trackbackremove' => '([$1 Delete])',
 
 # Table pager
 'table_pager_limit_submit' => 'Enda',

@@ -1,13 +1,16 @@
 <?php
 /** Fulah (Fulfulde)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
  * @author Amkoullel
  */
 
-$fallback='fr';
+$fallback = 'fr';
 
 $messages = array(
 'mytalk' => 'kaldigal am',
@@ -52,7 +55,9 @@ $messages = array(
 # Watchlist
 'watch' => 'Rewindaande',
 
-# Special:NewImages
+'sp-contributions-talk' => 'Kaldigal',
+
+# Special:NewFiles
 'ilsubmit' => 'Yiilaade',
 
 );

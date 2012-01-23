@@ -1,5 +1,7 @@
 <?php
 /**
+ * Advanced generator of database load balancing objects for wiki farms
+ *
  * @file
  * @ingroup Database
  */
@@ -36,6 +38,8 @@
  *
  *     masterTemplateOverrides     An override array for all master servers.
  *
+ *     readOnlyBySection           A map of section name to read-only message. Missing or false for read/write.
+ *
  * @ingroup Database
  */
 class LBFactory_Multi extends LBFactory {
@@ -44,7 +48,7 @@ class LBFactory_Multi extends LBFactory {
 	// Optional settings
 	var $groupLoadsBySection = array(), $groupLoadsByDB = array(), $hostsByName = array();
 	var $externalLoads = array(), $externalTemplateOverrides, $templateOverridesByServer;
-	var $templateOverridesByCluster, $masterTemplateOverrides;
+	var $templateOverridesByCluster, $masterTemplateOverrides, $readOnlyBySection = array();
 	// Other stuff
 	var $conf, $mainLBs = array(), $extLBs = array();
 	var $lastWiki, $lastSection;
@@ -55,7 +59,8 @@ class LBFactory_Multi extends LBFactory {
 		$required = array( 'sectionsByDB', 'sectionLoads', 'serverTemplate' );
 		$optional = array( 'groupLoadsBySection', 'groupLoadsByDB', 'hostsByName',
 			'externalLoads', 'externalTemplateOverrides', 'templateOverridesByServer',
-			'templateOverridesByCluster', 'masterTemplateOverrides' );
+			'templateOverridesByCluster', 'masterTemplateOverrides', 
+			'readOnlyBySection' );
 
 		foreach ( $required as $key ) {
 			if ( !isset( $conf[$key] ) ) {
@@ -69,13 +74,20 @@ class LBFactory_Multi extends LBFactory {
 				$this->$key = $conf[$key];
 			}
 		}
+
+		// Check for read-only mode
+		$section = $this->getSectionForWiki();
+		if ( !empty( $this->readOnlyBySection[$section] ) ) {
+			global $wgReadOnly;
+			$wgReadOnly = $this->readOnlyBySection[$section];
+		}
 	}
 
 	function getSectionForWiki( $wiki = false ) {
 		if ( $this->lastWiki === $wiki ) {
 			return $this->lastSection;
 		}
-		list( $dbName, $prefix ) = $this->getDBNameAndPrefix( $wiki );
+		list( $dbName, ) = $this->getDBNameAndPrefix( $wiki );
 		if ( isset( $this->sectionsByDB[$dbName] ) ) {
 			$section = $this->sectionsByDB[$dbName];
 		} else {
@@ -86,8 +98,12 @@ class LBFactory_Multi extends LBFactory {
 		return $section;
 	}
 
+	/**
+	 * @param $wiki string
+	 * @return LoadBalancer
+	 */
 	function newMainLB( $wiki = false ) {
-		list( $dbName, $prefix ) = $this->getDBNameAndPrefix( $wiki );
+		list( $dbName, ) = $this->getDBNameAndPrefix( $wiki );
 		$section = $this->getSectionForWiki( $wiki );
 		$groupLoads = array();
 		if ( isset( $this->groupLoadsByDB[$dbName] ) ) {
@@ -99,6 +115,10 @@ class LBFactory_Multi extends LBFactory {
 		return $this->newLoadBalancer( $this->serverTemplate, $this->sectionLoads[$section], $groupLoads );
 	}
 
+	/**
+	 * @param $wiki
+	 * @return LoadBalancer
+	 */
 	function getMainLB( $wiki = false ) {
 		$section = $this->getSectionForWiki( $wiki );
 		if ( !isset( $this->mainLBs[$section] ) ) {
@@ -110,6 +130,11 @@ class LBFactory_Multi extends LBFactory {
 		return $this->mainLBs[$section];
 	}
 
+	/**
+	 * @param $cluster
+	 * @param $wiki
+	 * @return LoadBalancer
+	 */
 	function newExternalLB( $cluster, $wiki = false ) {
 		if ( !isset( $this->externalLoads[$cluster] ) ) {
 			throw new MWException( __METHOD__.": Unknown cluster \"$cluster\"" );
@@ -124,6 +149,11 @@ class LBFactory_Multi extends LBFactory {
 		return $this->newLoadBalancer( $template, $this->externalLoads[$cluster], array() );
 	}
 
+	/**
+	 * @param $cluster
+	 * @param $wiki
+	 * @return LoadBalancer
+	 */
 	function &getExternalLB( $cluster, $wiki = false ) {
 		if ( !isset( $this->extLBs[$cluster] ) ) {
 			$this->extLBs[$cluster] = $this->newExternalLB( $cluster, $wiki );
@@ -134,6 +164,8 @@ class LBFactory_Multi extends LBFactory {
 
 	/**
 	 * Make a new load balancer object based on template and load array
+	 *
+	 * @return LoadBalancer
 	 */
 	function newLoadBalancer( $template, $loads, $groupLoads ) {
 		global $wgMasterWaitTimeout;
@@ -147,6 +179,8 @@ class LBFactory_Multi extends LBFactory {
 
 	/**
 	 * Make a server array as expected by LoadBalancer::__construct, using a template and load array
+	 *
+	 * @return array
 	 */
 	function makeServerArray( $template, $loads, $groupLoads ) {
 		$servers = array();

@@ -1,11 +1,19 @@
 <?php
-/** Tatar (Tatarça)
+/** Tatar (Татарча/Tatarça)
+ *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
  *
  * @ingroup Language
  * @file
  *
- * @author Siebrand
- * @comment Placeholder for Tatar. Falls back to Tatar in Latin script.
+ * @author Timming
  */
 
-$fallback = 'tt-latn';
+$fallback = 'tt-cyrl';
+
+$messages = array(
+# Delete
+'excontentauthor' => '',
+
+);

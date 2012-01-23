@@ -1,4 +1,9 @@
 <?php
+/**
+ * Fake parser that output the difference of two different parsers
+ *
+ * @file
+ */
 
 /**
  * @ingroup Parser
@@ -6,15 +11,15 @@
 class Parser_DiffTest
 {
 	var $parsers, $conf;
+	var $shortOutput = false;
 
-	var $dfUniqPrefix;
+	var $dtUniqPrefix;
 
 	function __construct( $conf ) {
 		if ( !isset( $conf['parsers'] ) ) {
 			throw new MWException( __METHOD__ . ': no parsers specified' );
 		}
 		$this->conf = $conf;
-		$this->dtUniqPrefix = "\x7fUNIQ" . Parser::getRandomString();
 	}
 
 	function init() {
@@ -27,6 +32,9 @@ class Parser_DiffTest
 		if ( !$doneHook ) {
 			$doneHook = true;
 			$wgHooks['ParserClearState'][] = array( $this, 'onClearState' );
+		}
+		if ( isset( $this->conf['shortOutput'] ) ) {
+			$this->shortOutput = $this->conf['shortOutput'];
 		}
 
 		foreach ( $this->conf['parsers'] as $i => $parserConf ) {
@@ -65,23 +73,55 @@ class Parser_DiffTest
 			$lastResult = $currentResult;
 		}
 		if ( $mismatch ) {
-			throw new MWException( "Parser_DiffTest: results mismatch on call to $name\n" .
-				'Arguments: ' . var_export( $args, true ) . "\n" .
-				'Results: ' . var_export( $results, true ) . "\n" );
+			if ( count( $results ) == 2 ) {
+				$resultsList = array();
+				foreach ( $this->parsers as $i => $parser ) {
+					$resultsList[] = var_export( $results[$i], true );
+				}
+				$diff = wfDiff( $resultsList[0], $resultsList[1] );
+			} else {
+				$diff = '[too many parsers]';
+			}
+			$msg = "Parser_DiffTest: results mismatch on call to $name\n";
+			if ( !$this->shortOutput ) {
+				$msg .= 'Arguments: ' . $this->formatArray( $args ) . "\n";
+			}
+			$msg .= 'Results: ' . $this->formatArray( $results ) . "\n" .
+				"Diff: $diff\n";
+			throw new MWException( $msg );
 		}
 		return $lastResult;
 	}
 
+	function formatArray( $array ) {
+		if ( $this->shortOutput ) {
+			foreach ( $array as $key => $value ) {
+				if ( $value instanceof ParserOutput ) {
+					$array[$key] = "ParserOutput: {$value->getText()}";
+				}
+			}
+		}
+		return var_export( $array, true );
+	}
+
 	function setFunctionHook( $id, $callback, $flags = 0 ) {
 		$this->init();
-		foreach  ( $this->parsers as $i => $parser ) {
+		foreach  ( $this->parsers as $parser ) {
 			$parser->setFunctionHook( $id, $callback, $flags );
 		}
 	}
 
+	/**
+	 * @param $parser Parser
+	 * @return bool
+	 */
 	function onClearState( &$parser ) {
 		// hack marker prefixes to get identical output
-		$parser->mUniqPrefix = $this->dtUniqPrefix;
+		if ( !isset( $this->dtUniqPrefix ) ) {
+			$this->dtUniqPrefix = $parser->uniqPrefix();
+		} else {
+			$parser->mUniqPrefix = $this->dtUniqPrefix;
+		}
 		return true;
 	}
 }

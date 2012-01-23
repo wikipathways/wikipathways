@@ -1,15 +1,17 @@
 <?php
-/** Eastern Canadian (Unified Canadian Aboriginal Syllabics) (ᐃᓄᒃᑎᑐᑦ)
+/** Eastern Canadian (Aboriginal syllabics) (ᐃᓄᒃᑎᑐᑦ)
+ *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
  *
  * @ingroup Language
  * @file
  *
- * @author Max sonnelid
  */
 
 $messages = array(
 # User preference toggles
-'tog-rememberpassword' => 'ᐃᖅᑑ ᐅᐃᑭᐱᑎᐊ ᐊᑎᖅ ᖃᑯᒍᖅ ᐊᑐᐃᓐᓇᓯᕗᖅ ᐅᕙᓗᒪᔪᖅ ᖃᕆᑕᐅᔭᖅ',
+'tog-rememberpassword' => 'ᐃᖅᑑ ᐅᐃᑭᐱᑎᐊ ᐊᑎᖅ ᖃᑯᒍᖅ ᐊᑐᐃᓐᓇᓯᕗᖅ ᐅᕙᓗᒪᔪᖅ ᖃᕆᑕᐅᔭᖅ (for a maximum of $1 {{PLURAL:$1|day|days}})',
 
 # Dates
 'sunday'        => 'ᓴᓇᑦᑕᐃᓕ',
@@ -60,17 +62,19 @@ $messages = array(
 'nov'           => 'ᓄᕕ',
 'dec'           => 'ᑎᓯᒻ',
 
-'about'          => 'ᒥᒃᓵᓂ',
-'article'        => 'ᐃᓗᓕᒃ ᒪᑉᐱᑕᖅ',
-'newwindow'      => '(ᐅᐃᑦᑐᖅ ᖃᕋᓴᐅᔭᖅ ᐃᑭᐊᖅ ᐱᒋᕗᖅ ᐃᒐᓛᖅ)',
-'cancel'         => 'ᐃᓂᖅᑎᐹ',
+'about'         => 'ᒥᒃᓵᓂ',
+'article'       => 'ᐃᓗᓕᒃ ᒪᑉᐱᑕᖅ',
+'newwindow'     => '(ᐅᐃᑦᑐᖅ ᖃᕋᓴᐅᔭᖅ ᐃᑭᐊᖅ ᐱᒋᕗᖅ ᐃᒐᓛᖅ)',
+'cancel'        => 'ᐃᓂᖅᑎᐹ',
+'moredotdotdot' => 'ᐱᓪᓗᐊᕆᕚ...',
+'mypage'        => 'ᐊᒥ ᒪᑉᐱᑕᖅ',
+'mytalk'        => 'ᐊᓪᓚᖁᑎᒃᑲ',
+'navigation'    => 'ᒥᐊᓂᕆᕚ',
+'and'           => '&#32;ᐊᒻᒪ',
+
+# Cologne Blue skin
 'qbedit'         => 'ᓱᖁᓯᖅᐹ',
 'qbspecialpages' => 'ᐱᔨ ᒪᑉᐱᑕᖅ',
-'moredotdotdot'  => 'ᐱᓪᓗᐊᕆᕚ...',
-'mypage'         => 'ᐊᒥ ᒪᑉᐱᑕᖅ',
-'mytalk'         => 'ᐊᓪᓚᖁᑎᒃᑲ',
-'navigation'     => 'ᒥᐊᓂᕆᕚ',
-'and'            => 'ᐊᒻᒪ',
 
 'errorpagetitle'    => 'ᑕᒻᒪᓇᖅᑐᖅ',
 'help'              => 'ᖃᔭᓕᑉᐹ',
@@ -144,20 +148,15 @@ $messages = array(
 'yourname'           => 'ᐅᐃᑭᐱᑎᐊ ᐊᑎᖅ',
 'yourpassword'       => 'ᐅᐃᑭᐱᑎᐊ ᐸᓚᙵᓴᐅᑎ',
 'yourpasswordagain'  => 'ᑕᒪᑐᒪᓃᖅᐹ ᐃᒃᓯᒐᖅᑐᖅ ᐅᐃᑭᐱᑎᐊ ᐸᓚᙵᓴᐅᑎ',
-'remembermypassword' => 'ᐃᖅᑑ ᐅᐃᑭᐱᑎᐊ ᐊᑎᖅ ᖃᑯᒍᖅ ᐊᑐᐃᓐᓇᓯᕗᖅ ᐅᕙᓗᒪᔪᖅ ᖃᕆᑕᐅᔭᖅ',
+'remembermypassword' => 'ᐃᖅᑑ ᐅᐃᑭᐱᑎᐊ ᐊᑎᖅ ᖃᑯᒍᖅ ᐊᑐᐃᓐᓇᓯᕗᖅ ᐅᕙᓗᒪᔪᖅ ᖃᕆᑕᐅᔭᖅ (for a maximum of $1 {{PLURAL:$1|day|days}})',
 'login'              => 'ᐊᑯᓐᓇᐳᖅ',
 'loginprompt'        => 'ᐱᒋᐊᓕᒃ ᐃᒪᑐᐊᖅ ᖃᕆᑕᐅᔭᖅ ᖂᑮᔅ(Cookies) ᐱᕐᖄᑎ ᐊᑯᓐᓇᐳᖅ ᐅᐃᑭᐱᑎᐊ.',
 'userlogin'          => 'ᐊᑯᓐᓇᐳᖅ / ᐱᕐᖄᐹ ᑮᓇᐅᔭᒃᑯᕕᖕᒥ ᑐᖅᑯᖅᓯᕕᒃ',
 'logout'             => 'ᐊᓂᕝᕕᒃ',
 'userlogout'         => 'ᐊᓂᕝᕕᒃ',
-'nologin'            => 'ᐊᔪᐃᓐᓈᖅ ᐃᓄᖁᑎ? $1.',
+'nologin'            => "ᐊᔪᐃᓐᓈᖅ ᐃᓄᖁᑎ? '''$1'''.",
 'nologinlink'        => 'ᐱᕐᖄᐹ ᑮᓇᐅᔭᒃᑯᕕᖕᒥ ᑐᖅᑯᖅᓯᕕᒃ',
 'gotaccountlink'     => 'ᐊᑯᓐᓇᐳᖅ',
-'youremail'          => 'ᑭᒍᑎᐅᑉ ᓯᑎᓂᖅᐹᖓ:',
-'username'           => 'ᐅᐃᑭᐱᑎᐊ ᐊᑎᖅ:',
-'yourrealname'       => 'ᐃᓄᓪᓚᕆᒃ ᐊᑎᖅ:',
-'email'              => 'ᑭᒍᑎᐅᑉ ᓯᑎᓂᖅᐹᖓ',
-'prefs-help-email'   => 'ᑭᒍᑎᐅᑉ ᓯᑎᓂᖅᐹᖓ (ᐱᒃᑲᓪᓚᕗᖅ) — ᖃᑯᒍ ᓇᓗᓇᙱᓚᖅ ᐃᓕᔅᓯ ᐱᔪᖕᓇᖅᑐᖅ ᐱᒋᕚ ᑲᙳᓇᖅᑐᖅ ᐋᔩᖃᑎᒋᖏᖅ',
 'mailmypassword'     => 'ᕿᓪᓗᑐᖅ ᐅᐃᑭᐱᑎᐊ ᐸᓚᙵᓴᐅᑎ ᑭᒍᑎᐅᑉ ᓯᑎᓂᖅᐹᖓ',
 
 # Edit page toolbar
@@ -165,14 +164,14 @@ $messages = array(
 'bold_tip'    => 'ᐃᔾᔪᔪᒡ ᑕᖅᓴᓕᖅᐹ',
 
 # Edit pages
-'summary'         => 'ᓱᕕᑦ',
+'summary'         => 'ᓱᕕᑦ:',
 'minoredit'       => 'ᐅᑭᐅᑭᓗᐊᖅᑐᖅ ᐊᓯᐊᙳᑐᖅ',
 'watchthis'       => 'ᐅᕝᕙ',
 'savearticle'     => 'ᐅᖃᐅᓯᓪᓚᕆᖏᑕ ᑎᑎᕋᖅᑕᐅᓂᖏᑦ',
 'preview'         => 'ᐅᕝᕙ ᖃᖓᓵᖑᓕᖅᑐᖅ',
 'showpreview'     => 'ᓱᖁᓯᖅᐹ ᐊᓚᒃᑲᐅᑎᕗᖅ ᓯᕗᓕᐅᖅᐹ ᐅᖃᐅᓯᓪᓚᕆᖏᑕ ᑎᑎᕋᖅᑕᐅᓂᖏᑦ',
 'showdiff'        => 'ᐊᓚᒃᑲᑎᑉᐹ ᐊᓯᐊᙳᑐᖅ',
-'summary-preview' => 'ᓱᕕᑦ',
+'summary-preview' => 'ᓱᕕᑦ:',
 'blockedtitle'    => 'ᐋᖅᑭᒃᓱᐃᔨ ᐅᒥᙵᓯᓯᔪᖅ',
 'loginreqlink'    => 'ᐊᑯᓐᓇᐳᖅ',
 'newarticle'      => '(ᐱᒋᕗᖅ)',
@@ -201,15 +200,18 @@ $messages = array(
 'diff-multi'    => '({{PLURAL:$1|ᐊᑕᐅᓯᖅ ᑭᒻᒥᐅᕗᖅ ᑎᑎᕋᖅᑕᐅᒋᐊᕐᖓᕈᑦ|$1 ᑭᒻᒥᐅᕗᖅ ᑎᑎᕋᖅᑕᐅᒋᐊᕐᖓᕈᑦ}} ᐊᔪᖅᑐᖅ ᐅᕝᕙ.)',
 
 # Search results
-'nextn'       => 'ᑕᒡᒐ $1',
+'nextn'       => 'ᑕᒡᒐ {{PLURAL:$1|$1}}',
 'powersearch' => 'ᕿᓐᓇᕆᒃᓴᕐᓂᖅ',
 
 # Preferences page
-'mypreferences'         => 'ᐊᒥ ᐱᒃᑯᒪᓂᖅᐹᖅ',
-'math_unknown_error'    => 'ᑐᓴᐅᒪᔭᐅᙱᑐᖅ ᑕᒻᒪᓇᖅᑐᖅ',
-'math_unknown_function' => 'ᑐᓴᐅᒪᔭᐅᙱᑐᖅ ᐃᓕᐅᕐᓂᖅ',
-'prefs-rc'              => 'ᐱᒋᕗᖅ ᐊᓯᐊᙳᑐᖅ',
-'searchresultshead'     => 'ᐃᕚᖅᐳᖅ',
+'mypreferences'     => 'ᐊᒥ ᐱᒃᑯᒪᓂᖅᐹᖅ',
+'prefs-rc'          => 'ᐱᒋᕗᖅ ᐊᓯᐊᙳᑐᖅ',
+'searchresultshead' => 'ᐃᕚᖅᐳᖅ',
+'youremail'         => 'ᑭᒍᑎᐅᑉ ᓯᑎᓂᖅᐹᖓ:',
+'username'          => 'ᐅᐃᑭᐱᑎᐊ ᐊᑎᖅ:',
+'yourrealname'      => 'ᐃᓄᓪᓚᕆᒃ ᐊᑎᖅ:',
+'email'             => 'ᑭᒍᑎᐅᑉ ᓯᑎᓂᖅᐹᖓ',
+'prefs-help-email'  => 'ᑭᒍᑎᐅᑉ ᓯᑎᓂᖅᐹᖓ (ᐱᒃᑲᓪᓚᕗᖅ) — ᖃᑯᒍ ᓇᓗᓇᙱᓚᖅ ᐃᓕᔅᓯ ᐱᔪᖕᓇᖅᑐᖅ ᐱᒋᕚ ᑲᙳᓇᖅᑐᖅ ᐋᔩᖃᑎᒋᖏᖅ',
 
 # User rights
 'editinguser' => "ᓱᖁᓯᖅᐹ ᖃᑕᙳᑎ '''[[User:$1|$1]]''' ([[User talk:$1|{{int:talkpagelinktext}}]] | [[Special:Contributions/$1|{{int:contribslink}}]])",
@@ -224,6 +226,8 @@ $messages = array(
 
 # Recent changes linked
 'recentchangeslinked'          => 'ᐊᓯᐊᙳᑐᖅ ᒥᑦᓵᓯᔪᖅ',
+'recentchangeslinked-feed'     => 'ᐊᓯᐊᙳᑐᖅ ᒥᑦᓵᓯᔪᖅ',
+'recentchangeslinked-toolbox'  => 'ᐊᓯᐊᙳᑐᖅ ᒥᑦᓵᓯᔪᖅ',
 'recentchangeslinked-noresult' => '0 ᐊᓯᐊᙳᑐᖅ ᐃᑦᓯᕕᒻᒥᐅᓯᖅᐹ ᒪᑉᐱᑕᖅ ᑕᑯᕙᓪᓚᑐᖅ ᓱᓪᓗᒃ ᑕᒪᑐᒪᓂ ᑐᒥᑯ',
 
 # Upload
@@ -232,6 +236,9 @@ $messages = array(
 'filedesc'          => 'ᐱᓕᕆᐊᒃᓴᑦ ᐱᕕᒡᔪᐊᖑᓂᖏᑦ',
 'fileuploadsummary' => 'ᓱᕕᑦ:',
 'watchthisupload'   => 'ᐅᕝᕙ',
+
+# File description page
+'file-anchor-link' => 'ᐊᒋᐅᑦ',
 
 # List redirects
 'listredirects' => 'ᓂᐱ ᖃᓂᖓᓂ ᑲᒪᒋᔭᖅ ᐋᓯᑦ ᓇᑭᑦ',
@@ -243,14 +250,14 @@ $messages = array(
 'randomredirect' => 'ᓇᑭᑐᐃᓐᓇᖅ ᖃᐅᔨᓴᕐᓂᖅ ᖃᓂᖓᓂ ᑲᒪᒋᔭᖅ ᐋᓯᑦ ᓇᑭᑦ',
 
 # Statistics
-'statistics' => 'ᑭᓯᑦᓯᓯᖕᖑᕐᓗᒋᑦ ᐹᓯᔅᓱᑎᔅᓴᑦ',
-'userstats'  => 'ᖃᑕᙳᑎ ᑭᓯᑦᓯᓯᖕᖑᕐᓗᒋᑦ ᐹᓯᔅᓱᑎᔅᓴᑦ',
+'statistics'              => 'ᑭᓯᑦᓯᓯᖕᖑᕐᓗᒋᑦ ᐹᓯᔅᓱᑎᔅᓴᑦ',
+'statistics-header-users' => 'ᖃᑕᙳᑎ ᑭᓯᑦᓯᓯᖕᖑᕐᓗᒋᑦ ᐹᓯᔅᓱᑎᔅᓴᑦ',
 
 'doubleredirects' => 'ᑕᐱᕐᖃᓕᒃ ᖃᓂᖓᓂ ᑲᒪᒋᔭᖅ ᐋᓯᑦ ᓇᑭᑦ',
 
 'brokenredirects'        => 'ᓇᐱᕚ ᖃᓂᖓᓂ ᑲᒪᒋᔭᖅ ᐋᓯᑦ ᓇᑭᑦ',
-'brokenredirects-edit'   => '(ᓱᖁᓯᖅᐹ)',
-'brokenredirects-delete' => '(ᓂᐸᖅᑎᐹ)',
+'brokenredirects-edit'   => 'ᓱᖁᓯᖅᐹ',
+'brokenredirects-delete' => 'ᓂᐸᖅᑎᐹ',
 
 # Miscellaneous special pages
 'listusers'         => 'ᖃᑕᙳᑎ ᓂᐱ',
@@ -260,9 +267,6 @@ $messages = array(
 
 # Book sources
 'booksources-go' => 'ᐊᐃᕗᖅ',
-
-# Special:Log
-'log-search-submit' => 'ᐊᐃᕗᖅ',
 
 # Special:AllPages
 'allpages'       => 'ᓱᓇᒥᑦᑐᖅ ᒪᑉᐱᑕᖅ',
@@ -290,9 +294,12 @@ $messages = array(
 'enotif_impersonal_salutation' => '{{SITENAME}} ᖃᑕᙳᑎ',
 'created'                      => 'ᒪᑉᐱᑕᖅ ᐊᓂᕗᖅ',
 
-# Delete/protect/revert
-'dellogpage'          => 'ᓂᐸᖅ ᓂᐱ',
-'deletionlog'         => 'ᓂᐸᖅ ᓂᐱ',
+# Delete
+'dellogpage'  => 'ᓂᐸᖅ ᓂᐱ',
+'deletionlog' => 'ᓂᐸᖅ ᓂᐱ',
+
+# Protect
+'prot_1movedto2'      => '[[$1]] ᓱᕐᕋᒪᔪᖅ [[$2]]',
 'protect-legend'      => 'ᐸᑎᒻᒥᕚ ᓴᐳᒻᒥᕚ',
 'protect-level-sysop' => 'ᓯᕐᓚᒃ ᑎᑎᕋᖅᓯᒪᔪᓂᒃ ᑐᖅᑯᖅᑎᕆᔨ',
 
@@ -308,6 +315,7 @@ $messages = array(
 # Contributions
 'mycontris' => 'ᑕᓕᐊᖅ',
 
+'sp-contributions-talk'   => 'ᐅᖃᓕᒪᔪᖅ',
 'sp-contributions-submit' => 'ᐃᕚᖅᐳᖅ',
 
 # What links here
@@ -338,8 +346,7 @@ $messages = array(
 'delete_and_move'  => 'ᓂᐸᖅᑎᐹ  ᐊᒻᒪ ᐅᐊᔪᖅ',
 
 # Namespace 8 related
-'allmessagesname'     => 'ᐊᑎᖅ',
-'allmessagesmodified' => 'ᐊᓚᒃᑲᑎᖅᐹ ᓯᕐᓚᒃ ᑐᑭᓕᑕᖅᑖᐹ',
+'allmessagesname' => 'ᐊᑎᖅ',
 
 # Import log
 'import-logentry-upload-detail'    => '$1 {{PLURAL:$1|ᑎᑎᕋᖅᑕᐅᒋᐊᕐᖓᕈᑦ|ᑎᑎᕋᖅᑕᐅᒋᐊᕐᖓᕈᑦ}}',
@@ -365,9 +372,14 @@ $messages = array(
 'previousdiff' => '← ᑐᓄᓪᓕᐹᖅ ᐊᓯᐊᙳᑐᖅ',
 'nextdiff'     => 'ᑕᒡᒐ ᐊᓯᐊᙳᑐᖅ ᒪᑉᐱᑕᖅ →',
 
-# Special:NewImages
+# Special:NewFiles
 'ilsubmit' => 'ᐃᕚᖅᐳᖅ',
 'bydate'   => 'ᐱᑖᕈᑦᑐᖅ ᐃᓅᓕᕐᕕᒃ',
+
+# Variants for Inuktitut language
+'variantname-ike-cans' => 'ᑎᑎᕋᐅᓯᖅ ᓄᑖᖅ',
+'variantname-ike-latn' => 'ilisautik',
+'variantname-iu'       => 'disable',
 
 # EXIF tags
 'exif-imagelength'         => 'ᖁᑦᓯᖕᓂᖅ',
@@ -380,9 +392,6 @@ $messages = array(
 
 # 'all' in various places, this might be different for inflected languages
 'monthsall' => 'ᓱᓇᒥᑦᑐᖅ',
-
-# HTML dump
-'redirectingto' => 'ᖃᓂᖓᓂ ᑲᒪᒋᔭᖅ ᐋᓯᑦ ᓇᑭᑦ [[:$1]]...',
 
 # action=purge
 'confirm_purge_button' => 'ᐊᑲᐅᔪᖅ',

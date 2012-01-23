@@ -1,25 +1,57 @@
 <?php
 /**
+ * Implements Special:Categories
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
  * @ingroup SpecialPage
  */
 
-function wfSpecialCategories( $par=null ) {
-	global $wgOut, $wgRequest;
+/**
+ * @ingroup SpecialPage
+ */
+class SpecialCategories extends SpecialPage {
 
-	if( $par == '' ) {
-		$from = $wgRequest->getText( 'from' );
-	} else {
-		$from = $par;
+	function __construct() {
+		parent::__construct( 'Categories' );
 	}
-	$cap = new CategoryPager( $from );
-	$wgOut->addHTML(
-		wfMsgExt( 'categoriespagetext', array( 'parse' ) ) .
-		$cap->getStartForm( $from ) .
-		$cap->getNavigationBar() .
-		'<ul>' . $cap->getBody() . '</ul>' .
-		$cap->getNavigationBar()
-	);
+
+	function execute( $par ) {
+		global $wgOut, $wgRequest;
+
+		$this->setHeaders();
+		$this->outputHeader();
+		$wgOut->allowClickjacking();
+
+		$from = $wgRequest->getText( 'from', $par );
+
+		$cap = new CategoryPager( $from );
+		$cap->doQuery();
+
+		$wgOut->addHTML(
+			Html::openElement( 'div', array( 'class' => 'mw-spcontent' ) ) .
+			wfMsgExt( 'categoriespagetext', array( 'parse' ), $cap->getNumRows() ) .
+			$cap->getStartForm( $from ) .
+			$cap->getNavigationBar() .
+			'<ul>' . $cap->getBody() . '</ul>' .
+			$cap->getNavigationBar() .
+			Html::closeElement( 'div' )
+		);
+	}
 }
 
 /**
@@ -33,22 +65,22 @@ class CategoryPager extends AlphabeticPager {
 		parent::__construct();
 		$from = str_replace( ' ', '_', $from );
 		if( $from !== '' ) {
-			global $wgCapitalLinks, $wgContLang;
-			if( $wgCapitalLinks ) {
-				$from = $wgContLang->ucfirst( $from );
-			}
+			$from = Title::capitalize( $from, NS_CATEGORY );
 			$this->mOffset = $from;
 		}
 	}
-	
+
 	function getQueryInfo() {
-		global $wgRequest;
 		return array(
 			'tables' => array( 'category' ),
 			'fields' => array( 'cat_title','cat_pages' ),
-			'conds' => array( 'cat_pages > 0' ), 
+			'conds' => array( 'cat_pages > 0' ),
 			'options' => array( 'USE INDEX' => 'cat_title' ),
 		);
+	}
+
+	function getTitle() {
+		return SpecialPage::getTitleFor( 'Categories' );
 	}
 
 	function getIndexField() {
@@ -59,6 +91,7 @@ class CategoryPager extends AlphabeticPager {
 	function getDefaultQuery() {
 		parent::getDefaultQuery();
 		unset( $this->mDefaultQuery['from'] );
+		return $this->mDefaultQuery;
 	}
 #	protected function getOrderTypeMessages() {
 #		return array( 'abc' => 'special-categories-sort-abc',
@@ -72,14 +105,11 @@ class CategoryPager extends AlphabeticPager {
 
 	/* Override getBody to apply LinksBatch on resultset before actually outputting anything. */
 	public function getBody() {
-		if (!$this->mQueryDone) {
-			$this->doQuery();
-		}
 		$batch = new LinkBatch;
 
 		$this->mResult->rewind();
 
-		while ( $row = $this->mResult->fetchObject() ) {
+		foreach ( $this->mResult as $row ) {
 			$batch->addObj( Title::makeTitleSafe( NS_CATEGORY, $row->cat_title ) );
 		}
 		$batch->execute();
@@ -90,19 +120,18 @@ class CategoryPager extends AlphabeticPager {
 	function formatRow($result) {
 		global $wgLang;
 		$title = Title::makeTitle( NS_CATEGORY, $result->cat_title );
-		$titleText = $this->getSkin()->makeLinkObj( $title, htmlspecialchars( $title->getText() ) );
+		$titleText = Linker::link( $title, htmlspecialchars( $title->getText() ) );
 		$count = wfMsgExt( 'nmembers', array( 'parsemag', 'escape' ),
 				$wgLang->formatNum( $result->cat_pages ) );
-		return Xml::tags('li', null, "$titleText ($count)" ) . "\n";
+		return Xml::tags('li', null, wfSpecialList( $titleText, $count ) ) . "\n";
 	}
-	
+
 	public function getStartForm( $from ) {
 		global $wgScript;
-		$t = SpecialPage::getTitleFor( 'Categories' );
-	
+
 		return
 			Xml::tags( 'form', array( 'method' => 'get', 'action' => $wgScript ),
-				Xml::hidden( 'title', $t->getPrefixedText() ) .
+				Html::hidden( 'title', $this->getTitle()->getPrefixedText() ) .
 				Xml::fieldset( wfMsg( 'categories' ),
 					Xml::inputLabel( wfMsg( 'categoriesfrom' ),
 						'from', 'from', 20, $from ) .
