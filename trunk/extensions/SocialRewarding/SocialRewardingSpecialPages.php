@@ -48,10 +48,6 @@ if ($SocialRewarding["reward"]["active"] == true) {
 		 */
 		function wfSocialRewardingInstallSpecialPage() {
 			SpecialPage::addPage(new SpecialPage("SocialRewardingInstall"));
-			global $wgMessageCache;
-			$wgMessageCache->addMessages(
-				array("socialrewardinginstall" => "Social Rewarding: Installation")
-			);
 		}
 	}
 
@@ -71,10 +67,6 @@ if ($SocialRewarding["reward"]["active"] == true) {
 	 */
 	function wfSocialRewardingAuthorsRankingSpecialPage() {
 		SpecialPage::addPage(new SpecialPage("SocialRewardingAuthorsRanking"));
-		global $wgMessageCache;
-		$wgMessageCache->addMessages(
-			array("socialrewardingauthorsranking" => "Social Rewarding: Ranking of Authors")
-		);
 	}
 
 
@@ -93,10 +85,6 @@ if ($SocialRewarding["reward"]["active"] == true) {
 	 */
 	function wfSocialRewardingListUsersSpecialPage() {
 		SpecialPage::addPage(new SpecialPage("SocialRewardingListUsers"));
-		global $wgMessageCache;
-		$wgMessageCache->addMessages(
-			array("socialrewardinglistusers" => "Social Rewarding: User List")
-		);
 	}
 
 
@@ -118,10 +106,6 @@ if ($SocialRewarding["reward"]["active"] == true) {
 		 */
 		function wfSocialRewardingAuthorsHistorySpecialPage() {
 			SpecialPage::addPage(new SpecialPage("SocialRewardingAuthorsHistory"));
-			global $wgMessageCache;
-			$wgMessageCache->addMessages(
-				array("socialrewardingauthorshistory" => "Social Rewarding: History of Ranking of Authors")
-			);
 		}
 
 
@@ -146,10 +130,6 @@ if ($SocialRewarding["reward"]["active"] == true) {
 		 */
 		function wfSocialRewardingReferencesRevisionsSpecialPage() {
 			SpecialPage::addPage(new SpecialPage("SocialRewardingReferencesRevisions"));
-			global $wgMessageCache;
-			$wgMessageCache->addMessages(
-				array("socialrewardingreferencesrevisions" => "Social Rewarding: Amount of References of Revisions (unweighted, directly from DB)")
-			);
 		}
 
 
@@ -170,10 +150,6 @@ if ($SocialRewarding["reward"]["active"] == true) {
 		 */
 		function wfSocialRewardingReferencesArticlesSpecialPage() {
 			SpecialPage::addPage(new SpecialPage("SocialRewardingReferencesArticles"));
-			global $wgMessageCache;
-			$wgMessageCache->addMessages(
-				array("socialrewardingreferencesarticles" => "Social Rewarding: Amount of References of Articles (unweighted, directly from DB)")
-			);
 		}
 
 	}
@@ -200,10 +176,6 @@ if ($SocialRewarding["reward"]["active"] == true) {
 		 */
 		function wfSocialRewardingRatingRevisionsSpecialPage() {
 			SpecialPage::addPage(new SpecialPage("SocialRewardingRatingRevisions"));
-			global $wgMessageCache;
-			$wgMessageCache->addMessages(
-				array("socialrewardingratingrevisions" => "Social Rewarding: Rating of Revisions (unweighted, directly from DB)")
-			);
 		}
 
 
@@ -224,10 +196,6 @@ if ($SocialRewarding["reward"]["active"] == true) {
 		 */
 		function wfSocialRewardingRatingArticlesSpecialPage() {
 			SpecialPage::addPage(new SpecialPage("SocialRewardingRatingArticles"));
-			global $wgMessageCache;
-			$wgMessageCache->addMessages(
-				array("socialrewardingratingarticles" => "Social Rewarding: Rating of Articles (unweighted, directly from DB)")
-			);
 		}
 
 	}
@@ -255,10 +223,6 @@ if ($SocialRewarding["reward"]["active"] == true) {
 		 */
 		function wfSocialRewardingMostViewedRevisionsSpecialPage() {
 			SpecialPage::addPage(new SpecialPage("SocialRewardingMostViewedRevisions"));
-			global $wgMessageCache;
-			$wgMessageCache->addMessages(
-				array("socialrewardingmostviewedrevisions" => "Social Rewarding: Most Viewed Revisions (unweighted, directly from DB)")
-			);
 		}
 
 
@@ -279,10 +243,6 @@ if ($SocialRewarding["reward"]["active"] == true) {
 		 */
 		function wfSocialRewardingMostViewedArticlesSpecialPage() {
 			SpecialPage::addPage(new SpecialPage("SocialRewardingMostViewedArticles"));
-			global $wgMessageCache;
-			$wgMessageCache->addMessages(
-				array("socialrewardingmostviewedarticles" => "Social Rewarding: Most Viewed Articles (unweighted, directly from DB)")
-			);
 		}
 
 	}
@@ -310,10 +270,6 @@ if ($SocialRewarding["reward"]["active"] == true) {
 		 */
 		function wfSocialRewardingRecommenderSystemSpecialPage() {
 			SpecialPage::addPage(new SpecialPage("SocialRewardingRecommenderSystem"));
-			global $wgMessageCache;
-			$wgMessageCache->addMessages(
-				array("socialrewardingrecommendersystem" => "Social Rewarding: Recommender System")
-			);
 		}
 
 	}

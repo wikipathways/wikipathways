@@ -754,7 +754,7 @@ class ExtDynamicPageList2
         // Page Transclusion, adopted from Steve Sanbeg´s LabeledSectionTransclusion
         require_once( 'DynamicPageList2Include.php' );
 
-        global $wgParser, $wgMessageCache;
+        global $wgParser, $wgExtensionMessagesFiles;
 
         // register the callback for the user tag <dpl>
         $wgParser->setHook( "DPL", array( __CLASS__, "dplTag" ) );
@@ -767,13 +767,7 @@ class ExtDynamicPageList2
         $wgParser->setFunctionHook( 'dpl', array( __CLASS__, 'dplParserFunction' ) );
 
         // Internationalization file
-        require_once( 'DynamicPageList2.i18n.php' );
-
-        foreach( DPL2_i18n::getMessages() as $sLang => $aMsgs )
-        {
-            $wgMessageCache->addMessages( $aMsgs, $sLang );
-        }
-
+		$wgExtensionMessagesFiles['DynamicPageList2'] = dirname( __FILE__ ) . '/DynamicPageList2.i18n.php';
         /**
          *  Define codes and map debug message to min debug level above which message can be displayed
          */
