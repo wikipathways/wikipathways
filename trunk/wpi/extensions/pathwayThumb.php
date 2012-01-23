@@ -22,7 +22,8 @@ function renderPathwayImage( &$parser, $pwTitleEncoded, $width = 0, $align = '',
                 if($revision) {
                 	$pathway->setActiveRevision($revision);
                 }
-                $img = new Image($pathway->getFileTitle(FILETYPE_IMG));
+                $img = RepoGroup::singleton()->getLocalRepo()->newFile($pathway->getFileTitle(FILETYPE_IMG));
+                //$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
                 switch($href) {
                         case 'svg':
                                 $href = Image::imageUrl($pathway->getFileTitle(FILETYPE_IMG)->getPartialURL());
