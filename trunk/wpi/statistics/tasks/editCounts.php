@@ -29,7 +29,7 @@ class EditCounts {
 			
 			foreach($users as $u) {
 				$mwu = User::newFromId($u->getId());
-				$bot = $mwu->isBot();
+				$bot = $mwu->isAllowed("bot");
 				
 				$edits = $u->getPageEdits($tsCurr);
 				$editsInt = $u->getPageEdits($tsCurr, $tsPrev);
