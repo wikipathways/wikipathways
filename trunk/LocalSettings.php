@@ -72,6 +72,8 @@ $wgDBprefix         = "";
 if(!$wpiJavascriptSnippets) $wpiJavascriptSnippets = array();
 if(!$wpiJavascriptSources) $wpiJavascriptSources = array();
 
+$wpiJavascriptSources[] = "$wgScriptPath/skins/wikipathways/wikipathways-custom.js";
+
 # Load organism registry
 require_once('wpi/Organism.php');
 # Load passwords/usernames
@@ -101,7 +103,7 @@ $wgMemCachedServers = array();
 ## is writable, then set this to true:
 $wgEnableUploads       = true;
 $wgUploadPath = $wgScriptPath."/img_auth.php";
-
+$wgImgAuthPublicTest = false;
 ##Extensions
 $wgUseImageResize      = true;
 $wgUseImageMagick = true;
