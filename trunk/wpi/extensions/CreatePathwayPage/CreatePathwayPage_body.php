@@ -29,6 +29,13 @@ class CreatePathwayPage extends SpecialPage
 			create an account first!");
 			return;
 		}
+		if(!$wgUser->isEmailConfirmed()){
+			$wgOut->addWikiText(
+			"== Email not confirmed ==\n
+			You must confirm you e-mail address before creating pathways. Please set and validate
+			 your e-mail address through your [" .SITE_URL."/index.php/Special:Preferences user preferences].");
+			return;
+		}
 		
 		$pwName = $_GET['pwName'];
                 $pwNameLen = strlen($pwName);
