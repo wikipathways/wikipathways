@@ -340,7 +340,6 @@ require_once('wpi/extensions/StubManager/StubManager.php');
 require_once('wpi/extensions/ParserFunctionsHelper/ParserFunctionsHelper.php');
 require_once('wpi/extensions/SecureHTML/SecureHTML.php');
 require_once('wpi/extensions/RSS/rss.php');
-require_once('wpi/extensions/Relations/Relations.php');
 require_once('wpi/extensions/XrefPanel.php');
 require_once('wpi/statistics/StatisticsHook.php');
 require_once( "extensions/ConfirmEdit/ConfirmEdit.php" );
