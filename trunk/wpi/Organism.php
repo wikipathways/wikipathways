@@ -58,6 +58,7 @@ class Organism {
 		self::register('Bos taurus', 'Bt');
 		self::register('Bacillus subtilis', 'Bs');
 		self::register('Caenorhabditis elegans', 'Ce');
+                self::register('Clostridium thermocellum', 'Ct');
 		self::register('Canis familiaris', 'Cf');
 		self::register('Danio rerio', 'Dr');
 		self::register('Drosophila melanogaster', 'Dm');
