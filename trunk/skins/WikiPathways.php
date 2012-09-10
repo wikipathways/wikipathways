@@ -51,9 +51,6 @@ class SkinWikiPathways extends SkinTemplate {
 	function setupSkinUserCss( OutputPage $out ){
 		parent::setupSkinUserCss( $out );
 		$out->addModuleStyles( 'skins.vector' );
-		
-		$out->addStyle( 'wikipathways/wikipathways-custom.css', 'screen' );
-		$out->addScriptFile( 'skins/wikipathways/wikipathways-custom.js', 'screen' );
 	}
 }
 

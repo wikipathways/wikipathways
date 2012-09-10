@@ -134,7 +134,7 @@ $wgProxyKey = "b748562511ea57982358c30cec614e30b52b75119e3df78ac554eec5f69343cf"
 ## Default skin: you can change the default skin. Use the internal symbolic
 ## names, ie 'standard', 'nostalgia', 'cologneblue', 'monobook':
 $wgDefaultSkin = 'wikipathways';
-	
+
 ## For attaching licensing metadata to pages, and displaying an
 ## appropriate copyright notice / icon. GNU Free Documentation
 ## License and Creative Commons licenses are supported so far.
@@ -170,7 +170,7 @@ $wgGroupPermissions['*'    ]['createtalk']      = false;
 $wgAllowSlowParserFunctions = true;
 
 #Logo
-$wgLogo = "http://{$_SERVER['HTTP_HOST']}/$wgScriptPath/skins/common/images/earth-or-pathway_text3_beta.png";
+$wgLogo = "http://www.wikipathways.org/skins/common/images/earth-or-pathway_text3_beta.png";
 
 #Allow gpml extension and larger image files
 $wgFileExtensions = array( 'pdf', 'png', 'gif', 'jpg', 'jpeg', 'svg', 'gpml', 'mapp');
