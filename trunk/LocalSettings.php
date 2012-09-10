@@ -298,7 +298,7 @@ require_once('wpi/extensions/SearchPathways/SearchPathways.php');
 require_once('wpi/extensions/SearchPathways/searchPathwaysBox.php');
 require_once('wpi/extensions/button.php');
 require_once('wpi/extensions/pathwayThumb.php');
-//require_once('wpi/extensions/imageLink.php'); //Does not work anymore after update to MW1.18, use link attribute in core image link instead (http://www.mediawiki.org/wiki/Help:Images#Syntax)
+require_once('wpi/extensions/imageLink.php');
 require_once('wpi/extensions/BrowsePathwaysPage2/BrowsePathwaysPage.php');
 require_once('wpi/extensions/editApplet.php');
 require_once('wpi/extensions/listPathways.php');

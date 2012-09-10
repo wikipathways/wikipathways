@@ -817,7 +817,6 @@ class DPL2_i18n
         self::$messages['zh-sg'] = self::$messages['zh-cn'];
         return self::$messages;
     }
+    
+    $messages = DPL2_i18n::getMessages();
 }
-
-$messages = DPL2_i18n::getMessages();
-?>

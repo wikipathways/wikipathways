@@ -133,7 +133,7 @@ function SocialRewardingGetRevID() {
 		return 0;
 	}
 	
-	//$article = new Article($wgTitle);
+	$article = $mediaWiki->articleFromTitle($wgTitle);
 	if ($article) {
 		return $article->getRevIdFetched();
 	} else {
