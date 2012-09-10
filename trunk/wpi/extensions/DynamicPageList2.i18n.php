@@ -261,14 +261,14 @@ class DPL2_i18n
              */
             'dpl2_log_' . self::FATAL_TOOFEWCATS => 'ERRORE: Categorie insufficienti (minimo $0). Suggerimento: diminuire il valore di <code>ExtDynamicPageList2::$minCategoryCount</code> per indicare un numero minore di categorie. (Impostare la variabile nel file <code>LocalSettings.php</code>, dopo l\'inclusione di <code>DynamicPageList2.php</code>.)',
             'dpl2_log_' . self::FATAL_NOSELECTION => "ERROR: No selection criteria found! You must use at least one of the following parameters: category, namespace, titlematch, linksto, uses, createdby, modifiedby, lastmodifiedby or their 'not' variants",
-            'dpl2_log_' . self::FATAL_CATDATEBUTNOINCLUDEDCATS => "ERRORE: L'uso dei parametri 'addfirstcategorydate=true' e 'ordermethod=categoryadd' richiede l'inserimento di una o pi\F9 categorie.",
-            'dpl2_log_' . self::FATAL_CATDATEBUTMORETHAN1CAT => "ERRORE: L'inserimento di pi\F9 categorie impedisce l'uso dei parametri 'addfirstcategorydate=true' e 'ordermethod=categoryadd'.",
-            'dpl2_log_' . self::FATAL_MORETHAN1TYPEOFDATE => 'ERRORE: Non \E8 consentito l\'uso contemporaneo di pi\F9 tipi di data.',
+            'dpl2_log_' . self::FATAL_CATDATEBUTNOINCLUDEDCATS => "ERRORE: L'uso dei parametri 'addfirstcategorydate=true' e 'ordermethod=categoryadd' richiede l'inserimento di una o più categorie.",
+            'dpl2_log_' . self::FATAL_CATDATEBUTMORETHAN1CAT => "ERRORE: L'inserimento di più categorie impedisce l'uso dei parametri 'addfirstcategorydate=true' e 'ordermethod=categoryadd'.",
+            'dpl2_log_' . self::FATAL_MORETHAN1TYPEOFDATE => 'ERRORE: Non è consentito l\'uso contemporaneo di più tipi di data.',
             /**
              * $0: param=val that is possible only with $1 as last 'ordermethod' parameter
              * $1: last 'ordermethod' parameter required for $0
              */
-            'dpl2_log_' . self::FATAL_WRONGORDERMETHOD => "ERRORE: L'uso del parametro '$0' \E8 consentito unicamente con 'ordermethod=[...,]$1'.",
+            'dpl2_log_' . self::FATAL_WRONGORDERMETHOD => "ERRORE: L'uso del parametro '$0' è consentito unicamente con 'ordermethod=[...,]$1'.",
             /**
              * $0: the number of arguments in includepage
              */
@@ -285,28 +285,28 @@ class DPL2_i18n
              * $0: unknown parameter given by user
              * $1: list of DPL2 available parameters separated by ', '
              */
-            'dpl2_log_' . self::WARN_UNKNOWNPARAM => "ATTENZIONE: Il parametro non riconosciuto '$0' \E8 stato ignorato. Suggerimento: i parametri disponibili sono: <code>$1</code>.",
+            'dpl2_log_' . self::WARN_UNKNOWNPARAM => "ATTENZIONE: Il parametro non riconosciuto '$0' è stato ignorato. Suggerimento: i parametri disponibili sono: <code>$1</code>.",
             /**
              * $3: list of valid param values separated by ' | '
              */
-            'dpl2_log_' . self::WARN_WRONGPARAM => "ATTENZIONE: Errore nel parametro '$0': '$1'. \C8 stato usato il valore predefinito '$2'. Suggerimento: <code>$0= $3</code>.",
+            'dpl2_log_' . self::WARN_WRONGPARAM => "ATTENZIONE: Errore nel parametro '$0': '$1'. È stato usato il valore predefinito '$2'. Suggerimento: <code>$0= $3</code>.",
             /**
              * $0: param name
              * $1: wrong param value given by user
              * $2: default param value used instead by program
              */
-            'dpl2_log_' . self::WARN_WRONGPARAM_INT => "ATTENZIONE: errore nel parametro '$0': '$1'. \C8 stato usato il valore predefinito '$2' (nessun limite). Suggerimento: <code>$0= <i>stringa vuota</i> (nessun limite) | n</code>, con <code>n</code> intero positivo.",
+            'dpl2_log_' . self::WARN_WRONGPARAM_INT => "ATTENZIONE: errore nel parametro '$0': '$1'. È stato usato il valore predefinito '$2' (nessun limite). Suggerimento: <code>$0= <i>stringa vuota</i> (nessun limite) | n</code>, con <code>n</code> intero positivo.",
             'dpl2_log_' . self::WARN_NORESULTS => 'ATTENZIONE: Nessun risultato.',
-            'dpl2_log_' . self::WARN_CATOUTPUTBUTWRONGPARAMS => "ATTENZIONE: I parametri add* ('adduser', 'addeditdate', ecc.)' non hanno alcun effetto quando \E8 specificato 'mode=category'. In tale modalit\E0 vengono visualizzati unicamente il namespace e il titolo della pagina.",
+            'dpl2_log_' . self::WARN_CATOUTPUTBUTWRONGPARAMS => "ATTENZIONE: I parametri add* ('adduser', 'addeditdate', ecc.)' non hanno alcun effetto quando è specificato 'mode=category'. In tale modalità vengono visualizzati unicamente il namespace e il titolo della pagina.",
             /**
              * $0: 'headingmode' value given by user
              * $1: value used instead by program (which means no heading)
              */
-            'dpl2_log_' . self::WARN_HEADINGBUTSIMPLEORDERMETHOD => "ATTENZIONE: Il parametro 'headingmode=$0' non ha alcun effetto quando \E8 specificato 'ordermethod' su un solo componente. Verr\E0 utilizzato il valore '$1'. Suggerimento: \E8 posibile utilizzare i valori diversi da $1 per il parametro 'headingmode' nel caso di 'ordermethod' su pi\F9 componenti. Il primo componente viene usato per generare i titoli di sezione. Ad es. 'ordermethod=category,<i>comp</i>' (dove <i>comp</i> \E8 un altro componente) per avere titoli di sezione basati sulla categoria.",
+            'dpl2_log_' . self::WARN_HEADINGBUTSIMPLEORDERMETHOD => "ATTENZIONE: Il parametro 'headingmode=$0' non ha alcun effetto quando è specificato 'ordermethod' su un solo componente. Verrà utilizzato il valore '$1'. Suggerimento: è posibile utilizzare i valori diversi da $1 per il parametro 'headingmode' nel caso di 'ordermethod' su più componenti. Il primo componente viene usato per generare i titoli di sezione. Ad es. 'ordermethod=category,<i>comp</i>' (dove <i>comp</i> è un altro componente) per avere titoli di sezione basati sulla categoria.",
             /**
              * $0: 'debug' value
              */
-            'dpl2_log_' . self::WARN_DEBUGPARAMNOTFIRST => "ATTENZIONE: Il parametro 'debug=$0' non \E8 il primo elemento della sezione DPL. Le nuove impostazioni di debug non verranno applicate prima di aver completato il parsing e la verifica di tutti i parametri che lo precedono.",
+            'dpl2_log_' . self::WARN_DEBUGPARAMNOTFIRST => "ATTENZIONE: Il parametro 'debug=$0' non è il primo elemento della sezione DPL. Le nuove impostazioni di debug non verranno applicate prima di aver completato il parsing e la verifica di tutti i parametri che lo precedono.",
 
             // DEBUG
             /**
@@ -336,15 +336,15 @@ class DPL2_i18n
             /**
              * $0: max number of categories that can be included
              */
-            'dpl2_log_' . self::FATAL_TOOMANYCATS => 'FOUT: Te veel categori\EBn! Maximum: $0. Hulp: verhoog <code>ExtDynamicPageList2::$maxCategoryCount</code> om meer categorie\EBn op te kunnen geven of stel geen limiet in met <code>ExtDynamicPageList2::$allowUnlimitedCategories=true</code>. (Neem deze variabele op in <code>LocalSettings.php</code>, na het toevoegen van <code>DynamicPageList2.php</code>.)',
+            'dpl2_log_' . self::FATAL_TOOMANYCATS => 'FOUT: Te veel categoriën! Maximum: $0. Hulp: verhoog <code>ExtDynamicPageList2::$maxCategoryCount</code> om meer categorieën op te kunnen geven of stel geen limiet in met <code>ExtDynamicPageList2::$allowUnlimitedCategories=true</code>. (Neem deze variabele op in <code>LocalSettings.php</code>, na het toevoegen van <code>DynamicPageList2.php</code>.)',
             /**
              * $0: min number of categories that have to be included
              */
-            'dpl2_log_' . self::FATAL_TOOFEWCATS => 'FOUT: Te weinig categorie\EBn! Minimum: $0. Hulp: verlaag <code>ExtDynamicPageList2::$minCategoryCount</code> om minder categorie\EBn aan te hoeven geven. (Stel de variabele bij voorkeur in via <code>LocalSettings.php</code>, na het toevoegen van <code>DynamicPageList2.php</code>.)',
+            'dpl2_log_' . self::FATAL_TOOFEWCATS => 'FOUT: Te weinig categorieën! Minimum: $0. Hulp: verlaag <code>ExtDynamicPageList2::$minCategoryCount</code> om minder categorieën aan te hoeven geven. (Stel de variabele bij voorkeur in via <code>LocalSettings.php</code>, na het toevoegen van <code>DynamicPageList2.php</code>.)',
             'dpl2_log_' . self::FATAL_NOSELECTION => "ERROR: No selection criteria found! You must use at least one of the following parameters: category, namespace, titlematch, linksto, uses, createdby, modifiedby, lastmodifiedby or their 'not' variants",
-            'dpl2_log_' . self::FATAL_CATDATEBUTNOINCLUDEDCATS => "FOUT: U dient tenminste \E9\E9n categorie op te nemen als u 'addfirstcategorydate=true' of 'ordermethod=categoryadd' wilt gebruiken!",
-            'dpl2_log_' . self::FATAL_CATDATEBUTMORETHAN1CAT => "FOUT: Als u meer dan \E9\E9n categorie opneemt, kunt u 'addfirstcategorydate=true' of 'ordermethod=categoryadd' niet gebruiken!",
-            'dpl2_log_' . self::FATAL_MORETHAN1TYPEOFDATE => 'FOUT: U kunt niet meer dan \E9\E9n type of datum tegelijk gebruiken!',
+            'dpl2_log_' . self::FATAL_CATDATEBUTNOINCLUDEDCATS => "FOUT: U dient tenminste één categorie op te nemen als u 'addfirstcategorydate=true' of 'ordermethod=categoryadd' wilt gebruiken!",
+            'dpl2_log_' . self::FATAL_CATDATEBUTMORETHAN1CAT => "FOUT: Als u meer dan één categorie opneemt, kunt u 'addfirstcategorydate=true' of 'ordermethod=categoryadd' niet gebruiken!",
+            'dpl2_log_' . self::FATAL_MORETHAN1TYPEOFDATE => 'FOUT: U kunt niet meer dan één type of datum tegelijk gebruiken!',
             /**
              * $0: param=val that is possible only with $1 as last 'ordermethod' parameter
              * $1: last 'ordermethod' parameter required for $0
@@ -401,7 +401,7 @@ class DPL2_i18n
             /**
              * $1: number of articles
              */
-            'dpl2_articlecount' => 'Er {{PLURAL:$1|is \E9\E9n pagina|zijn $1 pagina\'s}} onder deze kop.'
+            'dpl2_articlecount' => 'Er {{PLURAL:$1|is één pagina|zijn $1 pagina\'s}} onder deze kop.'
         );
         self::$messages['ru'] = array(
             /*
@@ -413,7 +413,7 @@ class DPL2_i18n
              * $1: wrong parameter given by user
              * $3: list of possible titles of namespaces (except pseudo-namespaces: Media, Special)
              */
-            'dpl2_log_' . self::FATAL_WRONGNS => "??????: ???????????? \AB$0\BB-????????: \AB$1\BB! ?????????:  <code>$0= <i>?????? ??????</i> (????????)$3</code>.",
+            'dpl2_log_' . self::FATAL_WRONGNS => "??????: ???????????? «$0»-????????: «$1»! ?????????:  <code>$0= <i>?????? ??????</i> (????????)$3</code>.",
             /**
              * $0: max number of categories that can be included
              */
@@ -423,14 +423,14 @@ class DPL2_i18n
              */
             'dpl2_log_' . self::FATAL_TOOFEWCATS => '??????: ??????? ???? ?????????! ???????: $0. ?????????: ????????? <code>ExtDynamicPageList2::$minCategoryCount</code> ????? ????????? ?????? ?????????. (?????????????? ?????????? ? <code>LocalSettings.php</code>, ????? ??????????? <code>DynamicPageList2.php</code>.)',
             'dpl2_log_' . self::FATAL_NOSELECTION => "ERROR: No selection criteria found! You must use at least one of the following parameters: category, namespace, titlematch, linksto, uses, createdby, modifiedby, lastmodifiedby or their 'not' variants",
-            'dpl2_log_' . self::FATAL_CATDATEBUTNOINCLUDEDCATS => "??????: ?? ?????? ???????? ???? ?? ???? ?????????, ???? ?? ?????? ???????????? \ABaddfirstcategorydate=true\BB ??? \ABordermethod=categoryadd\BB!",
-            'dpl2_log_' . self::FATAL_CATDATEBUTMORETHAN1CAT => "??????: ???? ?? ????????? ?????? ????? ?????????, ?? ?? ?? ?????? ???????????? \ABaddfirstcategorydate=true\BB ??? \ABordermethod=categoryadd\BB!",
+            'dpl2_log_' . self::FATAL_CATDATEBUTNOINCLUDEDCATS => "??????: ?? ?????? ???????? ???? ?? ???? ?????????, ???? ?? ?????? ???????????? «addfirstcategorydate=true» ??? «ordermethod=categoryadd»!",
+            'dpl2_log_' . self::FATAL_CATDATEBUTMORETHAN1CAT => "??????: ???? ?? ????????? ?????? ????? ?????????, ?? ?? ?? ?????? ???????????? «addfirstcategorydate=true» ??? «ordermethod=categoryadd»!",
             'dpl2_log_' . self::FATAL_MORETHAN1TYPEOFDATE => '??????: ?? ?? ?????? ???????? ????? ?????? ???? ?????? ?? ???!',
             /**
              * $0: param=val that is possible only with $1 as last 'ordermethod' parameter
              * $1: last 'ordermethod' parameter required for $0
              */
-            'dpl2_log_' . self::FATAL_WRONGORDERMETHOD => "??????: ?? ?????? ???????????? \AB$0\BB ?????? ? \ABordermethod=[...,]$1\BB!",
+            'dpl2_log_' . self::FATAL_WRONGORDERMETHOD => "??????: ?? ?????? ???????????? «$0» ?????? ? «ordermethod=[...,]$1»!",
             /**
              * $0: the number of arguments in includepage
              */
@@ -447,28 +447,28 @@ class DPL2_i18n
              * $0: unknown parameter given by user
              * $1: list of DPL2 available parameters separated by ', '
              */
-            'dpl2_log_' . self::WARN_UNKNOWNPARAM => "??????????????: ??????????? ???????? \AB$0\BB ??????????????. ?????????: ????????? ?????????: <code>$1</code>.",
+            'dpl2_log_' . self::WARN_UNKNOWNPARAM => "??????????????: ??????????? ???????? «$0» ??????????????. ?????????: ????????? ?????????: <code>$1</code>.",
             /**
              * $3: list of valid param values separated by ' | '
              */
-            'dpl2_log_' . self::WARN_WRONGPARAM => "??????????????: ???????????? ???????? \AB$0\BB: \AB$1\BB! ????????????? ????????? ?? ?????????: \AB$2\BB. ?????????: <code>$0= $3</code>.",
+            'dpl2_log_' . self::WARN_WRONGPARAM => "??????????????: ???????????? ???????? «$0»: «$1»! ????????????? ????????? ?? ?????????: «$2». ?????????: <code>$0= $3</code>.",
             /**
              * $0: param name
              * $1: wrong param value given by user
              * $2: default param value used instead by program
              */
-            'dpl2_log_' . self::WARN_WRONGPARAM_INT => "??????????????: ???????????? ???????? \AB$0\BB: \AB$1\BB! ????????????? ????????? ?? ?????????: \AB$2\BB (??? ???????????). ?????????: <code>$0= <i>?????? ??????</i> (??? ???????????) | n</code>, ? <code>n</code> ?????? ?????????????? ?????? ?????.",
+            'dpl2_log_' . self::WARN_WRONGPARAM_INT => "??????????????: ???????????? ???????? «$0»: «$1»! ????????????? ????????? ?? ?????????: «$2» (??? ???????????). ?????????: <code>$0= <i>?????? ??????</i> (??? ???????????) | n</code>, ? <code>n</code> ?????? ?????????????? ?????? ?????.",
             'dpl2_log_' . self::WARN_NORESULTS => '??????????????: ?? ???????!',
-            'dpl2_log_' . self::WARN_CATOUTPUTBUTWRONGPARAMS => "??????????????: ??????????* ?????????? (\ABadduser\BB, \ABaddeditdate\BB, ? ??.) ?? ????????????? ? \ABmode=category\BB. ?????? ???????????? ???? ??? ???????? ????? ??????????????? ? ???? ??????.",
+            'dpl2_log_' . self::WARN_CATOUTPUTBUTWRONGPARAMS => "??????????????: ??????????* ?????????? («adduser», «addeditdate», ? ??.) ?? ????????????? ? «mode=category». ?????? ???????????? ???? ??? ???????? ????? ??????????????? ? ???? ??????.",
             /**
              * $0: 'headingmode' value given by user
              * $1: value used instead by program (which means no heading)
              */
-            'dpl2_log_' . self::WARN_HEADINGBUTSIMPLEORDERMETHOD => "??????????????: \ABheadingmode=$0\BB ?? ???????????? ? \ABordermethod\BB ? ????? ??????????. ?????????????: \AB$1\BB. ?????????: ?? ?????? ????????????e ??-$1 \ABheadingmode\BB ???????? ? \ABordermethod\BB ?? ????????? ???????????. ?????? ????????? ???????????? ??? ??????????. ????????, \ABordermethod=category,<i>comp</i>\BB (<i>comp</i> ???????? ?????? ???????????) ??? ?????????? ?????????.",
+            'dpl2_log_' . self::WARN_HEADINGBUTSIMPLEORDERMETHOD => "??????????????: «headingmode=$0» ?? ???????????? ? «ordermethod» ? ????? ??????????. ?????????????: «$1». ?????????: ?? ?????? ????????????e ??-$1 «headingmode» ???????? ? «ordermethod» ?? ????????? ???????????. ?????? ????????? ???????????? ??? ??????????. ????????, «ordermethod=category,<i>comp</i>» (<i>comp</i> ???????? ?????? ???????????) ??? ?????????? ?????????.",
             /**
              * $0: 'debug' value
              */
-            'dpl2_log_' . self::WARN_DEBUGPARAMNOTFIRST => "??????????????: \ABdebug=$0\BB ?? ????????? ?? ?????? ????? ? DPL-????????. ????? ????????? ??????? ?? ????? ????????? ???? ??? ?????????? ????????? ?? ????? ????????? ? ?????????.",
+            'dpl2_log_' . self::WARN_DEBUGPARAMNOTFIRST => "??????????????: «debug=$0» ?? ????????? ?? ?????? ????? ? DPL-????????. ????? ????????? ??????? ?? ????? ????????? ???? ??? ?????????? ????????? ?? ????? ????????? ? ?????????.",
 
             // DEBUG
             /**
@@ -494,29 +494,29 @@ class DPL2_i18n
              * $1: wrong parameter given by user
              * $3: list of possible titles of namespaces (except pseudo-namespaces: Media, Special)
              */
-            'dpl2_log_' . self::FATAL_WRONGNS => "CHYBA: nespr\E1vny parameter '$0': '$1'! Pomocn\EDk <code>$0= <i>pr\E1zdny retazec</i> (Hlavn\FD)$3<code>.",
+            'dpl2_log_' . self::FATAL_WRONGNS => "CHYBA: nesprávny parameter '$0': '$1'! Pomocník <code>$0= <i>prázdny retazec</i> (Hlavný)$3<code>.",
             /**
              * $0: 'linksto' (left as $0 just in case the parameter is renamed in the future)
              * $1: wrong parameter given by user
              */
-            'dpl2_log_' . self::FATAL_WRONGLINKSTO => "CHYBA: Zl\FD parameter '$0': '$1'! Pomocn\EDk <code>$0= <i>pln\FD n\E1zov str\E1nky</i></code>.",
+            'dpl2_log_' . self::FATAL_WRONGLINKSTO => "CHYBA: Zlý parameter '$0': '$1'! Pomocník <code>$0= <i>plný názov stránky</i></code>.",
             /**
              * $0: max number of categories that can be included
              */
-            'dpl2_log_' . self::FATAL_TOOMANYCATS => 'CHYBA: Pr\EDli\9A vela kateg\F3ri\ED! Maximum: $0. Pomocn\EDk: zv\E4c\9Aite <code>ExtDynamicPageList2::$maxCategoryCount</code>, aby ste mohli \9Apecifikovat viac kateg\F3ri\ED alebo nastavte <code>ExtDynamicPageList2::$allowUnlimitedCategories=true</code> pre vypnutie limitu. (Premenn\FA nastatavte v <code>LocalSettings.php</code>, potom ako bol includovan\FD <code>DynamicPageList2.php</code>.)',
+            'dpl2_log_' . self::FATAL_TOOMANYCATS => 'CHYBA: Príliš vela kategórií! Maximum: $0. Pomocník: zväcšite <code>ExtDynamicPageList2::$maxCategoryCount</code>, aby ste mohli špecifikovat viac kategórií alebo nastavte <code>ExtDynamicPageList2::$allowUnlimitedCategories=true</code> pre vypnutie limitu. (Premennú nastatavte v <code>LocalSettings.php</code>, potom ako bol includovaný <code>DynamicPageList2.php</code>.)',
             /**
              * $0: min number of categories that have to be included
              */
-            'dpl2_log_' . self::FATAL_TOOFEWCATS => 'CHYBA: Pr\EDli\9A m\E1lo kateg\F3ri\ED! Minimum: $0. Pomocn\EDk: zn\ED\9Ete <code>ExtDynamicPageList2::$minCategoryCount</code>, aby ste mohli \9Apecifikovat menej kateg\F3ri\ED. (Premenn\FA nastavte najlep\9Aie v <code>LocalSettings.php</code> potom, ako v nom bol includovan\FD <code>DynamicPageList2.php</code>.)',
+            'dpl2_log_' . self::FATAL_TOOFEWCATS => 'CHYBA: Príliš málo kategórií! Minimum: $0. Pomocník: znížte <code>ExtDynamicPageList2::$minCategoryCount</code>, aby ste mohli špecifikovat menej kategórií. (Premennú nastavte najlepšie v <code>LocalSettings.php</code> potom, ako v nom bol includovaný <code>DynamicPageList2.php</code>.)',
             'dpl2_log_' . self::FATAL_NOSELECTION => "ERROR: No selection criteria found! You must use at least one of the following parameters: category, namespace, titlematch, linksto, uses, createdby, modifiedby, lastmodifiedby or their 'not' variants",
-            'dpl2_log_' . self::FATAL_CATDATEBUTNOINCLUDEDCATS => "CHYBA: Mus\EDte uviest aspon jednu kateg\F3riu ak chcete pou\9Eit 'addfirstcategorydate=true' alebo 'ordermethod=categoryadd'!",
-            'dpl2_log_' . self::FATAL_CATDATEBUTMORETHAN1CAT => "CHYBA: Ak zahrniete viac ako jednu kateg\F3riu, nem\F4\9Eete pou\9Eit 'addfirstcategorydate=true' alebo 'ordermethod=categoryadd'!",
-            'dpl2_log_' . self::FATAL_MORETHAN1TYPEOFDATE => 'CHYBA: Nem\F4\9Eete naraz pridat viac ako jeden typ d\E1tumu!',
+            'dpl2_log_' . self::FATAL_CATDATEBUTNOINCLUDEDCATS => "CHYBA: Musíte uviest aspon jednu kategóriu ak chcete použit 'addfirstcategorydate=true' alebo 'ordermethod=categoryadd'!",
+            'dpl2_log_' . self::FATAL_CATDATEBUTMORETHAN1CAT => "CHYBA: Ak zahrniete viac ako jednu kategóriu, nemôžete použit 'addfirstcategorydate=true' alebo 'ordermethod=categoryadd'!",
+            'dpl2_log_' . self::FATAL_MORETHAN1TYPEOFDATE => 'CHYBA: Nemôžete naraz pridat viac ako jeden typ dátumu!',
             /**
              * $0: param=val that is possible only with $1 as last 'ordermethod' parameter
              * $1: last 'ordermethod' parameter required for $0
              */
-            'dpl2_log_' . self::FATAL_WRONGORDERMETHOD => "CHYBA: '$0' m\F4\9Eete pou\9Eit iba s 'ordermethod=[...,]$1'!",
+            'dpl2_log_' . self::FATAL_WRONGORDERMETHOD => "CHYBA: '$0' môžete použit iba s 'ordermethod=[...,]$1'!",
             /**
              * $0: the number of arguments in includepage
              */
@@ -525,7 +525,7 @@ class DPL2_i18n
              * $0: prefix_dpl_clview where 'prefix' is the prefix of your mediawiki table names
              * $1: SQL query to create the prefix_dpl_clview on your mediawiki DB
              */
-            'dpl2_log_' . self::FATAL_NOCLVIEW => "CHYBA: Nie je momo\9En\E9 vykon\E1vat logick\E9 oper\E1cie na nekategorizovan\FDch kateg\F3ri\E1ch (napr. s parametrom 'Kateg\F3ria') lebo neexistuje na datab\E1zu pohlad $0! Pomocn\EDk: nech admin datab\E1zy vykon\E1 tento dotaz: <code>$1</code>.",
+            'dpl2_log_' . self::FATAL_NOCLVIEW => "CHYBA: Nie je momožné vykonávat logické operácie na nekategorizovaných kategóriách (napr. s parametrom 'Kategória') lebo neexistuje na databázu pohlad $0! Pomocník: nech admin databázy vykoná tento dotaz: <code>$1</code>.",
             'dpl2_log_' . self::FATAL_OPENREFERENCES => 'ERROR: specifying "openreferences" is incompatible with some other option you specified. See the manual for details.',
 
             // WARN
@@ -533,28 +533,28 @@ class DPL2_i18n
              * $0: unknown parameter given by user
              * $1: list of DPL2 available parameters separated by ', '
              */
-            'dpl2_log_' . self::WARN_UNKNOWNPARAM => "VAROVANIE: Nezn\E1my parameter '$0' ignorovan\FD. Pomocn\EDk: dostupn\E9 parametre: <code>$1</code>.",
+            'dpl2_log_' . self::WARN_UNKNOWNPARAM => "VAROVANIE: Neznámy parameter '$0' ignorovaný. Pomocník: dostupné parametre: <code>$1</code>.",
             /**
              * $3: list of valid param values separated by ' | '
              */
-            'dpl2_log_' . self::WARN_WRONGPARAM => "VAROVANIE: Nespr\E1vny '$0' parameter: '$1'! Pou\9E\EDvam \9Atandardn\FD '$2'. Pomocn\EDk: <code>$0= $3</code>.",
+            'dpl2_log_' . self::WARN_WRONGPARAM => "VAROVANIE: Nesprávny '$0' parameter: '$1'! Používam štandardný '$2'. Pomocník: <code>$0= $3</code>.",
             /**
              * $0: param name
              * $1: wrong param value given by user
              * $2: default param value used instead by program
              */
-            'dpl2_log_' . self::WARN_WRONGPARAM_INT => "VAROVANIE: Nespr\E1vny parameter  '$0': '$1'! Pou\9E\EDvam \9Atandardn\FD: '$2' (bez obmedzenia). Pomocn\EDk: <code>$0= <i>pr\E1zdny retazec</i> (bez obmedzenia) | n</code>, s kladn\FDm cel\FDm c\EDslom <code>n</code>.",
+            'dpl2_log_' . self::WARN_WRONGPARAM_INT => "VAROVANIE: Nesprávny parameter  '$0': '$1'! Používam štandardný: '$2' (bez obmedzenia). Pomocník: <code>$0= <i>prázdny retazec</i> (bez obmedzenia) | n</code>, s kladným celým císlom <code>n</code>.",
             'dpl2_log_' . self::WARN_NORESULTS => 'VAROVANIE: No results!',
-            'dpl2_log_' . self::WARN_CATOUTPUTBUTWRONGPARAMS => "VAROVANIE: Parametre Add* ('adduser', 'addeditdate', atd' nepracuj\FA s mode=category'. V tomto re\9Eime je mo\9En\E9 prehliadat iba menn\E1 priestor/titulok str\E1nky.",
+            'dpl2_log_' . self::WARN_CATOUTPUTBUTWRONGPARAMS => "VAROVANIE: Parametre Add* ('adduser', 'addeditdate', atd' nepracujú s mode=category'. V tomto režime je možné prehliadat iba menná priestor/titulok stránky.",
             /**
              * $0: 'headingmode' value given by user
              * $1: value used instead by program (which means no heading)
              */
-            'dpl2_log_' . self::WARN_HEADINGBUTSIMPLEORDERMETHOD => "VAROVANIE: 'headingmode=$0' nepracuje s 'ordermethod' na jednom komponente. Pou\9Eitie: '$1'. Pomocn\EDk: m\F4\9Eete pou\9Eit not-$1 hodnoty 'headingmode' s 'ordermethod' na viacer\E9 komponenty. Prv\FD komponent sa pou\9E\EDva na nadpisy. Napr. 'ordermethod=category,<i>comp</i>' (<i>comp</i> je in\FD komponent) pre nadpisy kateg\F3ri\ED.",
+            'dpl2_log_' . self::WARN_HEADINGBUTSIMPLEORDERMETHOD => "VAROVANIE: 'headingmode=$0' nepracuje s 'ordermethod' na jednom komponente. Použitie: '$1'. Pomocník: môžete použit not-$1 hodnoty 'headingmode' s 'ordermethod' na viaceré komponenty. Prvý komponent sa používa na nadpisy. Napr. 'ordermethod=category,<i>comp</i>' (<i>comp</i> je iný komponent) pre nadpisy kategórií.",
             /**
              * $0: 'debug' value
              */
-            'dpl2_log_' . self::WARN_DEBUGPARAMNOTFIRST => "VAROVANIE: 'debug=$0' nie je na prvej poz\EDcii v prvku DPL. Nov\E9 ladiacie nastavenia nebud\FA pou\9E\EDt\E9 sk\F4r ne\9E bud\FA parsovan\E9 a skontrolovan\E9 v\9Aetky predch\E1dzaj\FAce.",
+            'dpl2_log_' . self::WARN_DEBUGPARAMNOTFIRST => "VAROVANIE: 'debug=$0' nie je na prvej pozícii v prvku DPL. Nové ladiacie nastavenia nebudú použíté skôr než budú parsované a skontrolované všetky predchádzajúce.",
 
             // DEBUG
             /**
@@ -568,7 +568,7 @@ class DPL2_i18n
             /**
              * $1: number of articles
              */
-            'dpl2_articlecount' => 'V tomto nadpise {{PLURAL:$1|je jeden cl\E1nok|s\FA $1 cl\E1nky|je $1 cl\E1nkov}}.'
+            'dpl2_articlecount' => 'V tomto nadpise {{PLURAL:$1|je jeden clánok|sú $1 clánky|je $1 clánkov}}.'
         );
         self::$messages['zh-cn'] = array(
             /*
@@ -817,6 +817,4 @@ class DPL2_i18n
         self::$messages['zh-sg'] = self::$messages['zh-cn'];
         return self::$messages;
     }
-    
-    $messages = DPL2_i18n::getMessages();
 }
