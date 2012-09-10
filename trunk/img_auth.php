@@ -41,6 +41,7 @@ if ( $wgImgAuthPublicTest
 {
 	wfForbidden('img-auth-accessdenied','img-auth-public');
 }
+
 $matches = WebRequest::getPathInfo();
 $path = $matches['title'];
 

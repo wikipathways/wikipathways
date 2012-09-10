@@ -115,6 +115,7 @@ class User {
 		'deletedhistory',
 		'deletedtext',
 		'deleterevision',
+		'disableaccount',
 		'edit',
 		'editinterface',
 		'editusercssjs', #deprecated
@@ -2938,7 +2939,7 @@ class User {
 			return false;
 		}
 
-		return (bool)$userblock->doAutoblock( wfGetIP() );
+		return (bool)$userblock->doAutoblock( $this->getRequest()->getIP() );
 	}
 
 	/**

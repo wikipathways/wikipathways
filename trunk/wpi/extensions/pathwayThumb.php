@@ -48,105 +48,12 @@ function renderPathwayImage( &$parser, $pwTitleEncoded, $width = 0, $align = '',
                                                                 //you know a way to do that (TK)
 		}
 
-                //$output = makeThumbLinkObj($pathway, $caption, $href, $tooltip, $align, $id, $width);
-                $output = makeThumbLink2($pathway, 
-                	array('caption' => $caption, 'align' => $align, 'alt' => $tooltip, 'id' => $id), 
-                	array('width' => $width, 'href' => $href)
-                );
+                $output = makeThumbLinkObj($pathway, $caption, $href, $tooltip, $align, $id, $width);
+
         } catch(Exception $e) {
                 return "invalid pathway title: $e";
         }
         return array($output, 'isHTML'=>1, 'noparse'=>1);
-}
-
-//MODIFIED FROM Linker.php
-function makeThumbLink2($pathway, $frameParams = array(),
-		$handlerParams = array(), $time = false, $query = "") {
-	global $wgStylePath, $wgContLang;
-	
-	$pathway->updateCache(FILETYPE_IMG);
-	
-	$title = $pathway->getFileTitle(FILETYPE_IMG);
-	$file = UnregisteredLocalFile::newFromTitle($title, RepoGroup::singleton()->getLocalRepo());
-	
-	$exists = true; //Pathway image pages never exists, so fool the MW code
-
-	# Shortcuts
-	$fp =& $frameParams;
-	$hp =& $handlerParams;
-
-	$page = isset( $hp['page'] ) ? $hp['page'] : false;
-	if ( !isset( $fp['align'] ) ) $fp['align'] = 'right';
-	if ( !isset( $fp['alt'] ) ) $fp['alt'] = '';
-	if ( !isset( $fp['title'] ) ) $fp['title'] = '';
-	if ( !isset( $fp['caption'] ) ) $fp['caption'] = '';
-
-	if ( empty( $hp['width'] ) ) {
-		// Reduce width for upright images when parameter 'upright' is used
-		$hp['width'] = isset( $fp['upright'] ) ? 130 : 180;
-	}
-	$thumb = false;
-
-	if ( !$exists ) {
-		$outerWidth = $hp['width'] + 2;
-	} else {
-		if ( isset( $fp['manualthumb'] ) ) {
-			# Use manually specified thumbnail
-			$manual_title = Title::makeTitleSafe( NS_FILE, $fp['manualthumb'] );
-			if ( $manual_title ) {
-				$manual_img = wfFindFile( $manual_title );
-				if ( $manual_img ) {
-					$thumb = $manual_img->getUnscaledThumb( $hp );
-				} else {
-					$exists = false;
-				}
-			}
-		} elseif ( isset( $fp['framed'] ) ) {
-			// Use image dimensions, don't scale
-			$thumb = $file->getUnscaledThumb( $hp );
-		} else {
-			# Do not present an image bigger than the source, for bitmap-style images
-			# This is a hack to maintain compatibility with arbitrary pre-1.10 behaviour
-			$srcWidth = $file->getWidth( $page );
-			if ( $srcWidth && !$file->mustRender() && $hp['width'] > $srcWidth ) {
-				$hp['width'] = $srcWidth;
-			}
-			$thumb = $file->transform( $hp );
-		}
-
-		if ( $thumb ) {
-			$outerWidth = $thumb->getWidth() + 2;
-		} else {
-			$outerWidth = $hp['width'] + 2;
-		}
-	}
-
-	# ThumbnailImage::toHtml() already adds page= onto the end of DjVu URLs
-	# So we don't need to pass it here in $query. However, the URL for the
-	# zoom icon still needs it, so we make a unique query for it. See bug 14771
-	$url = $hp['href'];
-	if ( $page ) {
-		$url = wfAppendQuery( $url, 'page=' . urlencode( $page ) );
-	}
-	$s = "<div class=\"thumb t{$fp['align']}\"><div class=\"thumbinner\" style=\"width:{$outerWidth}px;\">";
-	if ( !$exists ) {
-		$s .= Linker::makeBrokenImageLinkObj( $title, $fp['title'], '', '', '', $time == true );
-		$zoomIcon = '';
-	} elseif ( !$thumb ) {
-		$s .= htmlspecialchars( wfMsg( 'thumbnail_error', '' ) );
-		$zoomIcon = '';
-	} else {
-		$params = array(
-			'alt' => $fp['alt'],
-			'title' => $fp['title'],
-			'img-class' => 'thumbimage' );
-		$params = Linker::getImageLinkMTOParams( $fp, $query ) + $params;
-		$thumbHtml = $thumb->toHtml( $params );
-		$s .= preg_replace('/href=".+?"/', 'href="' . $hp['href'] . '"', $thumbHtml);
-		$zoomIcon = "";
-	}
-	$s .= '  <div class="thumbcaption">' . $zoomIcon . $fp['caption'] . "</div></div></div>";
-	return str_replace( "\n", ' ', $s );
 }
 
 function createEditCaption($pathway) {
@@ -183,6 +90,7 @@ function createEditCaption($pathway) {
 	return $caption . $drop;
 }
 
+
     /** MODIFIED FROM Linker.php
         * Make HTML for a thumbnail including image, border and caption
         * $img is an Image object
@@ -191,8 +99,7 @@ function createEditCaption($pathway) {
             global $wgStylePath, $wgContLang;
 
 			$pathway->updateCache(FILETYPE_IMG);
-			$img = RepoGroup::singleton()->getLocalRepo()->newFile($pathway->getFileTitle(FILETYPE_IMG));
-            //$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
+            $img = new Image($pathway->getFileTitle(FILETYPE_IMG));
             $img->loadFromFile();
             
             $imgURL = $img->getURL();

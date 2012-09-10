@@ -23,7 +23,7 @@ function wfImageSize_Magic( &$magicWords, $langCode ) {
 
 function getSize( &$parser, $image, $maxWidth ) {
 	try {
-		$img = RepoGroup::singleton()->getLocalRepo()->newFile(Title::newFromText($image));
+		$img = new Image(Title::newFromText($image));
 		$img->loadFromFile();
 		$w = $img->getWidth();
 		if($w > $maxWidth) $w = $maxWidth;

@@ -62,6 +62,9 @@ class SpecialAllmessages extends SpecialPage {
 
 		$out->addModuleStyles( 'mediawiki.special' );
 
+		$this->filter = $request->getVal( 'filter', 'all' );
+		$this->prefix = $request->getVal( 'prefix', '' );
+
 		$this->table = new AllmessagesTablePager(
 			$this,
 			array(),
@@ -115,13 +118,10 @@ class AllmessagesTablePager extends TablePager {
 		$this->langcode = $this->lang->getCode();
 		$this->foreign  = $this->langcode != $wgContLang->getCode();
 
-		$request = $wgRequest;
-
-		$this->filter = $request->getVal( 'filter', 'all' );
-		if( $this->filter === 'all' ){
+		if( $wgRequest->getVal( 'filter', 'all' ) === 'all' ){
 			$this->custom = null; // So won't match in either case
 		} else {
-			$this->custom = ($this->filter == 'unmodified');
+			$this->custom = ($wgRequest->getVal( 'filter' ) == 'unmodified');
 		}
 
 		$prefix = $wgLang->ucfirst( $wgRequest->getVal( 'prefix', '' ) );

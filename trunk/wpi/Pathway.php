@@ -567,8 +567,7 @@ class Pathway {
 		if($updateCache) {
 			$this->updateCache($fileType);
 		}
-		$file = RepoGroup::singleton()->getLocalRepo()->newFile($this->getFileName($fileType));
-		return "http://" . $_SERVER['HTTP_HOST'] . $file->getUrl();
+		return "http://" . $_SERVER['HTTP_HOST'] . Image::imageURL($this->getFileName($fileType));
 	}
 	
 	/**

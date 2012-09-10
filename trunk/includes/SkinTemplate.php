@@ -480,9 +480,7 @@ class SkinTemplate extends Skin {
 						'text' => ( $wgContLang->getLanguageName( $nt->getInterwiki() ) != '' ?
 									$wgContLang->getLanguageName( $nt->getInterwiki() ) : $l ),
 						'title' => $nt->getText(),
-						'class' => $class,
-						'lang' => $nt->getInterwiki(),
-						'hreflang' => $nt->getInterwiki(),
+						'class' => $class
 					);
 				}
 			}
@@ -582,19 +580,11 @@ class SkinTemplate extends Skin {
 		/* set up the default links for the personal toolbar */
 		$personal_urls = array();
 		
-		# Due to bug 32276, if a user does not have read permissions, 
-		# $this->getTitle() will just give Special:Badtitle, which is 
-		# not especially useful as a returnto parameter. Use the title 
-		# from the request instead, if there was one.
-		$page = Title::newFromURL( $wgRequest->getVal( 'title', '' ) );
-		$page = $wgRequest->getVal( 'returnto', $page );
-		$a = array();
-		if ( strval( $page ) !== '' ) {
-			$a['returnto'] = $page;
-			$query = $wgRequest->getVal( 'returntoquery', $this->thisquery );
-			if( $query != '' ) {
-				$a['returntoquery'] = $query;
-			}
+		$page = $wgRequest->getVal( 'returnto', $this->thispage );
+		$query = $wgRequest->getVal( 'returntoquery', $this->thisquery );
+		$a = array( 'returnto' => $page );
+		if( $query != '' ) {
+			$a['returntoquery'] = $query;
 		}
 		$returnto = wfArrayToCGI( $a );
 		if( $this->loggedin ) {
@@ -853,7 +843,7 @@ class SkinTemplate extends Skin {
 		wfRunHooks( 'SkinTemplatePreventOtherActiveTabs', array( &$this, &$preventActiveTabs ) );
 
 		// Checks if page is some kind of content
-		if( $title->canExist() ) {
+		if( $title->getNamespace() != NS_SPECIAL ) {
 			// Gets page objects for the related namespaces
 			$subjectPage = $title->getSubjectPage();
 			$talkPage = $title->getTalkPage();

@@ -72,7 +72,7 @@ function historyLine($pathway, $row, $nr, $counter = '', $cur = false, $firstInL
 	$diff = diffButtons( $rev, $firstInList, $counter, $nr );
 
 	$revert = "";
-	if($wgUser->getID() != 0 && $wgTitle && $wgTitle->userCan('edit')) {
+	if($wgUser->getID() != 0 && $wgTitle && $wgTitle->userCanEdit()) {
 		$revert = $cur ? "" : "(<A href=$revUrl>revert</A>), ";
 	}
 	
@@ -104,7 +104,7 @@ function diffButtons( $rev, $firstInList, $counter, $linesonpage) {
 
                         /** @todo: move title texts to javascript */
                         if ( $firstInList ) {
-			           $first = Xml::element( 'input', array_merge(
+			           $first = wfElement( 'input', array_merge(
                                         $radio,
                                         array(
                                                 'style' => 'visibility:hidden',
@@ -116,13 +116,13 @@ function diffButtons( $rev, $firstInList, $counter, $linesonpage) {
                                 } else {
                                         $checkmark = array();
                                 }
-                                $first = Xml::element( 'input', array_merge(
+                                $first = wfElement( 'input', array_merge(
                                         $radio,
                                         $checkmark,
                                         array( 'name'  => 'old' ) ) );
                                 $checkmark = array();
                         }
-                        $second = Xml::element( 'input', array_merge(
+                        $second = wfElement( 'input', array_merge(
                                 $radio,
                                 $checkmark,
                                 array( 'name'  => 'new' ) ) );

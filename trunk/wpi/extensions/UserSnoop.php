@@ -78,7 +78,7 @@ function wfUserPageViewTracker(&$parser, &$text) {
         #check to see if the user has visited this page before
         $query = "SELECT hits, last FROM ".$wgDBprefix."user_page_views WHERE user_id = ".$wgUser->getID();
         $query .= " AND page_id = $artID";
-        if($result = $db->query($query)) {
+        if($result = $db->doQuery($query)) {
                 $row = $db->fetchRow($result);
                 $last = $row["last"];
  
@@ -98,7 +98,7 @@ function wfUserPageViewTracker(&$parser, &$text) {
                                 $query = "INSERT INTO ".$wgDBprefix."user_page_views(user_id, page_id, hits, last)";
                                 $query .= " VALUES(".$wgUser->getID().",".$artID.",1,'".wfTimestampNow()."')";
                         }
-                        $db->query($query);
+                        $db->doQuery($query);
                 }
         }
         return true;
@@ -474,12 +474,11 @@ class UserSnoop extends SpecialPage
                 return true;
         }
  
-        static function loadLocalizedName(&$specialPageArray, $code) {
-				// Internationalization file
-				$wgExtensionMessagesFiles['UserSnoop'] = dirname( __FILE__ ) . '/UserSnoop.i18n.php';
-
+        function loadLocalizedName(&$specialPageArray, $code) {
+                self::loadAllMessages();
+ 
                 $text = wfMsg('usersnoop');
-                $title = Title::makeTitle(NS_SPECIAL, $text);
+                $title = Title::newFromText($text);
                 $specialPageArray['UserSnoop'][] = $title->getDBKey();
  
                 return true;
@@ -525,11 +524,9 @@ class UserSnoopPager extends AlphabeticPager
         }
  
         function getBody() {
-                /* doQuery is protected in MW1.18
                 if (!$this->mQueryDone) {
                         $this->doQuery();
                 }
-                */
                 $batch = new LinkBatch;
                 $db = $this->mDb;
  

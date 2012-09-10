@@ -65,13 +65,6 @@ interface IContextSource {
 	public function getLang();
 
 	/**
-	 * Get the Language object
-	 *
-	 * @return Language
-	 */
-	public function getLanguage();
-
-	/**
 	 * Get the Skin object
 	 *
 	 * @return Skin
@@ -241,15 +234,6 @@ class RequestContext implements IContextSource {
 	}
 
 	/**
-	 * Get the Language object
-	 *
-	 * @return Language
-	 */
-	public function getLanguage() {
-		return $this->getLang();
-	}
-
-	/**
 	 * Set the Skin object
 	 *
 	 * @param $s Skin
@@ -391,15 +375,6 @@ abstract class ContextSource implements IContextSource {
 	 * @return Language
 	 */
 	public function getLang() {
-		return $this->getContext()->getLang();
-	}
-
-	/**
-	 * Get the Language object
-	 *
-	 * @return Language
-	 */
-	public function getLanguage() {
 		return $this->getContext()->getLang();
 	}
 

@@ -90,13 +90,10 @@ class StripState {
 
 		wfProfileIn( __METHOD__ );
 		$this->tempType = $type;
-		do {
-			$oldText = $text;
-			$text = preg_replace_callback( $this->regex, array( $this, 'unstripCallback' ), $text );
-		} while ( $text !== $oldText );
+		$out = preg_replace_callback( $this->regex, array( $this, 'unstripCallback' ), $text );
 		$this->tempType = null;
 		wfProfileOut( __METHOD__ );
-		return $text;
+		return $out;
 	}
 
 	/**
