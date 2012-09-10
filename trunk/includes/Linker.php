@@ -893,16 +893,6 @@ class Linker {
 		}
 		$attribs['class'] = $class;
 
-		/**AP20070417
-		* Added support for opening external links as new page
-		* Usage: [http://www.genmapp.org|_new Link]
-		*/
-		$pos = strpos( $url, '|_new' );
-		if ( $pos !== false ) {
-			$url = substr ( $url, 0, $pos );
-			$attribs['style'] = ' target="new"';
-		}
-                
 		if ( $escape ) {
 			$text = htmlspecialchars( $text );
 		}

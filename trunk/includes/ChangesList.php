@@ -279,39 +279,40 @@ class ChangesList extends ContextSource {
 	 * @return void
 	 */
 	public function insertDiffHist( &$s, &$rc, $unpatrolled ) {
-		global $wgLang, $wgContLang;
 		# Diff link
-		if( !$this->userCan($rc,Revision::DELETED_TEXT) ) {
+		if( $rc->mAttribs['rc_type'] == RC_NEW || $rc->mAttribs['rc_type'] == RC_LOG ) {
 			$diffLink = $this->message['diff'];
-		} else if( $rc->mAttribs['rc_type'] == RC_NEW || $rc->mAttribs['rc_type'] == RC_LOG ) {
+		} elseif( !self::userCan($rc,Revision::DELETED_TEXT) ) {
 			$diffLink = $this->message['diff'];
 		} else {
-                        $rcidparam = $unpatrolled
-                              ? array( 'rcid' => $rc->mAttribs['rc_id'] )
-                              : array();
-	                $id = Title::makeTitle( $rc->mAttribs['namespace'], $rc->mAttribs['title'] );
-			$old = $rc->mAttribs['rc_last_oldid'];
-			$new = $rc->mAttribs['rc_this_oldid'];
-			$diffLink = "<a href='" . SITE_URL .
-                                "/index.php?title=Special:DiffAppletPage&old={$old}&new={$new}" .
-                                "&pwTitle={$rc->getTitle()}'>diff</a>";
-			//$diffLink = $this->skin->makeKnownLinkObj( $rc->getTitle(), $this->message['diff'],
-			//	wfArrayToCGI( array(
-			//		'curid' => $rc->mAttribs['rc_cur_id'],
-			//		'diff'  => $rc->mAttribs['rc_this_oldid'],
-			//		'oldid' => $rc->mAttribs['rc_last_oldid'] ),
-			//		$rcidparam ),
-			//	'', '', ' tabindex="'.$rc->counter.'"');
-		}
-		$s .= '('.$diffLink;
+			$query = array(
+				'curid' => $rc->mAttribs['rc_cur_id'],
+				'diff'  => $rc->mAttribs['rc_this_oldid'],
+				'oldid' => $rc->mAttribs['rc_last_oldid']
+			);
 
+			if( $unpatrolled ) {
+				$query['rcid'] = $rc->mAttribs['rc_id'];
+			};
+
+			$diffLink = Linker::linkKnown(
+				$rc->getTitle(),
+				$this->message['diff'],
+				array( 'tabindex' => $rc->counter ),
+				$query
+			);
+		}
+		$s .= '(' . $diffLink . $this->message['pipe-separator'];
 		# History link
-		//AP20090116 - skip making native history link
-		//$s .= ') (';
-		//$s .= $this->skin->makeKnownLinkObj( $rc->getTitle(), $this->message['hist'],
-		//	wfArrayToCGI( array(
-		//		'curid' => $rc->mAttribs['rc_cur_id'],
-		//		'action' => 'history' ) ) );
+		$s .= Linker::linkKnown(
+			$rc->getTitle(),
+			$this->message['hist'],
+			array(),
+			array(
+				'curid' => $rc->mAttribs['rc_cur_id'],
+				'action' => 'history'
+			)
+		);
 		$s .= ') . . ';
 	}
 
@@ -325,34 +326,39 @@ class ChangesList extends ContextSource {
 	public function insertArticleLink( &$s, &$rc, $unpatrolled, $watched ) {
 		# If it's a new article, there is no diff link, but if it hasn't been
 		# patrolled yet, we need to give users a way to do so
-		if ($rc->getTitle()->getNamespace() == NS_PATHWAY){ 
-			$pathway = Pathway::newFromTitle($rc->getTitle());
-			if(!$pathway->isReadable()) { //Keep private pathway names obscured
-				$title = $rc->getTitle();
-			} else {
-                		$title = Title::makeTitle( $rc->getTitle()->getNsText(), $pathway->getSpecies().":".$pathway->getName() );
-			}
-		} else {
-			$title = '';
+		$params = array();
+
+		if ( $unpatrolled && $rc->mAttribs['rc_type'] == RC_NEW ) {
+			$params['rcid'] = $rc->mAttribs['rc_id'];
 		}
-		$params = ( $unpatrolled && $rc->mAttribs['rc_type'] == RC_NEW )
-			? 'rcid='.$rc->mAttribs['rc_id']
-			: '';
+
 		if( $this->isDeleted($rc,Revision::DELETED_TEXT) ) {
-			$articlelink = $this->skin->makeKnownLinkObj( $rc->getTitle(), $title, $params );
-			$articlelink = '<span class="history-deleted">'.$articlelink.'</span>';
+			$articlelink = Linker::linkKnown(
+				$rc->getTitle(),
+				null,
+				array(),
+				$params
+			);
+			$articlelink = '<span class="history-deleted">' . $articlelink . '</span>';
 		} else {
-		    $articlelink = ' '. $this->skin->makeKnownLinkObj( $rc->getTitle(), $title, $params );
+			$articlelink = ' '. Linker::linkKnown(
+				$rc->getTitle(),
+				null,
+				array(),
+				$params
+			);
 		}
-		if( $watched )
+		# Bolden pages watched by this user
+		if( $watched ) {
 			$articlelink = "<strong class=\"mw-watched\">{$articlelink}</strong>";
-		global $wgContLang;
-		$articlelink .= $wgContLang->getDirMark();
+		}
+		# RTL/LTR marker
+		$articlelink .= $this->getLang()->getDirMark();
 
-		wfRunHooks('ChangesListInsertArticleLink',
-			array(&$this, &$articlelink, &$s, &$rc, $unpatrolled, $watched));
+		wfRunHooks( 'ChangesListInsertArticleLink',
+			array(&$this, &$articlelink, &$s, &$rc, $unpatrolled, $watched) );
 
-		$s .= ' '.$articlelink;
+		$s .= " $articlelink";
 	}
 
 	/**

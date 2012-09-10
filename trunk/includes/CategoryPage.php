@@ -251,10 +251,7 @@ class CategoryViewer {
 	*/
 	function getSubcategorySortChar( $title, $sortkey ) {
 		global $wgContLang;
-		/** AP20070502 */
-		$trim_title = ltrim(strstr($title->getBaseText(), ':'), ':');
-		$firstChar = $wgContLang->firstChar( $trim_title );
-		/*
+
 		if ( $title->getPrefixedText() == $sortkey ) {
 			$word = $title->getDBkey();
 		} else {
@@ -262,7 +259,7 @@ class CategoryViewer {
 		}
 
 		$firstChar = $this->collation->getFirstLetter( $word );
-		*/
+
 		return $wgContLang->convert( $firstChar );
 	}
 
@@ -298,9 +295,6 @@ class CategoryViewer {
 	function addPage( $title, $sortkey, $pageLength, $isRedirect = false ) {
 		global $wgContLang;
 
-		/** AP20070502 */
-		$trim_title = ltrim(strstr($title->getBaseText(), ':'), ':');
-		
 		$link = Linker::link( $title );
 		if ( $isRedirect ) {
 			// This seems kind of pointless given 'mw-redirect' class,
@@ -310,7 +304,7 @@ class CategoryViewer {
 		$this->articles[] = $link;
 
 		$this->articles_start_char[] = $wgContLang->convert( 
-			$this->collation->getFirstLetter( $trimTitle ) );
+			$this->collation->getFirstLetter( $sortkey ) );
 	}
 
 	function finaliseCategoryState() {
@@ -585,54 +579,6 @@ class CategoryViewer {
 		return $ret;
 	}
 
-        /** AP20070821
-         * Format a list of articles chunked in a three-column
-         * list, ordered vertically, WITHOUT HEADERS.
-         *
-         * @param array $articles
-         * @return string
-         * @private
-         */
-        function columnListSimple( $articles) {
-                // divide list into three equal chunks
-                $chunk = (int) (count ( $articles ) / 3);
-
-                // get and display header
-                $r = '<table width="100%"><tr valign="top">';
-
-                // loop through the chunks
-                for($startChunk = 0, $endChunk = $chunk, $chunkIndex = 0;
-                        $chunkIndex < 3;
-                        $chunkIndex++, $startChunk = $endChunk, $endChunk += $chunk + 1)
-                {
-                        $r .= "<td>\n";
-                        $atColumnTop = true;
-
-                        // output all articles in category
-                        for ($index = $startChunk ;
-                                $index < $endChunk && $index < count($articles);
-                                $index++ )
-                        {
-                               if( $atColumnTop ) {
-                                       $atColumnTop = false;
-                                } else {
-                                       $r .= "</ul>\n";
-                                }
-                                $r .= "<ul>";
-                                $r .= "<li>{$articles[$index]}</li>";
-                        }
-                        if( !$atColumnTop ) {
-                                $r .= "</ul>\n";
-                        }
-                        $r .= "</td>\n";
-
-
-                }
-                $r .= '</tr></table>';
-                return $r;
-        }
-
-
 	/**
 	 * Format a list of articles chunked by letter in a bullet list.
 	 * @param $articles Array
@@ -653,23 +599,6 @@ class CategoryViewer {
 		$r .= '</ul>';
 		return $r;
 	}
-
-        /** AP20070822
-         * Format a list of articles in a bullet list, WITHOUT HEADERS.
-         * @param array $articles
-         * @return string
-         * @private
-         */
-        function shortListSimple( $articles ) {
-                $r = '<ul><li>'.$articles[0].'</li>';
-                for ($index = 1; $index < count($articles); $index++ )
-                {
-                        $r .= "<li>{$articles[$index]}</li>";
-                }
-                $r .= '</ul>';
-                return $r;
-        }
-
 
 	/**
 	 * Create paging links, as a helper method to getSectionPagingLinks().

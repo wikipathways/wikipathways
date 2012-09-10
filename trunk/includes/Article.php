@@ -1584,10 +1584,6 @@ class Article extends Page {
 				$extraParams,
 				array( 'known', 'noclasses' )
 			);
-		$curdiff = "<a href='" . SITE_URL .
-			"/index.php?title=Special:DiffAppletPage&old={$oldid}&new={$this->mLatest}" .
-			"&pwTitle={$this->mTitle}'>diff</a>";
-		/*
 		$curdiff = $current
 			? wfMsgHtml( 'diff' )
 			: Linker::link(
@@ -1600,7 +1596,6 @@ class Article extends Page {
 				) + $extraParams,
 				array( 'known', 'noclasses' )
 			);
-		*/
 		$prev = $this->getTitle()->getPreviousRevisionID( $oldid ) ;
 		$prevlink = $prev
 			? Linker::link(
@@ -1614,10 +1609,6 @@ class Article extends Page {
 				array( 'known', 'noclasses' )
 			)
 			: wfMsgHtml( 'previousrevision' );
-		$prevdiff = "<a href='" . SITE_URL .
-			"/index.php?title=Special:DiffAppletPage&old={$oldid}&new={$prev}" .
-			"&pwTitle={$this->mTitle}'>diff</a>";
-		/*
 		$prevdiff = $prev
 			? Linker::link(
 				$this->getTitle(),
@@ -1630,7 +1621,6 @@ class Article extends Page {
 				array( 'known', 'noclasses' )
 			)
 			: wfMsgHtml( 'diff' );
-		*/
 		$nextlink = $current
 			? wfMsgHtml( 'nextrevision' )
 			: Linker::link(
@@ -1643,10 +1633,6 @@ class Article extends Page {
 				) + $extraParams,
 				array( 'known', 'noclasses' )
 			);
-		$nextdiff = "<a href='" . SITE_URL .
-			"/index.php?title=Special:DiffAppletPage&old={$oldid}&new={$next}" .
-			"&pwTitle={$this->mTitle}'>diff</a>";
-		/*
 		$nextdiff = $current
 			? wfMsgHtml( 'diff' )
 			: Linker::link(
@@ -1659,7 +1645,6 @@ class Article extends Page {
 				) + $extraParams,
 				array( 'known', 'noclasses' )
 			);
-		*/
 
 		$cdel = '';
 

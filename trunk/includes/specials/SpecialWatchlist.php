@@ -269,14 +269,9 @@ class SpecialWatchlist extends SpecialPage {
 
 		$tables = array( 'recentchanges', 'watchlist' );
 		$fields = array( $dbr->tableName( 'recentchanges' ) . '.*' );
-		##TK WP CHANGE: extra join condition, no redirects
-		#$join_conds = array(
-		#	'watchlist' => array('INNER JOIN',"wl_user='{$user->getId()}' AND wl_namespace=rc_namespace AND wl_title=rc_title"),
-		#);
 		$join_conds = array(
-			'watchlist' => array('INNER JOIN',"wl_user='{$user->getId()}' AND wl_namespace=rc_namespace AND wl_title=rc_title AND page_is_redirect = 0"),
+			'watchlist' => array('INNER JOIN',"wl_user='{$user->getId()}' AND wl_namespace=rc_namespace AND wl_title=rc_title"),
 		);
-		##TK END WP CHANGE
 		$options = array( 'ORDER BY' => 'rc_timestamp DESC' );
 		if( $wgShowUpdatedMarker ) {
 			$fields[] = 'wl_notificationtimestamp';

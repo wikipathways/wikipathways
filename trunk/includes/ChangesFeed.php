@@ -178,10 +178,7 @@ class ChangesFeed {
 
 			$item = new FeedItem(
 				$title->getPrefixedText(),
-				##TK WP CHANGE: Do not format diff, this will take very long with gpml changes...
-				//FeedUtils::formatDiff( $obj ),
-				$obj->rc_comment,
-				##END WP CHANGE
+				FeedUtils::formatDiff( $obj ),
 				$url,
 				$obj->rc_timestamp,
 				($obj->rc_deleted & Revision::DELETED_USER) ? wfMsgHtml('rev-deleted-user') : $obj->rc_user_text,

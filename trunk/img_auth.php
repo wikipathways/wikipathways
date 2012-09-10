@@ -77,24 +77,8 @@ if( !file_exists( $filename ) )
 if( is_dir( $filename ) )
 	wfForbidden('img-auth-accessdenied','img-auth-isdir',$filename);
 
-//Check for pathway cache
-$id = Pathway::parseIdentifier($name);
-if($id) {
-	//Check pathway permissions
-	$pwTitle = Title::newFromText($id, NS_PATHWAY);
-	if(!$pwTitle->userCan('read')) {
-		wfDebugLog( 'img_auth', "User not permitted to view pathway $id" );
-		wfForbidden();
-	}
-}
 
 $title = Title::makeTitleSafe( NS_FILE, $name );
-
-//Check read permissions
-if(!$title->userCan('read')) {
-	wfDebugLog( 'img_auth', "User not permitted to view page {$title->getFullText()}" );
-	wfForbidden();
-}
 
 // See if could create the title object
 if( !$title instanceof Title )

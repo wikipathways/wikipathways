@@ -152,10 +152,7 @@ class SpecialContributions extends SpecialPage {
 		$this->addFeedLinks( array( 'action' => 'feedcontributions', 'user' => $target ) );
 
 		if ( wfRunHooks( 'SpecialContributionsBeforeMainOutput', array( $id ) ) ) {
-			
-			//TK: add new hook that allows us to add content right after the form
-			wfRunHooks( 'SpecialContributionsAfterForm', $id);
-			
+
 			$wgOut->addHTML( $this->getForm() );
 
 			$pager = new ContribsPager( array(
@@ -569,7 +566,6 @@ class ContribsPager extends ReverseChronologicalPager {
 		$classes = array();
 
 		$page = Title::newFromRow( $row );
-		
 		$link = $sk->link(
 			$page,
 			htmlspecialchars( $page->getPrefixedText() ),
@@ -664,10 +660,7 @@ class ContribsPager extends ReverseChronologicalPager {
 		}
 
 		$diffHistLinks = '(' . $difftext . $this->messages['pipe-separator'] . $histlink . ')';
-
-		//AP20090116 - skip making native history and diff links
-		#$ret = "{$del}{$d} {$diffHistLinks} {$nflag}{$mflag} {$link}{$userlink} {$comment} {$topmarktext}";
-		$ret = "{$d} {$nflag}{$mflag} {$link}{$userlink}{$comment} {$topmarktext}";
+		$ret = "{$del}{$d} {$diffHistLinks} {$nflag}{$mflag} {$link}{$userlink} {$comment} {$topmarktext}";
 
 		# Denote if username is redacted for this edit
 		if( $rev->isDeleted( Revision::DELETED_USER ) ) {
