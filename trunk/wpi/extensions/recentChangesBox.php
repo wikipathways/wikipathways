@@ -117,7 +117,7 @@ class RecentChangesBox {
 	private function formatRow($row) {
 		$user = User::newFromId($row->rc_user);
 		
-		if($user->isAllowed("bot")) {
+		if($user->isBot()) {
 			return ''; //Skip bots
 		}
 		

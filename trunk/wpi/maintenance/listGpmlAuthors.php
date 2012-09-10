@@ -35,7 +35,7 @@ foreach(Pathway::getAllPathways() as $pathway) {
 	if($fstUserName == $username) continue;
 	//Filter out entries that were not created by either
 	//a bot or anonymous user
-	if($fstUser && !($fstUser->isAnon() || $fstUser->isAllowed("bot"))) continue;
+	if($fstUser && !($fstUser->isAnon() || $fstUser->isBot())) continue;
 
 	echo "<TR><TH><A href='{$pathway->getFullUrl()}'>{$pathway->name()}</A><TD>$author<TD>$username<TD>$fstUserName";
 }

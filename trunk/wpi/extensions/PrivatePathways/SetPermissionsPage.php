@@ -51,7 +51,7 @@ class SetPermissionsPage {
 					if(!in_array($author, $userIds)) {
 						//Author is not in the allowed user list
 						$authorUser = User::newFromId($author);
-						if($authorUser->isAllowed("bot") || $authorUser->isAnon()) continue;
+						if($authorUser->isBot() || $authorUser->isAnon()) continue;
 						
 						$name = $authorUser->getName();
 						$this->warn("You can't remove author {$name} from list of allowed users.");
@@ -136,7 +136,7 @@ class SetPermissionsPage {
 			$users[$wgUser->getName()] = $wgUser->getName();
 			foreach(MwUtils::getAuthors($this->title->getArticleId()) as $author) {
 				$u = User::newFromId($author);
-				if(!$u->isAllowed("bot") && !$u->isAnon()) {
+				if(!$u->isBot() && !$u->isAnon()) {
 					$users[$u->getName()] = $u->getName();
 				}
 			}

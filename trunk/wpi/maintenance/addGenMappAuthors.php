@@ -57,7 +57,7 @@ foreach(Pathway::getAllPathways() as $pathway) {
 	println("* Processing " . $pathway->name() . " | " . $pathway->species());
 	$rev = $pathway->getFirstRevision();
 	$first_user = User::newFromId($rev->getUser());
-	if(!$first_user || $first_user->isAnon() || $first_user->isAllowed("bot")) {
+	if(!$first_user || $first_user->isAnon() || $first_user->isBot()) {
 		println("\tFirst revision user is bot/anonymous");
 		//Get the GPML author
 		$pd = $pathway->getPathwayData();

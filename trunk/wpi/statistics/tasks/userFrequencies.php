@@ -11,7 +11,7 @@ class UserFrequencies {
 		$editCounts = array();
 		foreach($users as $u) {
 			$mwu = User::newFromId($u->getId());
-			if($mwu->isAllowed("bot")) continue; //Skip bots
+			if($mwu->isBot()) continue; //Skip bots
 				
 			$all = $u->getPageEdits();
 			$edits = array_diff($all, $exclude);

@@ -57,7 +57,7 @@ function historyLine($pathway, $row, $nr, $counter = '', $cur = false, $firstInL
 	
 	$user = User::newFromId($rev->getUser());
 	/* Show bots
-	if($user->isAllowed("bot")) {
+	if($user->isBot()) {
 		//Ignore bots
 		return "";
 	}

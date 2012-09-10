@@ -49,7 +49,7 @@ PATHWAYS;
 			if(count($edits) == 0) $uInactive += 1;
 			
 			$mwu = User::newFromId($u->getId());
-			if($mwu->isAllowed("bot")) {
+			if($mwu->isBot()) {
 				$eTotalBots += count($edits);
 			} else {
 				$eTotal += count($edits);
