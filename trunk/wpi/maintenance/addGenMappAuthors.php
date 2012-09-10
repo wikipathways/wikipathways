@@ -91,7 +91,7 @@ foreach(Pathway::getAllPathways() as $pathway) {
 
 function addAuthor($pathway, $gma) {
 	$dbw =& wfGetDB(DB_MASTER);
-	$dbw->begin();
+	$dbw->immediateBegin();
 	
 	println("\tAdding author " . $gma->real_name);
 
@@ -117,12 +117,12 @@ function addAuthor($pathway, $gma) {
 		"rev_minor_edit, rev_deleted, rev_len, rev_parent_id " .
 		"FROM revision WHERE rev_id = $rev";
 	$dbw->query($query);
-	$dbw->commit();
+	$dbw->immediateCommit();
 }
 
 function addFirstAuthor($pathway, $gma) {
 	$dbw =& wfGetDB(DB_MASTER);
-	$dbw->begin();
+	$dbw->immediateBegin();
 	
 	println("\tAdding first author " . $gma->real_name);
 	//Replace user id in first revision
@@ -136,7 +136,7 @@ function addFirstAuthor($pathway, $gma) {
 		" WHERE rev_id = " . $rev
 	);
 	
-	$dbw->commit();
+	$dbw->immediateCommit();
 }
 
 class GMAuthor {

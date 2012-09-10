@@ -217,7 +217,7 @@ class MetaTag {
 	
 	private function doRemove() {
 		$dbw =& wfGetDB(DB_MASTER);
-		$dbw->begin();
+		$dbw->immediateBegin();
 
 		if($this->exists) {
 			$this->updateTimeStamps();
@@ -231,13 +231,13 @@ class MetaTag {
 			$this->writeHistory(self::$ACTION_REMOVE);
 		}
 		
-		$dbw->commit();
+		$dbw->immediateCommit();
 		$this->exists = false;
 	}
 	
 	private function doWriteToDB() {
 		$dbw =& wfGetDB(DB_MASTER);
-		$dbw->begin();
+		$dbw->immediateBegin();
 
 		$this->updateTimeStamps();
 		$this->updateUsers();
@@ -256,7 +256,7 @@ class MetaTag {
 				array('tag_name' => $this->name, 'page_id' => $this->page_id)
 			);
 			
-			$dbw->commit();
+			$dbw->immediateCommit();
 			
 			$this->writeHistory(self::$ACTION_UPDATE);
 		} else {
@@ -270,7 +270,7 @@ class MetaTag {
 			);
 			
 			$this->exists = true;
-			$dbw->commit();
+			$dbw->immediateCommit();
 			
 			$this->writeHistory(self::$ACTION_CREATE);
 		}
@@ -282,7 +282,7 @@ class MetaTag {
 		if(!$this->storeHistory) return;
 		
 		$dbw =& wfGetDB(DB_MASTER);
-		$dbw->begin();
+		$dbw->immediateBegin();
 
 		$dbw->insert(
 			self::$TAG_HISTORY_TABLE,
@@ -296,7 +296,7 @@ class MetaTag {
 			)
 		);
 		
-		$dbw->commit();
+		$dbw->immediateCommit();
 	}
 	
 	private function updateUsers() {

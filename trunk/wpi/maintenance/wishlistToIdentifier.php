@@ -36,11 +36,11 @@ foreach($wishTitles as $wishTitle) {
 			$txt_id = $rev->getTextID();
 			
 			$dbw =& wfGetDB( DB_MASTER );
-			$dbw->begin();
+			$dbw->immediateBegin();
 			$sql = "UPDATE text SET old_text='$txt' WHERE old_id = $txt_id";
 			$dbw->query($sql);
 			
-			$dbw->commit();
+			$dbw->immediateCommit();
 		}
 	}
 }
