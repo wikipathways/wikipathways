@@ -1,7 +1,7 @@
 <?php
 require_once('wpi/wpi.php');
 require_once('Pager.php');
-require_once('HistoryPage.php');
+require_once('PageHistory.php');
 
 
 $wgExtensionFunctions[] = "wfPathwayHistory";

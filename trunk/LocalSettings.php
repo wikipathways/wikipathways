@@ -284,7 +284,7 @@ require_once('wpi/extensions/siteStats.php');
 require_once('wpi/extensions/pathwayInfo.php');
 require_once('wpi/extensions/imageSize.php');
 require_once('wpi/extensions/magicWords.php');
-require_once('extensions/EmbedVideo/EmbedVideo.php');
+require_once('extensions/EmbedVideo.php');
 require_once('wpi/extensions/PopularPathwaysPage2/PopularPathwaysPage.php');
 require_once('wpi/extensions/MostEditedPathwaysPage/MostEditedPathwaysPage.php');
 require_once('wpi/extensions/NewPathwaysPage/NewPathwaysPage.php');
