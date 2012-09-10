@@ -343,7 +343,7 @@ private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName
 				Xref x = pwe.getXref();
 				if(x == null || x.getId() == null || "".equals(x.getId()) || x.getId().matches("^\\s+$")|| x.getDataSource() == null) continue;
 				if(
-						(BioDataSource.PUBCHEM.equals(x.getDataSource()) || BioDataSource.ENTREZ_GENE.equals(x.getDataSource())) 
+						(BioDataSource.PUBCHEM.equals(ds) || BioDataSource.ENTREZ_GENE.equals(ds)) 
 						&& !x.getId().matches("^[1-9]{1}[0-9]*$")) continue; //Also check for sanity of Entrez identifiers
 				for(IDMapper idm : idms) for(Xref xx : idm.mapID(x, ds)) xrefs.put(xx, pwe);
 				if(ds.equals(x.getDataSource())) xrefs.put(x, pwe);
