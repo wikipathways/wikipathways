@@ -1,13 +1,9 @@
 <?php
-/** Megleno-Romanian (Latin script) (Vlăheşte)
- *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
+/** Megleno-Romanian (Latin) (Vlăheşte (Latin))
  *
  * @ingroup Language
  * @file
  *
- * @author Andrijko Z.
  * @author Кумулај Маркус
  * @author Макѕе
  * @author Приетен тев
@@ -155,6 +151,8 @@ $messages = array(
 'extlink_tip'     => 'Legătul ķsternul (vec prefiks http://)',
 'headline_sample' => "Eskrire s'titlus",
 'headline_tip'    => 'Titlu de nivel 2',
+'math_sample'     => 'Introduca formula isi',
+'math_tip'        => "Formula s'matematiks (LaTeX)",
 'nowiki_sample'   => 'Intorduca no-Wiki isi',
 'nowiki_tip'      => 'No-Wiki klaşu',
 'image_tip'       => 'Santigul inserat',
@@ -163,8 +161,8 @@ $messages = array(
 'hr_tip'          => 'Linia orizontala (esnidivale)',
 
 # Edit pages
-'summary'                => 'Sumar:',
-'subject'                => 'Subjekt / titlur:',
+'summary'                => 'Sumar',
+'subject'                => 'Subjekt / titlur',
 'minoredit'              => 'Aceasta este o editare minoră',
 'watchthis'              => 'klăaere ce pažu',
 'showpreview'            => 'Rată previzualizare',
@@ -172,8 +170,8 @@ $messages = array(
 'newarticle'             => '(Nova)',
 'editing'                => 'o $1 editaere',
 'editingsection'         => 'Editaere $1 (sekcion)',
-'copyrightwarning'       => "<!-- Gol deocamdată. Vertismentul se flă en MediaWiki:Summary -->
-Te rog notari la din kontribuţi al {{SITENAME}} sunt konsideraere relesavat supra $2 (suah $1 din detăs). Açteu nesav te se teksti sunt editaere denomerci det redistributaere din vent, hatae ici.<br /> Tu este nostre promisaere bonti us tu skrirste ce se, nega kopiaere din publik domen nega similari resorsua. '''NE SUBMITE KOPILEGRU SKRIE SAS PERMIŢION!'''",
+'copyrightwarning'       => '<!-- Gol deocamdată. Vertismentul se flă en MediaWiki:Summary -->
+Te rog notari la din kontribuţi al {{SITENAME}} sunt konsideraere relesavat supra $2 (suah $1 din detăs). Açteu nesav te se teksti sunt editaere denomerci det redistributaere din vent, hatae ici.<br /> Tu este nostre promisaere bonti us tu skrirste ce se, nega kopiaere din publik domen nega similari resorsua. <strong>NE SUBMITE KOPILEGRU SKRIE SAS PERMIŢION!</strong>',
 'template-protected'     => '(ažatmat)',
 'template-semiprotected' => '(semi-ažatmat)',
 
@@ -191,16 +189,16 @@ Te rog notari la din kontribuţi al {{SITENAME}} sunt konsideraere relesavat sup
 'editundo'                => 'anulizăe',
 
 # Search results
-'viewprevnext'   => 'Vu ($1 {{int:pipe-separator}} $2) ($3)',
-'searchhelp-url' => 'Help:Ajutor',
-'powersearch'    => 'kaută avansata',
+'noexactmatch' => "'''N'pažu vec l'nom \"\$1\" n'ķsistst.''' Pute [[:\$1|kreare ce pažu]].",
+'viewprevnext' => 'Vu ($1) ($2) ($3)',
+'powersearch'  => 'kaută avansata',
 
 # Preferences page
 'mypreferences' => 'Maj prefirenţu',
 
 # Recent changes
 'recentchanges'   => 'şumbărae recentae',
-'rcnote'          => "Mai hos se flă {{PLURAL:$|ultima modifikare|ultimele '''$1''' modifikări}} din {{PLURAL:$2|ultima zi|ultimele '''$2''' zile}}, encepând cu $5, $4.",
+'rcnote'          => "Mai hos se flă {{PLURAL:$|ultima modifikare|ultimele '''$1''' modifikări}} din {{PLURAL:$2|ultima zi|ultimele '''$2''' zile}}, encepând cu $3.",
 'rcshowhideminor' => '$1 modifikările minore',
 'rcshowhidebots'  => '$1 roboti',
 'rcshowhideliu'   => '$1 utilizatori prilasnaeri',
@@ -217,23 +215,20 @@ $3',
 'boteditletter'   => 'b',
 
 # Recent changes linked
-'recentchangeslinked'         => 'Modifikări korelate',
-'recentchangeslinked-feed'    => 'Modifikări korelate',
-'recentchangeslinked-toolbox' => 'Modifikări korelate',
+'recentchangeslinked' => 'Modifikări korelate',
 
 # Upload
 'upload' => 'trimiţe fişirul',
 
-# File description page
-'file-anchor-link'    => 'Fişirul',
+# Image description page
 'filehist'            => 'Historia fişirulu',
 'filehist-current'    => 'kurentu',
 'filehist-datetime'   => 'Data/Temp',
 'filehist-user'       => 'Utilizatoru',
 'filehist-dimensions' => 'Dimencions',
 'filehist-comment'    => 'komentarul',
-'imagelinks'          => 'Legătul fişirul de media',
-'linkstoimage'        => 'Ces {{PLURAL:$1|paži legǎt|paži legǎtent}} a ce fişirul:',
+'imagelinks'          => 'legătul',
+'linkstoimage'        => 'Ces paži legǎtent a ce fişirul:',
 
 # Random page
 'randompage' => 'alaeţu',
@@ -253,20 +248,19 @@ $3',
 'allpagessubmit' => 'Treme',
 
 # Watchlist
-'watchlist'   => 'Maj klăaeru',
-'mywatchlist' => 'Maj klăaere',
-'watch'       => 'klăaere',
-'unwatch'     => 'Deklăaera',
+'watchlist'    => 'Maj klăaeru',
+'mywatchlist'  => 'Maj klăaere',
+'watchlistfor' => "(pentru '''$1''')",
+'watch'        => 'klăaere',
+'unwatch'      => 'Deklăaera',
 
 # Displayed when you click the "watch" button and it is in the process of watching
 'watching'   => 'O klăaere...',
 'unwatching' => 'O deklăaere...',
 
-# Delete
+# Delete/protect/revert
 'deletedarticle' => 'delǎraj "[[$1]]"',
-
-# Rollback
-'rollbacklink' => 'revenire',
+'rollbacklink'   => 'revenire',
 
 # Namespace form on various pages
 'namespace'      => 'lSpaţi:',
@@ -279,11 +273,10 @@ $3',
 'contribsub2'   => 'Pentru $1 ($2)',
 'uctop'         => '(susverf)',
 
-'sp-contributions-talk' => 'Diskuţu',
-
 # What links here
 'whatlinkshere'       => 'Legǎtul a ce pažu',
 'whatlinkshere-title' => 'Paži legǎtulent a $1',
+'linklistsub'         => '(Lista de legătul)',
 'nolinkshere'         => "Paži ne legǎtent a '''[[:$1]]'''.",
 'istemplate'          => 'vikulabe',
 'whatlinkshere-links' => '← legătuls',

@@ -8,16 +8,22 @@ REPLACE INTO /*$wgDBprefix*/interwiki (iw_prefix,iw_url,iw_local) VALUES
 ('arxiv','http://www.arxiv.org/abs/$1',0),
 ('c2find','http://c2.com/cgi/wiki?FindPage&value=$1',0),
 ('cache','http://www.google.com/search?q=cache:$1',0),
+('codersbase','http://www.codersbase.com/index.php/$1',0), # 2008-02-27: Fatal error
 ('commons','http://commons.wikimedia.org/wiki/$1',0),
 ('corpknowpedia','http://corpknowpedia.org/wiki/index.php/$1',0),
 ('dictionary','http://www.dict.org/bin/Dict?Database=*&Form=Dict1&Strategy=*&Query=$1',0),
 ('disinfopedia','http://www.disinfopedia.org/wiki.phtml?title=$1',0),
 ('docbook','http://wiki.docbook.org/topic/$1',0),
-('doi','http://dx.doi.org/$1',0),
 ('drumcorpswiki','http://www.drumcorpswiki.com/index.php/$1',0),
 ('dwjwiki','http://www.suberic.net/cgi-bin/dwj/wiki.cgi?$1',0),
+('efnetceewiki','http://purl.net/wiki/c/$1',0), # 2008-02-27: does not appear to be working
+('efnetcppwiki','http://purl.net/wiki/cpp/$1',0), # 2008-02-27: does not appear to be working
+('efnetpythonwiki','http://purl.net/wiki/python/$1',0), # 2008-02-27: does not appear to be working
+('efnetxmlwiki','http://purl.net/wiki/xml/$1',0), # 2008-02-27: does not appear to be working
+('eljwiki','http://elj.sourceforge.net/phpwiki/index.php/$1',0), # 2008-02-27: Fatal PhpWiki Error
 ('emacswiki','http://www.emacswiki.org/cgi-bin/wiki.pl?$1',0),
 ('elibre','http://enciclopedia.us.es/index.php/$1',0),
+('eokulturcentro','http://esperanto.toulouse.free.fr/wakka.php?wiki=$1',0), # 2007-02-27: no access to database
 ('foldoc','http://foldoc.org/?$1',0),
 ('foxwiki','http://fox.wikis.com/wc.dll?Wiki~$1',0),
 ('freebsdman','http://www.FreeBSD.org/cgi/man.cgi?apropos=1&query=$1',0),
@@ -25,10 +31,12 @@ REPLACE INTO /*$wgDBprefix*/interwiki (iw_prefix,iw_url,iw_local) VALUES
 ('gentoo-wiki','http://gentoo-wiki.com/$1',0),
 ('google','http://www.google.com/search?q=$1',0),
 ('googlegroups','http://groups.google.com/groups?q=$1',0),
+('gotamac','http://www.got-a-mac.org/$1',0), # 2008-02-27: appears ill maintained; loads of spambots
 ('hammondwiki','http://www.dairiki.org/HammondWiki/$1',0),
 ('hewikisource','http://he.wikisource.org/wiki/$1',1),
 ('hrwiki','http://www.hrwiki.org/index.php/$1',0),
 ('imdb','http://us.imdb.com/Title?$1',0),
+('infosecpedia','http://www.infosecpedia.org/pedia/index.php/$1',0), # 2008-02-27: lot of spambot activity
 ('jargonfile','http://sunir.org/apps/meta.pl?wiki=JargonFile&redirect=$1',0),
 ('jspwiki','http://www.jspwiki.org/wiki/$1',0),
 ('keiki','http://kei.ki/en/$1',0),
@@ -39,17 +47,17 @@ REPLACE INTO /*$wgDBprefix*/interwiki (iw_prefix,iw_url,iw_local) VALUES
 ('lugkr','http://lug-kr.sourceforge.net/cgi-bin/lugwiki.pl?$1',0),
 ('mathsongswiki','http://SeedWiki.com/page.cfm?wikiid=237&doc=$1',0),
 ('meatball','http://www.usemod.com/cgi-bin/mb.pl?$1',0),
-('mediazilla','https://bugzilla.wikimedia.org/$1',1),
+('mediazilla','http://bugzilla.wikipedia.org/$1',1),
 ('mediawikiwiki','http://www.mediawiki.org/wiki/$1',0),
 ('memoryalpha','http://www.memory-alpha.org/en/index.php/$1',0),
 ('metawiki','http://sunir.org/apps/meta.pl?$1',0),
 ('metawikipedia','http://meta.wikimedia.org/wiki/$1',0),
 ('moinmoin','http://purl.net/wiki/moin/$1',0),
 ('mozillawiki','http://wiki.mozilla.org/index.php/$1',0),
-('mw','http://www.mediawiki.org/wiki/$1',0),
 ('oeis','http://www.research.att.com/cgi-bin/access.cgi/as/njas/sequences/eisA.cgi?Anum=$1',0),
 ('openfacts','http://openfacts.berlios.de/index.phtml?title=$1',0),
 ('openwiki','http://openwiki.com/?$1',0),
+('orgpatterns','http://www.bell-labs.com/cgi-user/OrgPatterns/OrgPatterns?$1',0), # 2008-02-27: may not be working. Please double check
 ('patwiki','http://gauss.ffii.org/$1',0), # 2008-02-27: lots of spambots
 ('pmeg','http://www.bertilow.com/pmeg/$1.php',0),
 ('ppr','http://c2.com/cgi/wiki?$1',0),
@@ -80,20 +88,19 @@ REPLACE INTO /*$wgDBprefix*/interwiki (iw_prefix,iw_url,iw_local) VALUES
 ('wiki','http://c2.com/cgi/wiki?$1',0),
 ('wikia','http://www.wikia.com/wiki/$1',0),
 ('wikibooks','http://en.wikibooks.org/wiki/$1',1),
-('wikicities','http://www.wikia.com/wiki/$1',0),
+('wikicities','http://www.wikicities.com/index.php/$1',0),
 ('wikif1','http://www.wikif1.org/$1',0),
 ('wikihow','http://www.wikihow.com/$1',0),
 ('wikinfo','http://www.wikinfo.org/index.php/$1',0),
 ('wikimedia','http://wikimediafoundation.org/wiki/$1',0),
-('wikinews','http://en.wikinews.org/wiki/$1',1),
 ('wikiquote','http://en.wikiquote.org/wiki/$1',1),
-('wikipedia','http://en.wikipedia.org/wiki/$1',1),
-('wikisource','http://wikisource.org/wiki/$1',1),
-('wikispecies','http://species.wikimedia.org/wiki/$1',1),
+('wikinews','http://en.wikinews.org/wiki/$1',1),
+('wikisource','http://sources.wikipedia.org/wiki/$1',1),
+('wikispecies','http://species.wikipedia.org/wiki/$1',1),
 ('wikitravel','http://wikitravel.org/en/$1',0),
-('wikiversity','http://en.wikiversity.org/wiki/$1',1),
-('wikt','http://en.wiktionary.org/wiki/$1',1),
 ('wiktionary','http://en.wiktionary.org/wiki/$1',1),
+('wikipedia', 'http://en.wikipedia.org/wiki/$1', 1),
 ('wlug','http://www.wlug.org.nz/$1',0),
 ('zwiki','http://zwiki.org/$1',0),
-('zzz wiki','http://wiki.zzz.ee/index.php/$1',0);
+('zzz wiki','http://wiki.zzz.ee/index.php/$1',0),
+('wikt','http://en.wiktionary.org/wiki/$1',1);

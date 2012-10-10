@@ -17,7 +17,7 @@ class FileDeleteForm {
 	/**
 	 * Constructor
 	 *
-	 * @param $file File object we're deleting
+	 * @param File $file File we're deleting
 	 */
 	public function __construct( $file ) {
 		$this->title = $file->getTitle();
@@ -55,7 +55,7 @@ class FileDeleteForm {
 			$this->oldfile = RepoGroup::singleton()->getLocalRepo()->newFromArchiveName( $this->title, $this->oldimage );
 
 		if( !self::haveDeletableFile($this->file, $this->oldfile, $this->oldimage) ) {
-			$wgOut->addHTML( $this->prepareMessage( 'filedelete-nofile' ) );
+			$wgOut->addHtml( $this->prepareMessage( 'filedelete-nofile' ) );
 			$wgOut->addReturnTo( $this->title );
 			return;
 		}
@@ -67,7 +67,7 @@ class FileDeleteForm {
 			$reason = $this->DeleteReasonList;
 			if ( $reason != 'other' && $this->DeleteReason != '') {
 				// Entry from drop down menu + additional comment
-				$reason .= wfMsgForContent( 'colon-separator' ) . $this->DeleteReason;
+				$reason .= ': ' . $this->DeleteReason;
 			} elseif ( $reason == 'other' ) {
 				$reason = $this->DeleteReason;
 			}
@@ -78,7 +78,7 @@ class FileDeleteForm {
 				$wgOut->addWikiText( $status->getWikiText( 'filedeleteerror-short', 'filedeleteerror-long' ) );
 			if( $status->ok ) {
 				$wgOut->setPagetitle( wfMsg( 'actioncomplete' ) );
-				$wgOut->addHTML( $this->prepareMessage( 'filedelete-success' ) );
+				$wgOut->addHtml( $this->prepareMessage( 'filedelete-success' ) );
 				// Return to the main page if we just deleted all versions of the
 				// file, otherwise go back to the description page
 				$wgOut->addReturnTo( $this->oldimage ? $this->title : Title::newMainPage() );
@@ -90,59 +90,31 @@ class FileDeleteForm {
 		$this->showLogEntries();
 	}
 
-	/**
-	 * Really delete the file
-	 *
-	 * @param $title Title object
-	 * @param $file File object
-	 * @param $oldimage String: archive name
-	 * @param $reason String: reason of the deletion
-	 * @param $suppress Boolean: whether to mark all deleted versions as restricted
-	 */
 	public static function doDelete( &$title, &$file, &$oldimage, $reason, $suppress ) {
-		global $wgUser;
 		$article = null;
-		$status = Status::newFatal( 'error' );
-
 		if( $oldimage ) {
 			$status = $file->deleteOld( $oldimage, $reason, $suppress );
 			if( $status->ok ) {
 				// Need to do a log item
 				$log = new LogPage( 'delete' );
 				$logComment = wfMsgForContent( 'deletedrevision', $oldimage );
-				if( trim( $reason ) != '' ) {
-					$logComment .= wfMsgForContent( 'colon-separator' ) . $reason;
-				}
-				$log->addEntry( 'delete', $title, $logComment );
+				if( trim( $reason ) != '' )
+					$logComment .= ": {$reason}";
+					$log->addEntry( 'delete', $title, $logComment );
 			}
 		} else {
-			$id = $title->getArticleID( Title::GAID_FOR_UPDATE );
-			$article = new Article( $title );
-			$dbw = wfGetDB( DB_MASTER );
-			try {
-				// delete the associated article first
-				if( $article->doDeleteArticle( $reason, $suppress, $id, false ) ) {
-					global $wgRequest;
-					if ( $wgRequest->getCheck( 'wpWatch' ) && $wgUser->isLoggedIn() ) {
-						WatchAction::doWatch( $title, $wgUser );
-					} elseif ( $title->userIsWatching() ) {
-						WatchAction::doUnwatch( $title, $wgUser );
-					}
-					$status = $file->delete( $reason, $suppress );
-					if( $status->ok ) {
-						$dbw->commit();
-					} else {
-						$dbw->rollback();
-					}
+			$status = $file->delete( $reason, $suppress );
+			if( $status->ok ) {
+				// Need to delete the associated article
+				$article = new Article( $title );
+				if( wfRunHooks('ArticleDelete', array(&$article, &$wgUser, &$reason)) ) {
+					if( $article->doDeleteArticle( $reason, $suppress ) )
+						wfRunHooks('ArticleDeleteComplete', array(&$article, &$wgUser, $reason));
 				}
-			} catch ( MWException $e ) {
-				// rollback before returning to prevent UI from displaying incorrect "View or restore N deleted edits?"
-				$dbw->rollback();
-				throw $e;
 			}
 		}
-		if( $status->isGood() ) 
-			wfRunHooks('FileDeleteComplete', array( &$file, &$oldimage, &$article, &$wgUser, &$reason));
+		if( $status->isGood() ) wfRunHooks('FileDeleteComplete', array(
+			&$file, &$oldimage, &$article, &$wgUser, &$reason));
 
 		return $status;
 	}
@@ -151,64 +123,46 @@ class FileDeleteForm {
 	 * Show the confirmation form
 	 */
 	private function showForm() {
-		global $wgOut, $wgUser, $wgRequest;
+		global $wgOut, $wgUser, $wgRequest, $wgContLang;
+		$align = $wgContLang->isRtl() ? 'left' : 'right';
 
 		if( $wgUser->isAllowed( 'suppressrevision' ) ) {
-			$suppress = "<tr id=\"wpDeleteSuppressRow\">
-					<td></td>
-					<td class='mw-input'><strong>" .
-						Xml::checkLabel( wfMsg( 'revdelete-suppress' ),
-							'wpSuppress', 'wpSuppress', false, array( 'tabindex' => '3' ) ) .
-					"</strong></td>
-				</tr>";
+			$suppress = "<tr id=\"wpDeleteSuppressRow\" name=\"wpDeleteSuppressRow\"><td></td><td>";
+			$suppress .= Xml::checkLabel( wfMsg( 'revdelete-suppress' ), 'wpSuppress', 'wpSuppress', false, array( 'tabindex' => '2' ) );
+			$suppress .= "</td></tr>";
 		} else {
 			$suppress = '';
 		}
 
-		$checkWatch = $wgUser->getBoolOption( 'watchdeletion' ) || $this->title->userIsWatching();
-		$form = Xml::openElement( 'form', array( 'method' => 'post', 'action' => $this->getAction(),
-			'id' => 'mw-img-deleteconfirm' ) ) .
+		$form = Xml::openElement( 'form', array( 'method' => 'post', 'action' => $this->getAction() ) ) .
 			Xml::openElement( 'fieldset' ) .
 			Xml::element( 'legend', null, wfMsg( 'filedelete-legend' ) ) .
-			Html::hidden( 'wpEditToken', $wgUser->editToken( $this->oldimage ) ) .
+			Xml::hidden( 'wpEditToken', $wgUser->editToken( $this->oldimage ) ) .
 			$this->prepareMessage( 'filedelete-intro' ) .
-			Xml::openElement( 'table', array( 'id' => 'mw-img-deleteconfirm-table' ) ) .
+			Xml::openElement( 'table' ) .
 			"<tr>
-				<td class='mw-label'>" .
+				<td align='$align'>" .
 					Xml::label( wfMsg( 'filedelete-comment' ), 'wpDeleteReasonList' ) .
 				"</td>
-				<td class='mw-input'>" .
+				<td>" .
 					Xml::listDropDown( 'wpDeleteReasonList',
 						wfMsgForContent( 'filedelete-reason-dropdown' ),
 						wfMsgForContent( 'filedelete-reason-otherlist' ), '', 'wpReasonDropDown', 1 ) .
 				"</td>
 			</tr>
 			<tr>
-				<td class='mw-label'>" .
+				<td align='$align'>" .
 					Xml::label( wfMsg( 'filedelete-otherreason' ), 'wpReason' ) .
 				"</td>
-				<td class='mw-input'>" .
-					Xml::input( 'wpReason', 60, $wgRequest->getText( 'wpReason' ),
-						array( 'type' => 'text', 'maxlength' => '255', 'tabindex' => '2', 'id' => 'wpReason' ) ) .
+				<td>" .
+					Xml::input( 'wpReason', 60, $wgRequest->getText( 'wpReason' ), array( 'type' => 'text', 'maxlength' => '255', 'tabindex' => '2', 'id' => 'wpReason' ) ) .
 				"</td>
 			</tr>
-			{$suppress}";
-		if( $wgUser->isLoggedIn() ) {	
-			$form .= "
+			{$suppress}
 			<tr>
 				<td></td>
-				<td class='mw-input'>" .
-					Xml::checkLabel( wfMsg( 'watchthis' ),
-						'wpWatch', 'wpWatch', $checkWatch, array( 'tabindex' => '3' ) ) .
-				"</td>
-			</tr>";
-		}
-		$form .= "
-			<tr>
-				<td></td>
-				<td class='mw-submit'>" .
-					Xml::submitButton( wfMsg( 'filedelete-submit' ),
-						array( 'name' => 'mw-filedelete-submit', 'id' => 'mw-filedelete-submit', 'tabindex' => '4' ) ) .
+				<td>" .
+					Xml::submitButton( wfMsg( 'filedelete-submit' ), array( 'name' => 'mw-filedelete-submit', 'id' => 'mw-filedelete-submit', 'tabindex' => '3' ) ) .
 				"</td>
 			</tr>" .
 			Xml::closeElement( 'table' ) .
@@ -217,17 +171,11 @@ class FileDeleteForm {
 
 			if ( $wgUser->isAllowed( 'editinterface' ) ) {
 				$skin = $wgUser->getSkin();
-				$title = Title::makeTitle( NS_MEDIAWIKI, 'Filedelete-reason-dropdown' );
-				$link = $skin->link(
-					$title,
-					wfMsgHtml( 'filedelete-edit-reasonlist' ),
-					array(),
-					array( 'action' => 'edit' )
-				);
+				$link = $skin->makeLink ( 'MediaWiki:Filedelete-reason-dropdown', wfMsgHtml( 'filedelete-edit-reasonlist' ) );
 				$form .= '<p class="mw-filedelete-editreasons">' . $link . '</p>';
 			}
 
-		$wgOut->addHTML( $form );
+		$wgOut->addHtml( $form );
 	}
 
 	/**
@@ -235,7 +183,7 @@ class FileDeleteForm {
 	 */
 	private function showLogEntries() {
 		global $wgOut;
-		$wgOut->addHTML( '<h2>' . htmlspecialchars( LogPage::logName( 'delete' ) ) . "</h2>\n" );
+		$wgOut->addHtml( '<h2>' . htmlspecialchars( LogPage::logName( 'delete' ) ) . "</h2>\n" );
 		LogEventsList::showLogExtract( $wgOut, 'delete', $this->title->getPrefixedText() );
 	}
 
@@ -244,24 +192,25 @@ class FileDeleteForm {
 	 * showing an appropriate message depending upon whether
 	 * it's a current file or an old version
 	 *
-	 * @param $message String: message base
-	 * @return String
+	 * @param string $message Message base
+	 * @return string
 	 */
 	private function prepareMessage( $message ) {
 		global $wgLang;
 		if( $this->oldimage ) {
+			$url = $this->file->getArchiveUrl( $this->oldimage );
 			return wfMsgExt(
 				"{$message}-old", # To ensure grep will find them: 'filedelete-intro-old', 'filedelete-nofile-old', 'filedelete-success-old'
 				'parse',
-				wfEscapeWikiText( $this->title->getText() ),
+				$this->title->getText(),
 				$wgLang->date( $this->getTimestamp(), true ),
 				$wgLang->time( $this->getTimestamp(), true ),
-				wfExpandUrl( $this->file->getArchiveUrl( $this->oldimage ), PROTO_CURRENT ) );
+				wfExpandUrl( $this->file->getArchiveUrl( $this->oldimage ) ) );
 		} else {
 			return wfMsgExt(
 				$message,
 				'parse',
-				wfEscapeWikiText( $this->title->getText() )
+				$this->title->getText()
 			);
 		}
 	}
@@ -273,16 +222,7 @@ class FileDeleteForm {
 		global $wgOut, $wgUser;
 		$wgOut->setPageTitle( wfMsg( 'filedelete', $this->title->getText() ) );
 		$wgOut->setRobotPolicy( 'noindex,nofollow' );
-		$wgOut->setSubtitle( wfMsg(
-			'filedelete-backlink',
-			$wgUser->getSkin()->link(
-				$this->title,
-				null,
-				array(),
-				array(),
-				array( 'known', 'noclasses' )
-			)
-		) );
+		$wgOut->setSubtitle( wfMsg( 'filedelete-backlink', $wgUser->getSkin()->makeKnownLinkObj( $this->title ) ) );
 	}
 
 	/**
@@ -316,12 +256,10 @@ class FileDeleteForm {
 	 */
 	private function getAction() {
 		$q = array();
-		$q['action'] = 'delete';
-
+		$q[] = 'action=delete';
 		if( $this->oldimage )
-			$q['oldimage'] = $this->oldimage;
-
-		return $this->title->getLocalUrl( $q );
+			$q[] = 'oldimage=' . urlencode( $this->oldimage );
+		return $this->title->getLocalUrl( implode( '&', $q ) );
 	}
 
 	/**
@@ -332,4 +270,5 @@ class FileDeleteForm {
 	private function getTimestamp() {
 		return $this->oldfile->getTimestamp();
 	}
+
 }

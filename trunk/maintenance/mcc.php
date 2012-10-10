@@ -2,58 +2,70 @@
 /**
  * memcached diagnostic tool
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- * http://www.gnu.org/copyleft/gpl.html
- *
  * @file
  * @todo document
  * @ingroup Maintenance
  */
 
 /** */
-require_once( dirname( __FILE__ ) . '/commandLine.inc' );
+require_once( 'commandLine.inc' );
 
-$mcc = new MWMemcached( array( 'persistent' => true/*, 'debug' => true*/ ) );
+$mcc = new memcached( array('persistant' => true/*, 'debug' => true*/) );
 $mcc->set_servers( $wgMemCachedServers );
-# $mcc->set_debug( true );
+#$mcc->set_debug( true );
 
-function mccShowHelp( $command ) {
-	$commandList = array(
-		'get' => 'grabs something',
-		'getsock' => 'lists sockets',
-		'set' => 'changes something',
-		'delete' => 'deletes something',
-		'history' => 'show command line history',
-		'server' => 'show current memcached server',
-		'dumpmcc' => 'shows the whole thing',
-		'exit' => 'exit mcc',
-		'quit' => 'exit mcc',
-		'help' => 'help about a command',
-	);
-	if ( !$command ) {
-		$command = 'fullhelp';
-	}
-	if ( $command === 'fullhelp' ) {
-		$max_cmd_len = max( array_map( 'strlen', array_keys( $commandList ) ) );
-		foreach ( $commandList as $cmd => $desc ) {
-			printf( "%-{$max_cmd_len}s: %s\n", $cmd, $desc );
-		}
-	} elseif ( isset( $commandList[$command] ) ) {
-		print "$command: $commandList[$command]\n";
-	} else {
-		print "$command: command does not exist or no help for it\n";
+function mccShowHelp($command) {
+
+	if(! $command ) { $command = 'fullhelp'; }
+	$onlyone = true;
+
+	switch ( $command ) {
+
+		case 'fullhelp':
+			// will show help for all commands
+			$onlyone = false;
+
+		case 'get':
+			print "get: grabs something\n";
+		if($onlyone) { break; }
+
+		case 'getsock':
+			print "getsock: lists sockets\n";
+		if($onlyone) { break; }
+
+		case 'set':
+			print "set: changes something\n";
+		if($onlyone) { break; }
+
+		case 'delete':
+			print "delete: deletes something\n";
+		if($onlyone) { break; }
+
+		case 'history':
+			print "history: show command line history\n";
+		if($onlyone) { break; }
+
+		case 'server':
+			print "server: show current memcached server\n";
+		if($onlyone) { break; }
+
+		case 'dumpmcc':
+			print "dumpmcc: shows the whole thing\n";
+		if($onlyone) { break; }
+
+		case 'exit':
+		case 'quit':
+			print "exit or quit: exit mcc\n";
+		if($onlyone) { break; }
+
+		case 'help':
+			print "help: help about a command\n";
+		if($onlyone) { break; }
+
+		default:
+			if($onlyone) {
+				print "$command: command does not exist or no help for it\n";
+			}
 	}
 }
 
@@ -62,8 +74,8 @@ do {
 	$showhelp = false;
 	$quit = false;
 
-	$line = Maintenance::readconsole();
-	if ( $line === false ) exit;
+	$line = readconsole( '> ' );
+	if ($line === false) exit;
 
 	$args = explode( ' ', $line );
 	$command = array_shift( $args );
@@ -72,21 +84,17 @@ do {
 	switch ( $command ) {
 		case 'help':
 			// show an help message
-			mccShowHelp( array_shift( $args ) );
+			mccShowHelp(array_shift($args));
 		break;
 
 		case 'get':
-			$sub = '';
-			if ( array_key_exists( 1, $args ) ) {
-				$sub = $args[1];
-			}
-			print "Getting {$args[0]}[$sub]\n";
+			print "Getting {$args[0]}[{$args[1]}]\n";
 			$res = $mcc->get( $args[0] );
 			if ( array_key_exists( 1, $args ) ) {
 				$res = $res[$args[1]];
 			}
 			if ( $res === false ) {
-				# print 'Error: ' . $mcc->error_string() . "\n";
+				#print 'Error: ' . $mcc->error_string() . "\n";
 				print "MemCached error\n";
 			} elseif ( is_string( $res ) ) {
 				print "$res\n";
@@ -102,10 +110,6 @@ do {
 			break;
 
 		case 'server':
-			if ( $mcc->_single_sock !== null ) {
-				print $mcc->_single_sock . "\n";
-				break;
-			}
 			$res = $mcc->get( $args[0] );
 			$hv = $mcc->_hashfunc( $args[0] );
 			for ( $i = 0; $i < 3; $i++ ) {
@@ -122,7 +126,7 @@ do {
 				$value = implode( ' ', $args );
 			}
 			if ( !$mcc->set( $key, $value, 0 ) ) {
-				# print 'Error: ' . $mcc->error_string() . "\n";
+				#print 'Error: ' . $mcc->error_string() . "\n";
 				print "MemCached error\n";
 			}
 			break;
@@ -130,14 +134,14 @@ do {
 		case 'delete':
 			$key = implode( ' ', $args );
 			if ( !$mcc->delete( $key ) ) {
-				# print 'Error: ' . $mcc->error_string() . "\n";
+				#print 'Error: ' . $mcc->error_string() . "\n";
 				print "MemCached error\n";
 			}
 			break;
 
 		case 'history':
 			if ( function_exists( 'readline_list_history' ) ) {
-				foreach ( readline_list_history() as $num => $line ) {
+				foreach( readline_list_history() as $num => $line) {
 					print "$num: $line\n";
 				}
 			} else {
@@ -168,3 +172,5 @@ do {
 		}
 	}
 } while ( !$quit );
+
+

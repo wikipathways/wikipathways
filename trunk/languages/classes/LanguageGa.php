@@ -5,24 +5,28 @@
  * @ingroup Language
  */
 class LanguageGa extends Language {
-
-	/**
-	 * Convert day names
-	 * Invoked with {{GRAMMAR:transformation|word}}
-	 *
-	 * @param $word string
-	 * @param $case string
-	 * @return string
-	 */
+	# Convert day names
+	# Invoked with {{GRAMMAR:transformation|word}}
 	function convertGrammar( $word, $case ) {
 		global $wgGrammarForms;
-		if ( isset( $wgGrammarForms['ga'][$case][$word] ) ) {
+		if ( isset($wgGrammarForms['ga'][$case][$word]) ) {
 			return $wgGrammarForms['ga'][$case][$word];
 		}
 
 		switch ( $case ) {
+		case 'genitive':
+			switch ($word) {
+			case 'Vicipéid':     $word = 'Vicipéide'; break;
+			case 'Vicífhoclóir': $word = 'Vicífhoclóra'; break;
+			case 'Vicíleabhair': $word = 'Vicíleabhar'; break;
+			case 'Vicíshliocht': $word = 'Vicíshleachta'; break;
+			case 'Vicífhoinse':  $word = 'Vicífhoinse'; break;
+			case 'Vicíghnéithe': $word = 'Vicíghnéithe'; break;
+			case 'Vicínuacht':   $word = 'Vicínuachta'; break;
+			}
+
 		case 'ainmlae':
-			switch ( $word ) {
+			switch ($word) {
 			case 'an Domhnach':
 				$word = 'Dé Domhnaigh'; break;
 			case 'an Luan':
@@ -40,26 +44,5 @@ class LanguageGa extends Language {
 			}
 		}
 		return $word;
-	}
-
-	/**
-	 * @param $count int
-	 * @param $forms array
-	 * @return string
-	 */
-	function convertPlural( $count, $forms ) {
-		if ( !count( $forms ) ) { return ''; }
-
-		// plural forms per http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html#ga
-		$forms = $this->preConvertPlural( $forms, 3 );
-
-		if ( $count == 1 ) {
-			$index = 0;
-		} elseif ( $count == 2 ) {
-			$index = 1;
-		} else {
-			$index = 2;
-		}
-		return $forms[$index];
 	}
 }

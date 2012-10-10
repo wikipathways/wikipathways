@@ -1,10 +1,11 @@
 <?php
-/**
- *
- *
+
+/*
  * Created on May 13, 2007
  *
- * Copyright © 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
+ * API for MediaWiki 1.8+
+ *
+ * Copyright (C) 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,97 +19,62 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  * http://www.gnu.org/copyleft/gpl.html
- *
- * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
+if (!defined('MEDIAWIKI')) {
 	// Eclipse helper - will be ignored in production
-	require_once( "ApiQueryBase.php" );
+	require_once ("ApiQueryBase.php");
 }
 
 /**
- * This query adds the <categories> subelement to all pages with the list of categories the page is in
+ * This query adds <categories> subelement to all pages with the list of images embedded into those pages.
  *
  * @ingroup API
  */
 class ApiQueryCategoryInfo extends ApiQueryBase {
 
-	public function __construct( $query, $moduleName ) {
-		parent::__construct( $query, $moduleName, 'ci' );
+	public function __construct($query, $moduleName) {
+		parent :: __construct($query, $moduleName, 'ci');
 	}
 
-	public function execute() {
-		$params = $this->extractRequestParams();
+	public function execute() {			
 		$alltitles = $this->getPageSet()->getAllTitlesByNamespace();
-		if ( empty( $alltitles[NS_CATEGORY] ) ) {
-			return;
-		}
 		$categories = $alltitles[NS_CATEGORY];
+		if(empty($categories))
+			return;
 
 		$titles = $this->getPageSet()->getGoodTitles() +
 					$this->getPageSet()->getMissingTitles();
 		$cattitles = array();
-		foreach ( $categories as $c ) {
+		foreach($categories as $c)
+		{
 			$t = $titles[$c];
-			$cattitles[$c] = $t->getDBkey();
+			$cattitles[$c] = $t->getDbKey();
 		}
 
-		$this->addTables( array( 'category', 'page', 'page_props' ) );
-		$this->addJoinConds( array(
-			'page' => array( 'LEFT JOIN', array(
-				'page_namespace' => NS_CATEGORY,
-				'page_title=cat_title' ) ),
-			'page_props' => array( 'LEFT JOIN', array(
-				'pp_page=page_id',
-				'pp_propname' => 'hiddencat' ) ),
-		) );
+		$this->addTables('category');
+		$this->addFields(array('cat_title', 'cat_pages', 'cat_subcats', 'cat_files', 'cat_hidden'));
+		$this->addWhere(array('cat_title' => $cattitles));			
 
-		$this->addFields( array( 'cat_title', 'cat_pages', 'cat_subcats', 'cat_files', 'pp_propname AS cat_hidden' ) );
-		$this->addWhere( array( 'cat_title' => $cattitles ) );
+		$db = $this->getDB();
+		$res = $this->select(__METHOD__);
 
-		if ( !is_null( $params['continue'] ) ) {
-			$title = $this->getDB()->addQuotes( $params['continue'] );
-			$this->addWhere( "cat_title >= $title" );
-		}
-		$this->addOption( 'ORDER BY', 'cat_title' );
-
-		$res = $this->select( __METHOD__ );
-
-		$catids = array_flip( $cattitles );
-		foreach ( $res as $row ) {
+		$data = array();
+		$catids = array_flip($cattitles);
+		while($row = $db->fetchObject($res))
+		{
 			$vals = array();
-			$vals['size'] = intval( $row->cat_pages );
+			$vals['size'] = $row->cat_pages;
 			$vals['pages'] = $row->cat_pages - $row->cat_subcats - $row->cat_files;
-			$vals['files'] = intval( $row->cat_files );
-			$vals['subcats'] = intval( $row->cat_subcats );
-			if ( $row->cat_hidden ) {
+			$vals['files'] = $row->cat_files;
+			$vals['subcats'] = $row->cat_subcats;
+			if($row->cat_hidden)
 				$vals['hidden'] = '';
-			}
-			$fit = $this->addPageSubItems( $catids[$row->cat_title], $vals );
-			if ( !$fit ) {
-				$this->setContinueEnumParameter( 'continue', $row->cat_title );
-				break;
-			}
+			$this->addPageSubItems($catids[$row->cat_title], $vals);
 		}
-	}
-
-	public function getCacheMode( $params ) {
-		return 'public';
-	}
-
-	public function getAllowedParams() {
-		return array(
-			'continue' => null,
-		);
-	}
-
-	public function getParamDescription() {
-		return array(
-			'continue' => 'When more results are available, use this to continue',
-		);
+		$db->freeResult($res);
 	}
 
 	public function getDescription() {
@@ -116,14 +82,10 @@ class ApiQueryCategoryInfo extends ApiQueryBase {
 	}
 
 	protected function getExamples() {
-		return 'api.php?action=query&prop=categoryinfo&titles=Category:Foo|Category:Bar';
-	}
-
-	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:Properties#categoryinfo_.2F_ci';
+		return "api.php?action=query&prop=categoryinfo&titles=Category:Foo|Category:Bar";
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryCategoryInfo.php 104449 2011-11-28 15:52:04Z reedy $';
+		return __CLASS__ . ': $Id: ApiQueryCategoryInfo.php 37504 2008-07-10 14:28:09Z catrope $';
 	}
 }

@@ -15,17 +15,43 @@ class LanguageLv extends Language {
 	 *
 	 * Example: {{plural:{{NUMBEROFARTICLES}}|article|articles}}
 	 *
-	 * @param $count Integer
-	 * @param $forms Array
-	 * @return String
+	 * @param integer $count
+	 * @param string $wordform1
+	 * @param string $wordform2
+	 * @param string $wordform3 (not used)
+	 * @return string
 	 */
 	function convertPlural( $count, $forms ) {
-		if ( !count( $forms ) ) { return ''; }
-
-		// @todo FIXME: CLDR defines 3 plural forms instead of 2.  Form for 0 is missing.
-		//        http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html#lv
+		if ( !count($forms) ) { return ''; }
 		$forms = $this->preConvertPlural( $forms, 2 );
 
 		return ( ( $count % 10 == 1 ) && ( $count % 100 != 11 ) ) ? $forms[0] : $forms[1];
 	}
+
+	# Convert from the nominative form of a noun to some other case
+	# Invoked with {{GRAMMAR:case|word}}
+	# ģenitīvs - kā, datīvs - kam, akuzatīvs - ko, lokatīvs - kur.
+	/**
+	 * Cases: ģenitīvs, datīvs, akuzatīvs, lokatīvs
+	 */
+	function convertGrammar( $word, $case ) {
+		global $wgGrammarForms;
+
+		$wgGrammarForms['lv']['ģenitīvs' ]['Vikipēdija']   = 'Vikipēdijas';
+		$wgGrammarForms['lv']['ģenitīvs' ]['Vikivārdnīca'] = 'Vikivārdnīcas';
+		$wgGrammarForms['lv']['datīvs'   ]['Vikipēdija']   = 'Vikipēdijai';
+		$wgGrammarForms['lv']['datīvs'   ]['Vikivārdnīca'] = 'Vikivārdnīcai';
+		$wgGrammarForms['lv']['akuzatīvs']['Vikipēdija']   = 'Vikipēdiju';
+		$wgGrammarForms['lv']['akuzatīvs']['Vikivārdnīca'] = 'Vikivārdnīcu';
+		$wgGrammarForms['lv']['lokatīvs' ]['Vikipēdija']   = 'Vikipēdijā';
+		$wgGrammarForms['lv']['lokatīvs' ]['Vikivārdnīca'] = 'Vikivārdnīcā';
+
+		if ( isset($wgGrammarForms['lv'][$case][$word]) ) {
+			return $wgGrammarForms['lv'][$case][$word];
+		}
+
+		return $word;
+	}
 }
+
+

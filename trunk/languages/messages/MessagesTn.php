@@ -1,9 +1,6 @@
 <?php
 /** Tswana (Setswana)
  *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
- *
  * @ingroup Language
  * @file
  *
@@ -88,22 +85,24 @@ $messages = array(
 'viewsource' => 'Lebelela motswedi',
 
 # Login and logout pages
-'welcomecreation'    => '== Amogelesega, $1! ==
+'welcomecreation'    => '== Amogelesega, $1! == 
 
 O ipuletse akhaonte. O seka wa lebala go fetola tse o di dikgatlhegelo tsa gago tsa {{SITENAME}}.',
 'yourname'           => 'Leina la modirisi:',
 'yourpassword'       => 'Selotlolo sa sephiri:',
 'yourpasswordagain'  => 'Kwala selotlolo sa gago sa sephiri gape:',
-'remembermypassword' => 'Gakologelwa ikwadiso yame mo khompiutareng e (for a maximum of $1 {{PLURAL:$1|day|days}})',
+'remembermypassword' => 'Gakologelwa ikwadiso yame mo khompiutareng e',
 'login'              => 'Ikwadise',
 'userlogin'          => 'Ikwadise / ipulela tsebe',
 'logout'             => 'Tswala',
 'userlogout'         => 'Tswala',
 'notloggedin'        => 'Ga o a ikwadisa',
 'createaccount'      => 'Ipulela tsebe',
+'youremail'          => 'E-mail:',
+'username'           => 'Leina la modirisi:',
 
 # Edit pages
-'summary'            => 'Tshoboko:',
+'summary'            => 'Tshoboko',
 'minoredit'          => 'Se ke paakanyo e potlana',
 'watchthis'          => 'Lebelela tsebe e',
 'savearticle'        => 'Boloka tsebe',
@@ -117,16 +116,12 @@ O ipuletse akhaonte. O seka wa lebala go fetola tse o di dikgatlhegelo tsa gago 
 
 # Preferences page
 'mypreferences' => 'Dikgatlhegelo tsa me',
-'youremail'     => 'E-mail:',
-'username'      => 'Leina la modirisi:',
 
 # Recent changes
 'recentchanges' => 'Diphetogo tsa sešeng',
 
 # Recent changes linked
-'recentchangeslinked'         => 'Diphetogo tse di tsamaelanang',
-'recentchangeslinked-feed'    => 'Diphetogo tse di tsamaelanang',
-'recentchangeslinked-toolbox' => 'Diphetogo tse di tsamaelanang',
+'recentchangeslinked' => 'Diphetogo tse di tsamaelanang',
 
 # Upload
 'upload'          => 'Tsenya mokwalo o o tswang kwantle',
@@ -146,9 +141,6 @@ O ipuletse akhaonte. O seka wa lebala go fetola tse o di dikgatlhegelo tsa gago 
 'watch'         => 'Lebelela',
 'watchthispage' => 'Lebelela tsebe e',
 
-# Protect
-'prot_1movedto2' => '[[$1]] o sutisediwa kwa go [[$2]]',
-
 # Undelete
 'undelete-search-submit' => 'Senka',
 
@@ -161,7 +153,6 @@ O ipuletse akhaonte. O seka wa lebala go fetola tse o di dikgatlhegelo tsa gago 
 # Move page
 'move-page-legend' => 'Sutisa tsebe',
 'movearticle'      => 'Sutisa tsebe:',
-'movenologin'      => 'Ga o a ikwadisa',
 'movepagebtn'      => 'Sutisa tsebe',
 'movedto'          => 'sutela kwa',
 '1movedto2'        => '[[$1]] o sutisediwa kwa go [[$2]]',

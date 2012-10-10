@@ -1,10 +1,10 @@
 <?php
-/**
- *
- *
+
+/*
  * Created on Oct 31, 2007
+ * API for MediaWiki 1.8+
  *
- * Copyright © 2007 Roan Kattouw <Firstname>.<Lastname>@gmail.com
+ * Copyright (C) 2007 Roan Kattouw <Firstname>.<Lastname>@home.nl
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,253 +18,153 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  * http://www.gnu.org/copyleft/gpl.html
- *
- * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
+if (!defined('MEDIAWIKI')) {
 	// Eclipse helper - will be ignored in production
-	require_once( "ApiBase.php" );
+	require_once ("ApiBase.php");
 }
 
+
 /**
- * API Module to move pages
  * @ingroup API
  */
 class ApiMove extends ApiBase {
 
-	public function __construct( $main, $action ) {
-		parent::__construct( $main, $action );
+	public function __construct($main, $action) {
+		parent :: __construct($main, $action);
 	}
 
 	public function execute() {
 		global $wgUser;
+		$this->getMain()->requestWriteMode();
 		$params = $this->extractRequestParams();
-		if ( is_null( $params['reason'] ) ) {
+		if(is_null($params['reason']))
 			$params['reason'] = '';
-		}
 
-		$this->requireOnlyOneParameter( $params, 'from', 'fromid' );
+		$titleObj = NULL;
+		if(!isset($params['from']))
+			$this->dieUsageMsg(array('missingparam', 'from'));
+		if(!isset($params['to']))
+			$this->dieUsageMsg(array('missingparam', 'to'));
+		if(!isset($params['token']))
+			$this->dieUsageMsg(array('missingparam', 'token'));
+		if(!$wgUser->matchEditToken($params['token']))
+			$this->dieUsageMsg(array('sessionfailure'));
 
-		if ( isset( $params['from'] ) ) {
-			$fromTitle = Title::newFromText( $params['from'] );
-			if ( !$fromTitle ) {
-				$this->dieUsageMsg( array( 'invalidtitle', $params['from'] ) );
-			}
-		} elseif ( isset( $params['fromid'] ) ) {
-			$fromTitle = Title::newFromID( $params['fromid'] );
-			if ( !$fromTitle ) {
-				$this->dieUsageMsg( array( 'nosuchpageid', $params['fromid'] ) );
-			}
-		}
-
-		if ( !$fromTitle->exists() ) {
-			$this->dieUsageMsg( 'notanarticle' );
-		}
+		$fromTitle = Title::newFromText($params['from']);
+		if(!$fromTitle)
+			$this->dieUsageMsg(array('invalidtitle', $params['from']));
+		if(!$fromTitle->exists())
+			$this->dieUsageMsg(array('notanarticle'));
 		$fromTalk = $fromTitle->getTalkPage();
 
-		$toTitle = Title::newFromText( $params['to'] );
-		if ( !$toTitle ) {
-			$this->dieUsageMsg( array( 'invalidtitle', $params['to'] ) );
-		}
+		$toTitle = Title::newFromText($params['to']);
+		if(!$toTitle)
+			$this->dieUsageMsg(array('invalidtitle', $params['to']));
 		$toTalk = $toTitle->getTalkPage();
 
-		if ( $toTitle->getNamespace() == NS_FILE
-			&& !RepoGroup::singleton()->getLocalRepo()->findFile( $toTitle )
-			&& wfFindFile( $toTitle ) )
+		// Run getUserPermissionsErrors() here so we get message arguments too,
+		// rather than just a message key. The latter is troublesome for messages
+		// that use arguments.
+		// FIXME: moveTo() should really return an array, requires some
+		//	  refactoring of other code, though (mainly SpecialMovepage.php)
+		$errors = array_merge($fromTitle->getUserPermissionsErrors('move', $wgUser),
+					$fromTitle->getUserPermissionsErrors('edit', $wgUser),
+					$toTitle->getUserPermissionsErrors('move', $wgUser),
+					$toTitle->getUserPermissionsErrors('edit', $wgUser));
+		if(!empty($errors))
+			// We don't care about multiple errors, just report one of them
+			$this->dieUsageMsg(current($errors));
+
+		$hookErr = null;
+
+		$retval = $fromTitle->moveTo($toTitle, true, $params['reason'], !$params['noredirect']);
+		if($retval !== true)
 		{
-			if ( !$params['ignorewarnings'] && $wgUser->isAllowed( 'reupload-shared' ) ) {
-				$this->dieUsageMsg( 'sharedfile-exists' );
-			} elseif ( !$wgUser->isAllowed( 'reupload-shared' ) ) {
-				$this->dieUsageMsg( 'cantoverwrite-sharedfile' );
-			}
+			# FIXME: Title::moveTo() sometimes returns a string
+			$this->dieUsageMsg(reset($retval));
 		}
 
-		// Move the page
-		$retval = $fromTitle->moveTo( $toTitle, true, $params['reason'], !$params['noredirect'] );
-		if ( $retval !== true ) {
-			$this->dieUsageMsg( reset( $retval ) );
-		}
-
-		$r = array( 'from' => $fromTitle->getPrefixedText(), 'to' => $toTitle->getPrefixedText(), 'reason' => $params['reason'] );
-		if ( !$params['noredirect'] || !$wgUser->isAllowed( 'suppressredirect' ) ) {
+		$r = array('from' => $fromTitle->getPrefixedText(), 'to' => $toTitle->getPrefixedText(), 'reason' => $params['reason']);
+		if(!$params['noredirect'] || !$wgUser->isAllowed('suppressredirect'))
 			$r['redirectcreated'] = '';
-		}
 
-		// Move the talk page
-		if ( $params['movetalk'] && $fromTalk->exists() && !$fromTitle->isTalkPage() ) {
-			$retval = $fromTalk->moveTo( $toTalk, true, $params['reason'], !$params['noredirect'] );
-			if ( $retval === true ) {
+		if($params['movetalk'] && $fromTalk->exists() && !$fromTitle->isTalkPage())
+		{
+			// We need to move the talk page as well
+			$toTalk = $toTitle->getTalkPage();
+			$retval = $fromTalk->moveTo($toTalk, true, $params['reason'], !$params['noredirect']);
+			if($retval === true)
+			{
 				$r['talkfrom'] = $fromTalk->getPrefixedText();
 				$r['talkto'] = $toTalk->getPrefixedText();
-			} else {
-				// We're not gonna dieUsage() on failure, since we already changed something
-				$parsed = $this->parseMsg( reset( $retval ) );
-				$r['talkmove-error-code'] = $parsed['code'];
-				$r['talkmove-error-info'] = $parsed['info'];
+			}
+			// We're not gonna dieUsage() on failure, since we already changed something
+			else
+			{
+				$r['talkmove-error-code'] = ApiBase::$messageMap[$retval]['code'];
+				$r['talkmove-error-info'] = ApiBase::$messageMap[$retval]['info'];
 			}
 		}
 
-		$result = $this->getResult();
-
-		// Move subpages
-		if ( $params['movesubpages'] ) {
-			$r['subpages'] = $this->moveSubpages( $fromTitle, $toTitle,
-					$params['reason'], $params['noredirect'] );
-			$result->setIndexedTagName( $r['subpages'], 'subpage' );
-
-			if ( $params['movetalk'] ) {
-				$r['subpages-talk'] = $this->moveSubpages( $fromTalk, $toTalk,
-					$params['reason'], $params['noredirect'] );
-				$result->setIndexedTagName( $r['subpages-talk'], 'subpage' );
-			}
+		# Watch pages
+		if($params['watch'] || $wgUser->getOption('watchmoves'))
+		{
+			$wgUser->addWatch($fromTitle);
+			$wgUser->addWatch($toTitle);
 		}
-
-		$watch = "preferences";
-		if ( isset( $params['watchlist'] ) ) {
-			$watch = $params['watchlist'];
-		} elseif ( $params['watch'] ) {
-			$watch = 'watch';
-		} elseif ( $params['unwatch'] ) {
-			$watch = 'unwatch';
+		else if($params['unwatch'])
+		{
+			$wgUser->removeWatch($fromTitle);
+			$wgUser->removeWatch($toTitle);
 		}
-
-		// Watch pages
-		$this->setWatch( $watch, $fromTitle, 'watchmoves' );
-		$this->setWatch( $watch, $toTitle, 'watchmoves' );
-
-		$result->addValue( null, $this->getModuleName(), $r );
+		$this->getResult()->addValue(null, $this->getModuleName(), $r);
 	}
 
-	/**
-	 * @param Title $fromTitle
-	 * @param Title $toTitle
-	 * @param  $reason
-	 * @param  $noredirect
-	 * @return array
-	 */
-	public function moveSubpages( $fromTitle, $toTitle, $reason, $noredirect ) {
-		$retval = array();
-		$success = $fromTitle->moveSubpages( $toTitle, true, $reason, !$noredirect );
-		if ( isset( $success[0] ) ) {
-			return array( 'error' => $this->parseMsg( $success ) );
-		} else {
-			// At least some pages could be moved
-			// Report each of them separately
-			foreach ( $success as $oldTitle => $newTitle ) {
-				$r = array( 'from' => $oldTitle );
-				if ( is_array( $newTitle ) ) {
-					$r['error'] = $this->parseMsg( reset( $newTitle ) );
-				} else {
-					// Success
-					$r['to'] = $newTitle;
-				}
-				$retval[] = $r;
-			}
-		}
-		return $retval;
-	}
-
-	public function mustBePosted() {
-		return true;
-	}
-
-	public function isWriteMode() {
-		return true;
-	}
+	public function mustBePosted() { return true; }
 
 	public function getAllowedParams() {
-		return array(
+		return array (
 			'from' => null,
-			'fromid' => array(
-				ApiBase::PARAM_TYPE => 'integer'
-			),
-			'to' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
-			),
+			'to' => null,
 			'token' => null,
 			'reason' => null,
 			'movetalk' => false,
-			'movesubpages' => false,
 			'noredirect' => false,
-			'watch' => array(
-				ApiBase::PARAM_DFLT => false,
-				ApiBase::PARAM_DEPRECATED => true,
-			),
-			'unwatch' => array(
-				ApiBase::PARAM_DFLT => false,
-				ApiBase::PARAM_DEPRECATED => true,
-			),
-			'watchlist' => array(
-				ApiBase::PARAM_DFLT => 'preferences',
-				ApiBase::PARAM_TYPE => array(
-					'watch',
-					'unwatch',
-					'preferences',
-					'nochange'
-				),
-			),
-			'ignorewarnings' => false
+			'watch' => false,
+			'unwatch' => false
 		);
 	}
 
 	public function getParamDescription() {
-		$p = $this->getModulePrefix();
-		return array(
-			'from' => "Title of the page you want to move. Cannot be used together with {$p}fromid",
-			'fromid' => "Page ID of the page you want to move. Cannot be used together with {$p}from",
-			'to' => 'Title you want to rename the page to',
+		return array (
+			'from' => 'Title of the page you want to move.',
+			'to' => 'Title you want to rename the page to.',
 			'token' => 'A move token previously retrieved through prop=info',
-			'reason' => 'Reason for the move (optional)',
-			'movetalk' => 'Move the talk page, if it exists',
-			'movesubpages' => 'Move subpages, if applicable',
+			'reason' => 'Reason for the move (optional).',
+			'movetalk' => 'Move the talk page, if it exists.',
 			'noredirect' => 'Don\'t create a redirect',
 			'watch' => 'Add the page and the redirect to your watchlist',
-			'unwatch' => 'Remove the page and the redirect from your watchlist',
-			'watchlist' => 'Unconditionally add or remove the page from your watchlist, use preferences or do not change watch',
-			'ignorewarnings' => 'Ignore any warnings'
+			'unwatch' => 'Remove the page and the redirect from your watchlist'
 		);
 	}
 
 	public function getDescription() {
-		return 'Move a page';
-	}
-
-	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(),
-			$this->getRequireOnlyOneParameterErrorMessages( array( 'from', 'fromid' ) ),
-			array(
-				array( 'invalidtitle', 'from' ),
-				array( 'nosuchpageid', 'fromid' ),
-				array( 'notanarticle' ),
-				array( 'invalidtitle', 'to' ),
-				array( 'sharedfile-exists' ),
-			)
+		return array(
+			'Moves a page.'
 		);
-	}
-
-	public function needsToken() {
-		return true;
-	}
-
-	public function getTokenSalt() {
-		return '';
 	}
 
 	protected function getExamples() {
-		return array(
-			'api.php?action=move&from=Exampel&to=Example&token=123ABC&reason=Misspelled%20title&movetalk=&noredirect='
+		return array (
+			'api.php?action=move&from=Exampel&to=Example&token=123ABC&reason=Misspelled%20title&movetalk&noredirect'
 		);
 	}
 
-	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:Move';
-	}
-
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiMove.php 104449 2011-11-28 15:52:04Z reedy $';
+		return __CLASS__ . ': $Id: ApiMove.php 35619 2008-05-30 19:59:47Z btongminh $';
 	}
 }

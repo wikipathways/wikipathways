@@ -21,35 +21,29 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
- * @ingroup Maintenance
+ * @file
+ * @ingroup SpecialPage
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( 'commandLine.inc' );
 
-class DumpSisterSites extends Maintenance {
-	public function __construct() {
-		parent::__construct();
-		$this->mDescription = "Quickie page name dump script for SisterSites usage";
-	}
+$dbr = wfGetDB( DB_SLAVE );
+$dbr->bufferResults( false );
+$result = $dbr->select( 'page',
+	array( 'page_namespace', 'page_title' ),
+	array(
+		'page_namespace'   => NS_MAIN,
+		'page_is_redirect' => 0,
+	),
+	'dumpSisterSites' );
 
-	public function execute() {
-		$dbr = wfGetDB( DB_SLAVE );
-		$dbr->bufferResults( false );
-		$result = $dbr->select( 'page',
-			array( 'page_namespace', 'page_title' ),
-			array( 'page_namespace'   => NS_MAIN,
-				   'page_is_redirect' => 0,
-			),
-			__METHOD__ );
-
-		foreach ( $result as $row ) {
-			$title = Title::makeTitle( $row->page_namespace, $row->page_title );
-			$url = $title->getFullUrl();
-			$text = $title->getPrefixedText();
-			$this->output( "$url $text\n" );
-		}
-	}
+while( $row = $dbr->fetchObject( $result ) ) {
+	$title = Title::makeTitle( $row->page_namespace, $row->page_title );
+	$url = $title->getFullUrl();
+	$text = $title->getPrefixedText();
+	echo "$url $text\n";
 }
 
-$maintClass = "DumpSisterSites";
-require_once( RUN_MAINTENANCE_IF_MAIN );
+$dbr->freeResult( $result );
+
+

@@ -1,8 +1,7 @@
 <?php
 /**
  * MediaWiki error classes
- *
- * Copyright © 2005 Brion Vibber <brion@pobox.com>
+ * Copyright (C) 2005 Brion Vibber <brion@pobox.com>
  * http://www.mediawiki.org/
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,7 +19,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
- * @file
  */
 
 /**
@@ -31,11 +29,8 @@
 class WikiError {
 	/**
 	 * @param $message string
-	 *
-	 * @deprecated since 1.17
 	 */
 	function __construct( $message ) {
-		wfDeprecated( __METHOD__ );
 		$this->mMessage = $message;
 	}
 
@@ -61,18 +56,9 @@ class WikiError {
 	 *
 	 * @param $object mixed
 	 * @return bool
-	 *
-	 * @deprecated since 1.17
 	 */
 	public static function isError( $object ) {
-		wfDeprecated( __METHOD__ );
-		if ( $object instanceof WikiError ) {
-			return true;
-		} elseif ( $object instanceof Status ) {
-			return !$object->isOK();
-		} else {
-			return false;
-		}
+		return $object instanceof WikiError;
 	}
 }
 
@@ -84,30 +70,16 @@ class WikiErrorMsg extends WikiError {
 	/**
 	 * @param $message String: wiki message name
 	 * @param ... parameters to pass to wfMsg()
-	 *
-	 * @deprecated since 1.17
 	 */
-	function __construct( $message/*, ... */ ) {
-		wfDeprecated( __METHOD__ );
+	function WikiErrorMsg( $message/*, ... */ ) {
 		$args = func_get_args();
 		array_shift( $args );
 		$this->mMessage = wfMsgReal( $message, $args, true );
-		$this->mMsgKey = $message;
-		$this->mMsgArgs = $args;
-	}
-	
-	function getMessageKey() {
-		return $this->mMsgKey;
-	}
-	
-	function getMessageArgs() {
-		return $this->mMsgArgs;
 	}
 }
 
 /**
- * Error class designed to handle errors involved with 
- * XML parsing
+ * @todo document
  * @ingroup Exception
  */
 class WikiXmlError extends WikiError {
@@ -116,11 +88,8 @@ class WikiXmlError extends WikiError {
 	 * @param $message string
 	 * @param $context
 	 * @param $offset Int
-	 *
-	 * @deprecated since 1.17
 	 */
-	function __construct( $parser, $message = 'XML parsing error', $context = null, $offset = 0 ) {
-		wfDeprecated( __METHOD__ );
+	function WikiXmlError( $parser, $message = 'XML parsing error', $context = null, $offset = 0 ) {
 		$this->mXmlError = xml_get_error_code( $parser );
 		$this->mColumn = xml_get_current_column_number( $parser );
 		$this->mLine = xml_get_current_line_number( $parser );

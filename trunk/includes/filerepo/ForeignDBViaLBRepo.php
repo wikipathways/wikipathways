@@ -1,14 +1,7 @@
 <?php
-/**
- * A foreign repository with a MediaWiki database accessible via the configured LBFactory
- *
- * @file
- * @ingroup FileRepo
- */
 
 /**
  * A foreign repository with a MediaWiki database accessible via the configured LBFactory
- *
  * @ingroup FileRepo
  */
 class ForeignDBViaLBRepo extends LocalRepo {
@@ -32,21 +25,6 @@ class ForeignDBViaLBRepo extends LocalRepo {
 	}
 	function hasSharedCache() {
 		return $this->hasSharedCache;
-	}
-
-	/**
-	 * Get a key on the primary cache for this repository.
-	 * Returns false if the repository's cache is not accessible at this site. 
-	 * The parameters are the parts of the key, as for wfMemcKey().
-	 */
-	function getSharedCacheKey( /*...*/ ) {
-		if ( $this->hasSharedCache() ) {
-			$args = func_get_args();
-			array_unshift( $args, $this->wiki );
-			return implode( ':', $args );
-		} else {
-			return false;
-		}
 	}
 
 	function store( $srcPath, $dstZone, $dstRel, $flags = 0 ) {

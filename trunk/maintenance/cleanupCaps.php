@@ -1,12 +1,12 @@
 <?php
-/**
+/*
  * Script to clean up broken page links when somebody turns on $wgCapitalLinks.
  *
  * Usage: php cleanupCaps.php [--dry-run]
  * Options:
  *   --dry-run  don't actually try moving them
  *
- * Copyright © 2005 Brion Vibber <brion@pobox.com>
+ * Copyright (C) 2005 Brion Vibber <brion@pobox.com>
  * http://www.mediawiki.org/
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,73 +26,133 @@
  *
  * @file
  * @author Brion Vibber <brion at pobox.com>
- * @ingroup Maintenance
+ * @ingroup maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/cleanupTable.inc' );
+$options = array( 'dry-run' );
 
-class CapsCleanup extends TableCleanup {
-	public function __construct() {
-		parent::__construct();
-		$this->mDescription = "Script to cleanup capitalization";
-		$this->addOption( 'namespace', 'Namespace number to run caps cleanup on', false, true );
+require_once( 'commandLine.inc' );
+require_once( 'FiveUpgrade.inc' );
+
+/**
+ * @ingroup Maintenance
+ */
+class CapsCleanup extends FiveUpgrade {
+	function CapsCleanup( $dryrun = false, $namespace=0 ) {
+		parent::FiveUpgrade();
+
+		$this->maxLag = 10; # if slaves are lagged more than 10 secs, wait
+		$this->dryrun = $dryrun;
+		$this->namespace = intval( $namespace );
 	}
 
-	public function execute() {
-		global $wgCapitalLinks, $wgUser;
-		$this->namespace = intval( $this->getOption( 'namespace', 0 ) );
-		$this->dryrun = $this->hasOption( 'dry-run' );
-		$wgUser->setName( 'Conversion script' );
-		if ( $wgCapitalLinks )
-			$this->error( "\$wgCapitalLinks is on -- no need for caps links cleanup.", true );
+	function cleanup() {
+		global $wgCapitalLinks;
+		if( $wgCapitalLinks ) {
+			echo "\$wgCapitalLinks is on -- no need for caps links cleanup.\n";
+			return false;
+		}
 
-		$this->runTable( array(
-			'table' => 'page',
-			'conds' => array( 'page_namespace' => $this->namespace ),
-			'index' => 'page_id',
-			'callback' => 'processRow' ) );
+		$this->runTable( 'page', 'WHERE page_namespace=' . $this->namespace,
+			array( &$this, 'processPage' ) );
 	}
 
-	protected function processRow( $row ) {
+	function init( $count, $table ) {
+		$this->processed = 0;
+		$this->updated = 0;
+		$this->count = $count;
+		$this->startTime = wfTime();
+		$this->table = $table;
+	}
+
+	function progress( $updated ) {
+		$this->updated += $updated;
+		$this->processed++;
+		if( $this->processed % 100 != 0 ) {
+			return;
+		}
+		$portion = $this->processed / $this->count;
+		$updateRate = $this->updated / $this->processed;
+
+		$now = wfTime();
+		$delta = $now - $this->startTime;
+		$estimatedTotalTime = $delta / $portion;
+		$eta = $this->startTime + $estimatedTotalTime;
+
+		printf( "%s: %6.2f%% done on %s; ETA %s [%d/%d] %.2f/sec <%.2f%% updated>\n",
+			wfTimestamp( TS_DB, intval( $now ) ),
+			$portion * 100.0,
+			$this->table,
+			wfTimestamp( TS_DB, intval( $eta ) ),
+			$this->processed,
+			$this->count,
+			$this->processed / $delta,
+			$updateRate * 100.0 );
+		flush();
+	}
+
+	function runTable( $table, $where, $callback ) {
+		$fname = 'CapsCleanup::buildTable';
+
+		$count = $this->dbw->selectField( $table, 'count(*)', '', $fname );
+		$this->init( $count, 'page' );
+		$this->log( "Processing $table..." );
+
+		$tableName = $this->dbr->tableName( $table );
+		$sql = "SELECT * FROM $tableName $where";
+		$result = $this->dbr->query( $sql, $fname );
+
+		while( $row = $this->dbr->fetchObject( $result ) ) {
+			call_user_func( $callback, $row );
+		}
+		$this->log( "Finished $table... $this->updated of $this->processed rows updated" );
+		$this->dbr->freeResult( $result );
+	}
+
+	function processPage( $row ) {
 		global $wgContLang;
 
 		$current = Title::makeTitle( $row->page_namespace, $row->page_title );
 		$display = $current->getPrefixedText();
 		$upper = $row->page_title;
 		$lower = $wgContLang->lcfirst( $row->page_title );
-		if ( $upper == $lower ) {
-			$this->output( "\"$display\" already lowercase.\n" );
+		if( $upper == $lower ) {
+			$this->log( "\"$display\" already lowercase." );
 			return $this->progress( 0 );
 		}
 
 		$target = Title::makeTitle( $row->page_namespace, $lower );
 		$targetDisplay = $target->getPrefixedText();
-		if ( $target->exists() ) {
-			$this->output( "\"$display\" skipped; \"$targetDisplay\" already exists\n" );
+		if( $target->exists() ) {
+			$this->log( "\"$display\" skipped; \"$targetDisplay\" already exists" );
 			return $this->progress( 0 );
 		}
 
-		if ( $this->dryrun ) {
-			$this->output( "\"$display\" -> \"$targetDisplay\": DRY RUN, NOT MOVED\n" );
+		if( $this->dryrun ) {
+			$this->log( "\"$display\" -> \"$targetDisplay\": DRY RUN, NOT MOVED" );
 			$ok = true;
 		} else {
 			$ok = $current->moveTo( $target, false, 'Converting page titles to lowercase' );
-			$this->output( "\"$display\" -> \"$targetDisplay\": $ok\n" );
+			$this->log( "\"$display\" -> \"$targetDisplay\": $ok" );
 		}
-		if ( $ok === true ) {
+		if( $ok === true ) {
 			$this->progress( 1 );
-			if ( $row->page_namespace == $this->namespace ) {
+
+			if( $row->page_namespace == $this->namespace ) {
 				$talk = $target->getTalkPage();
 				$row->page_namespace = $talk->getNamespace();
-				if ( $talk->exists() ) {
-					return $this->processRow( $row );
+				if( $talk->exists() ) {
+					return $this->processPage( $row );
 				}
 			}
 		} else {
 			$this->progress( 0 );
 		}
 	}
+
 }
 
-$maintClass = "CapsCleanup";
-require_once( RUN_MAINTENANCE_IF_MAIN );
+$wgUser->setName( 'Conversion script' );
+$ns = isset( $options['namespace'] ) ? $options['namespace'] : 0;
+$caps = new CapsCleanup( isset( $options['dry-run'] ), $ns );
+$caps->cleanup();

@@ -1,9 +1,9 @@
 <?php
-require_once( dirname( __FILE__ ) . '/../LanguageConverter.php' );
-require_once( dirname( __FILE__ ) . '/LanguageKu_ku.php' );
+require_once( dirname(__FILE__).'/../LanguageConverter.php' );
+require_once( dirname(__FILE__).'/LanguageKu_ku.php' );
 
-/**
- * Kurdish converter routines
+/** Kurdish
+ * converter routines
  *
  * @ingroup Language
  */
@@ -18,8 +18,8 @@ class KuConverter extends LanguageConverter {
 //  و ك=> ku -- ist auch richtig
 
 		/* Doppel- und Halbvokale */
-		'ڵ' => 'll', # ll
-		'ڕ'  => 'rr', # rr
+		'ڵ' => 'll', #ll
+		'ڕ'  => 'rr', #rr
 		'ا'  => 'a',
 		# 'ئێ' => 'ê', # initial e
 		'ە'  => 'e',
@@ -69,7 +69,7 @@ class KuConverter extends LanguageConverter {
 		# 'rr' => 'ڕ', # selbiges für doppel-r
 
 		/* Einzelne Großbuchstaben */
-		// ' C' => 'ج',
+		//' C' => 'ج',
 
 		/* Vowels */
 		'a' => 'ا',
@@ -132,75 +132,68 @@ class KuConverter extends LanguageConverter {
 		);
 	}
 
-	/**
+	// Do not convert content on talk pages
+	function parserConvert( $text, &$parser ){
+		if(is_object($parser->getTitle() ) && $parser->getTitle()->isTalkPage())
+			$this->mDoContentConvert=false;
+		else
+			$this->mDoContentConvert=true;
+
+		return parent::parserConvert($text, $parser );
+	}
+
+	/*
 	 * A function wrapper:
 	 *   - if there is no selected variant, leave the link
 	 *     names as they were
 	 *   - do not try to find variants for usernames
-	 *
-	 * @param $link string
-	 * @param $nt Title
-	 * @param $ignoreOtherCond bool
 	 */
-	function findVariantLink( &$link, &$nt, $ignoreOtherCond = false ) {
+	function findVariantLink( &$link, &$nt ) {
 		// check for user namespace
-		if ( is_object( $nt ) ) {
+		if(is_object($nt)){
 			$ns = $nt->getNamespace();
-			if ( $ns == NS_USER || $ns == NS_USER_TALK )
+			if($ns==NS_USER || $ns==NS_USER_TALK)
 				return;
 		}
 
-		$oldlink = $link;
-		parent::findVariantLink( $link, $nt, $ignoreOtherCond );
-		if ( $this->getPreferredVariant() == $this->mMainLanguageCode )
-			$link = $oldlink;
+		$oldlink=$link;
+		parent::findVariantLink($link,$nt);
+		if($this->getPreferredVariant()==$this->mMainLanguageCode)
+			$link=$oldlink;
 	}
 
-	/**
+	/*
 	 * We want our external link captions to be converted in variants,
 	 * so we return the original text instead -{$text}-, except for URLs
-	 *
-	 * @param $text string
-	 * @param $noParse bool
-	 *
-	 * @return string
 	 */
-	function markNoConversion( $text, $noParse = false ) {
-		if ( $noParse || preg_match( "/^https?:\/\/|ftp:\/\/|irc:\/\//", $text ) )
-		    return parent::markNoConversion( $text );
+	function markNoConversion($text, $noParse=false) {
+		if($noParse || preg_match("/^https?:\/\/|ftp:\/\/|irc:\/\//",$text))
+		    return parent::markNoConversion($text);
 		return $text;
 	}
 
-	/**
+	/*
 	 * An ugly function wrapper for parsing Image titles
 	 * (to prevent image name conversion)
-	 *
-	 * @param $text string
-	 * @param $toVariant bool
-	 *
-	 * @return string
 	 */
-	function autoConvert( $text, $toVariant = false ) {
+	function autoConvert($text, $toVariant=false) {
 		global $wgTitle;
-		if ( is_object( $wgTitle ) && $wgTitle->getNameSpace() == NS_FILE ) {
+		if(is_object($wgTitle) && $wgTitle->getNameSpace()==NS_IMAGE){
 			$imagename = $wgTitle->getNsText();
-			if ( preg_match( "/^$imagename:/", $text ) ) return $text;
+			if(preg_match("/^$imagename:/",$text)) return $text;
 		}
-		return parent::autoConvert( $text, $toVariant );
+		return parent::autoConvert($text,$toVariant);
 	}
 
 	/**
 	 *  It translates text into variant, specials:
 	 *    - ommiting roman numbers
-	 *
-	 * @param $text string
-	 * @param $toVariant bool
-	 *
-	 * @return string
 	 */
-	function translate( $text, $toVariant ) {
-		/* From Kazakh interface, maybe we need it later
+	function translate($text, $toVariant){
 		$breaks = '[^\w\x80-\xff]';
+
+		/* From Kazakh interface, maybe we need it later
+		 *
 		// regexp for roman numbers
 		$roman = 'M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})';
 		$roman = '';
@@ -224,7 +217,7 @@ class KuConverter extends LanguageConverter {
 		return $ret;
 		*/
 
-		if ( !isset( $this->mTables[$toVariant] ) ) {
+		if( !isset( $this->mTables[$toVariant] ) ) {
 			throw new MWException( "Broken variant table: " . implode( ',', array_keys( $this->mTables ) ) );
 		}
 
@@ -233,8 +226,6 @@ class KuConverter extends LanguageConverter {
 }
 
 /**
- * Kurdish (Kurdî / كوردی)
- *
  * @ingroup Language
  */
 class LanguageKu extends LanguageKu_ku {
@@ -253,4 +244,24 @@ class LanguageKu extends LanguageKu_ku {
 		$this->mConverter = new KuConverter( $this, 'ku', $variants, $variantfallbacks );
 		$wgHooks['ArticleSaveComplete'][] = $this->mConverter;
 	}
+
+/*   From Kazakh interface, not needed for the moment
+
+	function convertGrammar( $word, $case ) {
+		$fname="LanguageKu::convertGrammar";
+		wfProfileIn( $fname );
+
+		//always convert to ku-latn before convertGrammar
+		$w1 = $word;
+		$word = $this->mConverter->autoConvert( $word, 'ku-latn' );
+		$w2 = $word;
+		$word = parent::convertGrammar( $word, $case );
+		//restore encoding
+		if( $w1 != $w2 ) {
+			$word = $this->mConverter->translate( $word, 'ku-latn' );
+		}
+		wfProfileOut( $fname );
+		return $word;
+	}
+*/
 }

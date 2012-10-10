@@ -1,441 +1,217 @@
 <?php
 /**
- * Implements Special:Allmessages
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- * http://www.gnu.org/copyleft/gpl.html
- *
- * @file
- * @ingroup SpecialPage
- */
-
-/**
  * Use this special page to get a list of the MediaWiki system messages.
- *
  * @file
  * @ingroup SpecialPage
  */
-class SpecialAllmessages extends SpecialPage {
 
-	/**
-	 * @var AllmessagesTablePager
-	 */
-	protected $table;
+/**
+ * Constructor.
+ */
+function wfSpecialAllmessages() {
+	global $wgOut, $wgRequest, $wgMessageCache, $wgTitle;
+	global $wgUseDatabaseMessages;
 
-	/**
-	 * Constructor
-	 */
-	public function __construct() {
-		parent::__construct( 'Allmessages' );
+	# The page isn't much use if the MediaWiki namespace is not being used
+	if( !$wgUseDatabaseMessages ) {
+		$wgOut->addWikiMsg( 'allmessagesnotsupportedDB' );
+		return;
 	}
 
-	/**
-	 * Show the special page
-	 *
-	 * @param $par Mixed: parameter passed to the page or null
-	 */
-	public function execute( $par ) {
-		$request = $this->getRequest();
-		$out = $this->getOutput();
+	wfProfileIn( __METHOD__ );
 
-		$this->setHeaders();
+	wfProfileIn( __METHOD__ . '-setup' );
+	$ot = $wgRequest->getText( 'ot' );
 
-		global $wgUseDatabaseMessages;
-		if( !$wgUseDatabaseMessages ) {
-			$out->addWikiMsg( 'allmessagesnotsupportedDB' );
-			return;
-		} else {
-			$this->outputHeader( 'allmessagestext' );
-		}
+	$navText = wfMsg( 'allmessagestext' );
 
-		$out->addModuleStyles( 'mediawiki.special' );
+	# Make sure all extension messages are available
 
-		$this->filter = $request->getVal( 'filter', 'all' );
-		$this->prefix = $request->getVal( 'prefix', '' );
+	$wgMessageCache->loadAllMessages();
 
-		$this->table = new AllmessagesTablePager(
-			$this,
-			array(),
-			wfGetLangObj( $request->getVal( 'lang', $par ) )
-		);
+	$sortedArray = array_merge( Language::getMessagesFor( 'en' ), $wgMessageCache->getExtensionMessagesFor( 'en' ) );
+	ksort( $sortedArray );
+	$messages = array();
 
-		$this->langcode = $this->table->lang->getCode();
-
-		$out->addHTML( $this->table->buildForm() .
-			$this->table->getNavigationBar() .
-			$this->table->getBody() .
-			$this->table->getNavigationBar() );
-
+	foreach ( $sortedArray as $key => $value ) {
+		$messages[$key]['enmsg'] = $value;
+		$messages[$key]['statmsg'] = wfMsgReal( $key, array(), false, false, false ); // wfMsgNoDbNoTrans doesn't exist
+		$messages[$key]['msg'] = wfMsgNoTrans( $key );
 	}
 
+	wfProfileOut( __METHOD__ . '-setup' );
+
+	wfProfileIn( __METHOD__ . '-output' );
+	$wgOut->addScriptFile( 'allmessages.js' );
+	if ( $ot == 'php' ) {
+		$navText .= wfAllMessagesMakePhp( $messages );
+		$wgOut->addHTML( 'PHP | <a href="' . $wgTitle->escapeLocalUrl( 'ot=html' ) . '">HTML</a> | ' .
+			'<a href="' . $wgTitle->escapeLocalUrl( 'ot=xml' ) . '">XML</a>' .
+			'<pre>' . htmlspecialchars( $navText ) . '</pre>' );
+	} else if ( $ot == 'xml' ) {
+		$wgOut->disable();
+		header( 'Content-type: text/xml' );
+		echo wfAllMessagesMakeXml( $messages );
+	} else {
+		$wgOut->addHTML( '<a href="' . $wgTitle->escapeLocalUrl( 'ot=php' ) . '">PHP</a> | ' .
+			'HTML |  <a href="' . $wgTitle->escapeLocalUrl( 'ot=xml' ) . '">XML</a>' );
+		$wgOut->addWikiText( $navText );
+		$wgOut->addHTML( wfAllMessagesMakeHTMLText( $messages ) );
+	}
+	wfProfileOut( __METHOD__ . '-output' );
+
+	wfProfileOut( __METHOD__ );
+}
+
+function wfAllMessagesMakeXml( $messages ) {
+	global $wgLang;
+	$lang = $wgLang->getCode();
+	$txt = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
+	$txt .= "<messages lang=\"$lang\">\n";
+	foreach( $messages as $key => $m ) {
+		$txt .= "\t" . Xml::element( 'message', array( 'name' => $key ), $m['msg'] ) . "\n";
+	}
+	$txt .= "</messages>";
+	return $txt;
 }
 
 /**
- * Use TablePager for prettified output. We have to pretend that we're
- * getting data from a table when in fact not all of it comes from the database.
+ * Create the messages array, formatted in PHP to copy to language files.
+ * @param $messages Messages array.
+ * @return The PHP messages array.
+ * @todo Make suitable for language files.
  */
-class AllmessagesTablePager extends TablePager {
-
-	protected $filter, $prefix, $langcode, $displayPrefix;
-
-	public $mLimitsShown;
-
-	/**
-	 * @var Language
-	 */
-	public $lang;
-
-	/**
-	 * @var null|bool
-	 */
-	public $custom;
-
-	function __construct( $page, $conds, $langObj = null ) {
-		parent::__construct();
-		$this->mIndexField = 'am_title';
-		$this->mPage = $page;
-		$this->mConds = $conds;
-		$this->mDefaultDirection = true; // always sort ascending
-		$this->mLimitsShown = array( 20, 50, 100, 250, 500, 5000 );
-
-		global $wgLang, $wgContLang, $wgRequest;
-
-		$this->talk = htmlspecialchars( wfMsg( 'talkpagelinktext' ) );
-
-		$this->lang = ( $langObj ? $langObj : $wgContLang );
-		$this->langcode = $this->lang->getCode();
-		$this->foreign  = $this->langcode != $wgContLang->getCode();
-
-		if( $wgRequest->getVal( 'filter', 'all' ) === 'all' ){
-			$this->custom = null; // So won't match in either case
+function wfAllMessagesMakePhp( $messages ) {
+	global $wgLang;
+	$txt = "\n\n\$messages = array(\n";
+	foreach( $messages as $key => $m ) {
+		if( $wgLang->getCode() != 'en' && $m['msg'] == $m['enmsg'] ) {
+			continue;
+		} else if ( wfEmptyMsg( $key, $m['msg'] ) ) {
+			$m['msg'] = '';
+			$comment = ' #empty';
 		} else {
-			$this->custom = ($wgRequest->getVal( 'filter' ) == 'unmodified');
+			$comment = '';
 		}
-
-		$prefix = $wgLang->ucfirst( $wgRequest->getVal( 'prefix', '' ) );
-		$prefix = $prefix != '' ? Title::makeTitleSafe( NS_MEDIAWIKI, $wgRequest->getVal( 'prefix', null ) ) : null;
-		if( $prefix !== null ){
-			$this->displayPrefix = $prefix->getDBkey();
-			$this->prefix = '/^' . preg_quote( $this->displayPrefix ) . '/i';
-		} else {
-			$this->displayPrefix = false;
-			$this->prefix = false;
-		}
-
-		// The suffix that may be needed for message names if we're in a
-		// different language (eg [[MediaWiki:Foo/fr]]: $suffix = '/fr'
-		if( $this->foreign ) {
-			$this->suffix = '/' . $this->langcode;
-		} else {
-			$this->suffix = '';
-		}
+		$txt .= "'$key' => '" . preg_replace( '/(?<!\\\\)\'/', "\'", $m['msg']) . "',$comment\n";
 	}
-
-	function buildForm() {
-		global $wgScript;
-
-		$languages = Language::getLanguageNames( false );
-		ksort( $languages );
-
-		$out  = Xml::openElement( 'form', array( 'method' => 'get', 'action' => $wgScript, 'id' => 'mw-allmessages-form' ) ) .
-			Xml::fieldset( wfMsg( 'allmessages-filter-legend' ) ) .
-			Html::hidden( 'title', $this->getTitle()->getPrefixedText() ) .
-			Xml::openElement( 'table', array( 'class' => 'mw-allmessages-table' ) ) . "\n" .
-			'<tr>
-				<td class="mw-label">' .
-					Xml::label( wfMsg( 'allmessages-prefix' ), 'mw-allmessages-form-prefix' ) .
-				"</td>\n
-				<td class=\"mw-input\">" .
-					Xml::input( 'prefix', 20, str_replace( '_', ' ', $this->displayPrefix ), array( 'id' => 'mw-allmessages-form-prefix' ) ) .
-				"</td>\n
-			</tr>
-			<tr>\n
-				<td class='mw-label'>" .
-					wfMsg( 'allmessages-filter' ) .
-				"</td>\n
-				<td class='mw-input'>" .
-					Xml::radioLabel( wfMsg( 'allmessages-filter-unmodified' ),
-						'filter',
-						'unmodified',
-						'mw-allmessages-form-filter-unmodified',
-						( $this->filter == 'unmodified' )
-					) .
-					Xml::radioLabel( wfMsg( 'allmessages-filter-all' ),
-						'filter',
-						'all',
-						'mw-allmessages-form-filter-all',
-						( $this->filter == 'all' )
-					) .
-					Xml::radioLabel( wfMsg( 'allmessages-filter-modified' ),
-						'filter',
-						'modified',
-						'mw-allmessages-form-filter-modified',
-					( $this->filter == 'modified' )
-				) .
-				"</td>\n
-			</tr>
-			<tr>\n
-				<td class=\"mw-label\">" .
-					Xml::label( wfMsg( 'allmessages-language' ), 'mw-allmessages-form-lang' ) .
-				"</td>\n
-				<td class=\"mw-input\">" .
-					Xml::openElement( 'select', array( 'id' => 'mw-allmessages-form-lang', 'name' => 'lang' ) );
-
-		foreach( $languages as $lang => $name ) {
-			$selected = $lang == $this->langcode;
-			$out .= Xml::option( $lang . ' - ' . $name, $lang, $selected ) . "\n";
-		}
-		$out .= Xml::closeElement( 'select' ) .
-				"</td>\n
-			</tr>" .
-
-			'<tr>
-				<td class="mw-label">' .
-					Xml::label( wfMsg( 'table_pager_limit_label'), 'mw-table_pager_limit_label' ) .
-				'</td>
-				<td class="mw-input">' .
-					$this->getLimitSelect() .
-				'</td>
-			<tr>
-				<td></td>
-				<td>' .
-					Xml::submitButton( wfMsg( 'allmessages-filter-submit' ) ) .
-				"</td>\n
-			</tr>" .
-
-			Xml::closeElement( 'table' ) .
-			$this->getHiddenFields( array( 'title', 'prefix', 'filter', 'lang', 'limit' ) ) .
-			Xml::closeElement( 'fieldset' ) .
-			Xml::closeElement( 'form' );
-		return $out;
-	}
-
-	function getAllMessages( $descending ) {
-		wfProfileIn( __METHOD__ );
-		$messageNames = Language::getLocalisationCache()->getSubitemList( 'en', 'messages' );
-		if( $descending ){
-			rsort( $messageNames );
-		} else {
-			asort( $messageNames );
-		}
-
-		// Normalise message names so they look like page titles
-		$messageNames = array_map( array( $this->lang, 'ucfirst' ), $messageNames );
-
-		wfProfileOut( __METHOD__ );
-		return $messageNames;
-	}
-
-	/**
-	 * Determine which of the MediaWiki and MediaWiki_talk namespace pages exist.
-	 * Returns array( 'pages' => ..., 'talks' => ... ), where the subarrays have
-	 * an entry for each existing page, with the key being the message name and
-	 * value arbitrary.
-	 *
-	 * @param array $messageNames
-	 * @param string $langcode What language code
-	 * @param bool $foreign Whether the $langcode is not the content language
-	 */
-	public static function getCustomisedStatuses( $messageNames, $langcode = 'en', $foreign = false ) {
-		wfProfileIn( __METHOD__ . '-db' );
-
-		$dbr = wfGetDB( DB_SLAVE );
-		$res = $dbr->select( 'page',
-			array( 'page_namespace', 'page_title' ),
-			array( 'page_namespace' => array( NS_MEDIAWIKI, NS_MEDIAWIKI_TALK ) ),
-			__METHOD__,
-			array( 'USE INDEX' => 'name_title' )
-		);
-		$xNames = array_flip( $messageNames );
-
-		$pageFlags = $talkFlags = array();
-
-		foreach ( $res as $s ) {
-			if( $s->page_namespace == NS_MEDIAWIKI ) {
-				if( $foreign ) {
-					$title = explode( '/', $s->page_title );
-					if( count( $title ) === 2 && $langcode == $title[1]
-						&& isset( $xNames[$title[0]] ) ) {
-						$pageFlags["{$title[0]}"] = true;
-					}
-				} elseif( isset( $xNames[$s->page_title] ) ) {
-					$pageFlags[$s->page_title] = true;
-				}
-			} elseif( $s->page_namespace == NS_MEDIAWIKI_TALK ){
-				$talkFlags[$s->page_title] = true;
-			}
-		}
-
-		wfProfileOut( __METHOD__ . '-db' );
-
-		return array( 'pages' => $pageFlags, 'talks' => $talkFlags );
-	}
-
-	/**
-	 *  This function normally does a database query to get the results; we need
-	 * to make a pretend result using a FakeResultWrapper.
-	 */
-	function reallyDoQuery( $offset, $limit, $descending ) {
-		$result = new FakeResultWrapper( array() );
-
-		$messageNames = $this->getAllMessages( $descending );
-		$statuses = self::getCustomisedStatuses( $messageNames, $this->langcode, $this->foreign );
-
-		$count = 0;
-		foreach( $messageNames as $key ) {
-			$customised = isset( $statuses['pages'][$key] );
-			if( $customised !== $this->custom &&
-				( $descending && ( $key < $offset || !$offset ) || !$descending && $key > $offset ) &&
-				( ( $this->prefix && preg_match( $this->prefix, $key ) ) || $this->prefix === false )
-			) {
-				$actual = wfMessage( $key )->inLanguage( $this->langcode )->plain();
-				$default = wfMessage( $key )->inLanguage( $this->langcode )->useDatabase( false )->plain();
-				$result->result[] = array(
-					'am_title'      => $key,
-					'am_actual'     => $actual,
-					'am_default'    => $default,
-					'am_customised' => $customised,
-					'am_talk_exists' => isset( $statuses['talks'][$key] )
-				);
-				$count++;
-			}
-			if( $count == $limit ) {
-				break;
-			}
-		}
-		return $result;
-	}
-
-	function getStartBody() {
-		return Xml::openElement( 'table', array( 'class' => 'TablePager', 'id' => 'mw-allmessagestable' ) ) . "\n" .
-			"<thead><tr>
-				<th rowspan=\"2\">" .
-					wfMsg( 'allmessagesname' ) . "
-				</th>
-				<th>" .
-					wfMsg( 'allmessagesdefault' ) .
-				"</th>
-			</tr>\n
-			<tr>
-				<th>" .
-					wfMsg( 'allmessagescurrent' ) .
-				"</th>
-			</tr></thead><tbody>\n";
-	}
-
-	function formatValue( $field, $value ){
-		global $wgLang;
-		switch( $field ){
-
-			case 'am_title' :
-
-				$title = Title::makeTitle( NS_MEDIAWIKI, $value . $this->suffix );
-				$talk  = Title::makeTitle( NS_MEDIAWIKI_TALK, $value . $this->suffix );
-
-				if( $this->mCurrentRow->am_customised ){
-					$title = Linker::linkKnown( $title, $wgLang->lcfirst( $value ) );
-				} else {
-					$title = Linker::link(
-						$title,
-						$wgLang->lcfirst( $value ),
-						array(),
-						array(),
-						array( 'broken' )
-					);
-				}
-				if ( $this->mCurrentRow->am_talk_exists ) {
-					$talk = Linker::linkKnown( $talk , $this->talk );
-				} else {
-					$talk = Linker::link(
-						$talk,
-						$this->talk,
-						array(),
-						array(),
-						array( 'broken' )
-					);
-				}
-				return $title . ' (' . $talk . ')';
-
-			case 'am_default' :
-			case 'am_actual' :
-				return Sanitizer::escapeHtmlAllowEntities( $value, ENT_QUOTES );
-		}
-		return '';
-	}
-
-	function formatRow( $row ){
-		// Do all the normal stuff
-		$s = parent::formatRow( $row );
-
-		// But if there's a customised message, add that too.
-		if( $row->am_customised ){
-			$s .= Xml::openElement( 'tr', $this->getRowAttrs( $row, true ) );
-			$formatted = strval( $this->formatValue( 'am_actual', $row->am_actual ) );
-			if ( $formatted == '' ) {
-				$formatted = '&#160;';
-			}
-			$s .= Xml::tags( 'td', $this->getCellAttrs( 'am_actual', $row->am_actual ), $formatted )
-				. "</tr>\n";
-		}
-		return $s;
-	}
-
-	function getRowAttrs( $row, $isSecond = false ){
-		$arr = array();
-		global $wgLang;
-		if( $row->am_customised ){
-			$arr['class'] = 'allmessages-customised';
-		}
-		if( !$isSecond ){
-			$arr['id'] = Sanitizer::escapeId( 'msg_' . $wgLang->lcfirst( $row->am_title ) );
-		}
-		return $arr;
-	}
-
-	function getCellAttrs( $field, $value ){
-		if( $this->mCurrentRow->am_customised && $field == 'am_title' ){
-			return array( 'rowspan' => '2', 'class' => $field );
-		} else if( $field == 'am_title' ) {
-			return array( 'class' => $field );
-		} else {
-			return array( 'lang' => $this->langcode, 'dir' => $this->lang->getDir(), 'class' => $field );
-		}
-	}
-
-	// This is not actually used, as getStartBody is overridden above
-	function getFieldNames() {
-		return array(
-			'am_title' => wfMsg( 'allmessagesname' ),
-			'am_default' => wfMsg( 'allmessagesdefault' )
-		);
-	}
-
-	function getTitle() {
-		return SpecialPage::getTitleFor( 'Allmessages', false );
-	}
-
-	function isFieldSortable( $x ){
-		return false;
-	}
-
-	function getDefaultSort(){
-		return '';
-	}
-
-	function getQueryInfo(){
-		return '';
-	}
+	$txt .= ');';
+	return $txt;
 }
 
+/**
+ * Create a list of messages, formatted in HTML as a list of messages and values and showing differences between the default language file message and the message in MediaWiki: namespace.
+ * @param $messages Messages array.
+ * @return The HTML list of messages.
+ */
+function wfAllMessagesMakeHTMLText( $messages ) {
+	global $wgLang, $wgContLang, $wgUser;
+	wfProfileIn( __METHOD__ );
+
+	$sk = $wgUser->getSkin();
+	$talk = wfMsg( 'talkpagelinktext' );
+
+	$input = Xml::element( 'input', array(
+		'type'    => 'text',
+		'id'      => 'allmessagesinput',
+		'onkeyup' => 'allmessagesfilter()'
+	), '' );
+	$checkbox = Xml::element( 'input', array(
+		'type'    => 'button',
+		'value'   => wfMsgHtml( 'allmessagesmodified' ),
+		'id'      => 'allmessagescheckbox',
+		'onclick' => 'allmessagesmodified()'
+	), '' );
+
+	$txt = '<span id="allmessagesfilter" style="display: none;">' . wfMsgHtml( 'allmessagesfilter' ) . " {$input}{$checkbox} " . '</span>';
+
+	$txt .= '
+<table border="1" cellspacing="0" width="100%" id="allmessagestable">
+	<tr>
+		<th rowspan="2">' . wfMsgHtml( 'allmessagesname' ) . '</th>
+		<th>' . wfMsgHtml( 'allmessagesdefault' ) . '</th>
+	</tr>
+	<tr>
+		<th>' . wfMsgHtml( 'allmessagescurrent' ) . '</th>
+	</tr>';
+
+	wfProfileIn( __METHOD__ . "-check" );
+
+	# This is a nasty hack to avoid doing independent existence checks
+	# without sending the links and table through the slow wiki parser.
+	$pageExists = array(
+		NS_MEDIAWIKI => array(),
+		NS_MEDIAWIKI_TALK => array()
+	);
+	$dbr = wfGetDB( DB_SLAVE );
+	$page = $dbr->tableName( 'page' );
+	$sql = "SELECT page_namespace,page_title FROM $page WHERE page_namespace IN (" . NS_MEDIAWIKI . ", " . NS_MEDIAWIKI_TALK . ")";
+	$res = $dbr->query( $sql );
+	while( $s = $dbr->fetchObject( $res ) ) {
+		$pageExists[$s->page_namespace][$s->page_title] = true;
+	}
+	$dbr->freeResult( $res );
+	wfProfileOut( __METHOD__ . "-check" );
+
+	wfProfileIn( __METHOD__ . "-output" );
+
+	$i = 0;
+
+	foreach( $messages as $key => $m ) {
+		$title = $wgLang->ucfirst( $key );
+		if( $wgLang->getCode() != $wgContLang->getCode() ) {
+			$title .= '/' . $wgLang->getCode();
+		}
+
+		$titleObj =& Title::makeTitle( NS_MEDIAWIKI, $title );
+		$talkPage =& Title::makeTitle( NS_MEDIAWIKI_TALK, $title );
+
+		$changed = ( $m['statmsg'] != $m['msg'] );
+		$message = htmlspecialchars( $m['statmsg'] );
+		$mw = htmlspecialchars( $m['msg'] );
+
+		if( isset( $pageExists[NS_MEDIAWIKI][$title] ) ) {
+			$pageLink = $sk->makeKnownLinkObj( $titleObj, "<span id=\"sp-allmessages-i-$i\">" .  htmlspecialchars( $key ) . '</span>' );
+		} else {
+			$pageLink = $sk->makeBrokenLinkObj( $titleObj, "<span id=\"sp-allmessages-i-$i\">" .  htmlspecialchars( $key ) . '</span>' );
+		}
+		if( isset( $pageExists[NS_MEDIAWIKI_TALK][$title] ) ) {
+			$talkLink = $sk->makeKnownLinkObj( $talkPage, htmlspecialchars( $talk ) );
+		} else {
+			$talkLink = $sk->makeBrokenLinkObj( $talkPage, htmlspecialchars( $talk ) );
+		}
+
+		$anchor = 'msg_' . htmlspecialchars( strtolower( $title ) );
+		$anchor = "<a id=\"$anchor\" name=\"$anchor\"></a>";
+
+		if( $changed ) {
+			$txt .= "
+	<tr class=\"orig\" id=\"sp-allmessages-r1-$i\">
+		<td rowspan=\"2\">
+			$anchor$pageLink<br />$talkLink
+		</td><td>
+$message
+		</td>
+	</tr><tr class=\"new\" id=\"sp-allmessages-r2-$i\">
+		<td>
+$mw
+		</td>
+	</tr>";
+		} else {
+			$txt .= "
+	<tr class=\"def\" id=\"sp-allmessages-r1-$i\">
+		<td>
+			$anchor$pageLink<br />$talkLink
+		</td><td>
+$mw
+		</td>
+	</tr>";
+		}
+		$i++;
+	}
+	$txt .= '</table>';
+	wfProfileOut( __METHOD__ . '-output' );
+
+	wfProfileOut( __METHOD__ );
+	return $txt;
+}

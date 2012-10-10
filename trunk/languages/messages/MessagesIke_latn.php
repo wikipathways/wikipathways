@@ -1,8 +1,5 @@
 <?php
-/** Eastern Canadian (Latin script) (inuktitut)
- *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
+/**  ()
  *
  * @ingroup Language
  * @file
@@ -11,7 +8,7 @@
 
 $messages = array(
 # User preference toggles
-'tog-rememberpassword' => 'Iqtuu uikipitia atiq qakugiq atuinnasivuq uvalumaq qaritaujaq (for a maximum of $1 {{PLURAL:$1|day|days}})',
+'tog-rememberpassword' => 'Iqtuu uikipitia atiq qakugiq atuinnasivuq uvalumaq qaritaujaq',
 
 # Dates
 'sunday'       => 'sanattaili',
@@ -48,21 +45,16 @@ $messages = array(
 'aug'          => 'augu',
 'nov'          => 'nuvi',
 
-'about'         => 'miksaani',
-'article'       => 'ilulik mappitaq',
-'newwindow'     => '(uittuq qarasaujaq ikiaq pigivuq igalaaq)',
-'cancel'        => 'iniqtipaa',
-'moredotdotdot' => 'pilluarivaa...',
-'mypage'        => 'ami mappitaq',
-'mytalk'        => 'atlarqutikka',
-'navigation'    => 'mianirivaa',
-'and'           => '&#32;amma',
-
-# Cologne Blue skin
+'about'          => 'miksaani',
+'article'        => 'ilulik mappitaq',
+'newwindow'      => '(uittuq qarasaujaq ikiaq pigivuq igalaaq)',
+'cancel'         => 'iniqtipaa',
 'qbspecialpages' => 'piji mappitaq',
-
-# Vector skin
-'vector-view-edit' => 'Suqusiqpaa',
+'moredotdotdot'  => 'pilluarivaa...',
+'mypage'         => 'ami mappitaq',
+'mytalk'         => 'atlarqutikka',
+'navigation'     => 'mianirivaa',
+'and'            => 'amma',
 
 'help'              => 'qajalippaa',
 'search'            => 'ivaaqpuq',
@@ -106,12 +98,11 @@ $messages = array(
 'newmessagesdifflink' => 'annitujuq asiaNngutuq',
 'editsection'         => 'suqusiqpaa',
 'editold'             => 'suqusiqpaa',
-'editlink'            => 'suqusiqpaa',
 'editsectionhint'     => 'suqusiqpaa ilangiutititsiguti: $1',
-'site-rss-feed'       => '$1 rss mianirivaa',
-'site-atom-feed'      => '$1 atum mianirivaa',
-'page-rss-feed'       => '"$1" rss mianirivaa',
-'page-atom-feed'      => '"$1" atum mianirivaa',
+'site-rss-feed'       => '$1 ᕐᔅᔅ ᒥᐊᓂᕆᕚ',
+'site-atom-feed'      => '$1 ᐊᑐᒻ ᒥᐊᓂᕆᕚ',
+'page-rss-feed'       => '"$1" ᕐᔅᔅ ᒥᐊᓂᕆᕚ',
+'page-atom-feed'      => '"$1" ᐊᑐᒻ ᒥᐊᓂᕆᕚ',
 
 # Short words for each namespace, by default used in the namespace tab in monobook
 'nstab-main'      => 'mappitaq',
@@ -132,14 +123,19 @@ pigivuq qatannguti uikipitia kiinaujaqutiqarvik isuillingaitjapaa. iqtuu suqusiq
 'yourname'           => 'uikipitia atiq',
 'yourpassword'       => 'uikipitia palanngasauti',
 'yourpasswordagain'  => 'tamatumaniiqpaa iksigaqtuq uikipitia palanngasauti',
-'remembermypassword' => 'iqtuu uikipitia atiq qakakuq atuinnasivuq uvalumajuq qaritaujaq (for a maximum of $1 {{PLURAL:$1|day|days}})',
+'remembermypassword' => 'iqtuu uikipitia atiq qakakuq atuinnasivuq uvalumajuq qaritaujaq',
 'login'              => 'akunnapuq',
 'loginprompt'        => 'pigialik imatuaq qaritaujaq quukiis (Cookies) pirqaati akunnapuq {{SITENAME}}.',
 'userlogin'          => 'akunnapuq / pirqaapaa kiinaijakkuvingmi tuqkuqsivik',
 'logout'             => 'anivvik',
 'userlogout'         => 'anivvik',
-'nologin'            => "ajuinnaaq inuquti? '''$1'''.",
+'nologin'            => 'ajuinnaaq inuquti? $1.',
 'nologinlink'        => 'pirqaapaa kiinaujakkuvingmi tuqkuqsivik',
+'youremail'          => 'kigutiup sitiniqpaanga:',
+'username'           => 'uikipitia atiq:',
+'yourrealname'       => 'inullarik atiq:',
+'email'              => 'kigutiup sitiniqpaanga',
+'prefs-help-email'   => 'kigutiup sitiniqpaanga (pikkallavuq) — qakugu nalunanngilaq ilissi pijungnaqtuq pigivaa kanngunaqtuq aajiiqatiginggiq',
 'mailmypassword'     => 'qillutuq uikipitia palanngasauti kigutiup sitiniqpaanga',
 
 # Edit page toolbar
@@ -147,14 +143,14 @@ pigivuq qatannguti uikipitia kiinaujaqutiqarvik isuillingaitjapaa. iqtuu suqusiq
 'bold_tip'    => 'ijjujug taqsaliqpaa',
 
 # Edit pages
-'summary'         => 'suvit:',
+'summary'         => 'suvit',
 'minoredit'       => 'ukiukiluaq asianngutuq',
 'watchthis'       => 'uvva',
 'savearticle'     => 'uqausillaringgita titiraqtauninggil',
 'preview'         => 'uvva qangasaanguliqtuq',
 'showpreview'     => 'surkuqpaa alakkautivuq sivuliqpaa uqaasillarigita titiraqtauningigit',
 'showdiff'        => 'alakkatippaa asianngutuq',
-'summary-preview' => 'suvit preview:',
+'summary-preview' => 'suvit preview',
 'blockedtitle'    => 'aaqqiksuiji uminngasisijuq',
 'loginreqlink'    => 'akunnapuq',
 'newarticle'      => '(pigivuk)',
@@ -181,18 +177,15 @@ pigivuq qatannguti uikipitia kiinaujaqutiqarvik isuillingaitjapaa. iqtuu suqusiq
 'diff-multi'    => '({{PLURAL:$1|atausiq kimmiuvuq titiraqtaugiarngarut|$1 kimmiuvuq titiraqtaugiarngarut}} ajuqtuq uvva.)',
 
 # Search results
-'nextn'       => 'tagga {{PLURAL:$1|$1}}',
+'nextn'       => 'tagga $1',
 'powersearch' => 'ivaaqpuq',
 
 # Preferences page
-'mypreferences'     => 'mi pikkumaniqpaaq',
-'prefs-rc'          => 'pigivuq asianngutuq',
-'searchresultshead' => 'ivaaqpuq',
-'youremail'         => 'kigutiup sitiniqpaanga:',
-'username'          => 'uikipitia atiq:',
-'yourrealname'      => 'inullarik atiq:',
-'email'             => 'kigutiup sitiniqpaanga',
-'prefs-help-email'  => 'kigutiup sitiniqpaanga (pikkallavuq) — qakugu nalunanngilaq ilissi pijungnaqtuq pigivaa kanngunaqtuq aajiiqatiginggiq',
+'mypreferences'         => 'mi pikkumaniqpaaq',
+'math_unknown_error'    => 'tusaumajaunngituq tammanaqtuq',
+'math_unknown_function' => 'tusaumajaunngituq iliurniq',
+'prefs-rc'              => 'pigivuq asianngutuq',
+'searchresultshead'     => 'ivaaqpuq',
 
 # User rights
 'editinguser' => "suqusiqpaa qatannguti '''[[User:$1|$1]]''' ([[User talk:$1|{{int:talkpagelinktext}}]] | [[Special:Contributions/$1|{{int:contribslink}}]])",
@@ -202,8 +195,6 @@ pigivuq qatannguti uikipitia kiinaujaqutiqarvik isuillingaitjapaa. iqtuu suqusiq
 
 # Recent changes linked
 'recentchangeslinked'          => 'asiaNngutuq mitsaasijuq',
-'recentchangeslinked-feed'     => 'asiaNngutuq mitsaasijuq',
-'recentchangeslinked-toolbox'  => 'asiaNngutuq mitsaasijuq',
 'recentchangeslinked-noresult' => '0 asiaNngutuq itsivimmiusiqpaa mappitaq takuvallatuq sulluk tamatumani tumiku',
 
 # Upload
@@ -223,14 +214,14 @@ pigivuq qatannguti uikipitia kiinaujaqutiqarvik isuillingaitjapaa. iqtuu suqusiq
 'randomredirect' => 'nakituinnaq qaujisarniq qaningani kamagijaq aasit nakit',
 
 # Statistics
-'statistics'              => 'kisitsisillgurlugitpasissitissat',
-'statistics-header-users' => 'qatannguti kisitsisillgurlugitpasissitissat',
+'statistics' => 'kisitsisillgurlugitpasissitissat',
+'userstats'  => 'qatannguti kisitsisillgurlugitpasissitissat',
 
 'doubleredirects' => 'tapirqilik qaningani kamagijaq aasit nakit',
 
 'brokenredirects'        => 'napivaa qaningani kamagijaq aasit nakit',
-'brokenredirects-edit'   => 'suqusiqpaa',
-'brokenredirects-delete' => 'nipaqtipaa',
+'brokenredirects-edit'   => '(suqusiqpaa)',
+'brokenredirects-delete' => '(nipaqtipaa)',
 
 # Miscellaneous special pages
 'listusers'         => 'qatannguti nipi',
@@ -240,6 +231,9 @@ pigivuq qatannguti uikipitia kiinaujaqutiqarvik isuillingaitjapaa. iqtuu suqusiq
 
 # Book sources
 'booksources-go' => 'aivuq',
+
+# Special:Log
+'log-search-submit' => 'aivuk',
 
 # Special:AllPages
 'allpages'       => 'sunamittuq mappitaq',
@@ -266,17 +260,13 @@ pigivuq qatannguti uikipitia kiinaujaqutiqarvik isuillingaitjapaa. iqtuu suqusiq
 'enotif_impersonal_salutation' => '{{SITENAME}} qatannguti',
 'created'                      => 'mappitaq anivuq',
 
-# Delete
-'dellogpage'  => 'nipaq nipi',
-'deletionlog' => 'nipaq nipi',
-
-# Protect
-'prot_1movedto2'      => '[[$1]] surramajuq [[$2]]',
+# Delete/protect/revert
+'dellogpage'          => 'nipaq nipi',
+'deletionlog'         => 'nipaq nipi',
 'protect-legend'      => 'patimmivaa sapummivaa',
 'protect-level-sysop' => 'sirlak titiraqsimajunik tuqquqtiriji',
 
 # Restrictions (nouns)
-'restriction-edit' => 'Suqusiqpaa',
 'restriction-move' => 'uajuq',
 
 # Undelete
@@ -317,7 +307,8 @@ pigivuq qatannguti uikipitia kiinaujaqutiqarvik isuillingaitjapaa. iqtuu suqusiq
 'delete_and_move'  => 'nipaqtipaa amma uajuq',
 
 # Namespace 8 related
-'allmessagesname' => 'atiq',
+'allmessagesname'     => 'atiq',
+'allmessagesmodified' => 'alakkatiqpaa sirlak tukilitaqtaapaa',
 
 # Import log
 'import-logentry-upload-detail'    => '$1 {{PLURAL:$1|titiraqtaugiarngarut|titiraqtaugiarngarut}}',
@@ -340,14 +331,9 @@ pigivuq qatannguti uikipitia kiinaujaqutiqarvik isuillingaitjapaa. iqtuu suqusiq
 'previousdiff' => '← tunullipaaq asiaNngutuq',
 'nextdiff'     => 'tagga asiaNngutuq mappitaq →',
 
-# Special:NewFiles
+# Special:NewImages
 'ilsubmit' => 'ivaaqpuq',
 'bydate'   => 'pitaaruttuq inuulirvik',
-
-# Variants for Inuktitut language
-'variantname-ike-cans' => 'ᑎᑎᕋᐅᓯᖅ ᓄᑖᖅ',
-'variantname-ike-latn' => 'ilisautik',
-'variantname-iu'       => 'disable',
 
 # EXIF tags
 'exif-imagelength'         => 'qutsingniq',
@@ -360,6 +346,9 @@ pigivuq qatannguti uikipitia kiinaujaqutiqarvik isuillingaitjapaa. iqtuu suqusiq
 
 # 'all' in various places, this might be different for inflected languages
 'monthsall' => 'sunamittuq',
+
+# HTML dump
+'redirectingto' => 'qaningani kamagijaq aasit nakit [[:$1]]...',
 
 # action=purge
 'confirm_purge_button' => 'akaujuq',
@@ -378,8 +367,5 @@ pigivuq qatannguti uikipitia kiinaujaqutiqarvik isuillingaitjapaa. iqtuu suqusiq
 
 # Special:SpecialPages
 'specialpages' => 'piji mappitaq',
-
-# Special:Tags
-'tags-edit' => 'suqusiqpaa',
 
 );

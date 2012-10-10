@@ -1,9 +1,6 @@
 <?php
 /** Venda (Tshivenda)
  *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
- *
  * @ingroup Language
  * @file
  *
@@ -28,10 +25,10 @@ $messages = array(
 # Login and logout pages
 'yourname'     => 'Dzina ḽa mushumisi:',
 'yourpassword' => 'Phasiwede:',
+'username'     => 'Dzina ḽa mushumisi:',
 
 # Preferences page
 'changepassword' => 'Shandukisani phasiwede',
-'username'       => 'Dzina ḽa mushumisi:',
 
 # Miscellaneous special pages
 'newpages-username' => 'Dzina ḽa mushumisi:',

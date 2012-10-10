@@ -1,16 +1,12 @@
 <?php
 /** Kinaray-a (Kinaray-a)
  *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
- *
  * @ingroup Language
  * @file
  *
  * @author Harvzsf
  * @author Joebertj
  * @author Jose77
- * @author Oxyzen
  * @author RonaldPanaligan
  */
 
@@ -23,7 +19,7 @@ $messages = array(
 'tog-extendwatchlist'      => "Palapadun ang ''watchlist'' agud nga mapakita ang tanan nga ginasogtan nga pag-ilis",
 'tog-numberheadings'       => "Automatiko nga togroan kang nomero ang manga ''heading''",
 'tog-showtoolbar'          => 'Ipakita ang pangbolig sa pag-ilis (JavaScript)',
-'tog-rememberpassword'     => "Tandaan ang akun nga ''log-in'' sa dya nga ''computer'' (for a maximum of $1 {{PLURAL:$1|day|days}})",
+'tog-rememberpassword'     => "Tandaan ang akun nga ''log-in'' sa dya nga ''computer''",
 'tog-watchcreations'       => "Idogang sa akun nga ''watchlist'' ang manga pahina nga ginpanghimo ko",
 'tog-watchdefault'         => "Idogang sa akun nga ''watchlist'' ang manga pahina nga ginpang-''edit'' ko",
 'tog-watchmoves'           => "Idogang sa akun nga ''watchlist'' ang manga pahina nga ginpanghalin ko",
@@ -43,6 +39,8 @@ $messages = array(
 'underline-always'  => 'Pirme gid',
 'underline-never'   => 'Indi gid',
 'underline-default' => 'Onay nga browser',
+
+'skinpreview' => '(Bilid)',
 
 # Dates
 'sunday'        => 'Domingo',
@@ -101,23 +99,19 @@ $messages = array(
 'category-media-header' => 'Manga midya sa "$1"',
 'category-empty'        => "''Wara it manga artikolo okon medya ang katergorya nga dya.''",
 
-'about'         => 'Angut sa Iwan',
-'article'       => 'Pahina kasudlan',
-'newwindow'     => "(gabokas sa bag-o nga ''window'')",
-'cancel'        => 'Kanselar',
-'moredotdotdot' => 'Raku pa...',
-'mypage'        => 'Akun nga pahina',
-'anontalk'      => "Istoryahun ang dya nga ''IP''",
-
-# Cologne Blue skin
+'about'          => 'Angut sa Iwan',
+'article'        => 'Pahina kasudlan',
+'newwindow'      => "(gabokas sa bag-o nga ''window'')",
+'cancel'         => 'Kanselar',
 'qbfind'         => 'Sagap',
 'qbbrowse'       => 'Bilid',
 'qbedit'         => 'Iislan',
 'qbpageoptions'  => 'Dya nga Pahina',
 'qbpageinfo'     => 'Konteksto',
 'qbspecialpages' => 'Manga espesyal nga pahina',
-'faq'            => 'FAQ',
-'faqpage'        => 'Project:FAQ',
+'moredotdotdot'  => 'Raku pa...',
+'mypage'         => 'Akun nga pahina',
+'anontalk'       => "Istoryahun ang dya nga ''IP''",
 
 'errorpagetitle'    => 'Sayup',
 'returnto'          => 'Balik sa $1.',
@@ -129,6 +123,7 @@ $messages = array(
 'history'           => 'Kasaysayan kang Pahina',
 'history_short'     => 'Kasaysayan',
 'updatedmarker'     => 'ginpabag-o halin kang orihi ko nga pagbisita',
+'info_short'        => 'Impormasyon',
 'printableversion'  => "Bersyon nga sarang ma-''print''",
 'permalink'         => "Permanyente nga ''link''",
 'print'             => 'Printa',
@@ -147,7 +142,7 @@ $messages = array(
 'specialpage'       => 'Espesyal nga Pahina',
 'postcomment'       => 'Togro Komento',
 'articlepage'       => 'Turukun ang pahina kasudlan',
-'talk'              => 'Sugilanon',
+'talk'              => 'Sogdanunay',
 'views'             => 'Manga paglantaw',
 'toolbox'           => 'Pangbolig',
 'otherlanguages'    => 'Sa iban nga lingwahe',
@@ -158,25 +153,28 @@ $messages = array(
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
 'aboutsite'            => 'Tunggəd sa {{SITENAME}}',
-'aboutpage'            => 'Project:Tunggəd',
+'aboutpage'            => 'Proyekto:Tunggəd',
+'bugreports'           => "Mga report kang ''bug''",
 'disclaimers'          => 'Mga Panginwala',
-'disclaimerpage'       => 'Project:Panginwala nga Pangtanan',
+'disclaimerpage'       => 'Proyekto:Panginwala nga Pangtanan',
 'edithelp'             => 'Panoytoy sa Pag-ilis',
-'edithelppage'         => 'Help:Pag-ilis',
+'edithelppage'         => 'Bulig:Pag-ilis',
+'faq'                  => 'FAQ',
+'faqpage'              => 'Proyekto:FAQ',
 'mainpage'             => 'Pono nga Pahina',
 'mainpage-description' => 'Pono nga Pahina',
 'privacy'              => 'Surundun sa Privacy',
-'privacypage'          => 'Project:Surundun sa Privacy',
+'privacypage'          => 'Proyekto:Surundun sa Privacy',
 
 'badaccess'        => 'Sayup sa lisensya',
 'badaccess-group0' => 'Indi kaw ginpasogtan nga himoon ang lihuk nga ginalaum mo.',
-'badaccess-groups' => 'Ang imo ginpangayo nga lihuk ay para lang sa mga users sa {{PLURAL:$2|nga grupo|sara sa mga grupo}}: $1.',
 
 'versionrequired'     => 'Version $1 kang MediaWiki kinahanglan',
 'versionrequiredtext' => 'Version $1 of MediaWiki kinahanglan para magamit ang page nga ja.
 Lantawa sa [[Special:Version|version kang page]].',
 
 'ok'                      => 'OK dun',
+'pagetitle'               => '$1 - {{SITENAME}}',
 'youhavenewmessages'      => 'May rudyan kaw nga $1 ($2).',
 'newmessageslink'         => 'bag-o nga manga mensahe',
 'newmessagesdifflink'     => 'orihi nga ilis',
@@ -201,6 +199,7 @@ Lantawa sa [[Special:Version|version kang page]].',
 # General errors
 'error'                => 'Sayup',
 'databaseerror'        => 'Sayup sa database',
+'nodb'                 => "Indi mapili ang ''database'' nga $1",
 'readonly'             => "Napintalan ang ''database''",
 'internalerror'        => 'Sayup internal',
 'internalerror_info'   => 'Sayup internal: $1',
@@ -213,18 +212,17 @@ Lantawa sa [[Special:Version|version kang page]].',
 'viewsource'           => 'Turukun ang ginhalinan',
 
 # Login and logout pages
-'remembermypassword' => "Tandaan ang akun nga ''log-in'' sa dya nga ''computer'' (for a maximum of $1 {{PLURAL:$1|day|days}})",
+'remembermypassword' => "Tandaan ang akun nga ''log-in'' sa dya nga ''computer''",
 'nologinlink'        => "Himo ka sangka ''account''",
 'createaccount'      => "Himo ka ''account''",
+'youremail'          => 'E-mail:',
+'email'              => 'E-mail',
 
 # Edit pages
 'preview' => 'Bilid',
 
 # Preferences page
-'skin-preview'      => 'Bilid',
 'searchresultshead' => 'Sagap',
-'youremail'         => 'E-mail:',
-'email'             => 'E-mail',
 
 # Recent changes
 'hide' => 'Itago',
@@ -232,28 +230,25 @@ Lantawa sa [[Special:Version|version kang page]].',
 
 'upload-file-error' => 'Sayup internal',
 
-# Special:ListFiles
+# Special:ImageList
 'imgfile' => 'inayap',
-
-# File description page
-'file-anchor-link' => 'Inayap',
 
 # File deletion
 'filedelete-submit' => 'Para',
 
-'brokenredirects-edit'   => 'Iislan',
-'brokenredirects-delete' => 'para',
+'brokenredirects-edit'   => '(Iislan)',
+'brokenredirects-delete' => '(para)',
 
 'withoutinterwiki-submit' => 'Ipakita',
 
 # Book sources
 'booksources-go' => 'Agto',
 
+# Special:Log
+'log-search-submit' => 'Agto',
+
 # Special:Categories
 'categories' => 'Manga Kategorya',
-
-# Special:LinkSearch
-'linksearch-ok' => 'Sagap',
 
 # Special:ListUsers
 'listusers-submit' => 'Ipakita',
@@ -261,7 +256,7 @@ Lantawa sa [[Special:Version|version kang page]].',
 # E-mail user
 'emailmessage' => 'Mensahe',
 
-# Delete
+# Delete/protect/revert
 'delete-legend' => 'Para',
 
 # Restrictions (nouns)
@@ -270,7 +265,6 @@ Lantawa sa [[Special:Version|version kang page]].',
 # Undelete
 'undelete-search-submit' => 'Sagap',
 
-'sp-contributions-talk'   => 'Wakal',
 'sp-contributions-submit' => 'Sagap',
 
 # What links here
@@ -297,7 +291,7 @@ Lantawa sa [[Special:Version|version kang page]].',
 'tooltip-t-contributions'       => 'Lantawa ang listahan kang mga ginbulig kang user nga ja',
 'tooltip-t-emailuser'           => 'Padarhi kang e-mail ang user nga ja',
 
-# Special:NewFiles
+# Special:NewImages
 'ilsubmit' => 'Sagap',
 
 # action=purge

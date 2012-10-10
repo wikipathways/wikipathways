@@ -1,48 +1,28 @@
 <?php
 /**
- * Implements Special:Protectedpages
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- * http://www.gnu.org/copyleft/gpl.html
- *
  * @file
  * @ingroup SpecialPage
  */
 
 /**
- * A special page that lists protected pages
- *
+ * @todo document
  * @ingroup SpecialPage
  */
-class SpecialProtectedpages extends SpecialPage {
+class ProtectedPagesForm {
 
 	protected $IdLevel = 'level';
 	protected $IdType  = 'type';
 
-	public function __construct() {
-		parent::__construct( 'Protectedpages' );
-	}
-
-	public function execute( $par ) {
+	public function showList( $msg = '' ) {
 		global $wgOut, $wgRequest;
 
-		$this->setHeaders();
-		$this->outputHeader();
+		$wgOut->setPagetitle( wfMsg( "protectedpages" ) );
+		if ( "" != $msg ) {
+			$wgOut->setSubtitle( $msg );
+		}
 
 		// Purge expired entries on one in every 10 queries
-		if( !mt_rand( 0, 10 ) ) {
+		if ( !mt_rand( 0, 10 ) ) {
 			Title::purgeExpiredRestrictions();
 		}
 
@@ -52,13 +32,12 @@ class SpecialProtectedpages extends SpecialPage {
 		$size = $wgRequest->getIntOrNull( 'size' );
 		$NS = $wgRequest->getIntOrNull( 'namespace' );
 		$indefOnly = $wgRequest->getBool( 'indefonly' ) ? 1 : 0;
-		$cascadeOnly = $wgRequest->getBool('cascadeonly') ? 1 : 0;
 
-		$pager = new ProtectedPagesPager( $this, array(), $type, $level, $NS, $sizetype, $size, $indefOnly, $cascadeOnly );
+		$pager = new ProtectedPagesPager( $this, array(), $type, $level, $NS, $sizetype, $size, $indefOnly );
 
-		$wgOut->addHTML( $this->showOptions( $NS, $type, $level, $sizetype, $size, $indefOnly, $cascadeOnly ) );
+		$wgOut->addHTML( $this->showOptions( $NS, $type, $level, $sizetype, $size, $indefOnly ) );
 
-		if( $pager->getNumRows() ) {
+		if ( $pager->getNumRows() ) {
 			$s = $pager->getNavigationBar();
 			$s .= "<ul>" .
 				$pager->getBody() .
@@ -76,19 +55,17 @@ class SpecialProtectedpages extends SpecialPage {
 	 * @return string Formatted <li> element
 	 */
 	public function formatRow( $row ) {
-		global $wgUser, $wgLang;
+		global $wgUser, $wgLang, $wgContLang;
 
 		wfProfileIn( __METHOD__ );
 
-		static $skin = null, $infinity = null;
+		static $skin=null;
 
-		if( is_null( $skin ) ){
+		if( is_null( $skin ) )
 			$skin = $wgUser->getSkin();
-			$infinity = wfGetDB( DB_SLAVE )->getInfinity();
-		}
 
 		$title = Title::makeTitleSafe( $row->page_namespace, $row->page_title );
-		$link = $skin->link( $title );
+		$link = $skin->makeLinkObj( $title );
 
 		$description_items = array ();
 
@@ -96,85 +73,62 @@ class SpecialProtectedpages extends SpecialPage {
 
 		$description_items[] = $protType;
 
-		if( $row->pr_cascade ) {
+		if ( $row->pr_cascade ) {
 			$description_items[] = wfMsg( 'protect-summary-cascade' );
 		}
 
+		$expiry_description = '';
 		$stxt = '';
 
-		$expiry = $wgLang->formatExpiry( $row->pr_expiry, TS_MW );
-		if( $expiry != $infinity ) {
+		if ( $row->pr_expiry != 'infinity' && strlen($row->pr_expiry) ) {
+			$expiry = Block::decodeExpiry( $row->pr_expiry );
 
-			$expiry_description = wfMsg(
-				'protect-expiring',
-				$wgLang->timeanddate( $expiry ),
-				$wgLang->date( $expiry ),
-				$wgLang->time( $expiry )
-			);
+			$expiry_description = wfMsgForContent( 'protect-expiring', $wgLang->timeanddate( $expiry ) );
 
-			$description_items[] = htmlspecialchars($expiry_description);
+			$description_items[] = $expiry_description;
 		}
 
-		if(!is_null($size = $row->page_len)) {
-			$stxt = $wgLang->getDirMark() . ' ' . $skin->formatRevisionSize( $size );
+		if (!is_null($size = $row->page_len)) {
+			$stxt = $wgContLang->getDirMark() . ' ' . $skin->formatRevisionSize( $size );
 		}
 
 		# Show a link to the change protection form for allowed users otherwise a link to the protection log
 		if( $wgUser->isAllowed( 'protect' ) ) {
-			$changeProtection = ' (' . $skin->linkKnown(
-				$title,
-				wfMsgHtml( 'protect_change' ),
-				array(),
-				array( 'action' => 'unprotect' )
-			) . ')';
+			$changeProtection = ' (' . $skin->makeKnownLinkObj( $title, wfMsgHtml( 'protect_change' ), 'action=unprotect' ) . ')';
 		} else {
 			$ltitle = SpecialPage::getTitleFor( 'Log' );
-			$changeProtection = ' (' . $skin->linkKnown(
-				$ltitle,
-				wfMsgHtml( 'protectlogpage' ),
-				array(),
-				array(
-					'type' => 'protect',
-					'page' => $title->getPrefixedText()
-				)
-			) . ')';
+			$changeProtection = ' (' . $skin->makeKnownLinkObj( $ltitle, wfMsgHtml( 'protectlogpage' ), 'type=protect&page=' . $title->getPrefixedUrl() ) . ')';
 		}
 
 		wfProfileOut( __METHOD__ );
 
-		return Html::rawElement(
-			'li',
-			array(),
-			wfSpecialList( $link . $stxt, $wgLang->commaList( $description_items ), false ) . $changeProtection ) . "\n";
+		return '<li>' . wfSpecialList( $link . $stxt, implode( $description_items, ', ' ) ) . $changeProtection . "</li>\n";
 	}
 
 	/**
-	 * @param $namespace Integer
-	 * @param $type String: restriction type
-	 * @param $level String: restriction level
-	 * @param $sizetype String: "min" or "max"
-	 * @param $size Integer
-	 * @param $indefOnly Boolean: only indefinie protection
-	 * @param $cascadeOnly Boolean: only cascading protection
-	 * @return String: input form
+	 * @param $namespace int
+	 * @param $type string
+	 * @param $level string
+	 * @param $minsize int
+	 * @param $indefOnly bool
+	 * @return string Input form
+	 * @private
 	 */
-	protected function showOptions( $namespace, $type='edit', $level, $sizetype, $size, $indefOnly, $cascadeOnly ) {
+	protected function showOptions( $namespace, $type='edit', $level, $sizetype, $size, $indefOnly ) {
 		global $wgScript;
-		$title = SpecialPage::getTitleFor( 'Protectedpages' );
+		$title = SpecialPage::getTitleFor( 'ProtectedPages' );
 		return Xml::openElement( 'form', array( 'method' => 'get', 'action' => $wgScript ) ) .
 			Xml::openElement( 'fieldset' ) .
 			Xml::element( 'legend', array(), wfMsg( 'protectedpages' ) ) .
-			Html::hidden( 'title', $title->getPrefixedDBkey() ) . "\n" .
-			$this->getNamespaceMenu( $namespace ) . "&#160;\n" .
-			$this->getTypeMenu( $type ) . "&#160;\n" .
-			$this->getLevelMenu( $level ) . "&#160;\n" .
-			"<br /><span style='white-space: nowrap'>" .
-			$this->getExpiryCheck( $indefOnly ) . "&#160;\n" .
-			$this->getCascadeCheck( $cascadeOnly ) . "&#160;\n" .
-			"</span><br /><span style='white-space: nowrap'>" .
-			$this->getSizeLimit( $sizetype, $size ) . "&#160;\n" .
+			Xml::hidden( 'title', $title->getPrefixedDBkey() ) . "&nbsp;\n" .
+			$this->getNamespaceMenu( $namespace ) . "&nbsp;\n" .
+			$this->getTypeMenu( $type ) . "&nbsp;\n" .
+			$this->getLevelMenu( $level ) . "&nbsp;\n" .
+			"<br /><span style='white-space: nowrap'>&nbsp;&nbsp;" .
+			$this->getExpiryCheck( $indefOnly ) . "&nbsp;\n" .
+			$this->getSizeLimit( $sizetype, $size ) . "&nbsp;\n" .
 			"</span>" .
-			"&#160;" . Xml::submitButton( wfMsg( 'allpagessubmit' ) ) . "\n" .
+			"&nbsp;" . Xml::submitButton( wfMsg( 'allpagessubmit' ) ) . "\n" .
 			Xml::closeElement( 'fieldset' ) .
 			Xml::closeElement( 'form' );
 	}
@@ -183,12 +137,12 @@ class SpecialProtectedpages extends SpecialPage {
 	 * Prepare the namespace filter drop-down; standard namespace
 	 * selector, sans the MediaWiki namespace
 	 *
-	 * @param $namespace Mixed: pre-select namespace
-	 * @return String
+	 * @param mixed $namespace Pre-select namespace
+	 * @return string
 	 */
 	protected function getNamespaceMenu( $namespace = null ) {
 		return "<span style='white-space: nowrap'>" .
-			Xml::label( wfMsg( 'namespace' ), 'namespace' ) . '&#160;'
+			Xml::label( wfMsg( 'namespace' ), 'namespace' ) . '&nbsp;'
 			. Xml::namespaceSelector( $namespace, '' ) . "</span>";
 	}
 
@@ -203,38 +157,30 @@ class SpecialProtectedpages extends SpecialPage {
 	/**
 	 * @return string Formatted HTML
 	 */
-	protected function getCascadeCheck( $cascadeOnly ) {
-		return
-			Xml::checkLabel( wfMsg('protectedpages-cascade'), 'cascadeonly', 'cascadeonly', $cascadeOnly ) . "\n";
-	}
-
-	/**
-	 * @return string Formatted HTML
-	 */
 	protected function getSizeLimit( $sizetype, $size ) {
 		$max = $sizetype === 'max';
 
 		return
 			Xml::radioLabel( wfMsg('minimum-size'), 'sizetype', 'min', 'wpmin', !$max ) .
-			'&#160;' .
+			'&nbsp;' .
 			Xml::radioLabel( wfMsg('maximum-size'), 'sizetype', 'max', 'wpmax', $max ) .
-			'&#160;' .
+			'&nbsp;' .
 			Xml::input( 'size', 9, $size, array( 'id' => 'wpsize' ) ) .
-			'&#160;' .
+			'&nbsp;' .
 			Xml::label( wfMsg('pagesize'), 'wpsize' );
 	}
 
 	/**
-	 * Creates the input label of the restriction type
-	 * @param $pr_type string Protection type
 	 * @return string Formatted HTML
 	 */
 	protected function getTypeMenu( $pr_type ) {
+		global $wgRestrictionTypes;
+
 		$m = array(); // Temporary array
 		$options = array();
 
 		// First pass to load the log names
-		foreach( Title::getFilteredRestrictionTypes( true ) as $type ) {
+		foreach( $wgRestrictionTypes as $type ) {
 			$text = wfMsg("restriction-$type");
 			$m[$text] = $type;
 		}
@@ -246,15 +192,13 @@ class SpecialProtectedpages extends SpecialPage {
 		}
 
 		return "<span style='white-space: nowrap'>" .
-			Xml::label( wfMsg('restriction-type') , $this->IdType ) . '&#160;' .
+			Xml::label( wfMsg('restriction-type') , $this->IdType ) . '&nbsp;' .
 			Xml::tags( 'select',
 				array( 'id' => $this->IdType, 'name' => $this->IdType ),
 				implode( "\n", $options ) ) . "</span>";
 	}
 
 	/**
-	 * Creates the input label of the restriction level
-	 * @param $pr_level string Protection level
 	 * @return string Formatted HTML
 	 */
 	protected function getLevelMenu( $pr_level ) {
@@ -265,8 +209,7 @@ class SpecialProtectedpages extends SpecialPage {
 
 		// First pass to load the log names
 		foreach( $wgRestrictionLevels as $type ) {
-			// Messages used can be 'restriction-level-sysop' and 'restriction-level-autoconfirmed'
-			if( $type !='' && $type !='*') {
+			if ( $type !='' && $type !='*') {
 				$text = wfMsg("restriction-level-$type");
 				$m[$text] = $type;
 			}
@@ -278,11 +221,11 @@ class SpecialProtectedpages extends SpecialPage {
 			$options[] = Xml::option( $text, $type, $selected );
 		}
 
-		return "<span style='white-space: nowrap'>" .
-			Xml::label( wfMsg( 'restriction-level' ) , $this->IdLevel ) . ' ' .
+		return
+			Xml::label( wfMsg('restriction-level') , $this->IdLevel ) . '&nbsp;' .
 			Xml::tags( 'select',
 				array( 'id' => $this->IdLevel, 'name' => $this->IdLevel ),
-				implode( "\n", $options ) ) . "</span>";
+				implode( "\n", $options ) );
 	}
 }
 
@@ -294,9 +237,7 @@ class ProtectedPagesPager extends AlphabeticPager {
 	public $mForm, $mConds;
 	private $type, $level, $namespace, $sizetype, $size, $indefonly;
 
-	function __construct( $form, $conds = array(), $type, $level, $namespace, $sizetype='', $size=0,
-		$indefonly = false, $cascadeonly = false )
-	{
+	function __construct( $form, $conds = array(), $type, $level, $namespace, $sizetype='', $size=0, $indefonly=false ) {
 		$this->mForm = $form;
 		$this->mConds = $conds;
 		$this->type = ( $type ) ? $type : 'edit';
@@ -305,22 +246,20 @@ class ProtectedPagesPager extends AlphabeticPager {
 		$this->sizetype = $sizetype;
 		$this->size = intval($size);
 		$this->indefonly = (bool)$indefonly;
-		$this->cascadeonly = (bool)$cascadeonly;
 		parent::__construct();
 	}
 
 	function getStartBody() {
+		wfProfileIn( __METHOD__ );
 		# Do a link batch query
 		$lb = new LinkBatch;
-		foreach ( $this->mResult as $row ) {
+		while( $row = $this->mResult->fetchObject() ) {
 			$lb->add( $row->page_namespace, $row->page_title );
 		}
 		$lb->execute();
-		return '';
-	}
 
-	function getTitle() {
-		return SpecialPage::getTitleFor( 'Protectedpages' );
+		wfProfileOut( __METHOD__ );
+		return '';
 	}
 
 	function formatRow( $row ) {
@@ -329,23 +268,18 @@ class ProtectedPagesPager extends AlphabeticPager {
 
 	function getQueryInfo() {
 		$conds = $this->mConds;
-		$conds[] = '(pr_expiry>' . $this->mDb->addQuotes( $this->mDb->timestamp() ) .
-				'OR pr_expiry IS NULL)';
+		$conds[] = 'pr_expiry>' . $this->mDb->addQuotes( $this->mDb->timestamp() );
 		$conds[] = 'page_id=pr_page';
 		$conds[] = 'pr_type=' . $this->mDb->addQuotes( $this->type );
 
 		if( $this->sizetype=='min' ) {
 			$conds[] = 'page_len>=' . $this->size;
-		} elseif( $this->sizetype=='max' ) {
+		} else if( $this->sizetype=='max' ) {
 			$conds[] = 'page_len<=' . $this->size;
 		}
 
 		if( $this->indefonly ) {
-			$db = wfGetDB( DB_SLAVE );
-			$conds[] = "pr_expiry = {$db->addQuotes( $db->getInfinity() )} OR pr_expiry IS NULL";
-		}
-		if( $this->cascadeonly ) {
-			$conds[] = "pr_cascade = '1'";
+			$conds[] = "pr_expiry = 'infinity' OR pr_expiry IS NULL";
 		}
 
 		if( $this->level )
@@ -362,4 +296,14 @@ class ProtectedPagesPager extends AlphabeticPager {
 	function getIndexField() {
 		return 'pr_id';
 	}
+}
+
+/**
+ * Constructor
+ */
+function wfSpecialProtectedpages() {
+
+	$ppForm = new ProtectedPagesForm();
+
+	$ppForm->showList();
 }

@@ -6,12 +6,7 @@
  * @author Niklas Laxström
  */
 class LanguageKm extends Language {
-
-	/**
-	 * @param $_ string
-	 * @return string
-	 */
-	function commafy( $_ ) {
+	function commafy($_) {
 		/* NO-op for Khmer. Cannot use
 		 * $separatorTransformTable = array( ',' => '' )
 		 * That would break when parsing and doing strstr '' => 'foo';

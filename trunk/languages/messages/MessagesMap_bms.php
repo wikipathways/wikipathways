@@ -1,42 +1,15 @@
 <?php
 /** Basa Banyumasan (Basa Banyumasan)
  *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
- *
  * @ingroup Language
  * @file
  *
- * @author StefanusRA
  * @author לערי ריינהארט
  */
 
 $fallback = 'jv';
 
 $messages = array(
-# Dates
-'sunday'    => 'Minggu',
-'monday'    => 'Senen',
-'tuesday'   => 'Selasa',
-'wednesday' => 'Rebo',
-'thursday'  => 'Kemis',
-'friday'    => 'Jemuwah',
-'saturday'  => 'Setu',
-'sun'       => 'Min',
-'mon'       => 'Sen',
-'tue'       => 'Sel',
-'wed'       => 'Reb',
-'thu'       => 'Kem',
-'fri'       => 'Jem',
-'sat'       => 'Set',
-'january'   => 'Januari',
-'february'  => 'Februari',
-'march'     => 'Maret',
-'april'     => 'April',
-'may_long'  => 'Mei',
-'june'      => 'Juni',
-'july'      => 'Juli',
-
 'article'    => 'Isi tulisan',
 'cancel'     => 'Ora Sida',
 'mypage'     => 'Kaca inyong',
@@ -81,9 +54,7 @@ $messages = array(
 'recentchanges' => 'Pengobahan',
 
 # Recent changes linked
-'recentchangeslinked'         => 'Pengobahan terkait',
-'recentchangeslinked-feed'    => 'Pengobahan terkait',
-'recentchangeslinked-toolbox' => 'Pengobahan terkait',
+'recentchangeslinked' => 'Pengobahan terkait',
 
 # Random page
 'randompage' => 'Kaca Liya',

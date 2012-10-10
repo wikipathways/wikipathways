@@ -1,13 +1,9 @@
 <?php
 /** Komi (Коми)
  *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
- *
  * @ingroup Language
  * @file
  *
- * @author Comp1089
  * @author Yufereff
  * @author ОйЛ
  */
@@ -23,18 +19,18 @@ $messages = array(
 'thursday'      => 'четверг',
 'friday'        => 'пекнича',
 'saturday'      => 'субöта',
-'january'       => 'тӧв шӧр тӧлысь',
-'february'      => 'урасьӧм тӧлысь',
-'march'         => 'рака тӧлысь',
-'april'         => 'кос му тӧлысь',
-'may_long'      => 'ода кора тӧлысь',
-'june'          => 'лӧддза-номъя тӧлысь',
-'july'          => 'сора тӧлысь',
-'august'        => 'моз тӧлысь',
-'september'     => 'кӧч тӧлысь',
-'october'       => 'йирым тӧлысь',
-'november'      => 'вӧльгым тӧлысь',
-'december'      => 'ӧшым тӧлысь',
+'january'       => 'тӧв шӧр',
+'february'      => 'урасьӧм',
+'march'         => 'рака',
+'april'         => 'кос му',
+'may_long'      => 'ода кора',
+'june'          => 'лӧддза-номъя',
+'july'          => 'сора',
+'august'        => 'моз',
+'september'     => 'кӧч',
+'october'       => 'йирым',
+'november'      => 'вӧльгым',
+'december'      => 'ӧшым',
 'january-gen'   => 'тӧв шӧр',
 'february-gen'  => 'урасьӧм',
 'march-gen'     => 'рака',
@@ -48,22 +44,10 @@ $messages = array(
 'november-gen'  => 'вӧльгым',
 'december-gen'  => 'ӧшым',
 
-# Categories related messages
-'pagecategories' => '{{PLURAL:$1|Категория|Категория}}',
-
-'article' => 'Гижӧд',
-'cancel'  => 'Дугӧдны',
-'mytalk'  => 'Сёрнитан лист бокӧй',
-
-# Cologne Blue skin
+'cancel' => 'Дугӧдны',
 'qbfind' => 'Корсьысьӧм',
 'qbedit' => 'Веськӧдны',
-
-# Vector skin
-'vector-action-move' => 'Ним вежны',
-'vector-view-edit'   => 'Вежны',
-'vector-view-view'   => 'Лыддьыны',
-'namespaces'         => 'Ним пространствояс',
+'mytalk' => 'Сёрнитӧм лист бокӧй',
 
 'search'           => 'Корсьысьӧм',
 'searchbutton'     => 'Аддзыны',
@@ -71,18 +55,15 @@ $messages = array(
 'history_short'    => 'Важвылӧм',
 'printableversion' => 'Лэдзӧм версия',
 'permalink'        => 'Вежласьтӧм ыстӧд',
-'edit'             => 'Вежны',
+'edit'             => 'Веськӧдны',
 'delete'           => 'Бырӧдны',
 'protect'          => 'Дорйыны',
 'newpage'          => 'Выль лист бок',
-'talkpagelinktext' => 'сёрнитанін',
-'talk'             => 'Сёрнитанін',
+'talk'             => 'Сёрнитӧм',
 'toolbox'          => 'Инструментъяс',
-'otherlanguages'   => 'Мӧд кывъясӧн',
 'jumptosearch'     => 'корсьысьӧм',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'            => '{{SITENAME}} йылысь',
 'currentevents'        => 'Быд лунся лоӧмтор',
 'mainpage'             => 'Медшӧр лист бок',
 'mainpage-description' => 'Медшӧр лист бок',
@@ -92,18 +73,14 @@ $messages = array(
 'newmessageslink' => 'выль юӧртӧмъяс',
 'editsection'     => 'веськӧдны',
 'editold'         => 'веськӧдны',
-'editlink'        => 'вежны',
-'editsectionhint' => '«$1» секция веськӧдны',
-'red-link-title'  => '$1 (гижӧд абу)',
 
 # Short words for each namespace, by default used in the namespace tab in monobook
-'nstab-main'     => 'Гижӧд',
-'nstab-user'     => 'Пырысь',
-'nstab-project'  => 'Проект йылысь',
-'nstab-category' => 'Категория',
+'nstab-main'    => 'Гижӧд',
+'nstab-user'    => 'Вӧлысь',
+'nstab-project' => 'Проект йылысь',
 
 # Login and logout pages
-'yourname'                => 'Пырысьлӧн ним:',
+'yourname'                => 'Вӧлысьлӧн ним:',
 'login'                   => 'Висьтасьны',
 'nav-login-createaccount' => 'Висьтасьны / гижсьыны',
 'userlogin'               => 'Висьтасьны али гижсьыны',
@@ -119,28 +96,19 @@ $messages = array(
 # History pages
 'currentrev' => 'Быд лунся версия',
 
-# Search results
-'search-result-size' => '$1 ({{PLURAL:$2|$2 кыв}})',
-
 # Preferences page
 'timezonelegend' => 'Час кытш',
 
 # Recent changes
-'recentchanges' => 'Выль веськӧдӧмъяс',
-'hide'          => 'Дзебны',
-'newpageletter' => 'В',
-'boteditletter' => 'б',
-
-# Recent changes linked
-'recentchangeslinked-page' => 'Гижӧдлӧн ним:',
+'hide' => 'Дзебны',
 
 # Upload
 'upload'    => 'Файл сӧвтны',
 'uploadbtn' => 'Файл сӧвтны',
 
-# File description page
+# Image description page
 'filehist-datetime' => 'Кадпас/кад',
-'filehist-user'     => 'Пырысь',
+'filehist-user'     => 'Вӧлысь',
 'filehist-comment'  => 'Пасйӧд',
 
 # Random page
@@ -151,39 +119,21 @@ $messages = array(
 'move'     => 'Ним вежны',
 
 # Special:Log
-'specialloguserlabel' => 'Пырысь:',
+'specialloguserlabel' => 'Вӧлысь:',
 'log'                 => 'Журналъяс',
 
 # Special:AllPages
 'allarticles' => 'Став гижӧдъяс',
 
-# Watchlist
-'mywatchlist' => 'Видзӧдӧм лыддьӧгӧй',
-
-# Delete
-'deletepage'            => 'Лист бокӧс бырӧдны',
-'deletereason-dropdown' => '* Типовые причины удаления
-** вандализм
-** по запросу автора
-** нарушение авторских прав
-* MediaWiki
-** Дубликат сообщения с translatewiki.net',
-
-# Protect
+# Delete/protect/revert
+'deletepage'          => 'Лист бокӧс бырӧдны',
 'protect-level-sysop' => 'Администраторъяс сӧмын',
-
-# Namespace form on various pages
-'namespace' => 'Ним пространство:',
 
 # Contributions
 'contributions' => 'Вӧлысьлӧн чӧжӧс',
-'mycontris'     => 'Чӧжӧсӧй',
 
 # What links here
 'whatlinkshere' => 'Ыстӧдъяс татчӧ',
-
-# Block/unblock
-'contribslink' => 'чӧжӧс',
 
 # Move page
 'newtitle'    => 'Выль ним',
@@ -193,9 +143,7 @@ $messages = array(
 'allmessages' => 'Система юӧртӧмъяс',
 
 # Tooltip help for the actions
-'tooltip-pt-userpage' => 'Пырысьлӧн лист бокӧй',
-'tooltip-ca-talk'     => 'Гижӧдлӧн сёрнитӧм лист бокӧй али Википедиялӧн дӧнъялӧм лист бокӧй',
-'tooltip-ca-move'     => 'Лист боклӧн ним вежны',
+'tooltip-pt-userpage' => 'Вӧлысьлӧн лист бокӧй',
 
 # Special:SpecialPages
 'specialpages' => 'Торъя лист бокъяс',

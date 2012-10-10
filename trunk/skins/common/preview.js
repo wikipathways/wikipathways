@@ -1,128 +1,174 @@
 /**
  * Live preview script for MediaWiki
+ *
+ * 2007-04-25 – Nikerabbit:
+ *   Worked around text cutoff in mozilla-based browsers
+ *   Support for categories
  */
-(function( $ ) {
-	window.doLivePreview = function( e ) {
-		e.preventDefault();
 
-		$( mw ).trigger( 'LivePreviewPrepare' );
 
-		var postData = $('#editform').formToArray();
-		postData.push( { 'name' : 'wpPreview', 'value' : '1' } );
+lpIdPreview = 'wikiPreview';
+lpIdCategories = 'catlinks';
+lpIdDiff = 'wikiDiff';
 
-		// Hide active diff, used templates, old preview if shown
-		var copyElements = ['#wikiPreview', '.templatesUsed', '.hiddencats',
-							'#catlinks'];
-		var copySelector = copyElements.join(',');
+/*
+ * Returns XMLHttpRequest based on browser support or null
+ */
+function openXMLHttpRequest() {
+	if( window.XMLHttpRequest ) {
+		return new XMLHttpRequest();
+	} else if( window.ActiveXObject && navigator.platform != 'MacPPC' ) {
+		// IE/Mac has an ActiveXObject but it doesn't work.
+		return new ActiveXObject("Microsoft.XMLHTTP");
+	} else {
+		return null;
+	}
+}
 
-		$.each( copyElements, function(k,v) { $(v).fadeOut('fast'); } );
+/**
+ * Returns true if could open the request,
+ * false otherwise (eg no browser support).
+ */
+function lpDoPreview(text, postUrl) {
+	lpRequest = openXMLHttpRequest();
+	if( !lpRequest ) return false;
 
-		// Display a loading graphic
-		var loadSpinner = $('<div class="mw-ajax-loader"/>');
-		$('#wikiPreview').before( loadSpinner );
+	lpRequest.onreadystatechange = lpStatusUpdate;
+	lpRequest.open("POST", postUrl, true);
 
-		var page = $('<div/>');
-		var target = $('#editform').attr('action');
+	var postData = 'wpTextbox1=' + encodeURIComponent(text);
+	lpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	lpRequest.send(postData);
+	return true;
+}
 
-		if ( !target ) {
-			target = window.location.href;
-		}
+function lpStatusUpdate() {
 
-		page.load( target + ' ' + copySelector, postData,
-			function() {
+	/* We are at some stage of loading */
+	if (lpRequest.readyState > 0 && lpRequest.readyState < 4) {
+		notify(i18n(wgLivepreviewMessageLoading));
+	}
 
-				for( var i=0; i<copyElements.length; ++i) {
-					// For all the specified elements, find the elements in the loaded page
-					//  and the real page, empty the element in the real page, and fill it
-					//  with the content of the loaded page
-					var copyContent = page.find( copyElements[i] ).contents();
-					$(copyElements[i]).empty().append( copyContent );
-					var newClasses = page.find( copyElements[i] ).attr('class');
-					$(copyElements[i]).attr( 'class', newClasses );
-				}
+	/* Not loaded yet */
+	if(lpRequest.readyState != 4) {
+		return;
+	}
 
-				$.each( copyElements, function(k,v) {
-					// Don't belligerently show elements that are supposed to be hidden
-					$(v).fadeIn( 'fast', function() { $(this).css('display', ''); } );
-				} );
+	/* We got response, bug it not what we wanted */
+	if( lpRequest.status != 200 ) {
+		var keys = new Array();
+		keys[0] = lpRequest.status;
+		keys[1] = lpRequest.statusText;
+		window.alert(i18n(wgLivepreviewMessageError, keys));
+		lpShowNormalPreview();
+		return;
+	}
 
-				loadSpinner.remove();
+	/* All good */
+	dismissNotify(i18n(wgLivepreviewMessageReady), 750);
 
-				$( mw ).trigger( 'LivePreviewDone', [copyElements] );
-			} );
-	};
+	
+	var XMLObject = lpRequest.responseXML.documentElement;
 
-	// Shamelessly stolen from the jQuery form plugin, which is licensed under the GPL.
-	// http://jquery.malsup.com/form/#download
-	$.fn.formToArray = function() {
-		var a = [];
-		if (this.length == 0) return a;
 
-		var form = this[0];
-		var els = form.elements;
-		if (!els) return a;
-		for(var i=0, max=els.length; i < max; i++) {
-			var el = els[i];
-			var n = el.name;
-			if (!n) continue;
-
-			var v = $.fieldValue(el, true);
-			if (v && v.constructor == Array) {
-				for(var j=0, jmax=v.length; j < jmax; j++)
-					a.push({name: n, value: v[j]});
-			}
-			else if (v !== null && typeof v != 'undefined')
-				a.push({name: n, value: v});
-		}
-
-		if (form.clk) {
-			// input type=='image' are not found in elements array! handle it here
-			var $input = $(form.clk), input = $input[0], n = input.name;
-			if (n && !input.disabled && input.type == 'image') {
-				a.push({name: n, value: $input.val()});
-				a.push({name: n+'.x', value: form.clk_x}, {name: n+'.y', value: form.clk_y});
-			}
-		}
-		return a;
-	};
-
-	/**
-	 * Returns the value of the field element.
+	/* Work around Firefox (Gecko?) limitation where it shows only the first 4096
+	 * bytes of data. Ref: http://www.thescripts.com/forum/thread482760.html
 	 */
-	$.fieldValue = function(el, successful) {
-		var n = el.name, t = el.type, tag = el.tagName.toLowerCase();
-		if (typeof successful == 'undefined') successful = true;
+	XMLObject.normalize();
 
-		if (successful && (!n || el.disabled || t == 'reset' || t == 'button' ||
-			(t == 'checkbox' || t == 'radio') && !el.checked ||
-			(t == 'submit' || t == 'image') && el.form && el.form.clk != el ||
-			tag == 'select' && el.selectedIndex == -1))
-				return null;
+	var previewElement = XMLObject.getElementsByTagName('preview')[0];
+	var categoryElement = XMLObject.getElementsByTagName('category')[0];
 
-		if (tag == 'select') {
-			var index = el.selectedIndex;
-			if (index < 0) return null;
-			var a = [], ops = el.options;
-			var one = (t == 'select-one');
-			var max = (one ? index+1 : ops.length);
-			for(var i=(one ? index : 0); i < max; i++) {
-				var op = ops[i];
-				if (op.selected) {
-					var v = op.value;
-					if (!v) // extra pain for IE...
-						v = (op.attributes && op.attributes['value'] &&
-							!(op.attributes['value'].specified))
-								? op.text : op.value;
-					if (one) return v;
-					a.push(v);
-				}
-			}
-			return a;
+	/* Hide the active diff if it exists */
+	var diff = document.getElementById(lpIdDiff);
+	if ( diff ) { diff.style.display = 'none'; }
+
+	/* Inject preview */
+	var previewContainer = document.getElementById( lpIdPreview );
+	if ( previewContainer && previewElement ) {
+		previewContainer.innerHTML = previewElement.firstChild.data;
+	} else {
+		/* Should never happen */
+		window.alert(i18n(wgLivepreviewMessageFailed));
+		lpShowNormalPreview();
+		return;
+	}
+		
+
+	/* Inject categories */
+	var categoryContainer  = document.getElementById( lpIdCategories );
+	if ( categoryElement && categoryElement.firstChild ) {
+		if ( categoryContainer ) {
+			categoryContainer.innerHTML = categoryElement.firstChild.data;
+			/* May be hidden */
+			categoryContainer.style.display = 'block';
+		} else {
+			/* Just dump them somewhere */
+	/*		previewContainer.innerHTML += categoryElement.firstChild.data;*/
 		}
-		return el.value;
-	};
+	} else {
+		/* Nothing to show, hide old data */
+		if ( categoryContainer ) {
+			categoryContainer.style.display = 'none';
+		}
+	}
 
-	$(document).ready( function() {
-		$('#wpPreview').click( doLivePreview );
-	} );
-}) ( jQuery );
+}
+
+function lpShowNormalPreview() {
+	var fallback = document.getElementById('wpPreview');
+	if ( fallback ) { fallback.style.display = 'inline'; }
+}
+
+
+// TODO: move elsewhere
+/* Small non-intrusive popup which can be used for example to notify the user
+ * about completed AJAX action. Supports only one notify at a time.
+ */
+function notify(message) {
+	var notifyElement = document.getElementById('mw-js-notify');
+	if ( !notifyElement ) {
+		createNotify();
+		var notifyElement = document.getElementById('mw-js-notify');
+	}
+	notifyElement.style.display = 'block';
+	notifyElement.innerHTML = message;
+}
+
+function dismissNotify(message, timeout) {
+	var notifyElement = document.getElementById('mw-js-notify');
+	if ( notifyElement ) {
+		if ( timeout == 0 ) {
+			notifyElement.style.display = 'none';
+		} else {
+			notify(message);
+			setTimeout("dismissNotify('', 0)", timeout);
+		}
+	}
+}
+
+function createNotify() {
+	var div = document.createElement("div");
+	var txt = '###PLACEHOLDER###'
+	var txtNode = document.createTextNode(txt);
+	div.appendChild(txtNode);
+	div.id = 'mw-js-notify';
+	// TODO: move styles to css
+	div.setAttribute('style',
+		'display: none; position: fixed; bottom: 0px; right: 0px; color: white; background-color: DarkRed; z-index: 5; padding: 0.1em 1em 0.1em 1em; font-size: 120%;');
+	var body = document.getElementsByTagName('body')[0];
+	body.appendChild(div);
+}
+
+
+
+/* Helper function similar to wfMsgReplaceArgs() */
+function i18n(message, keys) {
+	var localMessage = message;
+	if ( !keys ) { return localMessage; }
+	for( var i = 0; i < keys.length; i++) {
+		var myregexp = new RegExp("\\$"+(i+1), 'g');
+		localMessage = localMessage.replace(myregexp, keys[i]);
+	}
+	return localMessage;
+}

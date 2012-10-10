@@ -1,7 +1,6 @@
 <?php
 /**
  * Media-handling base classes and generic functionality
- *
  * @file
  * @ingroup Media
  */
@@ -13,9 +12,7 @@
  */
 abstract class MediaHandler {
 	const TRANSFORM_LATER = 1;
-	const METADATA_GOOD = true;
-	const METADATA_BAD = false;
-	const METADATA_COMPATIBLE = 2; // for old but backwards compatible.
+
 	/**
 	 * Instance cache
 	 */
@@ -23,10 +20,6 @@ abstract class MediaHandler {
 
 	/**
 	 * Get a MediaHandler for a given MIME type from the instance cache
-	 *
-	 * @param $type string
-	 *
-	 * @return MediaHandler
 	 */
 	static function getHandler( $type ) {
 		global $wgMediaHandlers;
@@ -50,27 +43,20 @@ abstract class MediaHandler {
 	 */
 	abstract function getParamMap();
 
-	/**
+	/*
 	 * Validate a thumbnail parameter at parse time.
 	 * Return true to accept the parameter, and false to reject it.
 	 * If you return false, the parser will do something quiet and forgiving.
-	 *
-	 * @param $name
-	 * @param $value
 	 */
 	abstract function validateParam( $name, $value );
 
 	/**
 	 * Merge a parameter array into a string appropriate for inclusion in filenames
-	 *
-	 * @param $params array
 	 */
 	abstract function makeParamString( $params );
 
 	/**
 	 * Parse a param string made with makeParamString back into an array
-	 *
-	 * @param $str string
 	 */
 	abstract function parseParamString( $str );
 
@@ -78,8 +64,6 @@ abstract class MediaHandler {
 	 * Changes the parameter array as necessary, ready for transformation.
 	 * Should be idempotent.
 	 * Returns false if the parameters are unacceptable and the transform should fail
-	 * @param $image
-	 * @param $params
 	 */
 	abstract function normaliseParams( $image, &$params );
 
@@ -87,83 +71,31 @@ abstract class MediaHandler {
 	 * Get an image size array like that returned by getimagesize(), or false if it
 	 * can't be determined.
 	 *
-	 * @param $image File: the image object, or false if there isn't one
-	 * @param $path String: the filename
-	 * @return Array
+	 * @param Image $image The image object, or false if there isn't one
+	 * @param string $fileName The filename
+	 * @return array
 	 */
 	abstract function getImageSize( $image, $path );
 
 	/**
 	 * Get handler-specific metadata which will be saved in the img_metadata field.
 	 *
-	 * @param $image File: the image object, or false if there isn't one.
-	 *   Warning, File::getPropsFromPath might pass an (object)array() instead (!)
-	 * @param $path String: the filename
-	 * @return String
+	 * @param Image $image The image object, or false if there isn't one
+	 * @param string $fileName The filename
+	 * @return string
 	 */
 	function getMetadata( $image, $path ) { return ''; }
 
 	/**
-	* Get metadata version.
-	*
-	* This is not used for validating metadata, this is used for the api when returning
-	* metadata, since api content formats should stay the same over time, and so things
-	* using ForiegnApiRepo can keep backwards compatibility
-	*
-	* All core media handlers share a common version number, and extensions can
-	* use the GetMetadataVersion hook to append to the array (they should append a unique
-	* string so not to get confusing). If there was a media handler named 'foo' with metadata
-	* version 3 it might add to the end of the array the element 'foo=3'. if the core metadata
-	* version is 2, the end version string would look like '2;foo=3'.
-	*
-	* @return string version string
-	*/
-	static function getMetadataVersion () {
-		$version = Array( '2' ); // core metadata version
-		wfRunHooks('GetMetadataVersion', Array(&$version));
-		return implode( ';', $version);
-	 }
-
-	/**
-	* Convert metadata version.
-	*
-	* By default just returns $metadata, but can be used to allow
-	* media handlers to convert between metadata versions.
-	*
-	* @param $metadata Mixed String or Array metadata array (serialized if string)
-	* @param $version Integer target version
-	* @return Array serialized metadata in specified version, or $metadata on fail.
-	*/
-	function convertMetadataVersion( $metadata, $version = 1 ) {
-		if ( !is_array( $metadata ) ) {
-
-			//unserialize to keep return parameter consistent.
-			wfSuppressWarnings();
-			$ret = unserialize( $metadata );
-			wfRestoreWarnings();
-			return $ret;
-		}
-		return $metadata;
-	}
-
-	/**
 	 * Get a string describing the type of metadata, for display purposes.
-	 *
-	 * @return string
 	 */
 	function getMetadataType( $image ) { return false; }
 
 	/**
 	 * Check if the metadata string is valid for this handler.
-	 * If it returns MediaHandler::METADATA_BAD (or false), Image
-	 * will reload the metadata from the file and update the database.
-	 * MediaHandler::METADATA_GOOD for if the metadata is a-ok,
-	 * MediaHanlder::METADATA_COMPATIBLE if metadata is old but backwards
-	 * compatible (which may or may not trigger a metadata reload).
+	 * If it returns false, Image will reload the metadata from the file and update the database
 	 */
-	function isMetadataValid( $image, $metadata ) {
-		return self::METADATA_GOOD;
-	}
+	function isMetadataValid( $image, $metadata ) { return true; }
 
 
 	/**
@@ -182,10 +114,10 @@ abstract class MediaHandler {
 	 * Get a MediaTransformOutput object representing the transformed output. Does not
 	 * actually do the transform.
 	 *
-	 * @param $image File: the image object
-	 * @param $dstPath String: filesystem destination path
-	 * @param $dstUrl String: Destination URL to use in output HTML
-	 * @param $params Array: Arbitrary set of parameters validated by $this->validateParam()
+	 * @param Image $image The image object
+	 * @param string $dstPath Filesystem destination path
+	 * @param string $dstUrl Destination URL to use in output HTML
+	 * @param array $params Arbitrary set of parameters validated by $this->validateParam()
 	 */
 	function getTransform( $image, $dstPath, $dstUrl, $params ) {
 		return $this->doTransform( $image, $dstPath, $dstUrl, $params, self::TRANSFORM_LATER );
@@ -195,11 +127,11 @@ abstract class MediaHandler {
 	 * Get a MediaTransformOutput object representing the transformed output. Does the
 	 * transform unless $flags contains self::TRANSFORM_LATER.
 	 *
-	 * @param $image File: the image object
-	 * @param $dstPath String: filesystem destination path
-	 * @param $dstUrl String: destination URL to use in output HTML
-	 * @param $params Array: arbitrary set of parameters validated by $this->validateParam()
-	 * @param $flags Integer: a bitfield, may contain self::TRANSFORM_LATER
+	 * @param Image $image The image object
+	 * @param string $dstPath Filesystem destination path
+	 * @param string $dstUrl Destination URL to use in output HTML
+	 * @param array $params Arbitrary set of parameters validated by $this->validateParam()
+	 * @param integer $flags A bitfield, may contain self::TRANSFORM_LATER
 	 */
 	abstract function doTransform( $image, $dstPath, $dstUrl, $params, $flags = 0 );
 
@@ -207,19 +139,7 @@ abstract class MediaHandler {
 	 * Get the thumbnail extension and MIME type for a given source MIME type
 	 * @return array thumbnail extension and MIME type
 	 */
-	function getThumbType( $ext, $mime, $params = null ) {
-		$magic = MimeMagic::singleton();
-		if ( !$ext || $magic->isMatchingExtension( $ext, $mime ) === false ) {
-			// The extension is not valid for this mime type and we do
-			// recognize the mime type
-			$extensions = $magic->getExtensionsForType( $mime );
-			if ( $extensions ) {
-				return array( strtok( $extensions, ' ' ), $mime );
-			}
-		}
-
-		// The extension is correct (true) or the mime type is unknown to
-		// MediaWiki (null)
+	function getThumbType( $ext, $mime ) {
 		return array( $ext, $mime );
 	}
 
@@ -241,10 +161,6 @@ abstract class MediaHandler {
 	 */
 	function pageCount( $file ) { return false; }
 	/**
-	 * The material is vectorized and thus scaling is lossless
-	 */
-	function isVectorized( $file ) { return false; }
-	/**
 	 * False if the handler is disabled for all files
 	 */
 	function isEnabled() { return true; }
@@ -254,8 +170,6 @@ abstract class MediaHandler {
 	 * Currently "width" and "height" are understood, but this might be
 	 * expanded in the future.
 	 * Returns false if unknown or if the document is not multi-page.
-	 *
-	 * @param $image File
 	 */
 	function getPageDimensions( $image, $page ) {
 		$gis = $this->getImageSize( $image, $image->getPath() );
@@ -263,14 +177,6 @@ abstract class MediaHandler {
 			'width' => $gis[0],
 			'height' => $gis[1]
 		);
-	}
-
-	/**
-	 * Generic getter for text layer.
-	 * Currently overloaded by PDF and DjVu handlers
-	 */
-	function getPageText( $image, $page ) {
-		return false;
 	}
 
 	/**
@@ -293,7 +199,7 @@ abstract class MediaHandler {
 	 */
 
 	/**
-	 * @todo FIXME: I don't really like this interface, it's not very flexible
+	 * FIXME: I don't really like this interface, it's not very flexible
 	 * I think the media handler should generate HTML instead. It can do
 	 * all the formatting according to some standard. That makes it possible
 	 * to do things like visual indication of grouped and chained streams
@@ -303,141 +209,34 @@ abstract class MediaHandler {
 		return false;
 	}
 
-	/** sorts the visible/invisible field.
-	 * Split off from ImageHandler::formatMetadata, as used by more than
-	 * one type of handler.
-	 *
-	 * This is used by the media handlers that use the FormatMetadata class
-	 *
-	 * @param $metadataArray Array metadata array
-	 * @return array for use displaying metadata.
-	 */
-	function formatMetadataHelper( $metadataArray ) {
-		 $result = array(
-			'visible' => array(),
-			'collapsed' => array()
-		);
-
-		$formatted = FormatMetadata::getFormattedData( $metadataArray );
-		// Sort fields into visible and collapsed
-		$visibleFields = $this->visibleMetadataFields();
-		foreach ( $formatted as $name => $value ) {
-			$tag = strtolower( $name );
-			self::addMeta( $result,
-				in_array( $tag, $visibleFields ) ? 'visible' : 'collapsed',
-				'exif',
-				$tag,
-				$value
-			);
-		}
-		return $result;
-	}
-
 	/**
-	 * Get a list of metadata items which should be displayed when
-	 * the metadata table is collapsed.
-	 *
-	 * @return array of strings
-	 * @access protected
-	 */
-	function visibleMetadataFields() {
-		$fields = array();
-		$lines = explode( "\n", wfMsgForContent( 'metadata-fields' ) );
-		foreach( $lines as $line ) {
-			$matches = array();
-			if( preg_match( '/^\\*\s*(.*?)\s*$/', $line, $matches ) ) {
-				$fields[] = $matches[1];
-			}
-		}
-		$fields = array_map( 'strtolower', $fields );
-		return $fields;
-	}
-
-
-	/**
-	 * This is used to generate an array element for each metadata value
-	 * That array is then used to generate the table of metadata values
-	 * on the image page
-	 *
-	 * @param &$array Array An array containing elements for each type of visibility
-	 * and each of those elements being an array of metadata items. This function adds
-	 * a value to that array.
-	 * @param $visbility string ('visible' or 'collapsed') if this value is hidden
-	 * by default.
-	 * @param $type String type of metadata tag (currently always 'exif')
-	 * @param $id String the name of the metadata tag (like 'artist' for example).
-	 * its name in the table displayed is the message "$type-$id" (Ex exif-artist ).
-	 * @param $value String thingy goes into a wikitext table; it used to be escaped but
-	 * that was incompatible with previous practise of customized display
+	 * @fixme document this!
+	 * 'value' thingy goes into a wikitext table; it used to be escaped but
+	 * that was incompatible with previous practice of customized display
 	 * with wikitext formatting via messages such as 'exif-model-value'.
 	 * So the escaping is taken back out, but generally this seems a confusing
 	 * interface.
-	 * @param $param String value to pass to the message for the name of the field
-	 * as $1. Currently this parameter doesn't seem to ever be used.
-	 *
-	 * Note, everything here is passed through the parser later on (!)
 	 */
 	protected static function addMeta( &$array, $visibility, $type, $id, $value, $param = false ) {
-		$msgName = "$type-$id";
-		if ( wfEmptyMsg( $msgName ) ) {
-			// This is for future compatibility when using instant commons.
-			// So as to not display as ugly a name if a new metadata
-			// property is defined that we don't know about
-			// (not a major issue since such a property would be collapsed
-			// by default).
-			wfDebug( __METHOD__ . ' Unknown metadata name: ' . $id . "\n" );
-			$name = wfEscapeWikiText( $id );
-		} else {
-			$name = wfMsg( $msgName, $param );
-		}
 		$array[$visibility][] = array(
 			'id' => "$type-$id",
-			'name' => $name,
+			'name' => wfMsg( "$type-$id", $param ),
 			'value' => $value
 		);
 	}
 
-	/**
-	 * @param $file File
-	 * @return string
-	 */
 	function getShortDesc( $file ) {
 		global $wgLang;
-		$nbytes = wfMsgExt( 'nbytes', array( 'parsemag', 'escape' ),
-			$wgLang->formatNum( $file->getSize() ) );
+		$nbytes = '(' . wfMsgExt( 'nbytes', array( 'parsemag', 'escape' ),
+			$wgLang->formatNum( $file->getSize() ) ) . ')';
 		return "$nbytes";
 	}
 
-	/**
-	 * @param $file File
-	 * @return string
-	 */
 	function getLongDesc( $file ) {
-		global $wgLang;
+		global $wgUser;
+		$sk = $wgUser->getSkin();
 		return wfMsgExt( 'file-info', 'parseinline',
-			$wgLang->formatSize( $file->getSize() ),
-			$file->getMimeType() );
-	}
-
-	/**
-	 * @param $file File
-	 * @return string
-	 */
-	static function getGeneralShortDesc( $file ) {
-		global $wgLang;
-		$nbytes = wfMsgExt( 'nbytes', array( 'parsemag', 'escape' ),
-			$wgLang->formatNum( $file->getSize() ) );
-		return "$nbytes";
-	}
-
-	/**
-	 * @param $file File
-	 * @return string
-	 */
-	static function getGeneralLongDesc( $file ) {
-		global $wgLang;
-		return wfMsgExt( 'file-info', 'parseinline',
-			$wgLang->formatSize( $file->getSize() ),
+			$sk->formatSize( $file->getSize() ),
 			$file->getMimeType() );
 	}
 
@@ -449,20 +248,6 @@ abstract class MediaHandler {
 	 * Modify the parser object post-transform
 	 */
 	function parserTransformHook( $parser, $file ) {}
-
-	/**
-	 * File validation hook called on upload.
-	 *
-	 * If the file at the given local path is not valid, or its MIME type does not
-	 * match the handler class, a Status object should be returned containing
-	 * relevant errors.
-	 *
-	 * @param $fileName The local path to the file.
-	 * @return Status object
-	 */
-	function verifyUpload( $fileName ) {
-		return Status::newGood();
-	}
 
 	/**
 	 * Check for zero-sized thumbnails. These can be generated when
@@ -493,13 +278,12 @@ abstract class MediaHandler {
  * @ingroup Media
  */
 abstract class ImageHandler extends MediaHandler {
-
-	/**
-	 * @param $file File
-	 * @return bool
-	 */
 	function canRender( $file ) {
-		return ( $file->getWidth() && $file->getHeight() );
+		if ( $file->getWidth() && $file->getHeight() ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	function getParamMap() {
@@ -544,70 +328,24 @@ abstract class ImageHandler extends MediaHandler {
 		return array( 'width' => $params['width'] );
 	}
 
-	/**
-	 * @param $image File
-	 * @param  $params
-	 * @return bool
-	 */
 	function normaliseParams( $image, &$params ) {
 		$mimeType = $image->getMimeType();
 
 		if ( !isset( $params['width'] ) ) {
 			return false;
 		}
-
 		if ( !isset( $params['page'] ) ) {
 			$params['page'] = 1;
-		} else  {
-			if ( $params['page'] > $image->pageCount() ) {
-				$params['page'] = $image->pageCount();
-			}
-
-			if ( $params['page'] < 1 ) {
-				$params['page'] = 1;
-			}
 		}
-
 		$srcWidth = $image->getWidth( $params['page'] );
 		$srcHeight = $image->getHeight( $params['page'] );
-		
 		if ( isset( $params['height'] ) && $params['height'] != -1 ) {
-			# Height & width were both set
 			if ( $params['width'] * $srcHeight > $params['height'] * $srcWidth ) {
-				# Height is the relative smaller dimension, so scale width accordingly
 				$params['width'] = wfFitBoxWidth( $srcWidth, $srcHeight, $params['height'] );
-				
-				if ( $params['width'] == 0 ) {
-					# Very small image, so we need to rely on client side scaling :(
-					$params['width'] = 1;
-				}
-				
-				$params['physicalWidth'] = $params['width'];
-			} else {
-				# Height was crap, unset it so that it will be calculated later
-				unset( $params['height'] );
 			}
 		}
-		
-		if ( !isset( $params['physicalWidth'] ) ) {
-			# Passed all validations, so set the physicalWidth
-			$params['physicalWidth'] = $params['width'];
-		}
-		
-		# Because thumbs are only referred to by width, the height always needs
-		# to be scaled by the width to keep the thumbnail sizes consistent,
-		# even if it was set inside the if block above
-		$params['physicalHeight'] = File::scaleHeight( $srcWidth, $srcHeight, 
-			$params['physicalWidth'] );
-
-		# Set the height if it was not validated in the if block higher up 
-		if ( !isset( $params['height'] ) || $params['height'] == -1 ) {
-			$params['height'] = $params['physicalHeight'];
-		}
-
-		
-		if ( !$this->validateThumbParams( $params['physicalWidth'], 
-				$params['physicalHeight'], $srcWidth, $srcHeight, $mimeType ) ) {
+		$params['height'] = File::scaleHeight( $srcWidth, $srcHeight, $params['width'] );
+		if ( !$this->validateThumbParams( $params['width'], $params['height'], $srcWidth, $srcHeight, $mimeType ) ) {
 			return false;
 		}
 		return true;
@@ -623,11 +361,8 @@ abstract class ImageHandler extends MediaHandler {
 	/**
 	 * Validate thumbnail parameters and fill in the correct height
 	 *
-	 * @param $width Integer: specified width (input/output)
-	 * @param $height Integer: height (output only)
-	 * @param $srcWidth Integer: width of the source image
-	 * @param $srcHeight Integer: height of the source image
-	 * @param $mimeType Unused
+	 * @param integer &$width Specified width (input/output)
+	 * @param integer &$height Height (output only)
 	 * @return false to indicate that an error should be returned to the user.
 	 */
 	function validateThumbParams( &$width, &$height, $srcWidth, $srcHeight, $mimeType ) {
@@ -644,19 +379,9 @@ abstract class ImageHandler extends MediaHandler {
 		}
 
 		$height = File::scaleHeight( $srcWidth, $srcHeight, $width );
-		if ( $height == 0 ) {
-			# Force height to be at least 1 pixel
-			$height = 1;
-		}
 		return true;
 	}
 
-	/**
-	 * @param $image File
-	 * @param  $script
-	 * @param  $params
-	 * @return bool|ThumbnailImage
-	 */
 	function getScriptedTransform( $image, $script, $params ) {
 		if ( !$this->normaliseParams( $image, $params ) ) {
 			return false;
@@ -676,14 +401,6 @@ abstract class ImageHandler extends MediaHandler {
 		return $gis;
 	}
 
-	function isAnimatedImage( $image ) {
-		return false;
-	}
-
-	/**
-	 * @param $file File
-	 * @return string
-	 */
 	function getShortDesc( $file ) {
 		global $wgLang;
 		$nbytes = wfMsgExt( 'nbytes', array( 'parsemag', 'escape' ),
@@ -693,34 +410,15 @@ abstract class ImageHandler extends MediaHandler {
 		return "$widthheight ($nbytes)";
 	}
 
-	/**
-	 * @param $file File
-	 * @return string
-	 */
 	function getLongDesc( $file ) {
 		global $wgLang;
-		$pages = $file->pageCount();
-		if ( $pages === false || $pages <= 1 ) {
-			$msg = wfMsgExt('file-info-size', 'parseinline',
-				$wgLang->formatNum( $file->getWidth() ),
-				$wgLang->formatNum( $file->getHeight() ),
-				$wgLang->formatSize( $file->getSize() ),
-				$file->getMimeType() );
-		} else {
-			$msg = wfMsgExt('file-info-size-pages', 'parseinline',
-				$wgLang->formatNum( $file->getWidth() ),
-				$wgLang->formatNum( $file->getHeight() ),
-				$wgLang->formatSize( $file->getSize() ),
-				$file->getMimeType(),
-				$wgLang->formatNum( $pages ) );
-		}
-		return $msg;
+		return wfMsgExt('file-info-size', 'parseinline',
+			$wgLang->formatNum( $file->getWidth() ),
+			$wgLang->formatNum( $file->getHeight() ),
+			$wgLang->formatSize( $file->getSize() ),
+			$file->getMimeType() );
 	}
 
-	/**
-	 * @param $file File
-	 * @return string
-	 */
 	function getDimensionsString( $file ) {
 		global $wgLang;
 		$pages = $file->pageCount();

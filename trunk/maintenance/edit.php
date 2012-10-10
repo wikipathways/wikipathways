@@ -1,89 +1,72 @@
 <?php
 /**
- * Make an edit
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- * http://www.gnu.org/copyleft/gpl.html
- *
+ * @file
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+$optionsWithArgs = array( 'u', 's' );
 
-class EditCLI extends Maintenance {
-	public function __construct() {
-		parent::__construct();
-		$this->mDescription = "Edit an article from the command line, text is from stdin";
-		$this->addOption( 'user', 'Username', false, true, 'u' );
-		$this->addOption( 'summary', 'Edit summary', false, true, 's' );
-		$this->addOption( 'minor', 'Minor edit', false, false, 'm' );
-		$this->addOption( 'bot', 'Bot edit', false, false, 'b' );
-		$this->addOption( 'autosummary', 'Enable autosummary', false, false, 'a' );
-		$this->addOption( 'no-rc', 'Do not show the change in recent changes', false, false, 'r' );
-		$this->addArg( 'title', 'Title of article to edit' );
-	}
+require_once( 'commandLine.inc' );
 
-	public function execute() {
-		global $wgUser, $wgTitle;
+if ( count( $args ) == 0 || isset( $options['help'] ) ) {
+	print <<<EOT
+Edit an article from the command line
 
-		$userName = $this->getOption( 'user', 'Maintenance script' );
-		$summary = $this->getOption( 'summary', '' );
-		$minor = $this->hasOption( 'minor' );
-		$bot = $this->hasOption( 'bot' );
-		$autoSummary = $this->hasOption( 'autosummary' );
-		$noRC = $this->hasOption( 'no-rc' );
+Usage: php edit.php [options...] <title>
 
-		$wgUser = User::newFromName( $userName );
-		if ( !$wgUser ) {
-			$this->error( "Invalid username", true );
-		}
-		if ( $wgUser->isAnon() ) {
-			$wgUser->addToDatabase();
-		}
+Options:
+  -u <user>         Username
+  -s <summary>      Edit summary
+  -m                Minor edit
+  -b                Bot (hidden) edit
+  -a                Enable autosummary
+  --no-rc           Do not show the change in recent changes
 
-		$wgTitle = Title::newFromText( $this->getArg() );
-		if ( !$wgTitle ) {
-			$this->error( "Invalid title", true );
-		}
+If the specified user does not exist, it will be created. 
+The text for the edit will be read from stdin.
 
-		$article = new Article( $wgTitle );
-
-		# Read the text
-		$text = $this->getStdin( Maintenance::STDIN_ALL );
-
-		# Do the edit
-		$this->output( "Saving... " );
-		$status = $article->doEdit( $text, $summary,
-			( $minor ? EDIT_MINOR : 0 ) |
-			( $bot ? EDIT_FORCE_BOT : 0 ) |
-			( $autoSummary ? EDIT_AUTOSUMMARY : 0 ) |
-			( $noRC ? EDIT_SUPPRESS_RC : 0 ) );
-		if ( $status->isOK() ) {
-			$this->output( "done\n" );
-			$exit = 0;
-		} else {
-			$this->output( "failed\n" );
-			$exit = 1;
-		}
-		if ( !$status->isGood() ) {
-			$this->output( $status->getWikiText() . "\n" );
-		}
-		exit( $exit );
-	}
+EOT;
+	exit( 1 );
 }
 
-$maintClass = "EditCLI";
-require_once( RUN_MAINTENANCE_IF_MAIN );
+$userName = isset( $options['u'] ) ? $options['u'] : 'Maintenance script';
+$summary = isset( $options['s'] ) ? $options['s'] : '';
+$minor = isset( $options['m'] );
+$bot = isset( $options['b'] );
+$autoSummary = isset( $options['a'] );
+$noRC = isset( $options['no-rc'] );
+
+$wgUser = User::newFromName( $userName );
+if ( !$wgUser ) {
+	print "Invalid username\n";
+	exit( 1 );
+}
+if ( $wgUser->isAnon() ) {
+	$wgUser->addToDatabase();
+}
+
+$wgTitle = Title::newFromText( $args[0] );
+if ( !$wgTitle ) {
+	print "Invalid title\n";
+	exit( 1 );
+}
+
+$wgArticle = new Article( $wgTitle );
+
+# Read the text
+$text = file_get_contents( 'php://stdin' );
+
+# Do the edit
+print "Saving... ";
+$success = $wgArticle->doEdit( $text, $summary, 
+	( $minor ? EDIT_MINOR : 0 ) |
+	( $bot ? EDIT_FORCE_BOT : 0 ) | 
+	( $autoSummary ? EDIT_AUTOSUMMARY : 0 ) |
+	( $noRC ? EDIT_SUPPRESS_RC : 0 ) );
+if ( $success ) {
+	print "done\n";
+} else {
+	print "failed\n";
+	exit( 1 );
+}
 

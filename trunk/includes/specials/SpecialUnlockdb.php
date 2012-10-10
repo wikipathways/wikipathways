@@ -1,63 +1,39 @@
 <?php
 /**
- * Implements Special:Unlockdb
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- * http://www.gnu.org/copyleft/gpl.html
- *
  * @file
  * @ingroup SpecialPage
  */
 
 /**
- * Implements Special:Unlockdb
  *
+ */
+function wfSpecialUnlockdb() {
+	global $wgUser, $wgOut, $wgRequest;
+
+	if( !$wgUser->isAllowed( 'siteadmin' ) ) {
+		$wgOut->permissionRequired( 'siteadmin' );
+		return;
+	}
+
+	$action = $wgRequest->getVal( 'action' );
+	$f = new DBUnlockForm();
+
+	if ( "success" == $action ) {
+		$f->showSuccess();
+	} else if ( "submit" == $action && $wgRequest->wasPosted() &&
+		$wgUser->matchEditToken( $wgRequest->getVal( 'wpEditToken' ) ) ) {
+		$f->doSubmit();
+	} else {
+		$f->showForm( "" );
+	}
+}
+
+/**
  * @ingroup SpecialPage
  */
-class SpecialUnlockdb extends SpecialPage {
-
-	public function __construct() {
-		parent::__construct( 'Unlockdb', 'siteadmin' );
-	}
-
-	public function execute( $par ) {
-		global $wgUser, $wgRequest;
-
-		$this->setHeaders();
-
-		# Permission check
-		if( !$this->userCanExecute( $wgUser ) ) {
-			$this->displayRestrictionError();
-			return;
-		}
-
-		$this->outputHeader();
-
-		$action = $wgRequest->getVal( 'action' );
-
-		if ( $action == 'success' ) {
-			$this->showSuccess();
-		} elseif ( $action == 'submit' && $wgRequest->wasPosted() &&
-			$wgUser->matchEditToken( $wgRequest->getVal( 'wpEditToken' ) ) ) {
-			$this->doSubmit();
-		} else {
-			$this->showForm();
-		}
-	}
-
-	private function showForm( $err = '' ) {
+class DBUnlockForm {
+	function showForm( $err )
+	{
 		global $wgOut, $wgUser;
 
 		global $wgReadOnlyFile;
@@ -66,62 +42,66 @@ class SpecialUnlockdb extends SpecialPage {
 			return;
 		}
 
-		$wgOut->addWikiMsg( 'unlockdbtext' );
+		$wgOut->setPagetitle( wfMsg( "unlockdb" ) );
+		$wgOut->addWikiMsg( "unlockdbtext" );
 
-		if ( $err != '' ) {
-			$wgOut->setSubtitle( wfMsg( 'formerror' ) );
+		if ( "" != $err ) {
+			$wgOut->setSubtitle( wfMsg( "formerror" ) );
 			$wgOut->addHTML( '<p class="error">' . htmlspecialchars( $err ) . "</p>\n" );
 		}
+		$lc = htmlspecialchars( wfMsg( "unlockconfirm" ) );
+		$lb = htmlspecialchars( wfMsg( "unlockbtn" ) );
+		$titleObj = SpecialPage::getTitleFor( "Unlockdb" );
+		$action = $titleObj->escapeLocalURL( "action=submit" );
+		$token = htmlspecialchars( $wgUser->editToken() );
 
-		$wgOut->addHTML(
-			Html::openElement( 'form', array( 'id' => 'unlockdb', 'method' => 'POST',
-				'action' => $this->getTitle()->getLocalURL( 'action=submit' ) ) ) . "
-<table>
+		$wgOut->addHTML( <<<END
+
+<form id="unlockdb" method="post" action="{$action}">
+<table border="0">
 	<tr>
-		" . Html::openElement( 'td', array( 'style' => 'text-align:right' ) ) . "
-			" . Html::input( 'wpLockConfirm', null, 'checkbox' ) . "
+		<td align="right">
+			<input type="checkbox" name="wpLockConfirm" />
 		</td>
-		" . Html::openElement( 'td', array( 'style' => 'text-align:left' ) ) .
-			wfMsgHtml( 'unlockconfirm' ) . "</td>
+		<td align="left">{$lc}</td>
 	</tr>
 	<tr>
-		<td>&#160;</td>
-		" . Html::openElement( 'td', array( 'style' => 'text-align:left' ) ) . "
-			" . Html::input( 'wpLock', wfMsg( 'unlockbtn' ), 'submit' ) . "
+		<td>&nbsp;</td>
+		<td align="left">
+			<input type="submit" name="wpLock" value="{$lb}" />
 		</td>
 	</tr>
-</table>\n" .
-			Html::hidden( 'wpEditToken', $wgUser->editToken() ) . "\n" .
-			Html::closeElement( 'form' )
-		);
+</table>
+<input type="hidden" name="wpEditToken" value="{$token}" />
+</form>
+END
+);
 
 	}
 
-	private function doSubmit() {
+	function doSubmit() {
 		global $wgOut, $wgRequest, $wgReadOnlyFile;
 
 		$wpLockConfirm = $wgRequest->getCheck( 'wpLockConfirm' );
-		if ( !$wpLockConfirm ) {
-			$this->showForm( wfMsg( 'locknoconfirm' ) );
+		if ( ! $wpLockConfirm ) {
+			$this->showForm( wfMsg( "locknoconfirm" ) );
 			return;
 		}
-
-		wfSuppressWarnings();
-		$res = unlink( $wgReadOnlyFile );
-		wfRestoreWarnings();
-
-		if ( !$res ) {
+		if ( @! unlink( $wgReadOnlyFile ) ) {
 			$wgOut->showFileDeleteError( $wgReadOnlyFile );
 			return;
 		}
-
-		$wgOut->redirect( $this->getTitle()->getFullURL( 'action=success' ) );
+		$titleObj = SpecialPage::getTitleFor( "Unlockdb" );
+		$success = $titleObj->getFullURL( "action=success" );
+		$wgOut->redirect( $success );
 	}
 
-	private function showSuccess() {
+	function showSuccess() {
 		global $wgOut;
+		global $ip;
 
-		$wgOut->setSubtitle( wfMsg( 'unlockdbsuccesssub' ) );
-		$wgOut->addWikiMsg( 'unlockdbsuccesstext' );
+		$wgOut->setPagetitle( wfMsg( "unlockdb" ) );
+		$wgOut->setSubtitle( wfMsg( "unlockdbsuccesssub" ) );
+		$wgOut->addWikiMsg( "unlockdbsuccesstext", $ip );
 	}
 }

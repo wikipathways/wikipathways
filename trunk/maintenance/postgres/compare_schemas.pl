@@ -9,7 +9,7 @@ use warnings;
 use Data::Dumper;
 use Cwd;
 
-#check_valid_sql();
+check_valid_sql();
 
 my @old = ('../tables.sql');
 my $new = 'tables.sql';
@@ -43,12 +43,12 @@ tinytext mediumtext text char varchar varbinary binary
 timestamp datetime
 tinyblob mediumblob blob
 );
-$datatype .= q{|ENUM\([\"\w\', ]+\)};
+$datatype .= q{|ENUM\([\"\w, ]+\)};
 $datatype = qr{($datatype)};
 
 my $typeval = qr{(\(\d+\))?};
 
-my $typeval2 = qr{ signed| unsigned| binary| NOT NULL| NULL| PRIMARY KEY| AUTO_INCREMENT| default ['\-\d\w"]+| REFERENCES .+CASCADE};
+my $typeval2 = qr{ signed| unsigned| binary| NOT NULL| NULL| auto_increment| default ['\-\d\w"]+| REFERENCES .+CASCADE};
 
 my $indextype = join '|' => qw(INDEX KEY FULLTEXT), 'PRIMARY KEY', 'UNIQUE INDEX', 'UNIQUE KEY';
 $indextype = qr{$indextype};
@@ -94,17 +94,11 @@ sub parse_sql {
 		next if /^\s*\-\-/ or /^\s+$/;
 		s/\s*\-\- [\w ]+$//;
 		chomp;
-	
+
 		if (/CREATE\s*TABLE/i) {
-			if (m{^CREATE TABLE /\*_\*/(\w+) \($}) {
-				$table = $1;
-			}
-			elsif (m{^CREATE TABLE /\*\$wgDBprefix\*/(\w+) \($}) {
-				$table = $1;
-			}
-			else {
-				die qq{Invalid CREATE TABLE at line $. of $oldfile\n};
-			}
+			m{^CREATE TABLE /\*\$wgDBprefix\*/(\w+) \($}
+				or die qq{Invalid CREATE TABLE at line $. of $oldfile\n};
+			$table = $1;
 			$info{$table}{name}=$table;
 		}
 		elsif (m{^\) /\*\$wgDBTableOptions\*/}) {
@@ -120,16 +114,14 @@ sub parse_sql {
 			$info{$table}{type}=$2;
 			$info{$table}{charset}=$3;
 		}
-		elsif (/^  (\w+) $datatype$typeval$typeval2{0,4},?$/) {
+		elsif (/^  (\w+) $datatype$typeval$typeval2{0,3},?$/) {
 			$info{$table}{column}{$1} = $2;
 			my $extra = $3 || '';
 			$info{$table}{columnfull}{$1} = "$2$extra";
 		}
-		elsif (m{^  UNIQUE KEY (\w+) \((.+?)\)}) {
-		}
-		elsif (m{^CREATE (?:UNIQUE )?(?:FULLTEXT )?INDEX /\*i\*/(\w+) ON /\*_\*/(\w+) \((.+?)\);}) {
-		}
-		elsif (m{^\s*PRIMARY KEY \([\w,]+\)}) {
+		elsif (/^  ($indextype)(?: (\w+))? \(([\w, \(\)]+)\),?$/) {
+			$info{$table}{lc $1.'_name'} = $2 ? $2 : '';
+			$info{$table}{lc $1.'pk_target'} = $3;
 		}
 		else {
 			die "Cannot parse line $. of $oldfile:\n$_\n";
@@ -141,6 +133,47 @@ sub parse_sql {
 	return \%info;
 
 } ## end of parse_sql
+
+## Read in the parser test information
+my $parsefile = '../parserTests.inc';
+open my $pfh, '<', $parsefile or die qq{Could not open "$parsefile": $!\n};
+my $stat = 0;
+my %ptable;
+while (<$pfh>) {
+	if (!$stat) {
+		if (/function listTables/) {
+			$stat = 1;
+		}
+		next;
+	}
+	$ptable{$1}=2 while m{'(\w+)'}g;
+	last if /\);/;
+}
+close $pfh or die qq{Could not close "$parsefile": $!\n};
+
+my $OK_NOT_IN_PTABLE = '
+filearchive
+logging
+profiling
+querycache_info
+searchindex
+trackbacks
+transcache
+user_newtalk
+updatelog
+';
+
+## Make sure all tables in main tables.sql are accounted for in the parsertest.
+for my $table (sort keys %{$old{'../tables.sql'}}) {
+	$ptable{$table}++;
+	next if $ptable{$table} > 2;
+	next if $OK_NOT_IN_PTABLE =~ /\b$table\b/;
+	print qq{Table "$table" is in the schema, but not used inside of parserTest.inc\n};
+}
+## Any that are used in ptables but no longer exist in the schema?
+for my $table (sort grep { $ptable{$_} == 2 } keys %ptable) {
+	print qq{Table "$table" ($ptable{$table}) used in parserTest.inc, but not found in schema\n};
+}
 
 for my $oldfile (@old) {
 
@@ -179,10 +212,6 @@ while (<$newfh>) {
 	next if /^CREATE TRIGGER/ or /^  FOR EACH ROW/;
 	next if /^INSERT INTO/ or /^  VALUES \(/;
 	next if /^ALTER TABLE/;
-	next if /^DROP SEQUENCE/;
-	next if /^DROP FUNCTION/;
-
-
 	chomp;
 
 	if (/^\$mw\$;?$/) {
@@ -219,9 +248,6 @@ while (<$newfh>) {
 			print "Missing comma before line $. of $new\n";
 		}
 		$lastcomma = $3 ? 1 : 0;
-	}
-	elsif (m{^\s*PRIMARY KEY \([\w,]+\)}) {
-		$lastcomma = 0;
 	}
 	else {
 		die "Cannot parse line $. of $new:\n$_\n";
@@ -267,8 +293,7 @@ ar_comment      tinyblob       TEXT
 fa_description  tinyblob       TEXT
 img_description tinyblob       TEXT
 ipb_reason      tinyblob       TEXT
-log_action      varbinary(32)  TEXT
-log_type        varbinary(32)  TEXT
+log_action      varbinary(10)  TEXT
 oi_description  tinyblob       TEXT
 rev_comment     tinyblob       TEXT
 rc_log_action   varbinary(255) TEXT
@@ -276,31 +301,20 @@ rc_log_type     varbinary(255) TEXT
 
 ## Simple text-only strings:
 ar_flags          tinyblob       TEXT
-cl_collation      varbinary(32)  TEXT
-cl_sortkey        varbinary(230) TEXT
-ct_params         blob           TEXT
-fa_minor_mime     varbinary(100) TEXT
+fa_minor_mime     varbinary(32)  TEXT
 fa_storage_group  varbinary(16)  TEXT # Just 'deleted' for now, should stay plain text
 fa_storage_key    varbinary(64)  TEXT # sha1 plus text extension
 ipb_address       tinyblob       TEXT # IP address or username
 ipb_range_end     tinyblob       TEXT # hexadecimal
 ipb_range_start   tinyblob       TEXT # hexadecimal
-img_minor_mime    varbinary(100) TEXT
-lc_lang           varbinary(32)  TEXT
-lc_value          varbinary(32)  TEXT
+img_minor_mime    varbinary(32)  TEXT
 img_sha1          varbinary(32)  TEXT
-iw_wikiid         varchar(64)    TEXT
 job_cmd           varbinary(60)  TEXT # Should we limit to 60 as well?
 keyname           varbinary(255) TEXT # No tablename prefix (objectcache)
 ll_lang           varbinary(20)  TEXT # Language code
-lc_value          mediumblob     TEXT
 log_params        blob           TEXT # LF separated list of args
 log_type          varbinary(10)  TEXT
-ls_field          varbinary(32)  TEXT
-md_deps           mediumblob     TEXT # JSON
-mr_blob           mediumblob     TEXT # JSON
-mr_lang           varbinary(32)  TEXT
-oi_minor_mime     varbinary(100) TEXT
+oi_minor_mime     varbinary(32)  TEXT
 oi_sha1           varbinary(32)  TEXT
 old_flags         tinyblob       TEXT
 old_text          mediumblob     TEXT
@@ -317,23 +331,17 @@ qcc_type          varbinary(32)  TEXT
 qci_type          varbinary(32)  TEXT
 rc_params         blob           TEXT
 rlc_to_blob       blob           TEXT
-ts_tags           blob           TEXT
 ug_group          varbinary(16)  TEXT
-ul_value          blob           TEXT
-up_property       varbinary(32)  TEXT
-up_value          blob           TEXT
 user_email_token  binary(32)     TEXT
 user_ip           varbinary(40)  TEXT
 user_newpassword  tinyblob       TEXT
 user_options      blob           TEXT
 user_password     tinyblob       TEXT
 user_token        binary(32)     TEXT
-iwl_prefix      varbinary(20)  TEXT
 
 ## Text URLs:
 el_index blob           TEXT
 el_to    blob           TEXT
-iw_api   blob           TEXT
 iw_url   blob           TEXT
 tb_url   blob           TEXT
 tc_url   varbinary(255) TEXT
@@ -371,7 +379,6 @@ tl_namespace     int SMALLINT
 wl_namespace     int SMALLINT
 
 ## Easy enough to change if a wiki ever does grow this big:
-ss_active_users  bigint INTEGER
 ss_good_articles bigint INTEGER
 ss_total_edits   bigint INTEGER
 ss_total_pages   bigint INTEGER
@@ -472,7 +479,7 @@ sub scan_dir {
 	my $dir = shift;
 
 	opendir my $dh, $dir or die qq{Could not opendir $dir: $!\n};
-	#print "Scanning $dir...\n";
+	print "Scanning $dir...\n";
 	for my $file (grep { -f "$dir/$_" and /\.php$/ } readdir $dh) {
 		find_problems("$dir/$file");
 	}
@@ -489,8 +496,6 @@ sub find_problems {
 
 	my $file = shift;
 	open my $fh, '<', $file or die qq{Could not open "$file": $!\n};
-	my $lastline = '';
-	my $inarray = 0;
 	while (<$fh>) {
 		if (/FORCE INDEX/ and $file !~ /Database\w*\.php/) {
 			warn "Found FORCE INDEX string at line $. of $file\n";
@@ -507,29 +512,6 @@ sub find_problems {
 		if (/\bGROUP\s+BY\s*\d\b/i and $file !~ /Database\w*\.php/) {
 			warn "Found GROUP BY # at line $. of $file\n";
 		}
-		if (/wfGetDB\s*\(\s+\)/io) {
-			warn "wfGETDB is missing parameters at line $. of $file\n";
-		}
-		if (/=\s*array\s*\(\s*$/) {
-			$inarray = 1;
-			next;
-		}
-		if ($inarray) {
-			if (/\s*\);\s*$/) {
-				$inarray = 0;
-				next;
-			}
-			next if ! /\w/ or /array\(\s*$/ or /^\s*#/ or m{^\s*//};
-			if (! /,/) {
-				my $nextline = <$fh>;
-				last if ! defined $nextline;
-				if ($nextline =~ /^\s*\)[;,]/) {
-					$inarray = 0;
-					next;
-				}
-				#warn "Array is missing a comma? Line $. of $file\n";
-			}
-		}
 	}
 	close $fh or die qq{Could not close "$file": $!\n};
 	return;
@@ -542,4 +524,5 @@ __DATA__
 OLD: searchindex          ## We use tsearch2 directly on the page table instead
 RENAME: user mwuser       ## Reserved word causing lots of problems
 RENAME: text pagecontent  ## Reserved word
+NEW: mediawiki_version    ## Just us, for now
 XFILE: ../archives/patch-profiling.sql

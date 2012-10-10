@@ -56,7 +56,7 @@ To start the daemon manually, use something like:
   memcached -d -l 127.0.0.1 -p 11211 -m 64
 
 (to run in daemon mode, accessible only via loopback interface,
-on port 11211, using up to 64MB of memory)
+on port 11000, using up to 64MB of memory)
 
 In your LocalSettings.php file, set:
 
@@ -71,8 +71,8 @@ it has twice the memory of the others and you want to spread
 usage evenly), make its entry a subarray:
 
   $wgMemCachedServers = array(
-    "127.0.0.1:11211", # one gig on this box
-    array("192.168.0.1:11211", 2 ) # two gigs on the other box
+    "127.0.0.1:11000", # one gig on this box
+    array("192.168.0.1:11000", 2 ) # two gigs on the other box
   );
 
 == PHP client for memcached ==
@@ -96,6 +96,13 @@ this is mentionned below.
 == Keys used ==
 
 (incomplete, out of date)
+
+Ajax Search:
+	key: $wgDBname:ajaxsearch:md5( $search )
+	ex: wikidb:ajaxsearch:9565814d5d564fa898dd6111b94fae0b
+	stores: array with the result of research of a given text
+	cleared by: nothing
+	expiry: 30 minutes
 
 Date Formatter:
 	key: $wgDBname:dateformatter
@@ -153,20 +160,16 @@ Newtalk:
 Parser Cache:
 	stored in: $parserMemc
 	controlled by: $wgEnableParserCache
-	key: $wgDBname:pcache:idhash:$pageid-$renderkey!$hash
+	key: $wgDBname:pcache:idhash:$pageid-$renderkey!$hash$edit
 		$pageid: id of the page
 		$renderkey: 1 if action=render, 0 otherwise
-		$hash: hash of user options applied to the page, see ParserOptions::optionsHash()
+		$hash: hash of user options, see User::getPageRenderingHash()
+		$edit: '!edit=0' if the user can't edit the page, '' otherwise
 	ex: wikidb:pcache:idhash:1-0!1!0!!en!2
 	stores: ParserOutput object
-	modified by: Article::editUpdates() or Article::getOutputFromWikitext()
-	expiry: $wgParserCacheExpireTime or less if it contains short lived functions
-
-	key: $wgDBname:pcache:idoptions:$pageid
-	stores: CacheTime object with an additional list of used options for the hash,
-    serves as ParserCache pointer.
-	modified by: ParserCache::save()
-	expiry: The same as the ParserCache entry it points to.
+	modified by: Article::editUpdates()
+	expriy: $wgParserCacheExpireTime or one hour if it contains specific magic
+		words
 
 Ping limiter:
 	controlled by: $wgRateLimits
@@ -223,15 +226,12 @@ Special:Allpages:
 
 Special:Recentchanges (feed):
 	stored in: $messageMemc
-	key: $wgDBname:rcfeed:$format:$limit:$hideminor:$target and
+	key: $wgDBname:rcfeed:$format:limit:$imit:minor:$hideminor and
 		rcfeed:$format:timestamp
-	ex: wikidb:rcfeed:rss:50:: and rcfeed:rss:timestamp
+	ex: wikidb:rcfeed:rss:limit:50:minor:0 and rcfeed:rss:timestamp
 	stores: xml output of feed
 	expiry: one day
-	clear by: maintenance/rebuildrecentchanges.php script, or
-	calling Special:Recentchanges?action=purge&feed=rss,
-	Special:Recentchanges?action=purge&feed=atom,
-	but note need $wgGroupPermissions[...]['purge'] permission.
+	clear by: calling Special:Recentchanges?action=purge
 
 Statistics:
 	controlled by: $wgStatsMethod

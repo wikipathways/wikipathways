@@ -1,6 +1,6 @@
 <?php
 
-require_once( dirname( __FILE__ ) . '/../LanguageConverter.php' );
+require_once( dirname(__FILE__).'/../LanguageConverter.php' );
 
 /**
  * Converts Tajiki to latin orthography
@@ -93,8 +93,6 @@ class TgConverter extends LanguageConverter {
 }
 
 /**
- * Tajik (Тоҷикӣ)
- *
  * @ingroup Language
  */
 class LanguageTg extends Language {

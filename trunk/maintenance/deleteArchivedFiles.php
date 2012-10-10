@@ -3,50 +3,29 @@
 /**
  * Delete archived (non-current) files from the database
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- * http://www.gnu.org/copyleft/gpl.html
- *
+ * @file
  * @ingroup Maintenance
  * @author Aaron Schulz
  * Based on deleteOldRevisions.php by Rob Church
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
-require_once( dirname( __FILE__ ) . '/deleteArchivedFiles.inc' );
+$options = array( 'delete', 'help' );
+require_once( 'commandLine.inc' );
+require_once( 'deleteArchivedFiles.inc' );
 
-class DeleteArchivedFiles extends Maintenance {
-	public function __construct() {
-		parent::__construct();
-		$this->mDescription = "Deletes all archived images.";
-		$this->addOption( 'delete', 'Perform the deletion' );
-		$this->addOption( 'force', 'Force deletion of rows from filearchive' );
-	}
+echo( "Delete Archived Images\n\n" );
 
-	public function handleOutput( $str ) {
-		return $this->output( $str );
-	}
-
-	public function execute() {
-		if ( !$this->hasOption( 'delete' ) ) {
-			$this->output( "Use --delete to actually confirm this script\n" );
-			return;
-		}
-		$force = $this->hasOption( 'force' );
-		DeleteArchivedFilesImplementation::doDelete( $this, $force );
-	}
+if( @$options['help'] ) {
+	ShowUsage();
+} else {
+	DeleteArchivedFiles( @$options['delete'] );
 }
 
-$maintClass = "DeleteArchivedFiles";
-require_once( RUN_MAINTENANCE_IF_MAIN );
+function ShowUsage() {
+	echo( "Deletes all archived images.\n\n" );
+	echo( "These images will no longer be restorable.\n\n" );
+	echo( "Usage: php deleteArchivedRevisions.php [--delete|--help]\n\n" );
+	echo( "delete : Performs the deletion\n" );
+	echo( "  help : Show this usage information\n" );
+}
+

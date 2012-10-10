@@ -1,59 +1,31 @@
 <?php
+
+require_once( 'FiveUpgrade.inc' );
+
 /**
- * Generic table cleanup class. Already subclasses maintenance
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- * http://www.gnu.org/copyleft/gpl.html
- *
- * @file
  * @ingroup Maintenance
  */
-
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
-
-class TableCleanup extends Maintenance {
-	protected $defaultParams = array(
-		'table' => 'page',
-		'conds' => array(),
-		'index' => 'page_id',
-		'callback' => 'processRow',
-	);
-
-	protected $dryrun = false;
-	protected $maxLag = 10; # if slaves are lagged more than 10 secs, wait
-	public $batchSize = 100;
-	public $reportInterval = 100;
-
-	public function __construct() {
+abstract class TableCleanup extends FiveUpgrade {
+	function __construct( $table, $dryrun = false ) {
 		parent::__construct();
-		$this->addOption( 'dry-run', 'Perform a dry run' );
+
+		$this->targetTable = $table;
+		$this->maxLag = 10; # if slaves are lagged more than 10 secs, wait
+		$this->dryrun = $dryrun;
 	}
 
-	public function execute() {
-		global $wgUser;
-		$wgUser->setName( 'Conversion script' );
-		$this->dryrun = $this->hasOption( 'dry-run' );
-		if ( $this->dryrun ) {
-			$this->output( "Checking for bad titles...\n" );
+	function cleanup() {
+		if( $this->dryrun ) {
+			echo "Checking for bad titles...\n";
 		} else {
-			$this->output( "Checking and fixing bad titles...\n" );
+			echo "Checking and fixing bad titles...\n";
 		}
-		$this->runTable( $this->defaultParams );
+		$this->runTable( $this->targetTable,
+			'', //'WHERE page_namespace=0',
+			array( $this, 'processPage' ) );
 	}
 
-	protected function init( $count, $table ) {
+	function init( $count, $table ) {
 		$this->processed = 0;
 		$this->updated = 0;
 		$this->count = $count;
@@ -61,10 +33,10 @@ class TableCleanup extends Maintenance {
 		$this->table = $table;
 	}
 
-	protected function progress( $updated ) {
+	function progress( $updated ) {
 		$this->updated += $updated;
 		$this->processed++;
-		if ( $this->processed % $this->reportInterval != 0 ) {
+		if( $this->processed % 100 != 0 ) {
 			return;
 		}
 		$portion = $this->processed / $this->count;
@@ -75,90 +47,41 @@ class TableCleanup extends Maintenance {
 		$estimatedTotalTime = $delta / $portion;
 		$eta = $this->startTime + $estimatedTotalTime;
 
-		$this->output(
-			sprintf( "%s %s: %6.2f%% done on %s; ETA %s [%d/%d] %.2f/sec <%.2f%% updated>\n",
-				wfWikiID(),
-				wfTimestamp( TS_DB, intval( $now ) ),
-				$portion * 100.0,
-				$this->table,
-				wfTimestamp( TS_DB, intval( $eta ) ),
-				$this->processed,
-				$this->count,
-				$this->processed / $delta,
-				$updateRate * 100.0
-			)
-		);
+		printf( "%s %s: %6.2f%% done on %s; ETA %s [%d/%d] %.2f/sec <%.2f%% updated>\n",
+			wfWikiID(),
+			wfTimestamp( TS_DB, intval( $now ) ),
+			$portion * 100.0,
+			$this->table,
+			wfTimestamp( TS_DB, intval( $eta ) ),
+			$this->processed,
+			$this->count,
+			$this->processed / $delta,
+			$updateRate * 100.0 );
 		flush();
 	}
 
-	public function runTable( $params ) {
-		$dbr = wfGetDB( DB_SLAVE );
+	function runTable( $table, $where, $callback ) {
+		$fname = 'CapsCleanup::buildTable';
 
-		if ( array_diff( array_keys( $params ),
-			array( 'table', 'conds', 'index', 'callback' ) ) )
-		{
-			throw new MWException( __METHOD__ . ': Missing parameter ' . implode( ', ', $params ) );
-		}
-
-		$table = $params['table'];
-		// count(*) would melt the DB for huge tables, we can estimate here
-		$count = $dbr->estimateRowCount( $table, '*', '', __METHOD__ );
+		$count = $this->dbw->selectField( $table, 'count(*)', '', $fname );
 		$this->init( $count, $table );
-		$this->output( "Processing $table...\n" );
+		$this->log( "Processing $table..." );
 
+		$tableName = $this->dbr->tableName( $table );
+		$sql = "SELECT * FROM $tableName $where";
+		$result = $this->dbr->query( $sql, $fname );
 
-		$index = (array)$params['index'];
-		$indexConds = array();
-		$options = array(
-			'ORDER BY' => implode( ',', $index ),
-			'LIMIT' => $this->batchSize
-		);
-		$callback = array( $this, $params['callback'] );
-
-		while ( true ) {
-			$conds = array_merge( $params['conds'], $indexConds );
-			$res = $dbr->select( $table, '*', $conds, __METHOD__, $options );
-			if ( !$res->numRows() ) {
-				// Done
-				break;
-			}
-
-			foreach ( $res as $row ) {
-				call_user_func( $callback, $row );
-			}
-
-			if ( $res->numRows() < $this->batchSize ) {
-				// Done
-				break;
-			}
-
-			// Update the conditions to select the next batch.
-			// Construct a condition string by starting with the least significant part
-			// of the index, and adding more significant parts progressively to the left
-			// of the string.
-			$nextCond = '';
-			foreach ( array_reverse( $index ) as $field ) {
-				$encValue = $dbr->addQuotes( $row->$field );
-				if ( $nextCond === '' ) {
-					$nextCond = "$field > $encValue";
-				} else {
-					$nextCond = "$field > $encValue OR ($field = $encValue AND ($nextCond))";
-				}
-			}
-			$indexConds = array( $nextCond );
+		while( $row = $this->dbr->fetchObject( $result ) ) {
+			call_user_func( $callback, $row );
 		}
-
-		$this->output( "Finished $table... $this->updated of $this->processed rows updated\n" );
+		$this->log( "Finished $table... $this->updated of $this->processed rows updated" );
+		$this->dbr->freeResult( $result );
 	}
 
-	protected function hexChar( $matches ) {
+	function hexChar( $matches ) {
 		return sprintf( "\\x%02x", ord( $matches[1] ) );
 	}
+	
+	abstract function processPage( $row );
+	
 }
-
-class TableCleanupTest extends TableCleanup {
-	function processRow( $row ) {
-		$this->progress( mt_rand( 0, 1 ) );
-	}
-}
-

@@ -6,17 +6,8 @@
  * @author Niklas Laxström
  */
 class LanguageCy extends Language {
-
-	/**
-	 * @param $count int
-	 * @param $forms array
-	 * @return string
-	 */
 	function convertPlural( $count, $forms ) {
-		if ( !count( $forms ) ) { return ''; }
-
-		// @todo FIXME: CLDR defines 4 plural forms; very different, actually.
-		// See http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html#cy
+		if ( !count($forms) ) { return ''; }
 		$forms = $this->preConvertPlural( $forms, 6 );
 		$count = abs( $count );
 		if ( $count >= 0 && $count <= 3 ) {

@@ -6,12 +6,6 @@ class XmlTypeCheck {
 	 * well-formed XML. Note that this doesn't check schema validity.
 	 */
 	public $wellFormed = false;
-	
-	/**
-	 * Will be set to true if the optional element filter returned
-	 * a match at some point.
-	 */
-	public $filterMatch = false;
 
 	/**
 	 * Name of the document's root element, including any namespace
@@ -19,38 +13,33 @@ class XmlTypeCheck {
 	 */
 	public $rootElement = '';
 
-	/**
-	 * @param $file string filename
-	 * @param $filterCallback callable (optional)
-	 *        Function to call to do additional custom validity checks from the
-	 *        SAX element handler event. This gives you access to the element
-	 *        namespace, name, and attributes, but not to text contents.
-	 *        Filter should return 'true' to toggle on $this->filterMatch
-	 */
-	function __construct( $file, $filterCallback=null ) {
-		$this->filterCallback = $filterCallback;
-		$this->run( $file );
-	}
-	
-	/**
-	 * Get the root element. Simple accessor to $rootElement
-	 *
-	 * @return string
-	 */
-	public function getRootElement() {
-		return $this->rootElement;
-	}
+	private $softNamespaces;
+	private $namespaces = array();
 
 	/**
-	 * @param $fname
+	 * @param $file string filename
+	 * @param $softNamespaces bool
+	 *        If set to true, use of undeclared XML namespaces will be ignored.
+	 *        This matches the behavior of rsvg, but more compliant consumers
+	 *        such as Firefox will reject such files.
+	 *        Leave off for the default, stricter checks.
 	 */
+	function __construct( $file, $softNamespaces=false ) {
+		$this->softNamespaces = $softNamespaces;
+		$this->run( $file );
+	}
+
 	private function run( $fname ) {
-		$parser = xml_parser_create_ns( 'UTF-8' );
+		if( $this->softNamespaces ) {
+			$parser = xml_parser_create( 'UTF-8' );
+		} else {
+			$parser = xml_parser_create_ns( 'UTF-8' );
+		}
 
 		// case folding violates XML standard, turn it off
 		xml_parser_set_option( $parser, XML_OPTION_CASE_FOLDING, false );
 
-		xml_set_element_handler( $parser, array( $this, 'rootElementOpen' ), false );
+		xml_set_element_handler( $parser, array( $this, 'elementOpen' ), false );
 
 		$file = fopen( $fname, "rb" );
 		do {
@@ -70,32 +59,35 @@ class XmlTypeCheck {
 		xml_parser_free( $parser );
 	}
 
-	/**
-	 * @param $parser
-	 * @param $name
-	 * @param $attribs
-	 */
-	private function rootElementOpen( $parser, $name, $attribs ) {
-		$this->rootElement = $name;
-		
-		if( is_callable( $this->filterCallback ) ) {
-			xml_set_element_handler( $parser, array( $this, 'elementOpen' ), false );
-			$this->elementOpen( $parser, $name, $attribs );
-		} else {
-			// We only need the first open element
-			xml_set_element_handler( $parser, false, false );
-		}
-	}
-
-	/**
-	 * @param $parser
-	 * @param $name
-	 * @param $attribs
-	 */
 	private function elementOpen( $parser, $name, $attribs ) {
-		if( call_user_func( $this->filterCallback, $name, $attribs ) ) {
-			// Filter hit!
-			$this->filterMatch = true;
+		if( $this->softNamespaces ) {
+			// Check namespaces manually, so expat doesn't throw
+			// errors on use of undeclared namespaces.
+			foreach( $attribs as $attrib => $val ) {
+				if( $attrib == 'xmlns' ) {
+					$this->namespaces[''] = $val;
+				} elseif( substr( $attrib, 0, strlen( 'xmlns:' ) ) == 'xmlns:' ) {
+					$this->namespaces[substr( $attrib, strlen( 'xmlns:' ) )] = $val;
+				}
+			}
+
+			if( strpos( $name, ':' ) === false ) {
+				$ns = '';
+				$subname = $name;
+			} else {
+				list( $ns, $subname ) = explode( ':', $name, 2 );
+			}
+
+			if( isset( $this->namespaces[$ns] ) ) {
+				$name = $this->namespaces[$ns] . ':' . $subname;
+			} else {
+				// Technically this is invalid for XML with Namespaces.
+				// But..... we'll just let it slide in soft mode.
+			}
 		}
+
+		// We only need the first open element
+		$this->rootElement = $name;
+		xml_set_element_handler( $parser, false, false );
 	}
 }

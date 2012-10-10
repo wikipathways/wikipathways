@@ -1,13 +1,9 @@
 <?php
 /** Bislama (Bislama)
  *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
- *
  * @ingroup Language
  * @file
  *
- * @author Iketsi
  * @author Ushanka
  */
 
@@ -61,15 +57,13 @@ $messages = array(
 'oct'           => 'Okt',
 'dec'           => 'Des',
 
-'mypage' => 'Pej blong mi',
-'mytalk' => 'Tingting blong mi',
-'and'    => '&#32;mo',
-
-# Cologne Blue skin
 'qbedit'         => 'Jenisim hem',
 'qbpageoptions'  => 'Pej ia',
 'qbmyoptions'    => 'Ol pej blong mi',
 'qbspecialpages' => 'Ol spesel pej',
+'mypage'         => 'Pej blong mi',
+'mytalk'         => 'Tingting blong mi',
+'and'            => 'mo',
 
 'edit'             => 'Jenisim hem',
 'newpage'          => 'Mekem niu pej',
@@ -95,8 +89,8 @@ $messages = array(
 # Preferences page
 'servertime' => 'Taem blong server',
 
-# Special:ListFiles
-'listfiles_name' => 'Nem',
+# Special:ImageList
+'imagelist_name' => 'Nem',
 
 # Miscellaneous special pages
 'shortpages' => 'Ol smol pej',
@@ -112,8 +106,6 @@ $messages = array(
 
 # Contributions
 'year' => 'Yia:',
-
-'sp-contributions-talk' => 'toktok',
 
 # Block/unblock
 'proxyblocksuccess' => 'Finis.',
@@ -131,7 +123,7 @@ $messages = array(
 'tooltip-n-mainpage' => 'Go long Nambawan Pej',
 'tooltip-minoredit'  => 'Em i stap wan smol jenis',
 
-# Special:NewFiles
+# Special:NewImages
 'showhidebots' => '($1 bot)',
 
 # EXIF tags
@@ -139,9 +131,11 @@ $messages = array(
 'exif-exposuretime-format' => '$1 sek. ($2)',
 
 # 'all' in various places, this might be different for inflected languages
-'watchlistall2' => 'olgeta',
-'namespacesall' => 'olgeta',
-'monthsall'     => 'olgeta',
+'recentchangesall' => 'olgeta',
+'imagelistall'     => 'olgeta',
+'watchlistall2'    => 'olgeta',
+'namespacesall'    => 'olgeta',
+'monthsall'        => 'olgeta',
 
 # Table pager
 'table_pager_first' => 'Nambawan pej',

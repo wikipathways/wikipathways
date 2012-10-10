@@ -1,9 +1,68 @@
 <?php
 /**
- * Global functions related to images
+ * Return a rounded pixel equivalent for a labeled CSS/SVG length.
+ * http://www.w3.org/TR/SVG11/coords.html#UnitIdentifiers
  *
- * @file
+ * @param $length String: CSS/SVG length.
+ * @return Integer: length in pixels
  */
+function wfScaleSVGUnit( $length ) {
+	static $unitLength = array(
+		'px' => 1.0,
+		'pt' => 1.25,
+		'pc' => 15.0,
+		'mm' => 3.543307,
+		'cm' => 35.43307,
+		'in' => 90.0,
+		''   => 1.0, // "User units" pixels by default
+		'%'  => 2.0, // Fake it!
+		);
+	$matches = array();
+	if( preg_match( '/^(\d+(?:\.\d+)?)(em|ex|px|pt|pc|cm|mm|in|%|)$/', $length, $matches ) ) {
+		$length = floatval( $matches[1] );
+		$unit = $matches[2];
+		return round( $length * $unitLength[$unit] );
+	} else {
+		// Assume pixels
+		return round( floatval( $length ) );
+	}
+}
+
+/**
+ * Compatible with PHP getimagesize()
+ * @todo support gzipped SVGZ
+ * @todo check XML more carefully
+ * @todo sensible defaults
+ *
+ * @param $filename String: full name of the file (passed to php fopen()).
+ * @return array
+ */
+function wfGetSVGsize( $filename ) {
+	$width = 256;
+	$height = 256;
+
+	// Read a chunk of the file
+	$f = fopen( $filename, "rt" );
+	if( !$f ) return false;
+	$chunk = fread( $f, 4096 );
+	fclose( $f );
+
+	// Uber-crappy hack! Run through a real XML parser.
+	$matches = array();
+	if( !preg_match( '/<svg\s*([^>]*)\s*>/s', $chunk, $matches ) ) {
+		return false;
+	}
+	$tag = $matches[1];
+	if( preg_match( '/(?:^|\s)width\s*=\s*("[^"]+"|\'[^\']+\')/s', $tag, $matches ) ) {
+		$width = wfScaleSVGUnit( trim( substr( $matches[1], 1, -1 ) ) );
+	}
+	if( preg_match( '/(?:^|\s)height\s*=\s*("[^"]+"|\'[^\']+\')/s', $tag, $matches ) ) {
+		$height = wfScaleSVGUnit( trim( substr( $matches[1], 1, -1 ) ) );
+	}
+
+	return array( $width, $height, 'SVG',
+		"width=\"$width\" height=\"$height\"" );
+}
 
 /**
  * Determine if an image exists on the 'bad image list'.
@@ -15,18 +74,12 @@
  *      i.e. articles where the image may occur inline.
  *
  * @param $name string the image name to check
- * @param $contextTitle Title|bool the page on which the image occurs, if known
+ * @param $contextTitle Title: the page on which the image occurs, if known
  * @return bool
  */
 function wfIsBadImage( $name, $contextTitle = false ) {
 	static $badImages = false;
 	wfProfileIn( __METHOD__ );
-
-	# Handle redirects
-	$redirectTitle = RepoGroup::singleton()->checkRedirect( Title::makeTitle( NS_FILE, $name ) );
-	if( $redirectTitle ) {
-		$name = $redirectTitle->getDbKey();
-	}
 
 	# Run the extension hook
 	$bad = false;

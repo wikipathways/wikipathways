@@ -1,23 +1,5 @@
 <?php
 /**
- * Script to convert history stubs that point to an external row to direct
- * external pointers.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- * http://www.gnu.org/copyleft/gpl.html
- *
  * @file
  * @ingroup Maintenance ExternalStorage
  */
@@ -27,7 +9,7 @@ define( 'REPORTING_INTERVAL', 100 );
 if ( !defined( 'MEDIAWIKI' ) ) {
 	$optionsWithArgs = array( 'm' );
 
-	require_once( dirname( __FILE__ ) . '/../commandLine.inc' );
+	require_once( dirname(__FILE__) . '/../commandLine.inc' );
 
 	resolveStubs();
 }
@@ -45,20 +27,25 @@ function resolveStubs() {
 	$numBlocks = intval( $maxID / $blockSize ) + 1;
 
 	for ( $b = 0; $b < $numBlocks; $b++ ) {
-		wfWaitForSlaves();
-
+		wfWaitForSlaves( 2 );
+		
 		printf( "%5.2f%%\n", $b / $numBlocks * 100 );
-		$start = intval( $maxID / $numBlocks ) * $b + 1;
-		$end = intval( $maxID / $numBlocks ) * ( $b + 1 );
-
+		$start = intval($maxID / $numBlocks) * $b + 1;
+		$end = intval($maxID / $numBlocks) * ($b + 1);
+		
 		$res = $dbr->select( 'text', array( 'old_id', 'old_text', 'old_flags' ),
 			"old_id>=$start AND old_id<=$end " .
-			"AND old_flags LIKE '%object%' AND old_flags NOT LIKE '%external%' " .
-			'AND LOWER(CONVERT(LEFT(old_text,22) USING latin1)) = \'o:15:"historyblobstub"\'',
-			$fname );
-		foreach ( $res as $row ) {
+			# Using a more restrictive flag set for now, until I do some more analysis -- TS
+			#"AND old_flags LIKE '%object%' AND old_flags NOT LIKE '%external%' ".
+			
+			"AND old_flags='object' " .
+			"AND LOWER(LEFT(old_text,22)) = 'O:15:\"historyblobstub\"'", $fname );
+		while ( $row = $dbr->fetchObject( $res ) ) {
 			resolveStub( $row->old_id, $row->old_text, $row->old_flags );
 		}
+		$dbr->freeResult( $res );
+
+		
 	}
 	print "100%\n";
 }
@@ -82,7 +69,7 @@ function resolveStub( $id, $stubText, $flags ) {
 
 	# Get the (maybe) external row
 	$externalRow = $dbr->selectRow( 'text', array( 'old_text' ),
-		array( 'old_id' => $stub->mOldId, 'old_flags' . $dbr->buildLike( $dbr->anyString(), 'external', $dbr->anyString() ) ),
+		array( 'old_id' => $stub->mOldId, "old_flags LIKE '%external%'" ),
 		$fname
 	);
 
@@ -99,7 +86,7 @@ function resolveStub( $id, $stubText, $flags ) {
 	}
 
 	# Update the row
-	# print "oldid=$id\n";
+	#print "oldid=$id\n";
 	$dbw->update( 'text',
 		array( /* SET */
 			'old_flags' => $newFlags,

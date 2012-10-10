@@ -15,7 +15,7 @@ class FancyCaptcha extends SimpleCaptcha {
 		$digest = $wgCaptchaSecret . $info['salt'] . $answer . $wgCaptchaSecret . $info['salt'];
 		$answerHash = substr( md5( $digest ), 0, 16 );
 
-		if ( $answerHash == $info['hash'] ) {
+		if( $answerHash == $info['hash'] ) {
 			wfDebug( "FancyCaptcha: answer hash matches expected {$info['hash']}\n" );
 			return true;
 		} else {
@@ -24,18 +24,18 @@ class FancyCaptcha extends SimpleCaptcha {
 		}
 	}
 
-	function addCaptchaAPI( &$resultArr ) {
+	function addCaptchaAPI(&$resultArr) {
 		$info = $this->pickImage();
-		if ( !$info ) {
+		if( !$info ) {
 			$resultArr['captcha']['error'] = 'Out of images';
 			return;
 		}
 		$index = $this->storeCaptcha( $info );
-		$title = SpecialPage::getTitleFor( 'Captcha', 'image' );
+		$title = Title::makeTitle( NS_SPECIAL, 'Captcha/image' );
 		$resultArr['captcha']['type'] = 'image';
 		$resultArr['captcha']['mime'] = 'image/png';
 		$resultArr['captcha']['id'] = $index;
-		$resultArr['captcha']['url'] = $title->getLocalUrl( 'wpCaptchaId=' . urlencode( $index ) );
+		$resultArr['captcha']['url'] = $title->getLocalUrl( 'wpCaptchaId=' . urlencode( $index ) );		
 	}
 
 	/**
@@ -43,8 +43,8 @@ class FancyCaptcha extends SimpleCaptcha {
 	 */
 	function getForm() {
 		$info = $this->pickImage();
-		if ( !$info ) {
-			throw new MWException( "Ran out of captcha images" );
+		if( !$info ) {
+			die( "out of captcha images; this shouldn't happen" );
 		}
 
 		// Generate a random key for use of this captcha image in this session.
@@ -54,22 +54,22 @@ class FancyCaptcha extends SimpleCaptcha {
 
 		wfDebug( "Captcha id $index using hash ${info['hash']}, salt ${info['salt']}.\n" );
 
-		$title = SpecialPage::getTitleFor( 'Captcha', 'image' );
+		$title = Title::makeTitle( NS_SPECIAL, 'Captcha/image' );
 
 		return "<p>" .
-			Xml::element( 'img', array(
+			wfElement( 'img', array(
 				'src'    => $title->getLocalUrl( 'wpCaptchaId=' . urlencode( $index ) ),
 				'width'  => $info['width'],
 				'height' => $info['height'],
 				'alt'    => '' ) ) .
 			"</p>\n" .
-			Xml::element( 'input', array(
+			wfElement( 'input', array(
 				'type'  => 'hidden',
 				'name'  => 'wpCaptchaId',
 				'id'    => 'wpCaptchaId',
 				'value' => $index ) ) .
 			"<p>" .
-			Xml::element( 'input', array(
+			wfElement( 'input', array(
 				'name' => 'wpCaptchaWord',
 				'id'   => 'wpCaptchaWord',
 				'tabindex' => 1 ) ) . // tab in before the edit textarea
@@ -87,27 +87,27 @@ class FancyCaptcha extends SimpleCaptcha {
 			$wgCaptchaDirectory,
 			$wgCaptchaDirectoryLevels );
 	}
-
+	
 	function pickImageDir( $directory, $levels ) {
-		if ( $levels ) {
+		if( $levels ) {
 			$dirs = array();
-
+			
 			// Check which subdirs are actually present...
 			$dir = opendir( $directory );
-			while ( false !== ( $entry = readdir( $dir ) ) ) {
-				if ( ctype_xdigit( $entry ) && strlen( $entry ) == 1 ) {
+			while( false !== ($entry = readdir( $dir ) ) ) {
+				if( ctype_xdigit( $entry ) && strlen( $entry ) == 1 ) {
 					$dirs[] = $entry;
 				}
 			}
 			closedir( $dir );
-
+			
 			$place = mt_rand( 0, count( $dirs ) - 1 );
 			// In case all dirs are not filled,
 			// cycle through next digits...
-			for ( $j = 0; $j < count( $dirs ); $j++ ) {
-				$char = $dirs[( $place + $j ) % count( $dirs )];
+			for( $j = 0; $j < count( $dirs ); $j++ ) {
+				$char = $dirs[($place + $j) % count( $dirs )];
 				$return = $this->pickImageDir( "$directory/$char", $levels - 1 );
-				if ( $return ) {
+				if( $return ) {
 					return $return;
 				}
 			}
@@ -117,9 +117,9 @@ class FancyCaptcha extends SimpleCaptcha {
 			return $this->pickImageFromDir( $directory );
 		}
 	}
-
+	
 	function pickImageFromDir( $directory ) {
-		if ( !is_dir( $directory ) ) {
+		if( !is_dir( $directory ) ) {
 			return false;
 		}
 		$n = mt_rand( 0, $this->countFiles( $directory ) - 1 );
@@ -129,9 +129,9 @@ class FancyCaptcha extends SimpleCaptcha {
 
 		$entry = readdir( $dir );
 		$pick = false;
-		while ( false !== $entry ) {
+		while( false !== $entry ) {
 			$entry = readdir( $dir );
-			if ( preg_match( '/^image_([0-9a-f]+)_([0-9a-f]+)\\.png$/', $entry, $matches ) ) {
+			if( preg_match( '/^image_([0-9a-f]+)_([0-9a-f]+)\\.png$/', $entry, $matches ) ) {
 				$size = getimagesize( "$directory/$entry" );
 				$pick = array(
 					'salt' => $matches[1],
@@ -140,7 +140,7 @@ class FancyCaptcha extends SimpleCaptcha {
 					'height' => $size[1],
 					'viewed' => false,
 				);
-				if ( $count++ == $n ) {
+				if( $count++ == $n ) {
 					break;
 				}
 			}
@@ -156,8 +156,8 @@ class FancyCaptcha extends SimpleCaptcha {
 	function countFiles( $dirname ) {
 		$dir = opendir( $dirname );
 		$count = 0;
-		while ( false !== ( $entry = readdir( $dir ) ) ) {
-			if ( $entry != '.' && $entry != '..' ) {
+		while( false !== ($entry = readdir( $dir ) ) ) {
+			if( $entry != '.' && $entry != '..' ) {
 				$count++;
 			}
 		}
@@ -166,12 +166,12 @@ class FancyCaptcha extends SimpleCaptcha {
 	}
 
 	function showImage() {
-		global $wgOut;
+		global $wgOut, $wgRequest;
 
 		$wgOut->disable();
 
 		$info = $this->retrieveCaptcha();
-		if ( $info ) {
+		if( $info ) {
 			/*
 			// Be a little less restrictive for now; in at least some circumstances,
 			// Konqueror tries to reload the image even if you haven't navigated
@@ -189,7 +189,7 @@ class FancyCaptcha extends SimpleCaptcha {
 			$hash = $info['hash'];
 			$file = $this->imagePath( $salt, $hash );
 
-			if ( file_exists( $file ) ) {
+			if( file_exists( $file ) ) {
 				global $IP;
 				require_once "$IP/includes/StreamFile.php";
 				header( "Cache-Control: private, s-maxage=0, max-age=3600" );
@@ -200,13 +200,13 @@ class FancyCaptcha extends SimpleCaptcha {
 		wfHttpError( 500, 'Internal Error', 'Requested bogus captcha image' );
 		return false;
 	}
-
+	
 	function imagePath( $salt, $hash ) {
 		global $wgCaptchaDirectory, $wgCaptchaDirectoryLevels;
 		$file = $wgCaptchaDirectory;
 		$file .= DIRECTORY_SEPARATOR;
-		for ( $i = 0; $i < $wgCaptchaDirectoryLevels; $i++ ) {
-			$file .= $hash { $i } ;
+		for( $i = 0; $i < $wgCaptchaDirectoryLevels; $i++ ) {
+			$file .= $hash{$i};
 			$file .= DIRECTORY_SEPARATOR;
 		}
 		$file .= "image_{$salt}_{$hash}.png";
@@ -228,22 +228,4 @@ class FancyCaptcha extends SimpleCaptcha {
 		return wfEmptyMsg( $name, $text ) ? wfMsg( 'fancycaptcha-edit' ) : $text;
 	}
 
-	/**
-	 * Delete a solved captcha image, if $wgCaptchaDeleteOnSolve is true.
-	 */
-	function passCaptcha() {
-		global $wgCaptchaDeleteOnSolve;
-
-		$info = $this->retrieveCaptcha(); // get the captcha info before it gets deleted
-		$pass = parent::passCaptcha();
-
-		if ( $pass && $wgCaptchaDeleteOnSolve ) {
-			$filename = $this->imagePath( $info['salt'], $info['hash'] );
-			if ( file_exists( $filename ) ) {
-				unlink( $filename );
-			}
-		}
-
-		return $pass;
-	}
 }

@@ -1,43 +1,29 @@
 <?php
 /**
- * Template used when there is no LocalSettings.php file
- *
  * @file
  * @ingroup Templates
  */
 
-if ( !isset( $wgVersion ) ) {
+# Prevent XSS
+if ( isset( $wgVersion ) ) {
+	$wgVersion = htmlspecialchars( $wgVersion );
+} else {
 	$wgVersion = 'VERSION';
 }
-
-$matches = array();
-$ext = 'php';
-$path = '/';
-foreach( array_filter( explode( '/', $_SERVER['PHP_SELF'] ) ) as $part ) {
-	if( !preg_match( '/\.(php5?)$/', $part, $matches ) ) {
-		$path .= "$part/";
-	} else {
-		$ext = $matches[1] == 'php5' ? 'php5' : 'php';
-	}
-}
-
-# Check to see if the installer is running
-if ( !function_exists( 'session_name' ) ) {
-	$installerStarted = false;
-} else {
-	session_name( 'mw_installer_session' );
-	$oldReporting = error_reporting( E_ALL & ~E_NOTICE );
-	$success = session_start();
-	error_reporting( $oldReporting );
-	$installerStarted = ( $success && isset( $_SESSION['installData'] ) );
+# Set the path in case we hit a page such as /index.php/Main_Page
+# Could use <base href> but then we have to worry about http[s]/port #/etc.
+$ext = strpos( $_SERVER['SCRIPT_NAME'], 'index.php5' ) === false ? 'php' : 'php5';
+$path = '';
+if( isset( $_SERVER['SCRIPT_NAME'] )) {
+	$path = htmlspecialchars( preg_replace('/index.php5?/', '', $_SERVER['SCRIPT_NAME']) );
 }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns='http://www.w3.org/1999/xhtml' lang='en'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
 	<head>
-		<title>MediaWiki <?php echo htmlspecialchars( $wgVersion ) ?></title>
+		<title>MediaWiki <?php echo $wgVersion ?></title>
 		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
-		<style type='text/css' media='screen'>
+		<style type='text/css' media='screen, projection'>
 			html, body {
 				color: #000;
 				background-color: #fff;
@@ -51,20 +37,17 @@ if ( !function_exists( 'session_name' ) ) {
 		</style>
 	</head>
 	<body>
-		<img src="<?php echo htmlspecialchars( $path ) ?>skins/common/images/mediawiki.png" alt='The MediaWiki logo' />
+		<img src="<?php echo $path ?>skins/common/images/mediawiki.png" alt='The MediaWiki logo' />
 
-		<h1>MediaWiki <?php echo htmlspecialchars( $wgVersion ) ?></h1>
+		<h1>MediaWiki <?php echo $wgVersion ?></h1>
 		<div class='error'>
-		<p>LocalSettings.php not found.</p>
-		<p>
 		<?php
-		if ( $installerStarted ) {
-			echo( "Please <a href=\"" . htmlspecialchars( $path ) . "mw-config/index." . htmlspecialchars( $ext ) . "\"> complete the installation</a> and download LocalSettings.php." );
+		if ( file_exists( 'config/LocalSettings.php' ) ) {
+			echo( 'To complete the installation, move <tt>config/LocalSettings.php</tt> to the parent directory.' );
 		} else {
-			echo( "Please <a href=\"" . htmlspecialchars( $path ) . "mw-config/index." . htmlspecialchars( $ext ) . "\"> set up the wiki</a> first." );
+			echo( "Please <a href=\"${path}config/index.{$ext}\" title='setup'> set up the wiki</a> first." );
 		}
 		?>
-		</p>
 
 		</div>
 	</body>

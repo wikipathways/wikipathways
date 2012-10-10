@@ -1,52 +1,19 @@
 <?php
-/**
- * Interfaces for preprocessors
- *
- * @file
- */
 
 /**
  * @ingroup Parser
  */
 interface Preprocessor {
-	/**
-	 * Create a new preprocessor object based on an initialised Parser object
-	 *
-	 * @param $parser Parser
-	 */
+	/** Create a new preprocessor object based on an initialised Parser object */
 	function __construct( $parser );
 
-	/**
-	 * Create a new top-level frame for expansion of a page
-	 *
-	 * @return PPFrame
-	 */
+	/** Create a new top-level frame for expansion of a page */
 	function newFrame();
 
-	/**
-	 * Create a new custom frame for programmatic use of parameter replacement as used in some extensions
-	 *
-	 * @param $args array
-	 * 
-	 * @return PPFrame
-	 */
+	/** Create a new custom frame for programmatic use of parameter replacement as used in some extensions */
 	function newCustomFrame( $args );
 
-	/**
-	 * Create a new custom node for programmatic use of parameter replacement as used in some extensions
-	 *
-	 * @param $values
-	 */
-	function newPartNodeArray( $values );
-
-	/**
-	 * Preprocess text to a PPNode
-	 *
-	 * @param $text
-	 * @param $flags
-	 * 
-	 * @return PPNode
-	 */
+	/** Preprocess text to a PPNode */
 	function preprocessToObj( $text, $flags = 0 );
 }
 
@@ -64,11 +31,6 @@ interface PPFrame {
 
 	/**
 	 * Create a child frame
-	 *
-	 * @param $args array
-	 * @param $title Title
-	 *
-	 * @return PPFrame
 	 */
 	function newChild( $args = false, $title = false );
 
@@ -100,25 +62,8 @@ interface PPFrame {
 
 	/**
 	 * Returns true if there are no arguments in this frame
-	 *
-	 * @return bool
 	 */
 	function isEmpty();
-
-	/**
-	 * Returns all arguments of this frame
-	 */
-	function getArguments();
-
-	/**
-	 * Returns all numbered arguments of this frame
-	 */
-	function getNumberedArguments();
-
-	/**
-	 * Returns all named arguments of this frame
-	 */
-	function getNamedArguments();
 
 	/**
 	 * Get an argument to this frame by name
@@ -127,10 +72,6 @@ interface PPFrame {
 
 	/**
 	 * Returns true if the infinite loop check is OK, false if a loop is detected
-	 *
-	 * @param $title
-	 *
-	 * @return bool
 	 */
 	function loopCheck( $title );
 
@@ -162,8 +103,6 @@ interface PPNode {
 
 	/**
 	 * Get the first child of a tree node. False if there isn't one.
-	 *
-	 * @return PPNode
 	 */
 	function getFirstChild();
 

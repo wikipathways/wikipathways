@@ -2,8 +2,6 @@
 
 /**
  * Generate an OpenSearch description file
- *
- * @file
  */
 
 require_once( dirname(__FILE__) . '/includes/WebStart.php' );
@@ -51,7 +49,7 @@ print Xml::element( 'Image',
 		'height' => 16,
 		'width' => 16,
 		'type' => 'image/x-icon' ),
-	wfExpandUrl( $wgFavicon , PROTO_CURRENT ) );
+	wfExpandUrl( $wgFavicon ) );
 
 $urls = array();
 
@@ -62,7 +60,7 @@ $searchPage = SpecialPage::getTitleFor( 'Search' );
 $urls[] = array(
 	'type' => 'text/html',
 	'method' => 'get',
-	'template' => $searchPage->getCanonicalURL( 'search={searchTerms}' ) );
+	'template' => $searchPage->getFullURL( 'search={searchTerms}' ) );
 
 if( $wgEnableAPI ) {
 	// JSON interface for search suggestions.
@@ -86,6 +84,6 @@ foreach( $urls as $attribs ) {
 // sends you to the domain root if you hit "enter" with an empty
 // search box.
 print Xml::element( 'moz:SearchForm', null,
-	$searchPage->getCanonicalURL() );
+	$searchPage->getFullUrl() );
 
 print '</OpenSearchDescription>';

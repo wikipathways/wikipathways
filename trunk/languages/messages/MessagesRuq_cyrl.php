@@ -1,13 +1,9 @@
 <?php
-/** Megleno-Romanian (Cyrillic script) (Влахесте)
- *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
+/** Megleno-Romanian (Cyrillic) (Vlăheşte (Cyrillic))
  *
  * @ingroup Language
  * @file
  *
- * @author Andrijko Z.
  * @author Кумулај Маркус
  * @author Макѕе
  * @author Приетен тев
@@ -155,6 +151,8 @@ $messages = array(
 'extlink_tip'     => 'Легајтул ќстернул (вец префикс http://)',
 'headline_sample' => 'Ескрире с-титлус',
 'headline_tip'    => 'Титлу де нивел 2',
+'math_sample'     => 'Интродуца формула иси',
+'math_tip'        => 'Формула с-математикс (LaTeX)',
 'nowiki_sample'   => 'Интродуца но-Вики иси',
 'nowiki_tip'      => 'Но-Бики клашу',
 'image_tip'       => 'Сантигул инсерат',
@@ -163,8 +161,8 @@ $messages = array(
 'hr_tip'          => 'Линеа оризонтала (еснидивале)',
 
 # Edit pages
-'summary'                => 'Сумар:',
-'subject'                => 'Субјект / титлур:',
+'summary'                => 'Сумар',
+'subject'                => 'Субјект / титлур',
 'minoredit'              => 'Ацеаста есте о едитаре минорај',
 'watchthis'              => 'Клајаере це пажу',
 'showpreview'            => 'Ратај превизуализаре',
@@ -172,8 +170,8 @@ $messages = array(
 'newarticle'             => '(Нова)',
 'editing'                => 'о $1 едитаере',
 'editingsection'         => 'Едитаере $1 (секцион)',
-'copyrightwarning'       => "<!-- Гол деоцамдатај. Вертисментул се флај ен MediaWiki:Summary -->
-Те рог нотари ла дин контрибући ал {{SITENAME}} сунт консидераере релесават супра $2 (суах $1 дин детајс). Аџтеу несав те се тексти сунт едитаере деномерци дет редистрибутаере дин вент, хатае ици.<br /> Ту есте ностре промисаере бонти ус ту скрирсте це се, нега копиаере дин публик домен нега симилари ресорсуе. '''НЕ СУБМИТЕ КОПИЛЕГРУ СКРИЕ САС ПЕРМИћИОН!'''",
+'copyrightwarning'       => '<!-- Гол деоцамдатај. Вертисментул се флај ен MediaWiki:Summary -->
+Те рог нотари ла дин контрибући ал {{SITENAME}} сунт консидераере релесават супра $2 (суах $1 дин детајс). Аџтеу несав те се тексти сунт едитаере деномерци дет редистрибутаере дин вент, хатае ици.<br /> Ту есте ностре промисаере бонти ус ту скрирсте це се, нега копиаере дин публик домен нега симилари ресорсуе. <strong>НЕ СУБМИТЕ КОПИЛЕГРУ СКРИЕ САС ПЕРМИћИОН!</strong>',
 'template-protected'     => '(ажатмат)',
 'template-semiprotected' => '(семи-ажатмат)',
 
@@ -191,16 +189,16 @@ $messages = array(
 'editundo'                => 'анулизаје',
 
 # Search results
-'viewprevnext'   => 'Ву ($1 {{int:pipe-separator}} $2) ($3)',
-'searchhelp-url' => 'Help:Ајутор',
-'powersearch'    => 'каутај авансата',
+'noexactmatch' => "'''Нпажу вец лном \"\$1\" н-ќсистст.''' Путе [[:\$1|креаре це пажу]].",
+'viewprevnext' => 'Ву ($1) ($2) ($3)',
+'powersearch'  => 'каутај авансата',
 
 # Preferences page
 'mypreferences' => 'Мај префиренћу',
 
 # Recent changes
 'recentchanges'   => 'шумбајрае рецентае',
-'rcnote'          => "Маи хос се флај {{PLURAL:$|ултима модификаре|ултимеле '''$1''' модификајри}} дин {{PLURAL:$2|ултима зи|ултимеле '''$2''' зиле}}, енцепонд цу $5, $4.",
+'rcnote'          => "Маи хос се флај {{PLURAL:$|ултима модификаре|ултимеле '''$1''' модификајри}} дин {{PLURAL:$2|ултима зи|ултимеле '''$2''' зиле}}, енцепонд цу $3.",
 'rcshowhideminor' => '$1 модификајриле миноре',
 'rcshowhidebots'  => '$1 роботи',
 'rcshowhideliu'   => '$1 утилизатори приласнаери',
@@ -217,23 +215,20 @@ $3',
 'boteditletter'   => 'б',
 
 # Recent changes linked
-'recentchangeslinked'         => 'Модификајри корелате',
-'recentchangeslinked-feed'    => 'Модификајри корелате',
-'recentchangeslinked-toolbox' => 'Модификајри корелате',
+'recentchangeslinked' => 'Модификајри корелате',
 
 # Upload
 'upload' => 'тримиће фиширул',
 
-# File description page
-'file-anchor-link'    => 'фиширул',
+# Image description page
 'filehist'            => 'Хисториа фиширулу',
 'filehist-current'    => 'куренту',
 'filehist-datetime'   => 'Дата/Темп',
 'filehist-user'       => 'Утилизатору',
 'filehist-dimensions' => 'Дименционс',
 'filehist-comment'    => 'коментарул',
-'imagelinks'          => 'Легајтул фиширул де медиа',
-'linkstoimage'        => 'Цес {{PLURAL:$1|page links||пажи легајтент}} а це фиширул:',
+'imagelinks'          => 'легајтул',
+'linkstoimage'        => 'Цес пажи легајтент а це фиширул:',
 
 # Random page
 'randompage' => 'алаећу',
@@ -253,20 +248,19 @@ $3',
 'allpagessubmit' => 'Треме',
 
 # Watchlist
-'watchlist'   => 'Мај клајаеру',
-'mywatchlist' => 'Мај клајаере',
-'watch'       => 'клајаере',
-'unwatch'     => 'Деклајаера',
+'watchlist'    => 'Мај клајаеру',
+'mywatchlist'  => 'Мај клајаере',
+'watchlistfor' => "(пентру '''$1''')",
+'watch'        => 'клајаере',
+'unwatch'      => 'Деклајаера',
 
 # Displayed when you click the "watch" button and it is in the process of watching
 'watching'   => 'О клајаере...',
 'unwatching' => 'О деклајаере...',
 
-# Delete
+# Delete/protect/revert
 'deletedarticle' => 'делајрај "[[$1]]"',
-
-# Rollback
-'rollbacklink' => 'ревенире',
+'rollbacklink'   => 'ревенире',
 
 # Namespace form on various pages
 'namespace'      => 'лСпаћи:',
@@ -279,11 +273,10 @@ $3',
 'contribsub2'   => 'пентру $1 ($2)',
 'uctop'         => '(сусверф)',
 
-'sp-contributions-talk' => 'дискућу',
-
 # What links here
 'whatlinkshere'       => 'Легајтул а це пажу',
 'whatlinkshere-title' => 'Пажус легајтулент а $1',
+'linklistsub'         => '(Листа де легајтул)',
 'nolinkshere'         => "Пажи не легајтент а '''[[:$1]]'''.",
 'istemplate'          => 'викулабе',
 'whatlinkshere-links' => '← легајтулс',

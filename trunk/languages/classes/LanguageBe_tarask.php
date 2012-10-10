@@ -4,40 +4,33 @@
   * @ingroup Language
   *
   * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
-  * @link http://be-x-old.wikipedia.org/wiki/Project_talk:LanguageBe_tarask.php
+  * @bug 1638, 2135
+  * @link http://be.wikipedia.org/wiki/Talk:LanguageBe.php
   * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
   * @license http://www.gnu.org/copyleft/fdl.html GNU Free Documentation License
   */
 
 class LanguageBe_tarask extends Language {
 	/**
-	 * Plural form transformations
-	 *
-	 * $wordform1 - singular form (for 1, 21, 31, 41...)
-	 * $wordform2 - plural form (for 2, 3, 4, 22, 23, 24, 32, 33, 34...)
-	 * $wordform3 - plural form (for 0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 26...)
-	 */
+	* Plural form transformations
+	*
+	* $wordform1 - singular form (for 1, 21, 31, 41...)
+	* $wordform2 - plural form (for 2, 3, 4, 22, 23, 24, 32, 33, 34...)
+	* $wordform3 - plural form (for 0, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 26...)
+	*/
 
-	/**
-	 * @param $count int
-	 * @param $forms array
-	 *
-	 * @return string
-	 */
 	function convertPlural( $count, $forms ) {
-		if ( !count( $forms ) ) { return ''; }
+		if ( !count($forms) ) { return ''; }
 
-		// if no number with word, then use $form[0] for singular and $form[1] for plural or zero
-		if ( count( $forms ) === 2 ) return $count == 1 ? $forms[0] : $forms[1];
+		//if no number with word, then use $form[0] for singular and $form[1] for plural or zero
+		if( count($forms) === 2 ) return $count == 1 ? $forms[0] : $forms[1];
 
-		// @todo FIXME: CLDR defines 4 plural forms instead of 3
-		//        http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html
 		$forms = $this->preConvertPlural( $forms, 3 );
 
-		if ( $count > 10 && floor( ( $count % 100 ) / 10 ) == 1 ) {
+		if ($count > 10 && floor(($count % 100) / 10) == 1) {
 			return $forms[2];
 		} else {
-			switch ( $count % 10 ) {
+			switch ($count % 10) {
 				case 1:  return $forms[0];
 				case 2:
 				case 3:
@@ -47,44 +40,60 @@ class LanguageBe_tarask extends Language {
 		}
 	}
 
+	# Convert from the nominative form of a noun to some other case
+	# Invoked with {{GRAMMAR:case|word}}
 	/**
-	 * The Belarusian language uses apostrophe sign,
-	 * but the characters used for this could be both U+0027 and U+2019.
-	 * This function unifies apostrophe sign in search index values
-	 * to enable seach using both apostrophe signs.
-	 *
-	 * @param $string string
-	 *
-	 * @return string
-	 */
-	function normalizeForSearch( $string ) {
-		wfProfileIn( __METHOD__ );
-
-		# MySQL fulltext index doesn't grok utf-8, so we
-		# need to fold cases and convert to hex
-
-		# Replacing apostrophe sign U+2019 with U+0027
-		$s = preg_replace( '/\xe2\x80\x99/', '\'', $string );
-
-		$s = parent::normalizeForSearch( $s );
-
-		wfProfileOut( __METHOD__ );
-		return $s;
-	}
-
-	/**
-	 * Four-digit number should be without group commas (spaces)
-	 * So "1 234 567", "12 345" but "1234"
-	 *
-	 * @param $_ string
-	 *
-	 * @return string
-	 */
-	function commafy( $_ ) {
-		if ( preg_match( '/^-?\d{1,4}(\.\d*)?$/', $_ ) ) {
-			return $_;
-		} else {
-			return strrev( (string)preg_replace( '/(\d{3})(?=\d)(?!\d*\.)/', '$1,', strrev( $_ ) ) );
+   * Cases: родны, вінавальны, месны
+   */
+	function convertGrammar( $word, $case ) {
+		switch ( $case ) {
+			case 'родны': # genitive
+				if ( $word == 'Вікіпэдыя' ) {
+					$word = 'Вікіпэдыі';
+				} elseif ( $word == 'ВікіСлоўнік' ) {
+					$word = 'ВікіСлоўніка';
+				} elseif ( $word == 'ВікіКнігі' ) {
+					$word = 'ВікіКніг';
+				} elseif ( $word == 'ВікіКрыніца' ) {
+					$word = 'ВікіКрыніцы';
+				} elseif ( $word == 'ВікіНавіны' ) {
+					$word = 'ВікіНавін';
+				} elseif ( $word == 'ВікіВіды' ) {
+					$word = 'ВікіВідаў';
+				}
+			break;
+			case 'вінавальны': # akusative
+				if ( $word == 'Вікіпэдыя' ) {
+					$word = 'Вікіпэдыю';
+				} elseif ( $word == 'ВікіСлоўнік' ) {
+					$word = 'ВікіСлоўнік';
+				} elseif ( $word == 'ВікіКнігі' ) {
+					$word = 'ВікіКнігі';
+				} elseif ( $word == 'ВікіКрыніца' ) {
+					$word = 'ВікіКрыніцу';
+				} elseif ( $word == 'ВікіНавіны' ) {
+					$word = 'ВікіНавіны';
+				} elseif ( $word == 'ВікіВіды' ) {
+					$word = 'ВікіВіды';
+				}
+			break;
+			case 'месны': # prepositional
+				if ( $word == 'Вікіпэдыя' ) {
+					$word = 'Вікіпэдыі';
+				} elseif ( $word == 'ВікіСлоўнік' ) {
+					$word = 'ВікіСлоўніку';
+				} elseif ( $word == 'ВікіКнігі' ) {
+					$word = 'ВікіКнігах';
+				} elseif ( $word == 'ВікіКрыніца' ) {
+					$word = 'ВікіКрыніцы';
+				} elseif ( $word == 'ВікіНавіны' ) {
+					$word = 'ВікіНавінах';
+				} elseif ( $word == 'ВікіВіды' ) {
+					$word = 'ВікіВідах';
+				}
+			break;
 		}
+
+		return $word; # this will return the original value for 'назоўны' (nominative) and all undefined case values
 	}
 }

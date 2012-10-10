@@ -1,20 +1,8 @@
 <?php
 
-/**
- * Helper functions for feeds
- *
- * @ingroup Feed
- */
+// TODO: document
 class FeedUtils {
 
-	/**
-	 * Check whether feed's cache should be cleared; for changes feeds
-	 * If the feed should be purged; $timekey and $key will be removed from
-	 * $messageMemc
-	 *
-	 * @param $timekey String: cache key of the timestamp of the last item
-	 * @param $key String: cache key of feed's content
-	 */
 	public static function checkPurge( $timekey, $key ) {
 		global $wgRequest, $wgUser, $messageMemc;
 		$purge = $wgRequest->getVal( 'action' ) === 'purge';
@@ -24,14 +12,8 @@ class FeedUtils {
 		}
 	}
 
-	/**
-	 * Check whether feeds can be used and that $type is a valid feed type
-	 *
-	 * @param $type String: feed type, as requested by the user
-	 * @return Boolean
-	 */
 	public static function checkFeedOutput( $type ) {
-		global $wgFeed, $wgFeedClasses;
+		global $wgFeed, $wgOut, $wgFeedClasses;
 
 		if ( !$wgFeed ) {
 			global $wgOut;
@@ -48,11 +30,8 @@ class FeedUtils {
 	}
 
 	/**
-	 * Format a diff for the newsfeed
-	 *
-	 * @param $row Object: row from the recentchanges table
-	 * @return String
-	 */
+	* Format a diff for the newsfeed
+	*/
 	public static function formatDiff( $row ) {
 		global $wgUser;
 
@@ -74,20 +53,9 @@ class FeedUtils {
 			$actiontext );
 	}
 
-	/**
-	 * Really format a diff for the newsfeed
-	 *
-	 * @param $title Title object
-	 * @param $oldid Integer: old revision's id
-	 * @param $newid Integer: new revision's id
-	 * @param $timestamp Integer: new revision's timestamp
-	 * @param $comment String: new revision's comment
-	 * @param $actiontext String: text of the action; in case of log event
-	 * @return String
-	 */
 	public static function formatDiffRow( $title, $oldid, $newid, $timestamp, $comment, $actiontext='' ) {
-		global $wgFeedDiffCutoff, $wgLang, $wgUser;
-		wfProfileIn( __METHOD__ );
+		global $wgFeedDiffCutoff, $wgContLang, $wgUser;
+		wfProfileIn( __FUNCTION__ );
 
 		$skin = $wgUser->getSkin();
 		# log enties
@@ -103,28 +71,21 @@ class FeedUtils {
 		$anon = new User();
 		$accErrors = $title->getUserPermissionsErrors( 'read', $anon, true );
 
-		if( $title->getNamespace() >= 0 && !$accErrors && $newid ) {
+		if( $title->getNamespace() >= 0 && !$accErrors ) {
 			if( $oldid ) {
-				wfProfileIn( __METHOD__."-dodiff" );
+				wfProfileIn( __FUNCTION__."-dodiff" );
 
+				$de = new DifferenceEngine( $title, $oldid, $newid );
 				#$diffText = $de->getDiff( wfMsg( 'revisionasof',
-				#	$wgLang->timeanddate( $timestamp ),
-				#	$wgLang->date( $timestamp ),
-				#	$wgLang->time( $timestamp ) ),
+				#	$wgContLang->timeanddate( $timestamp ) ),
 				#	wfMsg( 'currentrev' ) );
+				$diffText = $de->getDiff(
+					wfMsg( 'previousrevision' ), // hack
+					wfMsg( 'revisionasof',
+						$wgContLang->timeanddate( $timestamp ) ) );
 
-				// Don't bother generating the diff if we won't be able to show it
-				if ( $wgFeedDiffCutoff > 0 ) {
-					$de = new DifferenceEngine( $title, $oldid, $newid );
-					$diffText = $de->getDiff(
-						wfMsg( 'previousrevision' ), // hack
-						wfMsg( 'revisionasof',
-							$wgLang->timeanddate( $timestamp ),
-							$wgLang->date( $timestamp ),
-							$wgLang->time( $timestamp ) ) );
-				}
 
-				if ( $wgFeedDiffCutoff <= 0 || ( strlen( $diffText ) > $wgFeedDiffCutoff ) ) {
+				if ( strlen( $diffText ) > $wgFeedDiffCutoff ) {
 					// Omit large diffs
 					$diffLink = $title->escapeFullUrl(
 						'diff=' . $newid .
@@ -142,7 +103,7 @@ class FeedUtils {
 					$diffText = UtfNormal::cleanUp( $diffText );
 					$diffText = self::applyDiffStyle( $diffText );
 				}
-				wfProfileOut( __METHOD__."-dodiff" );
+				wfProfileOut( __FUNCTION__."-dodiff" );
 			} else {
 				$rev = Revision::newFromId( $newid );
 				if( is_null( $rev ) ) {
@@ -156,19 +117,19 @@ class FeedUtils {
 			$completeText .= $diffText;
 		}
 
-		wfProfileOut( __METHOD__ );
+		wfProfileOut( __FUNCTION__ );
 		return $completeText;
 	}
 
 	/**
-	 * Hacky application of diff styles for the feeds.
-	 * Might be 'cleaner' to use DOM or XSLT or something,
-	 * but *gack* it's a pain in the ass.
-	 *
-	 * @param $text String: diff's HTML output
-	 * @return String: modified HTML
-	 * @private
-	 */
+	* Hacky application of diff styles for the feeds.
+	* Might be 'cleaner' to use DOM or XSLT or something,
+	* but *gack* it's a pain in the ass.
+	*
+	* @param $text String:
+	* @return string
+	* @private
+	*/
 	public static function applyDiffStyle( $text ) {
 		$styles = array(
 			'diff'             => 'background-color: white; color:black;',

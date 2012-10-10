@@ -1,10 +1,10 @@
 <?php
-/**
- *
- *
+
+/*
  * Created on June 1, 2008
+ * API for MediaWiki 1.8+
  *
- * Copyright © 2008 Bryan Tong Minh <Bryan.TongMinh@Gmail.com>
+ * Copyright (C) 2008 Bryan Tong Minh <Bryan.TongMinh@Gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,137 +18,97 @@
  *
  * You should have received a copy of the GNU General Public License along
  * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  * http://www.gnu.org/copyleft/gpl.html
- *
- * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
+if (!defined('MEDIAWIKI')) {
 	// Eclipse helper - will be ignored in production
-	require_once( "ApiBase.php" );
+	require_once ("ApiBase.php");
 }
 
+
 /**
- * API Module to facilitate sending of emails to users
  * @ingroup API
  */
 class ApiEmailUser extends ApiBase {
 
-	public function __construct( $main, $action ) {
-		parent::__construct( $main, $action );
+	public function __construct($main, $action) {
+		parent :: __construct($main, $action);
 	}
 
 	public function execute() {
 		global $wgUser;
-
+		$this->getMain()->requestWriteMode();
 		$params = $this->extractRequestParams();
-
-		// Validate target
-		$targetUser = SpecialEmailUser::getTarget( $params['target'] );
-		if ( !( $targetUser instanceof User ) ) {
-			$this->dieUsageMsg( array( $targetUser ) );
-		}
-
-		// Check permissions and errors
-		$error = SpecialEmailUser::getPermissionsError( $wgUser, $params['token'] );
-		if ( $error ) {
-			$this->dieUsageMsg( array( $error ) );
-		}
-
-		$data = array(
-			'Target' => $targetUser->getName(),
-			'Text' => $params['text'],
-			'Subject' => $params['subject'],
-			'CCMe' => $params['ccme'],
-		);
-		$retval = SpecialEmailUser::submit( $data );
-
-		if ( $retval instanceof Status ) {
-			// SpecialEmailUser sometimes returns a status
-			// sometimes it doesn't.
-			if ( $retval->isGood() ) {
-				$retval = true;
-			} else {
-				$retval = $retval->getErrorsArray();
-			}
-		}
-
-		if ( $retval === true ) {
+		
+		// Check required parameters
+		if ( !isset( $params['target'] ) )
+			$this->dieUsageMsg( array( 'missingparam', 'target' ) );
+		if ( !isset( $params['text'] ) )
+			$this->dieUsageMsg( array( 'missingparam', 'text' ) );
+		if ( !isset( $params['token'] ) )
+			$this->dieUsageMsg( array( 'missingparam', 'token' ) );	
+		
+		// Validate target 
+		$targetUser = EmailUserForm::validateEmailTarget( $params['target'] );
+		if ( !( $targetUser instanceof User ) )
+			$this->dieUsageMsg( array( $targetUser[0] ) );
+		
+		// Check permissions
+		$error = EmailUserForm::getPermissionsError( $wgUser, $params['token'] );
+		if ( $error )
+			$this->dieUsageMsg( array( $error[0] ) );
+		
+			
+		$form = new EmailUserForm( $targetUser, $params['text'], $params['subject'], $params['ccme'] );
+		$retval = $form->doSubmit();
+		if ( is_null( $retval ) )
 			$result = array( 'result' => 'Success' );
-		} else {
-			$result = array(
-				'result' => 'Failure',
-				'message' => $retval
-			);
-		}
-
+		else
+			$result = array( 'result' => 'Failure',
+				 'message' => $retval->getMessage() );
+		
 		$this->getResult()->addValue( null, $this->getModuleName(), $result );
 	}
-
-	public function mustBePosted() {
-		return true;
-	}
-
-	public function isWriteMode() {
-		return true;
-	}
+	
+	public function mustBePosted() { return true; }
 
 	public function getAllowedParams() {
-		return array(
-			'target' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
-			),
+		return array (
+			'target' => null,
 			'subject' => null,
-			'text' => array(
-				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
-			),
+			'text' => null,
 			'token' => null,
 			'ccme' => false,
 		);
 	}
 
 	public function getParamDescription() {
-		return array(
+		return array (
 			'target' => 'User to send email to',
 			'subject' => 'Subject header',
 			'text' => 'Mail body',
+			// FIXME: How to properly get a token?
 			'token' => 'A token previously acquired via prop=info',
 			'ccme' => 'Send a copy of this mail to me',
 		);
 	}
 
 	public function getDescription() {
-		return 'Email a user.';
-	}
-
-	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(), array(
-			array( 'usermaildisabled' ),
-		) );
-	}
-
-	public function needsToken() {
-		return true;
-	}
-
-	public function getTokenSalt() {
-		return '';
+		return array(
+			'Emails a user.'
+		);
 	}
 
 	protected function getExamples() {
-		return array(
+		return array (
 			'api.php?action=emailuser&target=WikiSysop&text=Content'
 		);
 	}
 
-	public function getHelpUrls() {
-		return 'https://www.mediawiki.org/wiki/API:E-mail';
-	}
-
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiEmailUser.php 104449 2011-11-28 15:52:04Z reedy $';
+		return __CLASS__ . ': $Id: $';
 	}
-}
+}	
+	

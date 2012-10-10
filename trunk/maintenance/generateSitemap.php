@@ -1,37 +1,22 @@
 <?php
+define( 'GS_MAIN', -2 );
+define( 'GS_TALK', -1 );
 /**
  * Creates a sitemap for the site
  *
- * Copyright © 2005, Ævar Arnfjörð Bjarmason, Jens Frank <jeluf@gmx.de> and
- * Brion Vibber <brion@pobox.com>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- * http://www.gnu.org/copyleft/gpl.html
- *
- * @file
  * @ingroup Maintenance
+ *
+ * @copyright Copyright © 2005, Ævar Arnfjörð Bjarmason
+ * @copyright Copyright © 2005, Jens Frank <jeluf@gmx.de>
+ * @copyright Copyright © 2005, Brion Vibber <brion@pobox.com>
+ *
  * @see http://www.sitemaps.org/
  * @see http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd
+ *
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License 2.0 or later
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
-
-class GenerateSitemap extends Maintenance {
-	const GS_MAIN = -2;
-	const GS_TALK = -1;
-
+class GenerateSitemap {
 	/**
 	 * The maximum amount of urls in a sitemap file
 	 *
@@ -58,11 +43,11 @@ class GenerateSitemap extends Maintenance {
 	var $fspath;
 
 	/**
-	 * The URL path to prepend to filenames in the index; should resolve to the same directory as $fspath
+	 * The path to append to the domain name
 	 *
 	 * @var string
 	 */
-	var $urlpath;
+	var $path;
 
 	/**
 	 * Whether or not to use compression
@@ -83,7 +68,29 @@ class GenerateSitemap extends Maintenance {
 	 *
 	 * @var array
 	 */
-	var $priorities = array();
+	var $priorities = array(
+		// Custom main namespaces
+		GS_MAIN			=> '0.5',
+		// Custom talk namesspaces
+		GS_TALK			=> '0.1',
+		// MediaWiki standard namespaces
+		NS_MAIN			=> '1.0',
+		NS_TALK			=> '0.1',
+		NS_USER			=> '0.5',
+		NS_USER_TALK		=> '0.1',
+		NS_PROJECT		=> '0.5',
+		NS_PROJECT_TALK		=> '0.1',
+		NS_IMAGE		=> '0.5',
+		NS_IMAGE_TALK		=> '0.1',
+		NS_MEDIAWIKI		=> '0.0',
+		NS_MEDIAWIKI_TALK	=> '0.1',
+		NS_TEMPLATE		=> '0.0',
+		NS_TEMPLATE_TALK	=> '0.1',
+		NS_HELP			=> '0.5',
+		NS_HELP_TALK		=> '0.1',
+		NS_CATEGORY		=> '0.5',
+		NS_CATEGORY_TALK	=> '0.1',
+	);
 
 	/**
 	 * A one-dimensional array of namespaces in the wiki
@@ -122,91 +129,62 @@ class GenerateSitemap extends Maintenance {
 	var $file;
 
 	/**
-	 * Identifier to use in filenames, default $wgDBname
+	 * A resource pointing to php://stderr
 	 *
-	 * @var string
+	 * @var resource
 	 */
-	private $identifier;
+	var $stderr;
 
 	/**
 	 * Constructor
+	 *
+	 * @param string $fspath The path to prepend to the filenames, used to
+	 *                     save them somewhere else than in the root directory
+	 * @param string $path The path to append to the domain name
+	 * @param bool $compress Whether to compress the sitemap files
 	 */
-	public function __construct() {
-		parent::__construct();
-		$this->mDescription = "Creates a sitemap for the site";
-		$this->addOption( 'fspath', 'The file system path to save to, e.g. /tmp/sitemap; defaults to current directory', false, true );
-		$this->addOption( 'urlpath', 'The URL path corresponding to --fspath, prepended to filenames in the index; defaults to an empty string', false, true );
-		$this->addOption( 'compress', 'Compress the sitemap files, can take value yes|no, default yes', false, true );
-		$this->addOption( 'identifier', 'What site identifier to use for the wiki, defaults to $wgDBname', false, true );
-	}
+	function GenerateSitemap( $fspath, $compress ) {
+		global $wgScriptPath;
 
-	/**
-	 * Execute
-	 */
-	public function execute() {
-		$this->setNamespacePriorities();
 		$this->url_limit = 50000;
 		$this->size_limit = pow( 2, 20 ) * 10;
-		$this->fspath = self::init_path( $this->getOption( 'fspath', getcwd() ) );
-		$this->urlpath = $this->getOption( 'urlpath', "" );
-		if ( $this->urlpath !== "" && substr( $this->urlpath, -1 ) !== '/' ) {
-			$this->urlpath .= '/';
-		}
-		$this->identifier = $this->getOption( 'identifier', wfWikiID() );
-		$this->compress = $this->getOption( 'compress', 'yes' ) !== 'no';
+		$this->fspath = self::init_path( $fspath );
+
+		$this->compress = $compress;
+
+		$this->stderr = fopen( 'php://stderr', 'wt' );
 		$this->dbr = wfGetDB( DB_SLAVE );
 		$this->generateNamespaces();
 		$this->timestamp = wfTimestamp( TS_ISO_8601, wfTimestampNow() );
-		$this->findex = fopen( "{$this->fspath}sitemap-index-{$this->identifier}.xml", 'wb' );
-		$this->main();
-	}
 
-	private function setNamespacePriorities() {
-		// Custom main namespaces
-		$this->priorities[self::GS_MAIN] = '0.5';
-		// Custom talk namesspaces
-		$this->priorities[self::GS_TALK] = '0.1';
-		// MediaWiki standard namespaces
-		$this->priorities[NS_MAIN] = '1.0';
-		$this->priorities[NS_TALK] = '0.1';
-		$this->priorities[NS_USER] = '0.5';
-		$this->priorities[NS_USER_TALK] = '0.1';
-		$this->priorities[NS_PROJECT] = '0.5';
-		$this->priorities[NS_PROJECT_TALK] = '0.1';
-		$this->priorities[NS_FILE] = '0.5';
-		$this->priorities[NS_FILE_TALK] = '0.1';
-		$this->priorities[NS_MEDIAWIKI] = '0.0';
-		$this->priorities[NS_MEDIAWIKI_TALK] = '0.1';
-		$this->priorities[NS_TEMPLATE] = '0.0';
-		$this->priorities[NS_TEMPLATE_TALK] = '0.1';
-		$this->priorities[NS_HELP] = '0.5';
-		$this->priorities[NS_HELP_TALK] = '0.1';
-		$this->priorities[NS_CATEGORY] = '0.5';
-		$this->priorities[NS_CATEGORY_TALK] = '0.1';
+
+		$this->findex = fopen( "{$this->fspath}sitemap-index-" . wfWikiID() . ".xml", 'wb' );
 	}
 
 	/**
 	 * Create directory if it does not exist and return pathname with a trailing slash
 	 */
 	private static function init_path( $fspath ) {
-		if ( !isset( $fspath ) ) {
+		if( !isset( $fspath ) ) {
 			return null;
 		}
 		# Create directory if needed
-		if ( $fspath && !is_dir( $fspath ) ) {
-			wfMkdirParents( $fspath ) or die( "Can not create directory $fspath.\n" );
+		if( $fspath && !is_dir( $fspath ) ) {
+			mkdir( $fspath, 0755 ) or die("Can not create directory $fspath.\n");
 		}
 
-		return realpath( $fspath ) . DIRECTORY_SEPARATOR ;
+		return realpath( $fspath ). DIRECTORY_SEPARATOR ;
 	}
 
 	/**
 	 * Generate a one-dimensional array of existing namespaces
 	 */
 	function generateNamespaces() {
+		$fname = 'GenerateSitemap::generateNamespaces';
+
 		// Only generate for specific namespaces if $wgSitemapNamespaces is an array.
 		global $wgSitemapNamespaces;
-		if ( is_array( $wgSitemapNamespaces ) ) {
+		if( is_array( $wgSitemapNamespaces ) ) {
 			$this->namespaces = $wgSitemapNamespaces;
 			return;
 		}
@@ -214,23 +192,25 @@ class GenerateSitemap extends Maintenance {
 		$res = $this->dbr->select( 'page',
 			array( 'page_namespace' ),
 			array(),
-			__METHOD__,
+			$fname,
 			array(
 				'GROUP BY' => 'page_namespace',
 				'ORDER BY' => 'page_namespace',
 			)
 		);
 
-		foreach ( $res as $row )
+		while ( $row = $this->dbr->fetchObject( $res ) )
 			$this->namespaces[] = $row->page_namespace;
 	}
 
 	/**
 	 * Get the priority of a given namespace
 	 *
-	 * @param $namespace Integer: the namespace to get the priority for
-	 * @return String
+	 * @param int $namespace The namespace to get the priority for
+	 +
+	 * @return string
 	 */
+
 	function priority( $namespace ) {
 		return isset( $this->priorities[$namespace] ) ? $this->priorities[$namespace] : $this->guessPriority( $namespace );
 	}
@@ -240,20 +220,24 @@ class GenerateSitemap extends Maintenance {
 	 * default priority for the namespace, varies depending on whether it's
 	 * a talkpage or not.
 	 *
-	 * @param $namespace Integer: the namespace to get the priority for
-	 * @return String
+	 * @param int $namespace The namespace to get the priority for
+	 *
+	 * @return string
 	 */
 	function guessPriority( $namespace ) {
-		return MWNamespace::isMain( $namespace ) ? $this->priorities[self::GS_MAIN] : $this->priorities[self::GS_TALK];
+		return MWNamespace::isMain( $namespace ) ? $this->priorities[GS_MAIN] : $this->priorities[GS_TALK];
 	}
 
 	/**
 	 * Return a database resolution of all the pages in a given namespace
 	 *
-	 * @param $namespace Integer: limit the query to this namespace
-	 * @return Resource
+	 * @param int $namespace Limit the query to this namespace
+	 *
+	 * @return resource
 	 */
 	function getPageRes( $namespace ) {
+		$fname = 'GenerateSitemap::getPageRes';
+
 		return $this->dbr->select( 'page',
 			array(
 				'page_namespace',
@@ -261,14 +245,16 @@ class GenerateSitemap extends Maintenance {
 				'page_touched',
 			),
 			array( 'page_namespace' => $namespace ),
-			__METHOD__
+			$fname
 		);
 	}
 
 	/**
 	 * Main loop
+	 *
+	 * @access public
 	 */
-	public function main() {
+	function main() {
 		global $wgContLang;
 
 		fwrite( $this->findex, $this->openIndex() );
@@ -281,8 +267,8 @@ class GenerateSitemap extends Maintenance {
 			$i = $smcount = 0;
 
 			$fns = $wgContLang->getFormattedNsText( $namespace );
-			$this->output( "$namespace ($fns)\n" );
-			foreach ( $res as $row ) {
+			$this->debug( "$namespace ($fns)" );
+			while ( $row = $this->dbr->fetchObject( $res ) ) {
 				if ( $i++ === 0 || $i === $this->url_limit + 1 || $length + $this->limit[1] + $this->limit[2] > $this->size_limit ) {
 					if ( $this->file !== false ) {
 						$this->write( $this->file, $this->closeFile() );
@@ -292,21 +278,21 @@ class GenerateSitemap extends Maintenance {
 					$this->file = $this->open( $this->fspath . $filename, 'wb' );
 					$this->write( $this->file, $this->openFile() );
 					fwrite( $this->findex, $this->indexEntry( $filename ) );
-					$this->output( "\t$this->fspath$filename\n" );
+					$this->debug( "\t$this->fspath$filename" );
 					$length = $this->limit[0];
 					$i = 1;
 				}
 				$title = Title::makeTitle( $row->page_namespace, $row->page_title );
 				$date = wfTimestamp( TS_ISO_8601, $row->page_touched );
-				$entry = $this->fileEntry( $title->getCanonicalURL(), $date, $this->priority( $namespace ) );
+				$entry = $this->fileEntry( $title->getFullURL(), $date, $this->priority( $namespace ) );
 				$length += strlen( $entry );
 				$this->write( $this->file, $entry );
 				// generate pages for language variants
-				if ( $wgContLang->hasVariants() ) {
+				if($wgContLang->hasVariants()){
 					$variants = $wgContLang->getVariants();
-					foreach ( $variants as $vCode ) {
-						if ( $vCode == $wgContLang->getCode() ) continue; // we don't want default variant
-						$entry = $this->fileEntry( $title->getCanonicalURL( '', $vCode ), $date, $this->priority( $namespace ) );
+					foreach($variants as $vCode){
+						if($vCode==$wgContLang->getCode()) continue; // we don't want default variant
+						$entry = $this->fileEntry( $title->getFullURL('',$vCode), $date, $this->priority( $namespace ) );
 						$length += strlen( $entry );
 						$this->write( $this->file, $entry );
 					}
@@ -324,7 +310,7 @@ class GenerateSitemap extends Maintenance {
 	/**
 	 * gzopen() / fopen() wrapper
 	 *
-	 * @return Resource
+	 * @return resource
 	 */
 	function open( $file, $flags ) {
 		return $this->compress ? gzopen( $file, $flags ) : fopen( $file, $flags );
@@ -353,17 +339,22 @@ class GenerateSitemap extends Maintenance {
 	/**
 	 * Get a sitemap filename
 	 *
-	 * @param $namespace Integer: the namespace
-	 * @param $count Integer: the count
-	 * @return String
+	 * @static
+	 *
+	 * @param int $namespace The namespace
+	 * @param int $count The count
+	 *
+	 * @return string
 	 */
 	function sitemapFilename( $namespace, $count ) {
 		$ext = $this->compress ? '.gz' : '';
-		return "sitemap-{$this->identifier}-NS_$namespace-$count.xml$ext";
+		return "sitemap-".wfWikiID()."-NS_$namespace-$count.xml$ext";
 	}
 
 	/**
 	 * Return the XML required to open an XML file
+	 *
+	 * @static
 	 *
 	 * @return string
 	 */
@@ -374,7 +365,9 @@ class GenerateSitemap extends Maintenance {
 	/**
 	 * Return the XML schema being used
 	 *
-	 * @return String
+	 * @static
+	 *
+	 * @returns string
 	 */
 	function xmlSchema() {
 		return 'http://www.sitemaps.org/schemas/sitemap/0.9';
@@ -383,7 +376,7 @@ class GenerateSitemap extends Maintenance {
 	/**
 	 * Return the XML required to open a sitemap index file
 	 *
-	 * @return String
+	 * @return string
 	 */
 	function openIndex() {
 		return $this->xmlHead() . '<sitemapindex xmlns="' . $this->xmlSchema() . '">' . "\n";
@@ -392,13 +385,16 @@ class GenerateSitemap extends Maintenance {
 	/**
 	 * Return the XML for a single sitemap indexfile entry
 	 *
-	 * @param $filename String: the filename of the sitemap file
-	 * @return String
+	 * @static
+	 *
+	 * @param string $filename The filename of the sitemap file
+	 *
+	 * @return string
 	 */
 	function indexEntry( $filename ) {
 		return
 			"\t<sitemap>\n" .
-			"\t\t<loc>{$this->urlpath}$filename</loc>\n" .
+			"\t\t<loc>$filename</loc>\n" .
 			"\t\t<lastmod>{$this->timestamp}</lastmod>\n" .
 			"\t</sitemap>\n";
 	}
@@ -406,7 +402,9 @@ class GenerateSitemap extends Maintenance {
 	/**
 	 * Return the XML required to close a sitemap index file
 	 *
-	 * @return String
+	 * @static
+	 *
+	 * @return string
 	 */
 	function closeIndex() {
 		return "</sitemapindex>\n";
@@ -415,7 +413,7 @@ class GenerateSitemap extends Maintenance {
 	/**
 	 * Return the XML required to open a sitemap file
 	 *
-	 * @return String
+	 * @return string
 	 */
 	function openFile() {
 		return $this->xmlHead() . '<urlset xmlns="' . $this->xmlSchema() . '">' . "\n";
@@ -424,10 +422,13 @@ class GenerateSitemap extends Maintenance {
 	/**
 	 * Return the XML for a single sitemap entry
 	 *
-	 * @param $url String: an RFC 2396 compliant URL
-	 * @param $date String: a ISO 8601 date
-	 * @param $priority String: a priority indicator, 0.0 - 1.0 inclusive with a 0.1 stepsize
-	 * @return String
+	 * @static
+	 *
+	 * @param string $url An RFC 2396 compilant URL
+	 * @param string $date A ISO 8601 date
+	 * @param string $priority A priority indicator, 0.0 - 1.0 inclusive with a 0.1 stepsize
+	 *
+	 * @return string
 	 */
 	function fileEntry( $url, $date, $priority ) {
 		return
@@ -441,26 +442,58 @@ class GenerateSitemap extends Maintenance {
 	/**
 	 * Return the XML required to close sitemap file
 	 *
-	 * @return String
+	 * @static
+	 * @return string
 	 */
 	function closeFile() {
 		return "</urlset>\n";
 	}
 
 	/**
+	 * Write a string to stderr followed by a UNIX newline
+	 */
+	function debug( $str ) {
+		fwrite( $this->stderr, "$str\n" );
+	}
+
+	/**
 	 * Populate $this->limit
 	 */
 	function generateLimit( $namespace ) {
-		// bug 17961: make a title with the longest possible URL in this namespace
 		$title = Title::makeTitle( $namespace, str_repeat( "\xf0\xa8\xae\x81", 63 ) . "\xe5\x96\x83" );
 
 		$this->limit = array(
 			strlen( $this->openFile() ),
-			strlen( $this->fileEntry( $title->getCanonicalURL(), wfTimestamp( TS_ISO_8601, wfTimestamp() ), $this->priority( $namespace ) ) ),
+			strlen( $this->fileEntry( $title->getFullUrl(), wfTimestamp( TS_ISO_8601, wfTimestamp() ), $this->priority( $namespace ) ) ),
 			strlen( $this->closeFile() )
 		);
 	}
 }
 
-$maintClass = "GenerateSitemap";
-require_once( RUN_MAINTENANCE_IF_MAIN );
+if ( in_array( '--help', $argv ) ) {
+	echo <<<EOT
+Usage: php generateSitemap.php [options]
+	--help			show this message
+
+	--fspath=<path>		The file system path to save to, e.g /tmp/sitemap
+
+	--server=<server>	The protocol and server name to use in URLs, e.g.
+		http://en.wikipedia.org. This is sometimes necessary because
+		server name detection may fail in command line scripts.
+
+	--compress=[yes|no]	compress the sitemap files, default yes
+
+EOT;
+	die( -1 );
+}
+
+$optionsWithArgs = array( 'fspath', 'server', 'compress' );
+require_once( dirname( __FILE__ ) . '/commandLine.inc' );
+
+if ( isset( $options['server'] ) ) {
+	$wgServer = $options['server'];
+}
+
+$gs = new GenerateSitemap( @$options['fspath'], @$options['compress'] !== 'no' );
+$gs->main();
+

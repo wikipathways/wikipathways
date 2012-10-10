@@ -1,14 +1,10 @@
 <?php
 /** Pangasinan (Pangasinan)
  *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
- *
  * @ingroup Language
  * @file
  *
  * @author Arikasikis
- * @author Spacebirdy
  */
 
 $messages = array(
@@ -21,17 +17,15 @@ $messages = array(
 # Categories related messages
 'category_header' => 'Saray artikulo ed category ya "$1"',
 
-'about'    => 'Nipakar ed',
-'article'  => 'Bolong na laman',
-'cancel'   => 'I-tonda',
-'mypage'   => 'Say bolong ko',
-'mytalk'   => 'Say tongtongan ko',
-'anontalk' => 'Tongtongan para ed sayan IP',
-'and'      => '&#32;san',
-
-# Cologne Blue skin
+'about'          => 'Nipakar ed',
+'article'        => 'Bolong na laman',
+'cancel'         => 'I-tonda',
 'qbpageoptions'  => 'Ayan bolong',
 'qbspecialpages' => 'Niduma ran Bolobolong',
+'mypage'         => 'Say bolong ko',
+'mytalk'         => 'Say tongtongan ko',
+'anontalk'       => 'Tongtongan para ed sayan IP',
+'and'            => 'san',
 
 'returnto'          => 'Impawel ed $1.',
 'help'              => 'Tolong',
@@ -61,7 +55,7 @@ $messages = array(
 'categorypage'      => 'Nengnengen so bolong na saray category',
 'viewtalkpage'      => 'Nengnengen so tongtongan',
 'otherlanguages'    => 'Diad arom ran salita',
-'lastmodifiedat'    => 'Say ayan bolong: otet ya binalo nen $2, $1.',
+'lastmodifiedat'    => 'Say ayan bolong: otet ya binalo nen $2, $1.', # $1 date, $2 time
 'protectedpage'     => 'Iyayagel yan bolong',
 'jumptosearch'      => 'anapen',
 
@@ -90,6 +84,7 @@ $messages = array(
 'nstab-mediawiki' => 'Pakabat',
 
 # General errors
+'nodb'            => 'Aga napili so database ya $1',
 'badarticleerror' => 'Aga sarag ya gaween so ayan action ed sayan bolong.',
 'cannotdelete'    => 'Aga nabural so nibagan bolong o file. (Sarag ton abural la na arom.)',
 'badtitle'        => 'Aga sarag ya titulo',
@@ -105,12 +100,11 @@ $messages = array(
 'createaccount'              => 'Mangawa na account',
 'gotaccountlink'             => 'Onloob',
 'badretype'                  => 'Aga parehas so en-type mo ran password.',
+'yourrealname'               => 'Tuwan ngaran:',
+'badsiglength'               => 'Andukey ya maong so nickname. Say dukey to dapat mas daiset en say $1 ya character.',
 'acct_creation_throttle_hit' => 'Sorry, nangawala ka la na $1 account. Agka la makapangawa na account.',
 'accountcreated'             => 'Agawa so account',
 'accountcreatedtext'         => 'Agawa la so user account para $1.',
-
-# Change password dialog
-'newpassword' => 'Balon password:',
 
 # Edit page toolbar
 'link_tip' => 'Gawing ed loob',
@@ -127,6 +121,7 @@ $messages = array(
 'blockededitsource'     => "Wadyad leksab so text na '''saray binalom''' anggag '''$1''':",
 'whitelistedittitle'    => 'Nakaukulan ya onloob umpian makapanbalo',
 'whitelistedittext'     => 'Nakaukulan mo ya $1 umpian nabalo o nadagdagan ray bolobolong.',
+'confirmedittitle'      => 'Nakaukulan na e-mail confirmation para makapan-edit',
 'loginreqtitle'         => 'Nakaukulan kan Onloob',
 'loginreqlink'          => 'onloob',
 'loginreqpagetext'      => 'Nakaukulan kan $1 umpian nanengneng so arom ran bolobolong.',
@@ -135,10 +130,6 @@ $messages = array(
 'newarticle'            => '(Balo)',
 'editing'               => 'Babaloen so $1',
 'yourdiff'              => 'Saray niduma',
-'copyrightwarning'      => "Tandaan komon ya amin ya contribution para ed {{SITENAME}} et nonoten ya pinaolian onong ed $2 (nengnengen so $1 para ed detalye).
-No ag mo labay ya say inkorit mo ed sarag ya baloen odino ibonog ed anggan siopa, ag mo ipapalima dia.<br />
-San ipropromisam met ya insulat mo yan dili o kinopyam ya manlapo ed sakey ya public domain odino parehas ya libren resource.
-'''AG MANPALIMA NA KIMEY YA WALAY COPYRIGHT TO YA ANGGAPOY ABOLOY!'''",
 
 # Account creation failure
 'cantcreateaccounttitle' => 'Aga makagawa na account',
@@ -154,23 +145,20 @@ San ipropromisam met ya insulat mo yan dili o kinopyam ya manlapo ed sakey ya pu
 # Search results
 'searchsubtitle'        => "'''[[:$1]]''' so inanap mo.",
 'searchsubtitleinvalid' => "'''$1''' so inanap mo.",
-'searchhelp-url'        => 'Help:Saray Laman',
 'powersearch'           => 'Anapen',
 
-# Quickbar
-'qbsettings-none' => 'Anggapo',
-
 # Preferences page
-'mypreferences'     => 'Saray preference ko',
-'changepassword'    => 'Salatan so password',
-'datedefault'       => 'Anggapoy preference',
-'prefs-datetime'    => 'Bilang na agew san oras',
-'prefs-rc'          => 'Sampot ran binalo',
-'prefs-watchlist'   => 'Listaan na babantayan',
-'prefs-editing'     => 'Babaloen',
-'searchresultshead' => 'Anapen',
-'yourrealname'      => 'Tuwan ngaran:',
-'badsiglength'      => 'Andukey ya maong so nickname. Say dukey to dapat mas daiset en say $1 ya character.',
+'mypreferences'      => 'Saray preference ko',
+'qbsettings-none'    => 'Anggapo',
+'changepassword'     => 'Salatan so password',
+'datedefault'        => 'Anggapoy preference',
+'datetime'           => 'Bilang na agew san oras',
+'math_unknown_error' => 'aga-antan error',
+'prefs-rc'           => 'Sampot ran binalo',
+'prefs-watchlist'    => 'Listaan na babantayan',
+'newpassword'        => 'Balon password:',
+'textboxsize'        => 'Babaloen',
+'searchresultshead'  => 'Anapen',
 
 # User rights
 'userrights-user-editname' => 'Isulat so username:',
@@ -181,9 +169,7 @@ San ipropromisam met ya insulat mo yan dili o kinopyam ya manlapo ed sakey ya pu
 'show'          => 'Ipanengneng',
 
 # Recent changes linked
-'recentchangeslinked'         => 'Kabiangan ran binalo',
-'recentchangeslinked-feed'    => 'Kabiangan ran binalo',
-'recentchangeslinked-toolbox' => 'Kabiangan ran binalo',
+'recentchangeslinked' => 'Kabiangan ran binalo',
 
 # Upload
 'upload'          => 'Mangisigep na file',
@@ -194,11 +180,12 @@ San ipropromisam met ya insulat mo yan dili o kinopyam ya manlapo ed sakey ya pu
 'sourcefilename'  => 'Filename na pinanlapuan:',
 'watchthisupload' => 'Bantayan yan bolong',
 
-# Special:ListFiles
-'listfiles_name' => 'Ngaran',
+# Special:ImageList
+'imagelist_name' => 'Ngaran',
 
-# File description page
-'imagelinks' => 'Saray Gawing',
+# Image description page
+'imagelinks'       => 'Saray Gawing',
+'noimage-linktext' => 'I-segep ya',
 
 # MIME search
 'download' => 'mangileksab (download)',
@@ -228,7 +215,8 @@ San ipropromisam met ya insulat mo yan dili o kinopyam ya manlapo ed sakey ya pu
 'booksources-go'            => 'Ula',
 
 # Special:Log
-'all-logs-page' => 'Amin ran log',
+'all-logs-page'     => 'Amin ran log',
+'log-search-submit' => 'Ula',
 
 # Special:AllPages
 'allpages'          => 'Amin ya bolobolong',
@@ -243,14 +231,6 @@ San ipropromisam met ya insulat mo yan dili o kinopyam ya manlapo ed sakey ya pu
 'allpagessubmit'    => 'Ula',
 'allpagesprefix'    => 'Ipanengneng so saray bolobolong ya walay prefix:',
 
-# Special:LinkSearch
-'linksearch'     => 'Anapen ramay gawing ed web',
-'linksearch-pat' => 'Anapen so pattern:',
-'linksearch-ok'  => 'Anapen',
-
-# Special:Log/newusers
-'newuserlog-create-entry' => 'Balon user',
-
 # E-mail user
 'emailuser'     => 'E-mail so ayan user',
 'emailfrom'     => 'Manlapud',
@@ -263,6 +243,7 @@ San ipropromisam met ya insulat mo yan dili o kinopyam ya manlapo ed sakey ya pu
 # Watchlist
 'mywatchlist'    => 'Listaan na babantayan ko',
 'watchnologin'   => 'Agka ni akaloob',
+'addedwatch'     => 'Enyarom ed listaan na bantayan',
 'addedwatchtext' => "Impila so bolong ya \"[[:\$1]]\" diad [[Special:Watchlist|listaan na babantayan]] mo. Isulat diman so saray ontombok ran idagdag o panagbalo ed sayan bolong san diad bolong na tongtongan. San akasulat ran '''mapatnag''' (bolded) ed [[Special:RecentChanges|listaan na saray sampot ran binalo]] umpian mas maganom ya nanengneng.
 
 No labay mon ekalen may bolong diad listaan na babantayan, tapik mo labat so \"ekalen ed babantayan\" (unwatch) diad gilig ya bar.",
@@ -276,18 +257,15 @@ No labay mon ekalen may bolong diad listaan na babantayan, tapik mo labat so \"e
 'changed'            => 'asalatan',
 'created'            => 'agawa',
 
-# Delete
-'deletepage'     => 'Buralen so bolong',
-'confirm'        => 'Paletan',
-'exblank'        => 'Anggapoy laman na bolong',
-'actioncomplete' => 'Asumpal lan agawa',
-'deletedtext'    => 'Abural lay "$1".
+# Delete/protect/revert
+'deletepage'          => 'Buralen so bolong',
+'confirm'             => 'Paletan',
+'exblank'             => 'Anggapoy laman na bolong',
+'actioncomplete'      => 'Asumpal lan agawa',
+'deletedtext'         => 'Abural lay "<nowiki>$1</nowiki>".
 Pinengneng so $2 para ed listaan na saray abural ran balo.',
-'deletedarticle' => 'binural so "[[$1]]"',
-'deletecomment'  => 'Katonongan',
-
-# Protect
-'prot_1movedto2'      => 'say [[$1]] enyales paula ed [[$2]]',
+'deletedarticle'      => 'binural so "[[$1]]"',
+'deletecomment'       => 'Aken buralen',
 'protect-legend'      => 'Palitaen so pangiyagel',
 'protect-level-sysop' => 'Sysops labat',
 
@@ -320,7 +298,7 @@ Pinengneng so $2 para ed listaan na saray abural ran balo.',
 'ipusubmit'          => 'Aga la isebel so ayan address',
 'ipblocklist'        => 'Listaan na saray sebel ran IP address san username',
 'ipblocklist-submit' => 'Anapen',
-'expiringblock'      => 'nabalang no $1 $2',
+'expiringblock'      => 'nabalang no $1',
 'blocklink'          => 'isara',
 'contribslink'       => 'saray entolong to',
 
@@ -340,9 +318,10 @@ Pinengneng so $2 para ed listaan na saray abural ran balo.',
 'export-addcat' => 'Iyarom',
 
 # Namespace 8 related
-'allmessages'     => 'Saray pakabat na oksoy',
-'allmessagesname' => 'Ngaran',
-'allmessagestext' => 'Aya so listaan na amin ya pakabat na oksoy ya naanap ed MediaWiki namespace.',
+'allmessages'         => 'Saray pakabat na oksoy',
+'allmessagesname'     => 'Ngaran',
+'allmessagestext'     => 'Aya so listaan na amin ya pakabat na oksoy ya naanap ed MediaWiki namespace.',
+'allmessagesmodified' => 'Ipanengneng labat so abalo',
 
 # Thumbnails
 'filemissing' => 'Nababalang so file',
@@ -362,15 +341,16 @@ Pinengneng so $2 para ed listaan na saray abural ran balo.',
 'tooltip-ca-nstab-mediawiki' => 'Nengnengen so pakabat na oksoy',
 
 # Attribution
-'lastmodifiedatby' => 'Sampot ya binalo yan bolong nen agew ya $2, $1 nen $3.',
+'lastmodifiedatby' => 'Sampot ya binalo yan bolong nen agew ya $2, $1 nen $3.', # $1 date, $2 time, $3 user
 
-# Special:NewFiles
+# Special:NewImages
 'ilsubmit' => 'Anapen',
 
 # EXIF tags
 'exif-filesource' => 'File na pinanlapuan',
 
 # 'all' in various places, this might be different for inflected languages
+'imagelistall'  => 'amin',
 'watchlistall2' => 'amin',
 'namespacesall' => 'amin',
 'monthsall'     => 'amin',
@@ -386,7 +366,13 @@ Pinengneng so $2 para ed listaan na saray abural ran balo.',
 'deletedwhileediting' => 'Pasakbay: Abural yan bolong nen ginapuan mon baloen!',
 
 # action=purge
-'confirm-purge-top' => 'Ekalen so cache na sayan bolong?',
+'confirm_purge' => 'Ekalen so cache na sayan bolong?
+
+$1',
+
+# AJAX search
+'articletitles' => "Saray article na manggagapo ed ''$1''",
+'hideresults'   => 'Iyamot so saray result',
 
 # Multipage image navigation
 'imgmultipagenext' => 'ontombok ya bolong →',

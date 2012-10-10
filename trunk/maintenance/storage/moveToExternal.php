@@ -2,21 +2,6 @@
 /**
  * Move revision's text to external storage
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- * http://www.gnu.org/copyleft/gpl.html
- *
  * @file
  * @ingroup Maintenance ExternalStorage
  */
@@ -24,8 +9,10 @@
 define( 'REPORTING_INTERVAL', 1 );
 
 if ( !defined( 'MEDIAWIKI' ) ) {
-	require_once( dirname( __FILE__ ) . '/../commandLine.inc' );
-	require_once( dirname( __FILE__ ) . '/../../includes/ExternalStoreDB.php' );
+	$optionsWithArgs = array( 'e', 's' );
+
+	require_once( dirname(__FILE__) . '/../commandLine.inc' );
+	require_once( 'ExternalStoreDB.php' );
 	require_once( 'resolveStubs.php' );
 
 	$fname = 'moveToExternal';
@@ -48,6 +35,8 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 	moveToExternal( $cluster, $maxID, $minID );
 }
 
+
+
 function moveToExternal( $cluster, $maxID, $minID = 1 ) {
 	$fname = 'moveToExternal';
 	$dbw = wfGetDB( DB_MASTER );
@@ -59,22 +48,23 @@ function moveToExternal( $cluster, $maxID, $minID = 1 ) {
 	print "Moving text rows from $minID to $maxID to external storage\n";
 	$ext = new ExternalStoreDB;
 	$numMoved = 0;
-
+	$numStubs = 0;
+	
 	for ( $block = 0; $block < $numBlocks; $block++ ) {
 		$blockStart = $block * $blockSize + $minID;
 		$blockEnd = $blockStart + $blockSize - 1;
-
-		if ( !( $block % REPORTING_INTERVAL ) ) {
+		
+		if ( !($block % REPORTING_INTERVAL) ) {
 			print "oldid=$blockStart, moved=$numMoved\n";
-			wfWaitForSlaves();
+			wfWaitForSlaves( 2 );
 		}
-
+		
 		$res = $dbr->select( 'text', array( 'old_id', 'old_flags', 'old_text' ),
 			array(
 				"old_id BETWEEN $blockStart AND $blockEnd",
-				'old_flags NOT ' . $dbr->buildLike( $dbr->anyString(), 'external', $dbr->anyString() ),
+				"old_flags NOT LIKE '%external%'",
 			), $fname );
-		foreach ( $res as $row ) {
+		while ( $row = $dbr->fetchObject( $res ) ) {
 			# Resolve stubs
 			$text = $row->old_text;
 			$id = $row->old_id;
@@ -83,13 +73,13 @@ function moveToExternal( $cluster, $maxID, $minID = 1 ) {
 			} else {
 				$flags = "{$row->old_flags},external";
 			}
-
+			
 			if ( strpos( $flags, 'object' ) !== false ) {
 				$obj = unserialize( $text );
 				$className = strtolower( get_class( $obj ) );
 				if ( $className == 'historyblobstub' ) {
-					# resolveStub( $id, $row->old_text, $row->old_flags );
-					# $numStubs++;
+					#resolveStub( $id, $row->old_text, $row->old_flags );
+					#$numStubs++;
 					continue;
 				} elseif ( $className == 'historyblobcurstub' ) {
 					$text = gzdeflate( $obj->getText() );
@@ -109,8 +99,8 @@ function moveToExternal( $cluster, $maxID, $minID = 1 ) {
 				continue;
 			}
 
-			# print "Storing "  . strlen( $text ) . " bytes to $url\n";
-			# print "old_id=$id\n";
+			#print "Storing "  . strlen( $text ) . " bytes to $url\n";
+			#print "old_id=$id\n";
 
 			$url = $ext->store( $cluster, $text );
 			if ( !$url ) {
@@ -122,6 +112,7 @@ function moveToExternal( $cluster, $maxID, $minID = 1 ) {
 				array( 'old_id' => $id ), $fname );
 			$numMoved++;
 		}
+		$dbr->freeResult( $res );
 	}
 }
 

@@ -1,9 +1,6 @@
 <?php
 /** Bambara (Bamanankan)
  *
- * See MessagesQqq.php for message documentation incl. usage of parameters
- * To improve a translation please visit http://translatewiki.net
- *
  * @ingroup Language
  * @file
  *
@@ -31,23 +28,19 @@ $messages = array(
 # Categories related messages
 'category_header' => 'Nyɛw cogoya kɔnɔ: "$1"',
 
-'article' => 'Nyɛ',
-'mypage'  => "N'ka nyɛ",
-'mytalk'  => "N'ka baronyɛ",
-'and'     => '&#32;ani',
-
-# Cologne Blue skin
+'article'        => 'Nyɛ',
 'qbfind'         => 'Nyini',
 'qbedit'         => 'Yɛlɛma',
 'qbspecialpages' => 'Nyɛw kɛrɛnkɛrɛnnen',
+'mypage'         => "N'ka nyɛ",
+'mytalk'         => "N'ka baronyɛ",
+'and'            => 'ani',
 
 'help'           => 'Dɛmɛ',
 'search'         => 'Nyini',
-'searchbutton'   => 'Nyini',
-'go'             => 'Taa',
-'searcharticle'  => 'Taa',
 'history'        => 'Nyɛka tariku',
 'history_short'  => 'Tariku',
+'info_short'     => 'Kunnafoni',
 'edit'           => 'yɛlɛma',
 'editthispage'   => 'Nyɛ nin yɛlɛma',
 'newpage'        => 'Nyɛ kura',
@@ -57,7 +50,6 @@ $messages = array(
 'userpage'       => 'Utilisateur ka nyɛ',
 'imagepage'      => 'Janin ka nyɛ',
 'otherlanguages' => 'Kanw wɛrɛ',
-'jumptosearch'   => 'Nyini',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
 'currentevents'        => 'Kunnafoni',
@@ -90,13 +82,10 @@ $messages = array(
 
 # Preferences page
 'preferences' => 'Fisayali',
-'prefs-skin'  => 'Apparence',
+'skin'        => 'Apparence',
 
 # Recent changes
 'hide' => 'dogo',
-
-# File description page
-'file-anchor-link' => 'Janin',
 
 # Random page
 'randompage' => 'Nyɛ min man ni ja',
@@ -113,9 +102,6 @@ $messages = array(
 
 # Special:Categories
 'categories' => 'Nyɛ ka cogoyaw',
-
-# Special:LinkSearch
-'linksearch-ok' => 'Nyini',
 
 # Watchlist
 'watch'         => 'Tulomajɔ',
@@ -135,7 +121,7 @@ $messages = array(
 # Attribution
 'others' => 'wɛrɛ',
 
-# Special:NewFiles
+# Special:NewImages
 'ilsubmit' => 'Nyini',
 
 # Special:SpecialPages
