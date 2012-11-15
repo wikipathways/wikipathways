@@ -2,6 +2,7 @@
 chdir(dirname(realpath(__FILE__)) . "/../");
 require_once('wpi.php');
 require_once('search.php');
+require_once('relations.php');
 chdir($dir);
 
 ## Log the request ##
@@ -58,6 +59,7 @@ $operations = array(
     "getOntologyTermsByOntology",
     "getPathwaysByOntologyTerm",
     "getPathwaysByParentOntologyTerm",
+    "getRelations"
 );
 $opParams = array(
 	"listOrganisms" => "MIXED",
@@ -85,6 +87,7 @@ $opParams = array(
     "getOntologyTermsByOntology" => "MIXED",
     "getPathwaysByOntologyTerm" => "MIXED",
     "getPathwaysByParentOntologyTerm" => "MIXED",
+    "getRelations" => "MIXED"
 );
 
 $classmap = array(); //just let the engine know you prefer classmap mode
@@ -149,6 +152,10 @@ $restmap = array(
 	"getPathwaysByParentOntologyTerm" => array(
 		"HTTPMethod" =>"GET",
 		"RESTLocation" => "getPathwaysByParentOntologyTerm"
+	),
+	"getRelations" => array(
+		"HTTPMethod" =>"GET",
+		"RESTLocation" => "getRelations"
 	),
 	"getCurationTags" => array(
 		"HTTPMethod" =>"GET",
@@ -713,6 +720,35 @@ function getColoredPathway($pwId, $revision, $graphId, $color, $fileType) {
 		throw new WSFault("Receiver", "Unable to get pathway: " . $e);
 	}
 	return array("data" => $data);
+}
+
+/**
+ * Get the relations for the given pathways.
+ * @param string $type The type of relation for the score has to be fetched (optional).
+ * @param string $pwId_1 The id of the Pathway for the relation has to be fetched (optional).
+ * @param string $pwId_2 The id of the second Pathway for the relation has to be fetched (optional).
+ * @param float $minScore The minimum score for which the relations are fetched (optional).
+ * @param string $species Limit the query by species.
+ * @param string $species Limit the query by species.
+ * @return array of object WSRelation $relations The Relations
+ **/
+function getRelations($type = "", $pwId_1 = "", $pwId_2 = "", $minScore = 0, $species = "") {
+
+        try{
+            $relations = array();
+            $relations = Relations::fetchRelations($type, $pwId_1, $pwId_2, $minScore, $species);
+
+            $wsRelations = array();
+            foreach($relations as $relation) {
+                    $wsRelation = new WSRelation($relation);
+                    $wsRelations[] = $wsRelation;
+            }
+            return array("relations" => $wsRelations);
+            
+	} catch(Exception $e) {
+		wfDebug(__METHOD__ . " (ERROR): $e\n");
+		throw new WSFault("Receiver", $e);
+	}
 }
 
 //Non ws functions

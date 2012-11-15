@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+				xmlns:flex="flare.flex.*" layout="absolute" 
+				creationComplete="init()" horizontalAlign="left" verticalAlign="top"
+				horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	<mx:Script source="Wikipathways.as"/>
+	<mx:Script source="Export.as"/>
+	<mx:Script>
+		<![CDATA[
+			import PathwayViewer;
+			
+			import flare.animate.Transitioner;
+			import flare.data.DataSet;
+			import flare.data.DataSource;
+			import flare.display.DirtySprite;
+			import flare.display.TextSprite;
+			import flare.flex.FlareVis;
+			import flare.physics.Simulation;
+			import flare.util.Strings;
+			import flare.vis.Visualization;
+			import flare.vis.controls.*;
+			import flare.vis.data.Data;
+			import flare.vis.data.DataSprite;
+			import flare.vis.data.EdgeSprite;
+			import flare.vis.data.NodeSprite;
+			import flare.vis.events.SelectionEvent;
+			import flare.vis.events.TooltipEvent;
+			import flare.vis.events.VisualizationEvent;
+			import flare.vis.operator.label.Labeler;
+			import flare.vis.operator.layout.*;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.sliderClasses.Slider;
+			import mx.core.IFlexDisplayObject;
+			import mx.core.UIComponent;
+			import mx.events.CloseEvent;
+			import mx.events.SliderEvent;
+			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.ResultEvent;
+			import mx.rpc.http.HTTPService;
+			
+			private var vis:Visualization;
+			private var visData:Data;
+			private var dataSet:DataSet;
+			private var panZoom:PanZoomWithResetControl;
+
+			private var species:String = "Homo Sapiens";
+			private var score:Number = 0.8;
+			private var relationType:String = "xref"; 
+				
+			[Bindable]
+			private var speciesList:Array;
+			
+			[Bindable]
+			private var pathwayList:ArrayCollection = new ArrayCollection(["Select Pathway"]);
+			
+			// Layout data
+			private var layouts:Array = [
+				{label:"Circle", id:3},
+				{label:"Force", id:2},
+//				{label:"Tree", id:1},				
+//				{label:"Radial", id:4}
+			];
+				
+			private var relationTypeList:Array = [ "xref", "label"];
+			
+			private var exportTypeList:Array = [ "Image", "GraphML"];
+				
+			private var currentLayoutId:int = 3;
+			public var appRoot:String = "data.php";
+			private var pathwayView:Object;
+			
+						
+			public function init():void
+			{
+				getSpecies();		
+				loadData();
+			}
+
+			private function loadData():void
+			{
+				
+				toggleUIControls(false);
+				
+				var dataSourceURL:String = getDataSourceURL();
+				var ds:DataSource = new DataSource(dataSourceURL, "graphml");					
+				var loader:URLLoader = ds.load();
+				
+				loader.addEventListener(Event.COMPLETE, function(evt:Event):void {
+					
+					dataSet = loader.data as DataSet;
+					draw();
+					setLayout(currentLayoutId);
+					// update the visualization to draw everything
+					vis.update();	
+					// add the visualization to the flash movie
+					uic.addChild(vis);
+				});
+			}
+			
+			public function draw():void
+			{	
+
+				visData = Data.fromDataSet(dataSet);
+				
+				// create a visualization based on our data
+				vis = new Visualization(visData);
+				
+				// Set the bounds
+				vis.bounds = new Rectangle(uic.x , uic.y , 1000, 400);
+				vis.x = 50;
+				vis.y = 50;
+				
+				// Bug Fix - Force flash player to redraw 
+				vis.addEventListener(VisualizationEvent.UPDATE, function ():void{DirtySprite.renderDirty(); })
+					
+				addLabel();																						
+				pathwayList.removeAll();
+				pathwaySelect.prompt = "Select Pathway";
+				
+				if(vis.data.nodes.length == 0)
+					mx.controls.Alert.show("No relations found. Please set a lower score!");
+				
+				// Manually change the color of all nodes
+				vis.data.nodes.visit(function(n:NodeSprite):void
+				{	
+					n.fillColor = 0xf6eaea;
+					n.buttonMode = true;
+					n.fillAlpha = 1;
+					n.size = 3;
+					n.doubleClickEnabled = true;
+					n.addEventListener(MouseEvent.DOUBLE_CLICK, openPathwayPage);
+					
+					pathwayList.addItem({name:n.data.name, pwId:n.data.pwId});
+				});
+				
+				// Manually change the color of the edge
+				vis.data.edges.visit(function(e:EdgeSprite):void
+				{	
+					e.lineColor = 0x2d2d2d;
+					e.lineAlpha = 1;
+					e.lineWidth = e.data.score * 5;
+				});									
+				
+				toggleUIControls(true);
+			}
+			
+			public function addControl():void
+			{
+				// Pan around + Zoom
+				panZoom = new PanZoomWithResetControl(uic, 0.5, 2);
+				vis.controls.add(panZoom);			
+				
+				resetZoomButton.addEventListener(MouseEvent.CLICK, function(event:MouseEvent):void {
+					panZoom.resetPanZoom(new Transitioner(2));
+				});				
+				
+				vis.controls.add(new TooltipControl(NodeSprite, null,
+					function(evt:TooltipEvent):void {
+						TextSprite(evt.tooltip).text = Strings.format(
+							"{data.name}", evt.node
+						);
+					}
+				));
+							
+			}	
+
+			private function addLabel():void
+			{
+				
+				var format:TextFormat = new TextFormat();
+				format.font = "Verdana";
+				format.color = 0x000000;
+				format.size = 9;
+				format.align=TextFormatAlign.CENTER; 
+				
+				var labeler:Labeler = new Labeler("data.pwId");
+				labeler.textMode = TextSprite.DEVICE;
+				labeler.textFormat=format;
+				vis.setOperator("labels", labeler);
+				vis.update(null, "labels");
+				
+//				vis.data.nodes.visit(function(ds:DataSprite):Boolean {
+//					ds.addChild(new TextSprite(ds.data[labelField]));
+//					return true;
+//				});
+				
+			}
+
+			// Opens Pathway page in external window
+			private function openPathwayPage(event:MouseEvent):void 
+			{			
+				var node:NodeSprite = event.target as NodeSprite;
+//				mx.controls.Alert.show(node.data.category);
+				var urlRequest:URLRequest = new URLRequest("http://relations.wikipathways.org/index.php/Pathway:" + node.data.pwId);
+				navigateToURL(urlRequest, "_blank");
+			}
+			
+			private function selectLayoutHandler(selectLayout:Event):void
+			{
+				vis.operators.removeOperatorAt(vis.operators.length - 1);
+				setLayout(selectLayout.target.selectedItem.id);
+			}
+
+			private function selectRelationTypeHandler(selectType:Event):void
+			{
+				relationType = selectType.target.selectedItem;
+				vis.data.clear();
+				loadData();
+			}
+			private function selectSpeciesHandler(selectSpecies:Event):void
+			{
+				species = selectSpecies.target.selectedItem;
+				vis.data.clear();
+				loadData();
+			}
+			
+			private function selectPathwayHandler(selectPathway:Event):void
+			{
+				if(selectPathway.target.selectedIndex != 0)
+				{	
+					var pathwayName:String = selectPathway.target.selectedItem.name;
+					viewPathwayButton.visible = true;
+				
+					toggleGraph(false);
+	//				vis.data.nodes.visit(function(ds:DataSprite):void {
+	//					ds.removeChild(ds.props.label);
+	//					ds.props.label = null;
+	//					ds.blendMode = 
+	//					ds.dirty();
+	//				});
+				
+					vis.data.nodes.visit(function(n:NodeSprite):void
+					{
+						if(n.data.name == pathwayName)
+						{						
+													
+							n.visitEdges(function(e:EdgeSprite):void
+							{	
+								e.lineAlpha = 1;
+								
+								// Bring to top
+								e.parent.setChildIndex(e, e.parent.numChildren-1);
+							});	
+							
+							n.visitNodes(function(c:NodeSprite):void
+							{	
+								c.fillAlpha = 1;
+								var nodeGlow:GlowFilter = new GlowFilter(); 
+								nodeGlow.color = 0x990000; 
+								nodeGlow.alpha = 1; 
+								nodeGlow.blurX = 15; 
+								nodeGlow.blurY = 15; 
+								c.filters = [nodeGlow];
+								
+								// Bring to top
+								c.parent.setChildIndex(c, c.parent.numChildren-1);							
+							})
+	
+							n.fillAlpha = 1;
+							n.lineAlpha = 1;
+							var rootGlow:GlowFilter = new GlowFilter(); 
+							rootGlow.color = 0x52D5F5; 
+							rootGlow.alpha = 1; 
+							rootGlow.blurX = 10; 
+							rootGlow.blurY = 10; 
+							n.filters = [rootGlow];						
+							
+							// Bring to top
+							n.parent.setChildIndex(n, n.parent.numChildren-1);						
+						}						
+	
+					});
+				}
+				else
+					viewPathwayButton.visible = false;
+			}			
+			
+			private function setScoreHandler(setScore:SliderEvent):void
+			{
+				score = scoreSlider.value ;
+				vis.data.clear();
+				loadData();
+			}
+			
+			private function toggleUIControls(enable:Boolean):void
+			{
+				if(enable)
+				{
+					resetZoomButton.enabled = true;
+					pathwaySelect.enabled = true;
+					scoreSlider.enabled = true;
+					speciesSelect.enabled = true;
+					selectLayout.enabled = true;
+					typeSelect.enabled = true;
+					exportSelect.enabled = true;
+					
+					CursorManager.removeBusyCursor();
+				}
+				else
+				{
+					pathwaySelect.enabled = false;
+					resetZoomButton.enabled = false;
+					scoreSlider.enabled = false;
+					speciesSelect.enabled = false;
+					selectLayout.enabled = false;
+					typeSelect.enabled = false; 
+					exportSelect.enabled = false;
+					
+					CursorManager.setBusyCursor();
+
+				}	
+			}
+			
+			private function toggleGraph(enable:Boolean):void
+			{
+				var alpha:Number = (enable)?1:0.2;
+				vis.removeOperator("labels");
+				
+				vis.data.nodes.visit(function(n:NodeSprite):void
+				{	
+					n.fillAlpha = alpha;
+					n.lineAlpha = alpha;
+					n.filters = null;
+				});
+				
+				vis.data.edges.visit(function(e:EdgeSprite):void
+				{	
+					e.lineAlpha = alpha;
+				});					
+			}
+				
+			private function setLayout(layoutId:int):void
+			{
+				
+				vis.controls.clear();
+				
+				//lay.autoScale = false;
+				//lay.fitToBounds = false;
+				
+				switch(layoutId)
+				{
+					case 1:
+						vis.operators.add(new NodeLinkTreeLayout("topToBottom"));
+						
+						break;
+					case 2:
+						var forceLayout:ForceDirectedLayout = new ForceDirectedLayout();
+//						vis.x = vis.width / 2;
+						forceLayout.defaultSpringLength = 100;
+						forceLayout.defaultParticleMass = 3;
+						forceLayout.defaultSpringTension = 0.1;
+						forceLayout.iterations = 10;
+						forceLayout.ticksPerIteration = 1.5;
+						vis.operators.add(forceLayout);
+						vis.controls.add(new DragControl(NodeSprite));
+						break;
+					
+					case 3:				
+						var circleLayout:CircleLayout = new CircleLayout();
+//						circleLayout.startRadius = vis.data.nodes.length * 25;
+//						circleLayout.startRadiusFraction = 3/5;
+						vis.operators.add(circleLayout);
+						break;
+					case 4:
+						var radialLayout:RadialTreeLayout = new RadialTreeLayout();
+						radialLayout.radiusIncrement = 50;
+						radialLayout.autoScale = true;
+						vis.operators.add(radialLayout);
+						break;
+				}
+				
+				vis.continuousUpdates = true;
+				addControl();
+				currentLayoutId = layoutId;
+				var t:Transitioner = vis.update(4);
+				t.play();
+								
+			}	
+			private function viewPathway(url:String):void
+			{
+				PathwayViewer.pwId = pathwaySelect.selectedItem.pwId;
+				PathwayViewer.pwName = pathwaySelect.selectedItem.name;
+				PathwayViewer.pwImageUrl = url;
+				
+				pathwayView = PopUpManager.createPopUp(this,PathwayViewer,true);			
+				PopUpManager.centerPopUp(pathwayView as IFlexDisplayObject);
+				toggleUIControls(true);
+			}			
+		]]>
+	</mx:Script>
+
+<mx:Panel layout="vertical" width="100%" title="Wikipathways Relations" horizontalAlign="left" verticalAlign="top">
+	<mx:HBox height="50" width="100%" borderStyle="solid" cornerRadius="0" borderColor="#0B0B0B" themeColor="#161616" alpha="1.0" verticalAlign="middle" horizontalGap="8" backgroundColor="#ECE9E9" backgroundAlpha="0.8" paddingLeft="20">
+		<mx:Label text="Species" />
+		<mx:ComboBox id="speciesSelect" dataProvider="{speciesList}" change='selectSpeciesHandler(event)'  enabled="false" prompt="{species}"/>
+		
+		<mx:Label text="Select Pathway" />
+		<mx:ComboBox id="pathwaySelect" dataProvider="{pathwayList}" labelField="name" change='selectPathwayHandler(event)' enabled="true" prompt="Select Pathway"/>
+		<mx:Button id="viewPathwayButton" click="getPathwayDetails()" label="View Pathway" visible="false"/>
+				
+		<mx:Button id="resetZoomButton" label="Reset Zoom" enabled="false" visible="false" />
+		<mx:ComboBox id="exportSelect" dataProvider="{exportTypeList}" change='exportHandler(event)'  enabled="true" prompt="Export"/>
+	</mx:HBox>
+	<mx:HBox height="50" width="100%" borderStyle="solid" cornerRadius="0" borderColor="#0B0B0B" themeColor="#161616" alpha="1.0" verticalAlign="middle" horizontalGap="8" backgroundColor="#ECE9E9" backgroundAlpha="0.8" paddingLeft="20">
+		<mx:Label text="Relations Type" />
+		<mx:ComboBox id="typeSelect" dataProvider="{relationTypeList}" change='selectRelationTypeHandler(event)' enabled="false" />
+		
+		<mx:Label text="Change Layout" />
+		<mx:ComboBox id="selectLayout" dataProvider="{layouts}" change='selectLayoutHandler(event)'  enabled="false" />
+		
+		<mx:Label text="Minimum Score" />
+		<mx:HSlider id="scoreSlider" change="setScoreHandler(event)" 
+					minimum="0" maximum="1"
+					value="0.7" 
+					labels="['0%','100%']" 
+					snapInterval="0.05"
+					enabled="false"
+					/>		
+	</mx:HBox>	
+	<mx:HBox height="500" width="100%" id="vizContainer">
+		<mx:Canvas id="container" width="100%" height="100%" borderStyle="outset" cornerRadius="30" borderColor="#8A8A8A">
+			<mx:Canvas width="100%" height="100%" backgroundColor="0x000000" id="cv" />
+			<flex:FlareVis id="tviz" width="100%" height="100%" mask="{cv}" hitArea="{container}" backgroundImage="images/wikipathways_logo.png" backgroundAlpha="0.4">
+				<mx:UIComponent id="uic" />
+			</flex:FlareVis>			
+		</mx:Canvas>
+	</mx:HBox>	
+</mx:Panel>	
+</mx:Application>

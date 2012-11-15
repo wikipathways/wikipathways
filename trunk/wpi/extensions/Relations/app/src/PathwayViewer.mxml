@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml"
+				layout="vertical" 
+				showCloseButton="true"
+				close="closeViewer(event)"
+				title="Pathway Viewer"
+				backgroundAlpha="1.0"				
+				borderAlpha="1.0" fontSize="12" width="800" minHeight="500">
+	<mx:Script>
+		<![CDATA[
+			import mx.events.CloseEvent;
+			import mx.managers.PopUpManager;	
+			
+			public static var pwId:String;
+			public static var pwName:String;
+			public static var pwImageUrl:String;
+						
+			
+			private function closeViewer(evt:CloseEvent):void {
+				PopUpManager.removePopUp(this)
+			}
+			
+
+			private function openPathway(event:MouseEvent):void
+			{
+				var url:String = "../../../../../index.php/Pathway:" + pwId;
+				var urlRequest:URLRequest = new URLRequest(url);
+				navigateToURL(urlRequest, "_blank");					
+			}
+
+		]]>
+	</mx:Script>
+	<mx:VBox verticalGap="15">
+		<mx:Text fontSize="15" text="{pwName}" />
+		<mx:Image source="{pwImageUrl}" 
+				  scaleContent="true" width="700" height="475"
+				  autoLoad="true" 
+				  horizontalAlign="center"/>
+		<mx:Button label="Open in Wikipathways" click="openPathway(event)" left="10"/>
+	</mx:VBox>
+</mx:TitleWindow>

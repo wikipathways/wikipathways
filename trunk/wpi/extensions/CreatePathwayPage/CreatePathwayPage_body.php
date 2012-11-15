@@ -29,13 +29,6 @@ class CreatePathwayPage extends SpecialPage
 			create an account first!");
 			return;
 		}
-		if(!$wgUser->isEmailConfirmed()){
-			$wgOut->addWikiText(
-			"== Email not confirmed ==\n
-			You must confirm you e-mail address before creating pathways. Please set and validate
-			 your e-mail address through your [" .SITE_URL."/index.php/Special:Preferences user preferences].");
-			return;
-		}
 		
 		$pwName = $_GET['pwName'];
                 $pwNameLen = strlen($pwName);
@@ -71,9 +64,9 @@ class CreatePathwayPage extends SpecialPage
 	                } elseif(!$pwSpecies) {
                                 $wgOut->addWikiText("== Warning ==\n<font color='red'>No species given!</font>\n'''Please specify a species for the pathway'''\n----\n");
                                 $this->showForm($pwName, $pwSpecies, true, $private);
-			} elseif ($pwNameLen > 200) { 
+			} elseif ($pwNameLen > 50) { 
  		                $wgOut->addWikiText("== Warning ==\n<font color='red'>Your pathway name is too long! ''($pwNameLen characters)''</font>\n"); 
-				$wgOut->addWikiText("'''Please specify a name with less than 200 characters.'''\n----\n");
+				$wgOut->addWikiText("'''Please specify a name with less than 50 characters.'''\n----\n");
  		                $this->showForm($pwName, $pwSpecies, false, $private);
 			} else {
 				$this->startEditor($pwName, $pwSpecies, $private);

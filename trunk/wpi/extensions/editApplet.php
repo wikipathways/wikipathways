@@ -34,7 +34,7 @@ function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $n
 	global $wgUser, $wgScriptPath, $loaderAdded, $wpiJavascriptSources, $jsJQuery;
 	
 	//Check user rights
-	if( !$wgUser->isLoggedIn() || !$wgUser->isEmailConfirmed() || wfReadOnly()) {
+	if( !$wgUser->isLoggedIn() || wfReadOnly()) {
 		return ""; //Don't return any applet code
 	}
 	

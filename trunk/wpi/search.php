@@ -121,11 +121,8 @@ class IndexClient {
 	 * Get the xrefs for a pathway, translated to the given system code.
 	 * @return an array of strings containing the ids.
 	 */
-        static function xrefs($pathway, $code, $local = 'TRUE') {
-                $source = $pathway->getTitleObject()->getFullURL();
-                if ($local=='FALSE') {
-                        $source = preg_replace('/localhost/', 'www.wikipathways.org', $source);
-                }
+	static function xrefs($pathway, $code) {
+		$source = $pathway->getTitleObject()->getFullURL();
 		$url = self::getServiceUrl() . "xrefs/" . urlencode($source) . "/" . urlencode($code);
 		$r = new HttpRequest($url, HttpRequest::METH_GET);
 		try {
@@ -296,8 +293,8 @@ class PathwayIndex {
 		return IndexClient::query($query);
 	}
 	
-	public static function listPathwayXrefs($pathway, $code, $local='TRUE') {
-		return IndexClient::xrefs($pathway, $code, $local);
+	public static function listPathwayXrefs($pathway, $code) {
+		return IndexClient::xrefs($pathway, $code);
 	}
 
 	static function pathwayFromSource($source) {

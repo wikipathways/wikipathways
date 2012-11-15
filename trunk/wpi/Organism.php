@@ -59,25 +59,19 @@ class Organism {
 		self::register('Bacillus subtilis', 'Bs');
 		self::register('Caenorhabditis elegans', 'Ce');
 		self::register('Canis familiaris', 'Cf');
-		self::register('Clostridium thermocellum', 'Ct');
 		self::register('Danio rerio', 'Dr');
 		self::register('Drosophila melanogaster', 'Dm');
 		self::register('Escherichia coli', 'Ec');
 		self::register('Equus caballus', 'Qc');
 		self::register('Gallus gallus', 'Gg');
-		self::register('Glycine max', 'Gm');
-		self::register('Gibberella zeae', 'Gz');
-		self::register('Homo sapiens', 'Hs');
+		self::register('Homo sapiens', 'Hs'); 
 		self::register('Mus musculus', 'Mm');
 		self::register('Mycobacterium tuberculosis', 'Mx');
 		self::register('Oryza sativa', 'Oj');
 		self::register('Pan troglodytes', 'Pt');
-		self::register('Populus trichocarpa', 'Pi');
 		self::register('Rattus norvegicus', 'Rn');
 		self::register('Saccharomyces cerevisiae', 'Sc');
-		self::register('Solanum lycopersicum', 'Sl');
 		self::register('Sus scrofa', 'Ss');
-		self::register('Vitis vinifera' ,'Vv');
 		self::register('Xenopus tropicalis', 'Xt');
 		self::register('Zea mays', 'Zm');
 	}
