@@ -64,9 +64,9 @@ class CreatePathwayPage extends SpecialPage
 	                } elseif(!$pwSpecies) {
                                 $wgOut->addWikiText("== Warning ==\n<font color='red'>No species given!</font>\n'''Please specify a species for the pathway'''\n----\n");
                                 $this->showForm($pwName, $pwSpecies, true, $private);
-			} elseif ($pwNameLen > 50) { 
+			} elseif ($pwNameLen > 200) {
  		                $wgOut->addWikiText("== Warning ==\n<font color='red'>Your pathway name is too long! ''($pwNameLen characters)''</font>\n"); 
-				$wgOut->addWikiText("'''Please specify a name with less than 50 characters.'''\n----\n");
+				$wgOut->addWikiText("'''Please specify a name with less than 200 characters.'''\n----\n");
  		                $this->showForm($pwName, $pwSpecies, false, $private);
 			} else {
 				$this->startEditor($pwName, $pwSpecies, $private);

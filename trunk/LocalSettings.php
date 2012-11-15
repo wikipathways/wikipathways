@@ -170,7 +170,7 @@ $wgAllowSlowParserFunctions = true;
 $wgLogo = "http://www.wikipathways.org/skins/common/images/earth-or-pathway_text3_beta.png";
 
 #Allow gpml extension and larger image files
-$wgFileExtensions = array( 'png', 'gif', 'jpg', 'jpeg', 'svg', 'gpml', 'mapp');
+$wgFileExtensions = array( 'pdf', 'png', 'gif', 'jpg', 'jpeg', 'svg', 'gpml', 'mapp');
 $wgUploadSizeWarning = 1024 * 1024 * 5;
 
 ## Better SVG converter
@@ -256,21 +256,6 @@ $wgGroupPermissions['bureaucrat'  ]['usersnoop'] = true;
 $wgGroupPermissions['sysop']['list_private_pathways'] = true;
 $wgGroupPermissions['webservice']['webservice_write'] = true;
 
-//AP20071027 
-# Reject user creation from specific domains
-function abortOnBadDomain($user, $message) {
-
-  global $wgRequest;
-  $email = $wgRequest->getText( 'wpEmail' );
-  $emailSplitList = split("@", $email, 2);
-  if ( $emailSplitList[1] == "mail.ru" ||
-       $emailSplitList[1] == "list.ru" ) {
-    $message = "Your e-mail domain has been blocked";
-    return false;
-  }
-  return true;
-}
-
 $wgHooks['AbortNewAccount'][] = 'abortOnBadDomain';
 
 ##Debug
@@ -342,7 +327,6 @@ require_once('wpi/extensions/StubManager/StubManager.php');
 require_once('wpi/extensions/ParserFunctionsHelper/ParserFunctionsHelper.php');
 require_once('wpi/extensions/SecureHTML/SecureHTML.php');
 require_once('wpi/extensions/RSS/rss.php');
-require_once('wpi/extensions/Relations/Relations.php');
 require_once('wpi/extensions/XrefPanel.php');
 require_once('wpi/statistics/StatisticsHook.php');
 require_once( "extensions/ConfirmEdit/ConfirmEdit.php" );

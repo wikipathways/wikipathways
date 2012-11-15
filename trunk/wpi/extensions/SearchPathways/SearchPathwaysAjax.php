@@ -32,11 +32,15 @@ class SearchPathwaysAjax {
 		$root = $doc->createElement("results");
 		$doc->appendChild($root);
 
+		$addedResults = array(); //Keep track of added pathways (result may contain duplicates)
 		foreach($results as $r) {
 			$pwy = $r->getFieldValue(PathwayIndex::$f_source);
-			$rn = $doc->createElement("pathway");
-			$rn->appendChild($doc->createTextNode($pwy));
-			$root->appendChild($rn);
+			if(!in_array($pwy, $addedResults)) {
+				$rn = $doc->createElement("pathway");
+				$rn->appendChild($doc->createTextNode($pwy));
+				$root->appendChild($rn);
+				$addedResults[] = $pwy;
+			}
 		}
 		$resp = new AjaxResponse(trim($doc->saveXML()));
 		$resp->setContentType("text/xml");

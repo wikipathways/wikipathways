@@ -1225,3 +1225,7 @@ debug = function(text){
 function bind(toObject, methodName){
     return function(){toObject[methodName]()}
 }
+
+//Fix for missing console function in IE9
+if (!window.console) window.console = {};
+if (!window.console.log) window.console.log = function () { };
