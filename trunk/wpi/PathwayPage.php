@@ -252,10 +252,6 @@ TEXT;
                         'Png image (.png)' => self::getDownloadURL($pathway, 'png'),
                         'Acrobat (.pdf)' => self::getDownloadURL($pathway, 'pdf'),
            );
-		if (browser_detection( 'os' ) == 'win' || browser_detection( 'os' ) == 'nt'){
-               $download['GenMAPP (.mapp)'] = self::getDownloadURL($pathway, 'mapp');
-		}
-
 		$downloadlist = '';
 		foreach(array_keys($download) as $key) {
 			$downloadlist .= "<li><a href='{$download[$key]}'>$key</a></li>";
