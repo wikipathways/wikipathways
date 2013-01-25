@@ -256,6 +256,16 @@ $wgGroupPermissions['bureaucrat'  ]['usersnoop'] = true;
 $wgGroupPermissions['sysop']['list_private_pathways'] = true;
 $wgGroupPermissions['webservice']['webservice_write'] = true;
 
+##Protecting non-pathway namespaces from user edits
+$wgNamespaceProtection[NS_MAIN] = array('main-edit');
+$wgNamespaceProtection[NS_TALK] = array('main-talk-edit');
+$wgNamespaceProtection[NS_HELP] = array('help-edit');
+$wgNamespaceProtection[NS_HELP_TALK] = array('help-talk-edit');
+$wgGroupPermissions['bureaucrat']['main-edit'] = true;
+$wgGroupPermissions['bureaucrat']['main-talk-edit'] = true;
+$wgGroupPermissions['bureaucrat']['help-edit'] = true;
+$wgGroupPermissions['bureaucrat']['help-talk-edit'] = true;
+
 $wgHooks['AbortNewAccount'][] = 'abortOnBadDomain';
 
 ##Debug
