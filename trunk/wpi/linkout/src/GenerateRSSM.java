@@ -66,14 +66,15 @@ private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName
 	private int imgSize = 400;
 	
 	/**
-	 * Pathways tagged with these tags will not be included.
+	 * Only bother with inclusion tags. These are a subset that is already exclusive 
+	 * with pathways tagged for exclusion. 
 	 */
-	private String[] excludeTags = new String[] {
-		"Curation:ProposedDeletion",
-		"Curation:Tutorial",
-		"Curation:UnderConstruction",
-		"Curation:Stub"
-	};
+//	private String[] excludeTags = new String[] {
+//		"Curation:ProposedDeletion",
+//		"Curation:Tutorial",
+//		"Curation:UnderConstruction",
+//		"Curation:Stub"
+//	};
 	
 	private String[] includeTags = new String[] {
 		"Curation:FeaturedPathway",
@@ -118,9 +119,9 @@ private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName
 		this.includeTags = includeTags;
 	}
 	
-	public void setExcludeTags(String[] excludeTags) {
-		this.excludeTags = excludeTags;
-	}
+//	public void setExcludeTags(String[] excludeTags) {
+//		this.excludeTags = excludeTags;
+//	}
 	
 	public void setSourceUrl(String sourceUrl) {
 		this.sourceUrl = sourceUrl;
@@ -138,30 +139,30 @@ private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName
 		addGeneralSection(root);
 		
 		log.info("Getting list of pathways to filter out based on curation tag");
-		Set<String> excludeIds = new HashSet<String>();
-		for(String tag : excludeTags) {
-			for(WSCurationTag t : client.getCurationTagsByName(tag)) {
-				excludeIds.add(t.getPathway().getId());
-			}
-		}
-		log.info("Filtering out " + excludeIds.size() + " pathways based on tag.");
+//		Set<String> excludeIds = new HashSet<String>();
+//		for(String tag : excludeTags) {
+//			for(WSCurationTag t : client.getCurationTagsByName(tag)) {
+//				excludeIds.add(t.getPathway().getId());
+//			}
+//		}
+//		log.info("Filtering out " + excludeIds.size() + " pathways based on tag.");
 		Set<String> includeIds = new HashSet<String>();
 		for(String tag : includeTags) {
 			for(WSCurationTag t : client.getCurationTagsByName(tag)) {
 				includeIds.add(t.getPathway().getId());
 			}
 		}
-		log.info("Including " + excludeIds.size() + " pathways based on tag.");
+//		log.info("Including " + excludeIds.size() + " pathways based on tag.");
 		
 		int i = 0;
 		for(File f : pathwayFiles) {
 			if(i % 10 == 0) log.info("Processing pathway " + ++i + " out of " + pathwayFiles.size());
 			
 			WSPathwayInfo info = cache.getPathwayInfo(f);
-			if(excludeTags.length > 0 && excludeIds.contains(info.getId())) {
-				log.info("Skipping " + info.getId() + ", filtered out by curation tag");
-				continue;
-			}
+//			if(excludeTags.length > 0 && excludeIds.contains(info.getId())) {
+//				log.info("Skipping " + info.getId() + ", filtered out by curation tag");
+//				continue;
+//			}
 			if(includeTags.length > 0 && !includeIds.contains(info.getId())) {
 				log.info("Skipping " + info.getId() + ", filtered out because doesn't have one of the curation tags to include.");
 				continue;
@@ -440,7 +441,7 @@ private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName
 			GenerateRSSM rssm = new GenerateRSSM(cache, client, idmp);
 			rssm.setSourceUrl(pargs.baseUrl);
 			if(pargs.includeTags != null) rssm.setIncludeTags(pargs.includeTags.toArray(new String[0]));
-			if(pargs.excludeTags != null) rssm.setExcludeTags(pargs.excludeTags.toArray(new String[0]));
+//			if(pargs.excludeTags != null) rssm.setExcludeTags(pargs.excludeTags.toArray(new String[0]));
 			
 			Document doc = rssm.createRSSM(cache.getFiles());
 			XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
@@ -469,7 +470,7 @@ private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName
 		@Option(name = "-includeTag", required = false, usage = "Override the default curation tags to exclude.")
 		List<String> includeTags;
 		
-		@Option(name = "-excludeTag", required = false, usage = "Override the default curation tags to include.")
-		List<String> excludeTags;
+//		@Option(name = "-excludeTag", required = false, usage = "Override the default curation tags to include.")
+//		List<String> excludeTags;
 	}
 }
