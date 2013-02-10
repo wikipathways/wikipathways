@@ -430,6 +430,21 @@ ant install-wpi \
 
 # Now test the editor on sandbox pathway
 
+## Run script to update dependencies
+./dependencies.sh
+
+## Rebuild linkout.jar
+ant clean dist
+
+## Manually run link out using syntax from cron job:
+cd dist
+java -Djava.util.logging.config.file=../logging.props -cp linkout.jar GenerateRSSM -baseUrl http://www.wikipathways.org -cache /home/wikipathways/cache/ -idmCo
+nfig /home/wikipathways/code/bridgedb/gdb.config -out ../wikipathways.rssm.xml
+
+## Check output file for consistency and completeness
+../wikipathways.rssm.xml
+
+
 # (If needed): update bots
 	ant tarbin-wpclient -Dwsdl.url=http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl
 	scp release/wikipathways_client_bin-1.1-rXXXX.tar.gz wikipathways@137.120.14.13:/home/wikipathways/wikipathways-bots/wikipathways
