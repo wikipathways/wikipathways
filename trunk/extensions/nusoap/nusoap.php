@@ -52,7 +52,7 @@ require_once('class.soap_server.php');*/
 
 // class variable emulation
 // cf. http://www.webkreator.com/php/techniques/php-static-class-variables.html
-$GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel = 9;
+#$GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel = 9;
 
 /**
 *
@@ -63,6 +63,8 @@ $GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel = 9;
 * @access   public
 */
 class nusoap_base {
+	static $globalDebugLevel = 0;
+
 	/**
 	 * Identification for HTTP headers.
 	 *
@@ -203,7 +205,7 @@ class nusoap_base {
 	* @access	public
 	*/
 	function nusoap_base() {
-		$this->debugLevel = $GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel;
+		$this->debugLevel = self::$globalDebugLevel;
 	}
 
 	/**
@@ -213,7 +215,7 @@ class nusoap_base {
 	* @access	public
 	*/
 	function getGlobalDebugLevel() {
-		return $GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel;
+		return self::$globalDebugLevel;
 	}
 
 	/**
@@ -223,7 +225,7 @@ class nusoap_base {
 	* @access	public
 	*/
 	function setGlobalDebugLevel($level) {
-		$GLOBALS['_transient']['static']['nusoap_base']->globalDebugLevel = $level;
+		self::$globalDebugLevel = $level;
 	}
 
 	/**

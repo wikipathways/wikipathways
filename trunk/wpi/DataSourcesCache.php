@@ -3,7 +3,7 @@
 require_once("globals.php");
 
 //If run from command line, update cache
-if($argv[0] == "DataSourcesCache.php") {
+if(isset($argv[0]) && $argv[0] == "DataSourcesCache.php") {
 	echo("Updating datasources cache\n");
 	$start = microtime(true);
 	

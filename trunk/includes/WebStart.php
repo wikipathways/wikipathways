@@ -63,7 +63,7 @@ unset( $IP );
 # defines a valid entry point. If you put it in includes/Defines.php, then
 # any script that includes it becomes an entry point, thereby defeating
 # its purpose.
-define( 'MEDIAWIKI', true );
+if( !defined('MEDIAWIKI')) define( 'MEDIAWIKI', true );
 
 # Full path to working directory.
 # Makes it possible to for example to have effective exclude path in apc.
