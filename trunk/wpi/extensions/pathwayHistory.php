@@ -82,7 +82,7 @@ function historyLine($pathway, $row, $nr, $counter = '', $cur = false, $firstInL
 
 	$date = $wgLang->timeanddate( $rev->getTimestamp(), true );
 	$user = $wgUser->getSkin()->userLink( $rev->getUser(), $rev->getUserText() );
-	$descr = htmlentities($rev->getComment());
+	$descr = $rev->getComment();
 	return array('diff'=>$diff, 'rev'=>$revert, 'view'=>$view, 'date'=>$date, 'user'=>$user, 'descr'=>$descr, 'id'=>$rev->getId());
 }
         
