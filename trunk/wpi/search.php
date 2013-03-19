@@ -40,7 +40,7 @@ class IndexClient {
 			return $results;
 		} else {
 			$txt = $r->getResponseBody();
-			if(strpos($txt, '<?xml')) {
+			if(strpos($txt, '<?xml') !== false) {
 				$xml = new SimpleXMLElement($r->getResponseBody());
 				throw new Exception($xml->message);
 			} else {
@@ -48,7 +48,7 @@ class IndexClient {
 			}
 		}
 	}
-	
+
 	private static function postQuery($url, $ids, $codes){
 		$r = new HttpRequest($url, HttpRequest::METH_POST);
 		$r->addPostFields (
@@ -57,39 +57,39 @@ class IndexClient {
 				'code' => 'L'
 			));
 		try {
-		       $r->send();
+			   $r->send();
 		} catch (Exception $e) {
-                        throw new IndexNotFoundException();
-                }
+						throw new IndexNotFoundException();
+				}
 		if ($r->getResponseCode() == 200) {
-                        $xml = new SimpleXMLElement($r->getBody());
-                        $results = array();
-                        //Convert the response to SearchHit objects
-                        foreach($xml->SearchResult as $resultNode) {
-                                $score = $resultNode['Score'];
-                                $fields = array();
-                                foreach($resultNode->Field as $fieldNode) {
-                                        $fields[(string)$fieldNode['Name']][] = (string)$fieldNode['Value'];
-                                }
-                                //Remove duplicate values
-                                foreach(array_keys($fields) as $fn) {
-                                        $fields[$fn] = array_unique($fields[$fn]);
-                                }
-                                $results[] = new SearchHit($score, $fields);
-                        }
-                        return $results;
-                } else {
-                        $txt = $r->getResponseBody();
-                        if(strpos($txt, '<?xml')) {
-                                $xml = new SimpleXMLElement($r->getResponseBody());
-                                throw new Exception($xml->message);
-                        } else {
-                                throw new Exception($r->getResponseBody());
-                        }
-                }
-        }
+						$xml = new SimpleXMLElement($r->getBody());
+						$results = array();
+						//Convert the response to SearchHit objects
+						foreach($xml->SearchResult as $resultNode) {
+								$score = $resultNode['Score'];
+								$fields = array();
+								foreach($resultNode->Field as $fieldNode) {
+										$fields[(string)$fieldNode['Name']][] = (string)$fieldNode['Value'];
+								}
+								//Remove duplicate values
+								foreach(array_keys($fields) as $fn) {
+										$fields[$fn] = array_unique($fields[$fn]);
+								}
+								$results[] = new SearchHit($score, $fields);
+						}
+						return $results;
+				} else {
+						$txt = $r->getResponseBody();
+						if(strpos($txt, '<?xml')) {
+								$xml = new SimpleXMLElement($r->getResponseBody());
+								throw new Exception($xml->message);
+						} else {
+								throw new Exception($r->getResponseBody());
+						}
+				}
+		}
 
-			
+
 	/**
 	 * Performs a query on the index service and returns the results
 	 * as an array of SearchHit objects.
@@ -101,13 +101,13 @@ class IndexClient {
 		}
 		return self::doQuery($url);
 	}
-	
+
 	static function queryXrefs($ids, $codes) {
 		$enc_ids = array();
 		$enc_codes = array();
 		foreach($ids as $i) $enc_ids[] = urlencode($i);
 		foreach($codes as $c) $enc_codes[] = urlencode($c);
-		
+
 		$url = self::getServiceUrl() . 'searchxrefs?';
 		$url .= 'id=' . implode('&id=', $enc_ids);
 		if(count($enc_codes) > 0) {
@@ -116,7 +116,7 @@ class IndexClient {
 		return self::doQuery($url);
 		#return self::postQuery($url, $ids, $codes);
 	}
-	
+
 	/**
 	 * Get the xrefs for a pathway, translated to the given system code.
 	 * @return an array of strings containing the ids.
@@ -144,7 +144,7 @@ class IndexClient {
 			throw new Exception($r->getResponseBody());
 		}
 	}
-	
+
 	static function getServiceUrl() {
 		global $indexServiceUrl;
 		if(!$indexServiceUrl) {
@@ -158,12 +158,12 @@ class SearchHit {
 	private $pathway;
 	private $fields;
 	private $score;
-	
+
 	function __construct($score, $fields) {
 		$this->score = $score;
 		$this->fields = $fields;
 	}
-	
+
 	function getPathway() {
 		if(!$this->pathway) {
 			$this->pathway = PathwayIndex::pathwayFromSource(
@@ -172,22 +172,22 @@ class SearchHit {
 		}
 		return $this->pathway;
 	}
-	
+
 	function getScore() {
 		return $this->score;
 	}
-	
+
 	function getFieldValues($name) {
 		return $this->fields[$name];
 	}
-	
+
 	function setFieldValues($name, $values) {
 		$this->fields[$name] = $values;
 	}
 	function getFieldNames() {
-		return array_keys($this->fields);	
+		return array_keys($this->fields);
 	}
-	
+
 	function getFieldValue($name) {
 		$values = $this->fields[$name];
 		if($values) return $values[0];
@@ -205,10 +205,10 @@ class PathwayIndex {
 		if(!is_array($xrefs)) {
 			$xrefs = array( $xrefs );
 		}
-		
+
 		$ids = array();
 		$codes = array();
-		
+
 		foreach($xrefs as $xref) {
 			$ids[] = $xref->getId();
 			if($xref->getSystem()) {
@@ -217,7 +217,7 @@ class PathwayIndex {
 		}
 		return IndexClient::queryXrefs($ids, $codes);
 	}
-	
+
 	/**
 	 * Searches on all text fields:
 	 * name, organism, textlabel, category, description
@@ -228,7 +228,7 @@ class PathwayIndex {
 	 **/
 	public static function searchByText($query, $organism = false) {
 		$query = self::queryToAllFields(
-			$query, 
+			$query,
 			array(
 				self::$f_name,
 				self::$f_textlabel,
@@ -265,7 +265,7 @@ class PathwayIndex {
 		}
 		return IndexClient::query($query);
 	}
-        
+
 	/**
 	 * Searches on literature fields:
 	 * literature.pubmed, literature.author, literature.title
@@ -274,7 +274,7 @@ class PathwayIndex {
 	 **/
 	public static function searchByLiterature($query) {
 		$query = self::queryToAllFields(
-			$query, 
+			$query,
 			array(
 				self::$f_literature_author,
 				self::$f_literature_title,
@@ -283,7 +283,7 @@ class PathwayIndex {
 		);
 		return IndexClient::query($query);
 	}
-	
+
 	public static function searchInteractions($query) {
 		$query = self::queryToAllFields(
 			$query,
@@ -295,7 +295,7 @@ class PathwayIndex {
 		);
 		return IndexClient::query($query);
 	}
-	
+
 	public static function listPathwayXrefs($pathway, $code, $local='TRUE') {
 		return IndexClient::xrefs($pathway, $code, $local);
 	}
@@ -303,7 +303,7 @@ class PathwayIndex {
 	static function pathwayFromSource($source) {
 		return Pathway::newFromTitle($source);
 	}
-	
+
 	private static function queryToAllFields($queryStr, $fields) {
 		$q = '';
 		foreach($fields as $f) {
@@ -311,7 +311,7 @@ class PathwayIndex {
 		}
 		return $q;
 	}
-	
+
 	//Field names
 	static $f_source = 'source';
 	static $f_name = 'name';
