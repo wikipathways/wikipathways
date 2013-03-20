@@ -811,7 +811,8 @@ class Pathway {
 	static $gpmlSchemas = array(
 		"http://genmapp.org/GPML/2007" => "GPML2007.xsd",
 		"http://genmapp.org/GPML/2008a" => "GPML2008a.xsd",
-		"http://genmapp.org/GPML/2010a" => "GPML.xsd"
+		"http://genmapp.org/GPML/2010a" => "GPML2010a.xsd",
+		"http://pathvisio.org/GPML/2013a" => "GPML2013a.xsd"
 	);
 	
 	/**
