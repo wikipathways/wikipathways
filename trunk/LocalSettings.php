@@ -214,47 +214,47 @@ $wgExtraNamespaces =
 			NS_WISHLIST => "Wishlist", NS_WISHLIST_TALK => "Wishlist_Talk",
 			NS_PORTAL => "Portal", NS_PORTAL_TALK => "Portal_Talk"
 		);
-$wgNamespacesToBeSearchedDefault += 
+$wgNamespacesToBeSearchedDefault +=
 	array( 	NS_PATHWAY => true, NS_PATHWAY_TALK => true,
 			100 => false, 100 => false); //Old namespace
 $wgContentNamespaces += array(NS_PATHWAY, NS_PATHWAY_TALK);
 
 //AP20080328 - setting permissions for custom namespaces
-$wgGroupPermissions[ '*' ][ 'ns102_read'] = true;
-$wgGroupPermissions[ 'user' ][ 'ns102_edit'] = true;
-$wgGroupPermissions[ 'user' ][ 'ns102_create'] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns102_move'] = true;
-$wgGroupPermissions[ 'sysop' ][ 'ns102_delete'] = true;
-$wgGroupPermissions[ '*' ][ 'ns103_read'] = true;
-$wgGroupPermissions[ 'user' ][ 'ns103_edit'] = true;
-$wgGroupPermissions[ 'user' ][ 'ns103_create'] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns103_move'] = true;
-$wgGroupPermissions[ 'sysop' ][ 'ns103_delete'] = true;
-$wgGroupPermissions[ '*' ][ 'ns104_read'] = true;
-$wgGroupPermissions[ 'user' ][ 'ns104_edit'] = true;
-$wgGroupPermissions[ 'user' ][ 'ns104_create'] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns104_move'] = true;
-$wgGroupPermissions[ 'sysop' ][ 'ns104_delete'] = true;
-$wgGroupPermissions[ '*' ][ 'ns105_read'] = true;
-$wgGroupPermissions[ 'user' ][ 'ns105_edit'] = true;
-$wgGroupPermissions[ 'user' ][ 'ns105_create'] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns105_move'] = true;
-$wgGroupPermissions[ 'sysop' ][ 'ns105_delete'] = true;
-$wgGroupPermissions[ '*' ][ 'ns106_read'] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns106_edit'] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns106_create'] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns106_move'] = true;
-$wgGroupPermissions[ 'sysop' ][ 'ns106_delete'] = true;
-$wgGroupPermissions[ '*' ][ 'ns107_read'] = true;
-$wgGroupPermissions[ 'user' ][ 'ns107_edit'] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns107_create'] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns107_move'] = true;
-$wgGroupPermissions[ 'sysop' ][ 'ns107_delete'] = true;
-$wgGroupPermissions['usersnoop'   ]['usersnoop'] = true;
-$wgGroupPermissions['sysop'       ]['usersnoop'] = true;
-$wgGroupPermissions['bureaucrat'  ]['usersnoop'] = true;
-$wgGroupPermissions['sysop']['list_private_pathways'] = true;
-$wgGroupPermissions['webservice']['webservice_write'] = true;
+$wgGroupPermissions[ '*'          ][ 'ns102_read'   ] = true;
+$wgGroupPermissions[ 'user'       ][ 'ns102_edit'   ] = true;
+$wgGroupPermissions[ 'user'       ][ 'ns102_create' ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'ns102_move'   ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'ns102_delete' ] = true;
+$wgGroupPermissions[ '*'          ][ 'ns103_read'   ] = true;
+$wgGroupPermissions[ 'user'       ][ 'ns103_edit'   ] = true;
+$wgGroupPermissions[ 'user'       ][ 'ns103_create' ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'ns103_move'   ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'ns103_delete' ] = true;
+$wgGroupPermissions[ '*'          ][ 'ns104_read'   ] = true;
+$wgGroupPermissions[ 'user'       ][ 'ns104_edit'   ] = true;
+$wgGroupPermissions[ 'user'       ][ 'ns104_create' ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'ns104_move'   ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'ns104_delete' ] = true;
+$wgGroupPermissions[ '*'          ][ 'ns105_read'   ] = true;
+$wgGroupPermissions[ 'user'       ][ 'ns105_edit'   ] = true;
+$wgGroupPermissions[ 'user'       ][ 'ns105_create' ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'ns105_move'   ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'ns105_delete' ] = true;
+$wgGroupPermissions[ '*'          ][ 'ns106_read'   ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'ns106_edit'   ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'ns106_create' ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'ns106_move'   ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'ns106_delete' ] = true;
+$wgGroupPermissions[ '*'          ][ 'ns107_read'   ] = true;
+$wgGroupPermissions[ 'user'       ][ 'ns107_edit'   ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'ns107_create' ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'ns107_move'   ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'ns107_delete' ] = true;
+$wgGroupPermissions[ 'usersnoop'  ][ 'usersnoop'    ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'usersnoop'    ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'usersnoop'    ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'list_private_pathways'] = true;
+$wgGroupPermissions[ 'webservice' ][ 'webservice_write'] = true;
 
 ##Protecting non-pathway namespaces from user edits
 $wgNamespaceProtection[NS_MAIN] = array('main-edit');
@@ -351,17 +351,17 @@ require("pass.php");
 
 require_once( "wpi/extensions/ContributionScores/ContributionScores.php" );
 $contribScoreIgnoreBots = true;  //Set to true if you want to exclude Bots from the reporting - Can be omitted.
- 
+
 //Each array defines a report - 7,50 is "past 7 days" and "LIMIT 50" - Can be omitted.
 $contribScoreReports = array(
-    array(7,50),
-    array(30,50),
-    array(0,50));
+	array(7,50),
+	array(30,50),
+	array(0,50));
 
 /* Biblio extension
 Isbndb account: thomas.kelder@bigcat.unimaas.nl / BigC0w~wiki
 */
-$isbndb_access_key = 'BR5539IJ'; 
+$isbndb_access_key = 'BR5539IJ';
 require_once('extensions/Biblio.php');
 
 //Interwiki extension
@@ -391,4 +391,3 @@ $wgRCMaxAge = 60 * 24 * 3600;
 
 //Lastly, include javascripts (that may have been added by other extensions)
 require_once('wpi/Javascript.php');
-?>
