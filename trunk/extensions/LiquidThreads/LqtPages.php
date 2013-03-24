@@ -1211,7 +1211,7 @@ HTML
 		
 		else if( $this->request->wasPosted() && $this->methodApplies('mark_as_read') ) {
 			$ids = explode(',', $this->request->getVal('lqt_operand', ''));
-			if( $ids !== false ) {
+			if( $ids !== false && isset( $ids[0] ) ) {
 				foreach($ids as $id) {
 					NewMessages::markThreadAsReadByUser(Threads::withId($id), $this->user);
 				}
