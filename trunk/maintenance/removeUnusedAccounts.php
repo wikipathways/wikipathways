@@ -12,7 +12,7 @@
  * @todo Don't delete sysops or bureaucrats
  */
 
-$options = array( 'help', 'delete' );
+$options = array( 'help', 'delete', 'ignore-touched' );
 require_once( 'commandLine.inc' );
 require_once( 'removeUnusedAccounts.inc' );
 echo( "Remove Unused Accounts\n\n" );
@@ -22,15 +22,21 @@ if( isset( $options['help'] ) ) {
 	showHelp();
 	exit();
 }
+$touchedSeconds = 0;
+if( isset( $options['ignore-touched'] ) ) {
+    $touchedSeconds = 86400 * $options["ignore-touched"];
+}
 
 # Do an initial scan for inactive accounts and report the result
 echo( "Checking for unused user accounts...\n" );
 $del = array();
 $dbr = wfGetDB( DB_SLAVE );
-$res = $dbr->select( 'user', array( 'user_id', 'user_name' ), '', $fname );
+$res = $dbr->select( 'user', array( 'user_id', 'user_name', 'user_touched' ), '', $fname );
+$since = wfTimestamp( TS_UNIX, time() - $touchedSeconds );
 while( $row = $dbr->fetchObject( $res ) ) {
 	# Check the account, but ignore it if it's the primary administrator
-	if( $row->user_id > 1 && isInactiveAccount( $row->user_id, true ) ) {
+	if( $row->user_id > 1 && isInactiveAccount( $row->user_id, true )
+ 	       && wfTimestamp( TS_UNIX, $row->user_touched ) < $since ) {
 		# Inactive; print out the name and flag it
 		$del[] = $row->user_id;
 		echo( $row->user_name . "\n" );
