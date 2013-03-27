@@ -5,20 +5,21 @@ class LocalHooks {
 	static public function externalLink ( &$url, &$text, &$link, &$attribs = null ) {
 		global $wgExternalLinkTarget;
 		wfProfileIn( __METHOD__ );
+		wfDebug(__METHOD__.": Looking at the link: $url\n");
+
+		$linkTarget = "_blank";
+		if( isset( $wgExternalLinkTarget ) && $wgExternalLinkTarget != "") {
+			$linkTarget = $wgExternalLinkTarget;
+		}
 		# Hook changed to include attribs in 1.15
 		if( $attribs !== null ) {
-			if( $wgExternalLinkTarget !== false ) {
-				$attribs["target"] = $wgExternalLinkTarget;
-			} else {
-				$attribs["target"] = "_blank";
-			}
+			$attribs["target"] = $linkTarget;
 		} else {
-			$link = '<a href="'.$url.'" target="_blank">'.$text.'</a>';
+			$link = '<a href="'.$url.'" target="'.$linkTarget.'">'.$text.'</a>';
 		}
 		wfProfileOut( __METHOD__ );
 
-
-		return true;
+		return false;
 	}
 }
 
