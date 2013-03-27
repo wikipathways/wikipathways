@@ -4,7 +4,7 @@ require_once("wpi/wpi.php");
 class DiffAppletPage extends SpecialPage
 {
 	function __construct( ) {
-		parent::_construct( "DiffAppletPage" );
+		parent::__construct( "DiffAppletPage" );
 		self::loadMessages();
 	}
 
