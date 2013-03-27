@@ -283,6 +283,7 @@ require_once('extensions/GoogleGroups.php');
 //require_once('extensions/ParserFunctions.php');
 //require_once('wpi/extensions/redirectImage.php'); //Redirect all image pages to file
 require_once('wpi/extensions/PathwayOfTheDay.php');
+require_once("$IP/extensions/LocalHooks.php");
 require_once('wpi/extensions/siteStats.php');
 require_once('wpi/extensions/pathwayInfo.php');
 require_once('wpi/extensions/imageSize.php');
