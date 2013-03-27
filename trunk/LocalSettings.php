@@ -74,7 +74,7 @@ if(!$wpiJavascriptSources) $wpiJavascriptSources = array();
 # Load organism registry
 require_once('wpi/Organism.php');
 # Load passwords/usernames
-require('pass.php');
+require_once('pass.php');
 # Load globals
 require_once('wpi/globals.php');
 
@@ -349,9 +349,6 @@ require_once('wpi/extensions/PageEditor/PageEditor.php');
 require_once( "extensions/ConfirmEdit/FancyCaptcha.php" );
 $wgCaptchaClass = 'FancyCaptcha';
 $wgCaptchaDirectory = "captcha";
-
-//Load captcha keyphrase
-require("pass.php");
 
 require_once( "wpi/extensions/ContributionScores/ContributionScores.php" );
 $contribScoreIgnoreBots = true;  //Set to true if you want to exclude Bots from the reporting - Can be omitted.
