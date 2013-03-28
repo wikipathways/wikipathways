@@ -31,7 +31,8 @@ class LocalHooks {
 		}
 
 		/* ugh ... had to copy this bit from makeExternalLink */
-		$style = $this->getExternalLinkAttributes( $url, $text, 'external ' . $linktype );
+		$l = new Linker;
+		$style = $l->getExternalLinkAttributes( $url, $text, 'external ' . $linktype );
 		global $wgNoFollowLinks, $wgNoFollowNsExceptions;
 		if( $wgNoFollowLinks && !(isset($ns) && in_array($ns, $wgNoFollowNsExceptions)) ) {
 			$style .= ' rel="nofollow"';

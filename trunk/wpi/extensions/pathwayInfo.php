@@ -17,8 +17,8 @@ $wgExtensionFunctions[] = 'wfPathwayInfo';
 $wgHooks['LanguageGetMagic'][]  = 'wfPathwayInfo_Magic';
 
 function wfPathwayInfo() {
-        global $wgParser;
-        $wgParser->setFunctionHook( 'pathwayInfo', 'getPathwayInfoText' );
+		global $wgParser;
+		$wgParser->setFunctionHook( 'pathwayInfo', 'getPathwayInfoText' );
 }
 
 function getPathwayInfoText( &$parser, $pathway, $type ) {
@@ -41,8 +41,8 @@ function getPathwayInfoText( &$parser, $pathway, $type ) {
 }
 
 function wfPathwayInfo_Magic( &$magicWords, $langCode ) {
-        $magicWords['pathwayInfo'] = array( 0, 'pathwayInfo' );
-        return true;
+		$magicWords['pathwayInfo'] = array( 0, 'pathwayInfo' );
+		return true;
 }
 
 class PathwayInfo extends PathwayData {
@@ -52,7 +52,7 @@ class PathwayInfo extends PathwayData {
 		parent::__construct($pathway);
 		$this->parser = $parser;
 	}
-	
+
 	/**
 	 * Creates a table of all datanodes and their info
 	 */
@@ -76,14 +76,14 @@ TABLE;
 			$key .= $elm->Xref['Database'];
 			$nodes[(string)$key] = $elm;
 		}
-		
+
 		//Create collapse button
 		$nrShow = 5;
 		$nrNodes = count($nodes);
 		if(count($nodes) > $nrShow) {
 			$expand = "<B>View all $nrNodes...</B>";
 			$collapse = "<B>View last " . ($nrShow) . "...</B>";
-			$button = "<table><td width='51%'> <div onClick='toggleRows(\"dnTable\", this, \"$expand\", 
+			$button = "<table><td width='51%'> <div onClick='toggleRows(\"dnTable\", this, \"$expand\",
 				\"$collapse\", " . ($nrShow + 1) . ", true)' style='cursor:pointer;color:#0000FF'>$expand<td width='45%'></table>";
 		}
 		//Sort and iterate over all elements
@@ -101,7 +101,8 @@ TABLE;
 			$xds = (string)$xref['Database'];
 			$link = DataSource::getLinkout($xid, $xds);
 			if($link) {
-				$link = "<a href='$link'>{$xref['ID']} ({$xref['Database']})</a>";
+				$l = new Linker();
+				$link = $l->makeExternalLink( $url, "{$xref['ID']} ({$xref['Database']})" );
 			} else {
 				$link = $xref['ID'];
 				if($xref['Database'] != '') {
@@ -111,13 +112,13 @@ TABLE;
 			//Add xref info button
 			$html = $link;
 			if($xid && $xds) $html = XrefPanel::getXrefHTML($xid, $xds, $datanode['TextLabel'], $link, $this->getOrganism());
-			
+
 			$table .= $html;
 		}
 		$table .= '</tbody></table>';
 		return array($button . $table, 'isHTML'=>1, 'noparse'=>1);
 	}
-	
+
 	function interactions() {
 		$interactions = $this->getInteractions();
 		foreach($interactions as $ia) {
