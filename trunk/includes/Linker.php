@@ -143,7 +143,7 @@ class Linker {
 	 */
 	function makeLink( $title, $text = '', $query = '', $trail = '' ) {
 		wfProfileIn( __METHOD__ );
-	 	$nt = Title::newFromText( $title );
+		$nt = Title::newFromText( $title );
 		if ( $nt instanceof Title ) {
 			$result = $this->makeLinkObj( $nt, $text, $query, $trail );
 		} else {
@@ -432,13 +432,13 @@ class Linker {
 	 * Generate either a normal exists-style link or a stub link, depending
 	 * on the given page size.
 	 *
- 	 * @param $size Integer
- 	 * @param $nt Title object.
- 	 * @param $text String
- 	 * @param $query String
- 	 * @param $trail String
- 	 * @param $prefix String
- 	 * @return string HTML of link
+	 * @param $size Integer
+	 * @param $nt Title object.
+	 * @param $text String
+	 * @param $query String
+	 * @param $trail String
+	 * @param $prefix String
+	 * @return string HTML of link
 	 */
 	function makeSizeLinkObj( $size, $nt, $text = '', $query = '', $trail = '', $prefix = '' ) {
 		global $wgUser;
@@ -874,16 +874,6 @@ class Linker {
 			$style .= ' rel="nofollow"';
 		}
 
-               /**AP20070417
-                * Added support for opening external links as new page
-                * Usage: [http://www.genmapp.org|_new Link]
-                */
-                $pos = strpos( $url, '|_new' );
-                if ( $pos !== false ) {
-                          $url = substr ( $url, 0, $pos );
-			  $style = ' target="new"';
-                }
-
 		$url = htmlspecialchars( $url );
 		if( $escape ) {
 			$text = htmlspecialchars( $text );
@@ -1257,7 +1247,7 @@ class Linker {
 	/** @todo document */
 	function tocLineEnd() {
 		return "</li>\n";
- 	}
+	}
 
 	/** @todo document */
 	function tocList($toc) {
