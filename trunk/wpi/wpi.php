@@ -5,8 +5,12 @@ try {
 	$wpiDir = dirname( realpath(__FILE__) );
 	$dir = getcwd();
 	set_include_path( get_include_path() . PATH_SEPARATOR .
-		implode( PATH_SEPARATOR, array_map( 'realpath', array( $wpiDir, "$wpiDir/includes", "$wpiDir/../includes", "$dir/../" ) ) ) );
-	chdir( $wpiDir . "/../" ); //Ugly, but we need to change to the MediaWiki install dir to include these files, otherwise we'll get an error
+		implode( PATH_SEPARATOR, array_map( 'realpath', array( $wpiDir, "$wpiDir/includes",
+					"$wpiDir/../includes", "$dir/../" ) ) ) );
+	chdir( $wpiDir . "/../" ); //Ugly, but we need to change to the
+							   //MediaWiki install dir to include
+							   //these files, otherwise we'll get an
+							   //error
 	require_once( 'WebStart.php' );
 	require_once( 'Wiki.php' );
 	chdir( $dir );
@@ -254,4 +258,3 @@ function wfJavaExec( $cmd, &$retval=null ) {
 	return $output;
 
 }
-?>
