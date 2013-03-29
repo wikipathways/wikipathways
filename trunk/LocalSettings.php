@@ -71,6 +71,10 @@ $wgDBprefix         = "";
 if(!$wpiJavascriptSnippets) $wpiJavascriptSnippets = array();
 if(!$wpiJavascriptSources) $wpiJavascriptSources = array();
 
+require_once( "$IP/extensions/ConfirmEdit/ConfirmEdit.php" );
+require_once( "$IP/extensions/ConfirmEdit/ReCaptcha.php" );
+$wgCaptchaClass = 'ReCaptcha';
+
 # Load organism registry
 require_once('wpi/Organism.php');
 # Load passwords/usernames
@@ -344,12 +348,7 @@ require_once('wpi/extensions/SecureHTML/SecureHTML.php');
 require_once('wpi/extensions/RSS/rss.php');
 require_once('wpi/extensions/XrefPanel.php');
 require_once('wpi/statistics/StatisticsHook.php');
-require_once( "extensions/ConfirmEdit/ConfirmEdit.php" );
 require_once('wpi/extensions/PageEditor/PageEditor.php');
-
-require_once( "extensions/ConfirmEdit/FancyCaptcha.php" );
-$wgCaptchaClass = 'FancyCaptcha';
-$wgCaptchaDirectory = "captcha";
 
 require_once( "wpi/extensions/ContributionScores/ContributionScores.php" );
 $contribScoreIgnoreBots = true;  //Set to true if you want to exclude Bots from the reporting - Can be omitted.
@@ -393,3 +392,4 @@ $wgRCMaxAge = 60 * 24 * 3600;
 
 //Lastly, include javascripts (that may have been added by other extensions)
 require_once('wpi/Javascript.php');
+
