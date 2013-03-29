@@ -6,13 +6,13 @@ class SpecialCurationTags extends SpecialPage {
 	}
 
 	private $tagNames;
-	
+
 	function execute($par) {
-		global $wgOut, $wgUser, $wgLang;
+		global $wgOut, $wgUser, $wgLang, $wgRequest;
 		$url = SITE_URL . '/index.php?title=Special:SpecialCurationTags';
 		$this->setHeaders();
-		
-		if($tagName = $_REQUEST['showPathwaysFor']) {
+
+		if($tagName = $wgRequest->getVal( 'showPathwaysFor' ) ) {
 			$def = CurationTag::getTagDefinition();
 			$useRev = $def->xpath('Tag[@name="' . $tagName . '"]/@useRevision');
 
@@ -26,18 +26,20 @@ class SpecialCurationTags extends SpecialPage {
 					if($t->getNamespace() == NS_PATHWAY) {
 						$p = Pathway::newFromTitle($t);
 						if($p->isDeleted()) continue; //Skip deleted pathways
-						
+
 						$nr = $nr + 1;
-						
+
 						$table .= "<tr><td><a href='{$p->getFullUrl()}'>{$p->name()}</a><td>{$p->species()}";
 						$tag = new MetaTag($tagName, $pageId);
 						$umod = User::newFromId($tag->getUserMod());
-						$tmod = $wgLang->timeanddate( $tag->getTimeMod(), true );
+						$tmod = "<i style='display: none'>{$tag->getTimeMod()}</i>".
+							$wgLang->timeanddate( $tag->getTimeMod(), true );
 						$lmod = $wgUser->getSkin()->userLink( $umod->getId(), $umod->getName() );
-						
+
 						if($useRev) {
 							$latest = "<td>";
-							$latest .= $p->getLatestRevision() == $tag->getPageRevision() ? "<font color='green'>yes</font>" : "<font color='red'>no</font>";
+							$latest .= $p->getLatestRevision() == $tag->getPageRevision() ?
+								"<font color='green'>yes</font>" : "<font color='red'>no</font>";
 						}
 						$table .= "<td>$lmod<td>$tmod$latest";
 					}
@@ -45,7 +47,7 @@ class SpecialCurationTags extends SpecialPage {
 					wfDebug("SpecialCurationTags: unable to create pathway object for page " . $pageId);
 				}
 			}
-			
+
 			$wgOut->addWikiText(
 				"The table below shows all $nr pathways that are tagged with curation tag: " .
 				"'''$disp'''. "
@@ -90,4 +92,3 @@ class SpecialCurationTags extends SpecialPage {
 		return true;
 	}
 }
-?>
