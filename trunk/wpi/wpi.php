@@ -2,46 +2,45 @@
 
 try {
 	//Initialize MediaWiki
-	$wpiDir = dirname(realpath(__FILE__));
-        $dir = getcwd();
-	set_include_path(get_include_path() . PATH_SEPARATOR . $wpiDir);
-	set_include_path(get_include_path().PATH_SEPARATOR.realpath("$wpiDir/includes"));
-	set_include_path(get_include_path().PATH_SEPARATOR.realpath("$wpiDir/../includes").PATH_SEPARATOR.realpath("$dir/../").PATH_SEPARATOR);
-	chdir($wpiDir . "/../"); //Ugly, but we need to change to the MediaWiki install dir to include these files, otherwise we'll get an error
-	require_once ( 'WebStart.php');
+	$wpiDir = dirname( realpath(__FILE__) );
+	$dir = getcwd();
+	set_include_path( get_include_path() . PATH_SEPARATOR .
+		implode( PATH_SEPARATOR, array_map( 'realpath', array( $wpiDir, "$wpiDir/includes", "$wpiDir/../includes", "$dir/../" ) ) ) );
+	chdir( $wpiDir . "/../" ); //Ugly, but we need to change to the MediaWiki install dir to include these files, otherwise we'll get an error
+	require_once( 'WebStart.php' );
 	require_once( 'Wiki.php' );
-	chdir($dir);
+	chdir( $dir );
 
-	require_once('MwUtils.php');
-	require_once('globals.php');
+	require_once( 'MwUtils.php' );
+	require_once( 'globals.php' );
 	require_once( 'Pathway.php' );
-	require_once('MimeTypes.php' );
+	require_once( 'MimeTypes.php' );
 	//Parse HTTP request (only if script is directly called!)
 	if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
-	$action = $_GET['action'];
-	$pwTitle = $_GET['pwTitle'];
-	$oldId = $_GET['oldid'];
+		$action = $_GET['action'];
+		$pwTitle = $_GET['pwTitle'];
+		$oldId = $_GET['oldid'];
 
-	switch($action) {
-		case 'launchPathVisio':
-			$ignore = $_GET['ignoreWarning'];
-			launchPathVisio(createPathwayObject($pwTitle, $oldId), $ignore);
-			break;
-		case 'launchCytoscape':
-			launchCytoscape(createPathwayObject($pwTitle, $oldId));
-			break;
-		case 'launchGenMappConverter':
-			launchGenMappConverter(createPathwayObject($pwTitle, $oldId));
-			break;
-		case 'downloadFile':
-			downloadFile($_GET['type'], $pwTitle);
-			break;
-		case 'revert':
-			revert($pwTitle, $oldId);
-			break;
-		case 'delete':
-			delete($pwTitle);
-			break;
+		switch($action) {
+			case 'launchPathVisio':
+				$ignore = $_GET['ignoreWarning'];
+				launchPathVisio(createPathwayObject($pwTitle, $oldId), $ignore);
+				break;
+			case 'launchCytoscape':
+				launchCytoscape(createPathwayObject($pwTitle, $oldId));
+				break;
+			case 'launchGenMappConverter':
+				launchGenMappConverter(createPathwayObject($pwTitle, $oldId));
+				break;
+			case 'downloadFile':
+				downloadFile($_GET['type'], $pwTitle);
+				break;
+			case 'revert':
+				revert($pwTitle, $oldId);
+				break;
+			case 'delete':
+				delete($pwTitle);
+				break;
 		}
 	}
 } catch(Exception $e) {
@@ -57,7 +56,7 @@ try {
 function wpiAddXrefPanelScripts() {
 	XrefPanel::addXrefPanelScripts();
 }
-		
+
 function createPathwayObject($pwTitle, $oldid) {
 	$pathway = Pathway::newFromTitle($pwTitle);
 	if($oldId) {
@@ -93,7 +92,7 @@ function revert($pwTitle, $oldId) {
 
 function launchGenMappConverter($pathway) {
 	global $wgUser;
-		
+
 	$webstart = file_get_contents(WPI_SCRIPT_PATH . "/applet/genmapp.jnlp");
 	$pwUrl = $pathway->getFileURL(FILETYPE_GPML);
 	$pwName = substr($pathway->getFileName(''), 0, -1);
@@ -106,7 +105,7 @@ function launchGenMappConverter($pathway) {
 
 function launchCytoscape($pathway) {
 	global $wgUser;
-		
+
 	$webstart = file_get_contents(WPI_SCRIPT_PATH . "/bin/cytoscape/cy1.jnlp");
 	$arg = createJnlpArg("-N", $pathway->getFileURL(FILETYPE_GPML));
 	$webstart = str_replace(" <!--ARG-->", $arg, $webstart);
@@ -142,7 +141,7 @@ function downloadFile($fileType, $pwTitle) {
 	if(!$pathway->isReadable()) {
 		throw new Exception("You don't have permissions to view this pathway");
 	}
-	
+
 	if($fileType === 'mapp') {
 		launchGenMappConverter($pathway);
 	}
@@ -152,13 +151,13 @@ function downloadFile($fileType, $pwTitle) {
 	}
 	//Register file type for caching
 	Pathway::registerFileType($fileType);
-	
+
 	$file = $pathway->getFileLocation($fileType);
 	$fn = $pathway->getFileName($fileType);
-	
+
 	$mime = MimeTypes::getMimeType($fileType);
 	if(!$mime) $mime = "text/plain";
-	
+
 	ob_clean();
 	header("Content-type: $mime");
 	header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -177,9 +176,9 @@ function getClientOs() {
 	$ua = $_SERVER['HTTP_USER_AGENT'];
 	foreach (array_keys($regex) as $os) {
 		if(eregi($regex[$os], $ua)) return $os;
-	}	
+	}
 }
- 
+
 $spName2Code = array('Human' => 'Hs', 'Rat' => 'Rn', 'Mouse' => 'Mm');//TODO: complete
 
 function toGlobalLink($localLink) {
