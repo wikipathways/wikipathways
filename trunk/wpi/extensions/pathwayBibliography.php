@@ -55,7 +55,7 @@ class PathwayBibliography {
 
 			if((string)$xref->ID && (strtolower($xref->DB) == 'pubmed')) {
 				$l = new Linker();
-				$out .= $l->makeExternalLink( 'http://www.ncbi.nlm.nih.gov/pubmed/' . $xref->ID, "PubMed" );
+				$out .= ' '. $l->makeExternalLink( 'http://www.ncbi.nlm.nih.gov/pubmed/' . $xref->ID, "PubMed" );
 			}
 		}
 
@@ -67,7 +67,7 @@ class PathwayBibliography {
 			if($nrNodes > $nrShow) {
 				$expand = "<B>View all $nrNodes references</B>";
 				$collapse = "<B>View first " . ($nrShow) . " references</B>";
-				$button = "<table><td width='51%'> <div onClick='toggleList(\"$id\", this, \"$expand\", 
+				$button = "<table><td width='51%'> <div onClick='toggleList(\"$id\", this, \"$expand\",
 					\"$collapse\", " . ($nrShow) . ", true)' style='cursor:pointer;color:#0000FF'>$expand</div><td width='45%'></table>";
 				$out = $button . $out;
 			}
