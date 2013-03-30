@@ -61,7 +61,7 @@ class SpecialCurationTags extends SpecialPage {
 			);
 			$wgOut->addHTML("<p><a href='$url'>back</a></p>");
 			$wgOut->addHTML("<table class='prettytable sortable'><tbody>");
-			$wgOut->addHTML("<tr><th>Pathway name<th>Organism<th>Tagged by<th>Last Edit");
+			$wgOut->addHTML("<tr><th>Pathway name<th>Organism<th>Tagged by<th>Date tagged");
 			if($useRev) {
 				$wgOut->addHTML("<th>Applies to latest revision");
 			}
