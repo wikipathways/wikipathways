@@ -651,16 +651,18 @@ class Pathway {
 
 	/**
 	 * Get revision id for the last revision prior to specified datae.
-	 * This is useful for generating statistics over the history of the archive.
+	 * This is useful for generating statistics over the history of
+	 * the archive.
 	 */
 	public function getLastRevisionPriorToDate($timestamp) {
 		/* This code should be more efficient than what was here, but
 		 * it is untested.  Leaving it here because I couldn't find
 		 * any use of this function. */
-		$rev = Revision::loadFromTimestamp( wfGetDB( DB_SLAVE ), $this->getTitleObject(), $timestamp );
+		$rev = Revision::loadFromTimestamp( wfGetDB( DB_SLAVE ),
+			$this->getTitleObject(), $timestamp );
 		return $rev->getPrevious();
 
-		$revs =  Revision::fetchAllRevisions($this->getTitleObject());
+		$revs =  Revision::fetchAllRevisions( $this->getTitleObject() );
 		foreach($revs as $eachRev){
 			$revTime = $eachRev->rev_timestamp;
 			print "$revTime\n";
