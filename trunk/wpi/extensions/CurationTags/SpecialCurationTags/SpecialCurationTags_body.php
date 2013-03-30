@@ -41,7 +41,9 @@ class SpecialCurationTags extends SpecialPage {
 							if( $p->getLatestRevision() == $tag->getPageRevision() ) {
 								$latest .= "<font color='green'>yes</font>";
 							} else {
-								$latest .= "<font color='red'>". $p->getTimeMod() - $tag->getTimeMod() ."</font>";
+								$ts = $p->getFirstRevisionAfterRev( $tag->getPageRevision() )->getTimestamp();
+								$latest .= "<font color='red'><i style='display:none'>$ts</i>".
+									$wgLang->timeAndDate( $ts ) ."</font>";
 							}
 						}
 						$table .= "<td>$lmod<td>$tmod$latest";
