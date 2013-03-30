@@ -1,7 +1,7 @@
 <?php
 class SpecialCurationTags extends SpecialPage {
-	function SpecialCurationTags() {
-		SpecialPage::SpecialPage("SpecialCurationTags");
+	function __construct() {
+		parent::__construct("SpecialCurationTags");
 		self::loadMessages();
 	}
 
@@ -38,8 +38,11 @@ class SpecialCurationTags extends SpecialPage {
 
 						if($useRev) {
 							$latest = "<td>";
-							$latest .= $p->getLatestRevision() == $tag->getPageRevision() ?
-								"<font color='green'>yes</font>" : "<font color='red'>no</font>";
+							if( $p->getLatestRevision() == $tag->getPageRevision() ) {
+								$latest .= "<font color='green'>yes</font>";
+							} else {
+								$latest .= "<font color='red'>". $p->getTimeMod() - $tag->getTimeMod() ."</font>";
+							}
 						}
 						$table .= "<td>$lmod<td>$tmod$latest";
 					}

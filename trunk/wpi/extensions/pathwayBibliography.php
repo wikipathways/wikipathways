@@ -6,8 +6,8 @@ require_once('PageHistory.php');
 $wgExtensionFunctions[] = "wfPathwayBibliography";
 
 function wfPathwayBibliography() {
-    global $wgParser;
-    $wgParser->setHook( "pathwayBibliography", "PathwayBibliography::output" );
+	global $wgParser;
+	$wgParser->setHook( "pathwayBibliography", "PathwayBibliography::output" );
 }
 
 class PathwayBibliography {
@@ -20,23 +20,23 @@ class PathwayBibliography {
 			return "Error: $e";
 		}
 	}
-	
+
 	private static function getHTML($pathway, $parser) {
 		global $wgUser;
-		
+
 		$data = $pathway->getPathwayData();
 		$gpml = $pathway->getGpml();
-		
+
 		$i = 0;
 		$nrShow = 4;
-		
+
 		if(!$data) return "";
-		
+
 		//Format literature references
 		$pubXRefs = $data->getPublicationXRefs();
 		foreach(array_keys($pubXRefs) as $id) {
 			$doShow = $i++ < $nrShow ? "" : "style='display:none'";
-			
+
 			$xref = $pubXRefs[$id];
 
 			$authors = $title = $source = $year = '';
@@ -52,12 +52,13 @@ class PathwayBibliography {
 			if($xref->SOURCE) $source = $xref->SOURCE;
 			if($xref->YEAR) $year = ", " . $xref->YEAR;
 			$out .= "<LI $doShow>$authors''$title''$source$year";
-			
+
 			if((string)$xref->ID && (strtolower($xref->DB) == 'pubmed')) {
-				$out .= " - <a href='http://www.ncbi.nlm.nih.gov/pubmed/" . $xref->ID . "'>PubMed</a>";
+				$l = new Linker();
+				$out .= $l->makeExternalLink( 'http://www.ncbi.nlm.nih.gov/pubmed/' . $xref->ID, "PubMed" );
 			}
 		}
-		
+
 		$id = 'biblist';
 		$hasRefs = (boolean)$out;
 		if($hasRefs) {
@@ -79,4 +80,3 @@ class PathwayBibliography {
 		return $out . $hookTmp;
 	}
 }
-?>
