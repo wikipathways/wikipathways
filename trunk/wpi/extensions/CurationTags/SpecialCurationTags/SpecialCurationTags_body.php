@@ -13,10 +13,11 @@ class SpecialCurationTags extends SpecialPage {
 		$this->setHeaders();
 
 		if($tagName = $wgRequest->getVal( 'showPathwaysFor' ) ) {
+			$disp = htmlentities(CurationTag::getDisplayName($tagName));
+			$wgOut->setPageTitle( wfMsgExt( 'curation-tag-show', array( 'parsemsg' ), $disp ) );
 			$def = CurationTag::getTagDefinition();
 			$useRev = $def->xpath('Tag[@name="' . $tagName . '"]/@useRevision');
 
-			$disp = htmlentities(CurationTag::getDisplayName($tagName));
 			$pages = CurationTag::getPagesForTag($tagName);
 			$nr = 0;
 			$table = "";
@@ -29,7 +30,8 @@ class SpecialCurationTags extends SpecialPage {
 
 						$nr = $nr + 1;
 
-						$table .= "<tr><td><a href='{$p->getFullUrl()}'>{$p->name()}</a><td>{$p->species()}";
+						$table .= "<tr><td><a href='{$p->getFullUrl()}'>{$p->name()}</a>".
+													"<td>{$p->species()}";
 						$tag = new MetaTag($tagName, $pageId);
 						$umod = User::newFromId($tag->getUserMod());
 						$tmod = "<i style='display: none'>{$tag->getTimeMod()}</i>".
