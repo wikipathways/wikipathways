@@ -153,8 +153,28 @@ $wgDiff3 = "/usr/bin/diff3";
 $configdate = gmdate( 'YmdHis', @filemtime( __FILE__ ) );
 $wgCacheEpoch = max( $wgCacheEpoch, $configdate );
 
-$wgGroupPermissions['user']['edit'] = true;
-$wgGroupPermissions['user']['createtalk'] = true;
+$wgGroupPermissions['confirmed']['createpage'] = true;
+$wgGroupPermissions['confirmed']['minoredit'] = true;
+$wgGroupPermissions['confirmed']['move'] = true;
+$wgGroupPermissions['confirmed']['move-subpages'] = true;
+$wgGroupPermissions['confirmed']['reupload-shared'] = true;
+$wgGroupPermissions['confirmed']['reupload'] = true;
+$wgGroupPermissions['confirmed']['upload'] = true;
+$wgGroupPermissions['confirmed']['edit'] = true;
+$wgGroupPermissions['confirmed']['createtalk'] = true;
+$wgGroupPermissions['confirmed']['autoconfirmed'] = true;
+
+$wgGroupPermissions['user']['createpage'] = false;
+$wgGroupPermissions['user']['minoredit'] = false;
+$wgGroupPermissions['user']['move'] = false;
+$wgGroupPermissions['user']['move-subpages'] = false;
+$wgGroupPermissions['user']['reupload-shared'] = false;
+$wgGroupPermissions['user']['reupload'] = false;
+$wgGroupPermissions['user']['upload'] = false;
+$wgGroupPermissions['user']['edit'] = false;
+$wgGroupPermissions['user']['createtalk'] = false;
+
+$wgGroupPermissions['autoconfirmed']['autoconfirmed'] = false;
 
 $wgGroupPermissions['*'    ]['createaccount']   = true;
 
@@ -225,23 +245,23 @@ $wgContentNamespaces += array(NS_PATHWAY, NS_PATHWAY_TALK);
 
 //AP20080328 - setting permissions for custom namespaces
 $wgGroupPermissions[ '*'          ][ 'ns102_read'   ] = true;
-$wgGroupPermissions[ 'user'       ][ 'ns102_edit'   ] = true;
-$wgGroupPermissions[ 'user'       ][ 'ns102_create' ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'ns102_edit'   ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'ns102_create' ] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns102_move'   ] = true;
 $wgGroupPermissions[ 'sysop'      ][ 'ns102_delete' ] = true;
 $wgGroupPermissions[ '*'          ][ 'ns103_read'   ] = true;
-$wgGroupPermissions[ 'user'       ][ 'ns103_edit'   ] = true;
-$wgGroupPermissions[ 'user'       ][ 'ns103_create' ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'ns103_edit'   ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'ns103_create' ] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns103_move'   ] = true;
 $wgGroupPermissions[ 'sysop'      ][ 'ns103_delete' ] = true;
 $wgGroupPermissions[ '*'          ][ 'ns104_read'   ] = true;
-$wgGroupPermissions[ 'user'       ][ 'ns104_edit'   ] = true;
-$wgGroupPermissions[ 'user'       ][ 'ns104_create' ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'ns104_edit'   ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'ns104_create' ] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns104_move'   ] = true;
 $wgGroupPermissions[ 'sysop'      ][ 'ns104_delete' ] = true;
 $wgGroupPermissions[ '*'          ][ 'ns105_read'   ] = true;
-$wgGroupPermissions[ 'user'       ][ 'ns105_edit'   ] = true;
-$wgGroupPermissions[ 'user'       ][ 'ns105_create' ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'ns105_edit'   ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'ns105_create' ] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns105_move'   ] = true;
 $wgGroupPermissions[ 'sysop'      ][ 'ns105_delete' ] = true;
 $wgGroupPermissions[ '*'          ][ 'ns106_read'   ] = true;
@@ -250,7 +270,7 @@ $wgGroupPermissions[ 'bureaucrat' ][ 'ns106_create' ] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns106_move'   ] = true;
 $wgGroupPermissions[ 'sysop'      ][ 'ns106_delete' ] = true;
 $wgGroupPermissions[ '*'          ][ 'ns107_read'   ] = true;
-$wgGroupPermissions[ 'user'       ][ 'ns107_edit'   ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'ns107_edit'   ] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns107_create' ] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'ns107_move'   ] = true;
 $wgGroupPermissions[ 'sysop'      ][ 'ns107_delete' ] = true;
@@ -267,8 +287,8 @@ $wgNamespaceProtection[NS_USER]      = array('user-edit');
 $wgNamespaceProtection[NS_USER_TALK] = array('user-talk-edit');
 $wgNamespaceProtection[NS_HELP]      = array('help-edit');
 $wgNamespaceProtection[NS_HELP_TALK] = array('help-talk-edit');
-$wgGroupPermissions['user']['user-edit'] = true;
-$wgGroupPermissions['user']['user-talk-edit'] = true;
+$wgGroupPermissions['confirmed']['user-edit'] = true;
+$wgGroupPermissions['confirmed']['user-talk-edit'] = true;
 $wgGroupPermissions['bureaucrat']['main-edit'] = true;
 $wgGroupPermissions['bureaucrat']['main-talk-edit'] = true;
 $wgGroupPermissions['bureaucrat']['help-edit'] = true;
@@ -392,4 +412,3 @@ $wgRCMaxAge = 60 * 24 * 3600;
 
 //Lastly, include javascripts (that may have been added by other extensions)
 require_once('wpi/Javascript.php');
-
