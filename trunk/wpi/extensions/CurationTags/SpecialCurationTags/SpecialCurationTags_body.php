@@ -45,9 +45,9 @@ class redRow extends tableRow {
 	}
 
 	public function format() {
-		// Row is red if the last edit date (5th column) is after the tag date (4th column)
+		// Row is not red if the last edit date (5th column) is after the tag date (4th column)
 		$style = "";
-		if( $this->action ) {
+		if( ! $this->action ) {
 			$style = " style='background-color: #BC8F8FF'";
 		}
 		return "<tr$style><td>".implode( "<td>", $this->data );
