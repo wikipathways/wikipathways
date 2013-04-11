@@ -62,15 +62,24 @@ class deleteRow extends tableRow {
 		$date = date_create( $ts );
 
 		if( $date->format("YmdHis") < $tag->getTimeMod() && $prev->format("YmdHis") > $tag->getTimeMod() ) {
-			$this->action = true;
+			/* In the future, we'll set this to the ID of the tag or page, but for now ... */
+			$this->action = "<A title='". wfmsg( "wpict-delete" ) . "' ".
+				"href='javascript:CurationTags.removeTag(\"ProposedDeletion\")'>" .
+				"<IMG src='/wpi/extensions/CurationTags/cancel.png'/></A>";
+
 		} else {
 			$this->action = false;
 		}
 	}
 
+	static private function deleteButton( $action ) {
+		return $action;
+	}
+
 	public function format() {
 		// show a delete button
-		return parent::format()."<td>".($this->action ? wfmsg( "wpi-delete" ) : wfMsg( "wpi-too-new" ));
+		return parent::format()."<td>".($this->action !== false ?
+			self::deleteButton( $this->action ) : wfMsg( "wpict-too-new" ));
 	}
 }
 
