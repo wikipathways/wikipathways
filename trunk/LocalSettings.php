@@ -410,5 +410,8 @@ $wgReadOnlyFile = "readonly.enable";
 //Increase recent changes retention time
 $wgRCMaxAge = 60 * 24 * 3600;
 
+// JS Type http://developers.pathvisio.org/ticket/1567
+$wgJsMimeType = "text/javascript";
+
 //Lastly, include javascripts (that may have been added by other extensions)
 require_once('wpi/Javascript.php');
