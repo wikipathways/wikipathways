@@ -276,7 +276,7 @@ PathwayViewer.prototype.removeImgAnchor = function($img) {
 // Flash version detection copied from https://github.com/jquerytools/jquerytools/issues/133
 PathwayViewer.prototype.isFlashSupported = function() {
 	function getFlashVersion() {
-            ver = "0";
+            ver = null;
             try {
                 ver = navigator.plugins["Shockwave Flash"].description.slice(16);
             } catch(e) {
@@ -292,7 +292,6 @@ PathwayViewer.prototype.isFlashSupported = function() {
                 }
             }
 
-            ver = RE.exec(ver);
             return ver ? [ver[1], ver[3]] : [0, 0];
         };
 	var version = getFlashVersion();
