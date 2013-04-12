@@ -4,7 +4,7 @@
  * Change this if the base path of the script (and resource files) is
  * different than the page root.
  */
-if (typeof(PathwayViewer_basePath) == "undefined") 
+if (typeof(PathwayViewer_basePath) == "undefined")
     var PathwayViewer_basePath = '';
 
 /**
@@ -19,16 +19,16 @@ PathwayViewer_viewers = [];
  2. Add the buttons for starting the viewer when loading is finished
  */
 $(window).ready(function() {
-	$.each(PathwayViewer_viewers, function(i, viewer) {
-	   PathwayViewer.viewers[viewer.info.imageId] = viewer;
-	   viewer.loadGPML();
-		if(viewer.info.start) {
-        	viewer.startSVG();
-      } else {
-        	viewer.addStartButton();
-      }
-	});
-});
+	            $.each(PathwayViewer_viewers, function(i, viewer) {
+	                       PathwayViewer.viewers[viewer.info.imageId] = viewer;
+	                       viewer.loadGPML();
+		               if(viewer.info.start) {
+        	                   viewer.startSVG();
+                               } else {
+        	                   viewer.addStartButton();
+                               }
+	                   });
+                });
 
 /**
  * Pathway viewer based on Svgweb.
@@ -38,7 +38,7 @@ $(window).ready(function() {
  *
  * Scroll and zoom based on code by Brad Neuberg:
  * http://codinginparadise.org/projects/svgweb-staging/tests/non-licensed/wikipedia/svgzoom/svgzoom.js
- * 
+ *
  * Constructor takes a single object containing the necessary
  * the information for a pathway. The object should contain the following
  * fields:
@@ -51,7 +51,7 @@ function PathwayViewer(info) {
 	this.info = info;
 	this.highlights = {};
 	this.searchHighlights = {};
-	
+
 	/**
 	 * Listeners to be executed when
 	 * the GPML has been loaded.
@@ -79,7 +79,7 @@ PathwayViewer.icons = {
     "loading": "img/loading.gif",
     "getflash": "img/getflash.png",
     "search": "img/search.png"
-}
+};
 
 /**
  * The amount of zoom ratio change per zoom step.
@@ -147,7 +147,7 @@ PathwayViewer.prototype.startSVG = function() {
 	if(PathwayViewer.isIE9() && this.info.height == '100%') {
 		h = $(document).height();
 	}
-	
+
 	var $container = $('<div />')
 		.attr('id', this.info.imageId + PathwayViewer.idContainer)
 		.css({
@@ -234,12 +234,12 @@ PathwayViewer.prototype.startSVG = function() {
 					that.svgRoot = $svgDiv.children("svg").get(0);
 					that.svgLoaded($xrefpane, layoutUtil);
 					that.hideLoadProgress($layout);
-				}	
+				}
 			});
 		}
-	}
+	};
 	//Change the size of the image parent
-	if ($.browser.msie) { //Animate gives problems in IE, just change style directly 
+	if ($.browser.msie) { //Animate gives problems in IE, just change style directly
 		$parent.css({
 		width: '100%',
 		height: 'auto'
@@ -251,16 +251,16 @@ PathwayViewer.prototype.startSVG = function() {
 			height: 'auto'
 		}, 300, afterAnimate);
 	}
-}
+};
 
 PathwayViewer.isIE9 = function() {
 	return $.browser.msie && $.browser.version.slice(0,1) == 9;
-}
+};
 
 PathwayViewer.useFlash = function() {
 	//Use flash unless browser is IE9 (use <svg> tag in that case)
 	return !PathwayViewer.isIE9();
-}
+};
 
 PathwayViewer.prototype.removeImgAnchor = function($img) {
 	//If the img tag is nested in an anchor tag,
@@ -271,35 +271,33 @@ PathwayViewer.prototype.removeImgAnchor = function($img) {
 		$oldParent.after($img);
 		$oldParent.remove();
 	}
-}
+};
 
-//Flash version detection copied from http://www.prodevtips.com/2008/11/20/detecting-flash-player-version-with-javascript/
+// Flash version detection copied from https://github.com/jquerytools/jquerytools/issues/133
 PathwayViewer.prototype.isFlashSupported = function() {
 	function getFlashVersion() {
-		// ie
-		try {
-			try {
-				// avoid fp6 minor version lookup issues
-				// see: http://blog.deconcept.com/2006/01/11/getvariable-setvariable-crash-internet-explorer-flash-6/
-				var axo = new ActiveXObject('ShockwaveFlash.ShockwaveFlash.6');
-				try { axo.AllowScriptAccess = 'always'; }
-				catch(e) { return '6,0,0'; }
-			} catch(e) {}
-				return new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version').replace(/\D+/g, ',').match(/^,?(.+),?$/)[1];
-				// other browsers
-			} catch(e) {
-				try {
-					if(navigator.mimeTypes["application/x-shockwave-flash"].enabledPlugin){
-					return (navigator.plugins["Shockwave Flash 2.0"] || navigator.plugins["Shockwave Flash"]).description.replace(/\D+/g, ",").match(/^,?(.+),?$/)[1];
-					}
-				} catch(e) {}
-		}
-		return '0,0,0';
-	}
-	
-	var version = getFlashVersion().split(',').shift();
+            ver = "0";
+            try {
+                ver = navigator.plugins["Shockwave Flash"].description.slice(16);
+            } catch(e) {
+                try  {
+                    var fo = new ActiveXObject("ShockwaveFlash.ShockwaveFlash.7");
+                    ver = fo && fo.GetVariable("$version");
+                } catch(err) {
+                    try  {
+                        var fo = new ActiveXObject("ShockwaveFlash.ShockwaveFlash.6");
+                        ver = fo && fo.GetVariable("$version");
+                    } catch(err) {
+                    }
+                }
+            }
+
+            ver = RE.exec(ver);
+            return ver ? [ver[1], ver[3]] : [0, 0];
+        };
+	var version = getFlashVersion();
 	return version >= 10;
-}
+};
 
 PathwayViewer.prototype.addStartButton = function(){
     //Test if a suitable renderer has been found
@@ -309,20 +307,21 @@ PathwayViewer.prototype.addStartButton = function(){
         this.addFlashNotification();
         return;
     }
-    
+
     var $img = this.getImg();
-    
+
     this.removeImgAnchor($img);
-    
+
     //Create a start image
-    var $parent = $img.parent()
-    var $start = jQuery('<img>').attr('src', PathwayViewer_basePath + PathwayViewer.icons.start).attr('title', 'Click to activate pan and zoom.');
+    var $parent = $img.parent();
+    var $start = jQuery('<img>').attr('src', PathwayViewer_basePath +
+                                      PathwayViewer.icons.start).attr('title', 'Click to activate pan and zoom.');
     var $div = jQuery('<div/>').attr("id", this.info.imageId + PathwayViewer.idStartButton);
-    
+
     //Add the start button
     $div.append($start);
     $img.before($div);
-    
+
     $div.css({
         position: 'relative',
         height: '1px',
@@ -331,16 +330,16 @@ PathwayViewer.prototype.addStartButton = function(){
         'text-align': 'right',
         'z-index': '1000'
     });
-    
+
     var that = this;
     //Register the action
     var startFunction = function(e){
         that.startSVG();
-    }
-    
+    };
+
     $img.click(startFunction);
     $div.click(startFunction);
-}
+};
 
 PathwayViewer.prototype.loadGPML = function() {
 	var that = this;
@@ -351,7 +350,7 @@ PathwayViewer.prototype.loadGPML = function() {
 		});
 		this.gpml.load();
 	}
-}
+};
 
 PathwayViewer.prototype.showLoadProgress = function($container) {
     var $block = $container.find('progress_block');
@@ -368,7 +367,7 @@ PathwayViewer.prototype.showLoadProgress = function($container) {
             'text-align': 'left'
         });
         $load.append($img);
-        
+
         $block = $('<div/>').addClass('progress_block').css({
             position: 'relative',
             width: '100%',
@@ -381,39 +380,39 @@ PathwayViewer.prototype.showLoadProgress = function($container) {
         $block.append($load);
         $container.append($block);
     }
-}
+};
 
 PathwayViewer.prototype.hideLoadProgress = function($container){
     $container.find('.progress_block').hide();
-}
+};
 
 PathwayViewer.prototype.addFlashNotification = function(){
     var $img = this.getImg();
-    var $parent = $img.parent()
+    var $parent = $img.parent();
     if ($parent.is('a')) {
         //Set link to svg url
 			$parent.attr('href', this.info.svgUrl);
         $parent = $parent.parent();
     }
-    
+
     var $flash = $('<img>').attr('src', PathwayViewer_basePath + PathwayViewer.icons.getflash).attr('title', 'Install Flash player to zoom and view protein/metabolite info.');
-    
+
     var $div = $('<div id="flashlink"/>').css({
         position: 'relative',
         top: -$parent.height() + 20 + 'px',
         left: ($img.width() / 2) - 100 + 'px',
         'z-index': '1000'
     });
-    
+
     var $link = $('<a></a>').attr('href', 'http://www.adobe.com/go/getflashplayer').attr('id', 'flashlink_a');
     $link.append($flash);
     $div.append($link);
     $parent.append($div);
-}
+};
 
 PathwayViewer.prototype.removeStartButton = function() {
     $('#' + this.info.imageId + PathwayViewer.idStartButton).remove();
-}
+};
 
 /**
  * Get the first img tag that's a child of the element
@@ -426,22 +425,22 @@ PathwayViewer.prototype.getImg = function() {
         $img = $('#' + this.info.imageId + ' img');
     }
     return $img;
-}
+};
 
 PathwayViewer.prototype.svgLoaded = function($xrefContainer, layout) {
 	var that = this;
 	this.svgWidth = this.svgRoot.width.baseVal.value;
 	this.svgHeight = this.svgRoot.height.baseVal.value;
-	
-	this.$svgObject.disableSelection()
-	
+
+	this.$svgObject.disableSelection();
+
 	//Add event handlers
 	drag = this.newDragState(this.$svgObject, this.svgRoot);
 	this.drag = drag;
-	
+
 	this.$viewer.mousedown(drag.mouseDown);
 	this.$viewer.mouseup(drag.mouseUp);
-	
+
 	//Only do this if not on Mac, could cause the sticky controls issue
 	if(navigator.platform.indexOf("Mac") == -1) {
 		//Add the mouseup and mouse move to the document,
@@ -470,19 +469,19 @@ PathwayViewer.prototype.svgLoaded = function($xrefContainer, layout) {
 	//Force SVG to be as wide as the object it is in (to avoid clipping)
 	this.svgRoot.setAttribute('width', this.$svgObject.width() + 'px');
 	this.svgRoot.setAttribute('height', this.$svgObject.height() + 'px');
-	
+
 	$.each(this.svgLoadListeners, function(k, v) {
-		try { v(that); } catch(e) { 
+		try { v(that); } catch(e) {
 			console.log("Unable to execute svg load listener");
 			console.log(e);
 		}
 	});
-}
+};
 
 PathwayViewer.prototype.addControls = function() {
 	var that = this;
 	var id = this.info.imageId + PathwayViewer.idControls;
-	
+
 	var s = 5;
 	var w = 20;
 	var h = 20;
@@ -518,10 +517,10 @@ PathwayViewer.prototype.addControls = function() {
 			"panLeft", -s - 2 * w, s, "Pan left")
 	);
 	$controls.append(
-		create(PathwayViewer_basePath + PathwayViewer.icons.right, 
+		create(PathwayViewer_basePath + PathwayViewer.icons.right,
 			"panRight", -s - w, -w + s, "Pan right")
 	);
-	$controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.down, 
+	$controls.append(create(PathwayViewer_basePath + PathwayViewer.icons.down,
 		"panDown", -s - 1.5 * w, -w + s, "Pan down")
 	);
 
@@ -532,7 +531,7 @@ PathwayViewer.prototype.addControls = function() {
 	var svgW = this.svgRoot.width.baseVal.value;
 	var svgH = this.svgRoot.height.baseVal.value;
 	$controls.append(
-		create(PathwayViewer_basePath + PathwayViewer.icons.zfit, 
+		create(PathwayViewer_basePath + PathwayViewer.icons.zfit,
 			"zoomFit", -s - 1.5 * w, -s, "Zoom to fit"));
 	$controls.append(
 		create(PathwayViewer_basePath + PathwayViewer.icons.zout,
@@ -549,7 +548,7 @@ PathwayViewer.prototype.addControls = function() {
 		top: $searchBox.height() + s + 'px',
 		'z-index': 1001
 	});
-}
+};
 
 PathwayViewer.prototype.createSearchBox = function(right, top) {
 	var that = this;
@@ -561,33 +560,33 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 		'background-color' : '#DDDDDD',
 		border: '1px solid #AAAAAA'
 	});
-	
+
 	var $input = $('<input/>').css({ width: '100px' });
-	var $number = $('<div/>').css({ 
+	var $number = $('<div/>').css({
 		position: 'absolute',
 		'font-size': '75%',
 		'background-color': 'white'
 	});
 	$number.addClass('ui-corner-all');
 	$number.hide();
-	
+
 	var lastSearch = {
 		time: -1,
 		query: '',
 		results: [],
 		focus: -1
 	};
-	
+
 	var updateNumber = function() {
 		if(!lastSearch.query) {
 			$number.hide();
 			return;
 		}
-		
+
 		var n = lastSearch.results.length;
 		var txt = n + ' hit';
 		if(n != 1) txt += 's';
-		
+
 		if(n == 0) {
 			$number.css({
 				'color': 'black',
@@ -603,59 +602,59 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 		if(lastSearch.focus > -1) {
 			txt = (lastSearch.focus + 1) + ' of ' + n;
 		}
-		
+
 		$number.text(txt);
-	
-		$number.show();		
+
+		$number.show();
 		$number.position({
 			my: "right center", at: "right center",
 			of: $input, offset: "-3 0"
 		});
-	}
-	
+	};
+
 	var searchAndHighlight = function() {
 		lastSearch.results = that.search(lastSearch.query);
 		updateNumber();
 		$.each(lastSearch.results, function(i,v) {
-			var h = that.highlight(i, v, PathwayViewer.highlightColor); 
+			var h = that.highlight(i, v, PathwayViewer.highlightColor);
 			that.searchHighlights[i] = h;
 		});
 		lastSearch.focus = -1;
-	}
-	
+	};
+
 	var onChange = function() {
 		//Delay to prevent unwanted searches during typing
-		var now = new Date().getTime()
+		var now = new Date().getTime();
 		lastSearch.time = now;
 		var doit = function(now, lastSearch) {
 			if(lastSearch.time == now) {
 				lastSearch.query = $input.attr('value');
 				searchAndHighlight();
 			}
-		}
-		window.setTimeout(function(){doit(now,lastSearch)}, 500);
-	}
-	
+		};
+		window.setTimeout(function(){doit(now,lastSearch);}, 500);
+	};
+
 	//On pressing enter:
 	//seach if value changed and focus+traverse results.
 	var onEnter = function(event, ui) {
 		lastSearch.time = new Date().getTime(); //Don't execute next onChange
-		
+
 		var value = $input.attr('value');
 		if(ui && ui.item) value = String(ui.item.value);
-		
+
 		if(value != lastSearch.query) {
 			lastSearch.query = value;
 			searchAndHighlight();
 		}
-		
+
 		if(lastSearch.results.length > 0) {
 			lastSearch.focus++;
 			if(lastSearch.focus >= lastSearch.results.length) {
 				lastSearch.focus = lastSearch.focus - lastSearch.results.length;
 			}
 			that.focus(lastSearch.results[lastSearch.focus]);
-			
+
 			//Make sure other highlights are yellow
 			$.each(that.searchHighlights, function(i, v) {
 				v.setAttribute('stroke', PathwayViewer.highlightColor);
@@ -665,9 +664,9 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 				'stroke', PathwayViewer.focusColor);
 		}
 		updateNumber();
-	}
-	
-	$input.autocomplete({ 
+	};
+
+	$input.autocomplete({
 		source: [], select: onChange,
 		position: { my: "right top", at: "right bottom" },
 		minLength: 2
@@ -682,15 +681,15 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 		}
 	});
 	$box.append($input);
-	
+
 	this.$searchInput = $input;
 	this.initSearchTerms();
-	
+
 	var $icon = $('<img />').
 		attr('src', PathwayViewer_basePath + PathwayViewer.icons.search);
-	
+
 	var origWidth = $input.width();
-	
+
 	$icon.click(function() {
 		if($input.is(':visible')) {
 			$number.hide();
@@ -706,15 +705,15 @@ PathwayViewer.prototype.createSearchBox = function(right, top) {
 			});
 		}
 	});
-	
+
 	$box.append($icon);
 	$box.append($number);
-	
+
 	$box.bind('mousedown', function(e) {
 		e.stopPropagation(); //Prevent dragging viewer when clicking search box
 	});
 	return $box;
-}
+};
 
 PathwayViewer.prototype.initSearchTerms = function() {
 	if(this.$searchInput) {
@@ -725,7 +724,7 @@ PathwayViewer.prototype.initSearchTerms = function() {
 		terms.sort();
 		this.$searchInput.autocomplete("option", "source", terms);
 	}
-}
+};
 
 PathwayViewer.prototype.search = function(query) {
 	var that = this;
@@ -735,7 +734,7 @@ PathwayViewer.prototype.search = function(query) {
 		results = this.gpml.search(query);
 	}
 	return results;
-}
+};
 
 PathwayViewer.prototype.focus = function(obj) {
 	if(obj) {
@@ -744,7 +743,7 @@ PathwayViewer.prototype.focus = function(obj) {
 		var h = obj.bottom - obj.top;
 		this.panTo(obj.left + w * 0.5, obj.top + h * 0.5);
 	}
-}
+};
 
 PathwayViewer.prototype.highlight = function(id, obj, color) {
 	var left = obj.left;
@@ -764,12 +763,12 @@ PathwayViewer.prototype.highlight = function(id, obj, color) {
 	this.svgRoot.appendChild(rect);
 	this.highlights[id] = rect;
 	return rect;
-}
+};
 
 PathwayViewer.prototype.removeHighlight = function(i) {
 	this.svgRoot.removeChild(this.highlights[i]);
 	delete this.highlights[i];
-}
+};
 
 PathwayViewer.prototype.clearSearchHighlights = function() {
 	var that = this;
@@ -777,18 +776,18 @@ PathwayViewer.prototype.clearSearchHighlights = function() {
 		that.removeHighlight(i);
 	});
 	this.searchHighlights = {};
-}
+};
 
 if(PathwayViewer.isIE9()) {
 	PathwayViewer.prototype.zoomTo = function(factor, x, y) {
 		var svg = this.svgRoot;
-		var dx = (x - this.getX() * svg.currentScale) / svg.currentScale - 
+		var dx = (x - this.getX() * svg.currentScale) / svg.currentScale -
 			(x - this.getX() * svg.currentScale) / factor;
-		var dy = (y - this.getY() * svg.currentScale) / svg.currentScale - 
+		var dy = (y - this.getY() * svg.currentScale) / svg.currentScale -
 			(y - this.getY() * svg.currentScale) / factor;
 		svg.currentScale = factor;
 		this.setXY(this.getX() - dx, this.getY() - dy);
-	}
+	};
 } else {
 	PathwayViewer.prototype.zoomTo = function(factor, x, y){
 		var svg = this.svgRoot;
@@ -796,58 +795,58 @@ if(PathwayViewer.isIE9()) {
 		 var dy = y / svg.currentScale - y / factor;
 		 svg.currentScale = factor;
 		 this.setXY(this.getX() - dx, this.getY() - dy);
-	}
-}
+	};
+};
 
 
 
 PathwayViewer.prototype.zoomIn = function() {
 	this.zoomTo(
-		this.svgRoot.currentScale * (1 + PathwayViewer.zoomStep), 
+		this.svgRoot.currentScale * (1 + PathwayViewer.zoomStep),
 		this.$viewer.width() / 2, this.$viewer.height() / 2
 	);
-}
+};
 
 PathwayViewer.prototype.zoomOut = function() {
 	this.zoomTo(
 		this.svgRoot.currentScale / (1 + PathwayViewer.zoomStep),
 		this.$viewer.width() / 2, this.$viewer.height() / 2
 	);
-}
+};
 
 if(PathwayViewer.useFlash()) {
 	PathwayViewer.prototype.setXY = function(x, y) {
 		this.svgRoot.currentTranslate.setXY(x, y);
-	}
+	};
 	PathwayViewer.prototype.setX = function(x) {
 		this.svgRoot.currentTranslate.setX(x);
-	}
+	};
 	PathwayViewer.prototype.setY = function(y) {
 		this.svgRoot.currentTranslate.setY(y);
-	}
+	};
 	PathwayViewer.prototype.getX = function() {
 		return this.svgRoot.currentTranslate.getX();
-	}
+	};
 	PathwayViewer.prototype.getY = function() {
 		return this.svgRoot.currentTranslate.getY();
-	}
+	};
 } else {
 	PathwayViewer.prototype.setXY = function(x, y) {
 		this.svgRoot.currentTranslate.x = x * this.svgRoot.currentScale;
 		this.svgRoot.currentTranslate.y = y * this.svgRoot.currentScale;
-	}
+	};
 	PathwayViewer.prototype.setX = function(x) {
 		this.svgRoot.currentTranslate.x = x * this.svgRoot.currentScale;
-	}
+	};
 	PathwayViewer.prototype.setY = function(y) {
 		this.svgRoot.currentTranslate.y = y * this.svgRoot.currentScale;
-	}
+	};
 	PathwayViewer.prototype.getX = function() {
 		return this.svgRoot.currentTranslate.x  / this.svgRoot.currentScale;
-	}
+	};
 	PathwayViewer.prototype.getY = function() {
 		return this.svgRoot.currentTranslate.y  / this.svgRoot.currentScale;
-	}
+	};
 }
 
 PathwayViewer.prototype.zoomFit = function() {
@@ -855,7 +854,7 @@ PathwayViewer.prototype.zoomFit = function() {
 	var h = this.svgHeight;
 	var fw = this.$viewer.width();
 	var fh = this.$viewer.height();
-	
+
 	//Calculate the zoom factor to fit the complete svg
 	var rw = fw / w;
 	var rh = fh / h;
@@ -866,27 +865,27 @@ PathwayViewer.prototype.zoomFit = function() {
 	this.setXY(
 		0.5 * fw / r - w / 2, 0.5 * fh / r - h / 2
 	);
-}
+};
 
 PathwayViewer.prototype.panUp = function() {
     this.setY(
     	this.getY() + PathwayViewer.moveStep / this.svgRoot.currentScale);
-}
+};
 
 PathwayViewer.prototype.panLeft = function() {
     this.setX(
     	this.getX() + PathwayViewer.moveStep / this.svgRoot.currentScale);
-}
+};
 
 PathwayViewer.prototype.panRight = function() {
     this.setX(
     	this.getX() - PathwayViewer.moveStep / this.svgRoot.currentScale);
-}
+};
 
 PathwayViewer.prototype.panDown = function() {
     this.setY(
     	this.getY() - PathwayViewer.moveStep / this.svgRoot.currentScale);
-}
+};
 
 /**
  * Set the panning so the given svg coordinate will be
@@ -894,18 +893,18 @@ PathwayViewer.prototype.panDown = function() {
  */
 PathwayViewer.prototype.panTo = function(x, y) {
 	var svg = this.svgRoot;
-	
+
 	var fw = this.$viewer.width();
 	var fh = this.$viewer.height();
-	
+
 	var cx = 0.5 * fw / svg.currentScale;
 	var cy = 0.5 * fh / svg.currentScale;
-	
+
 	var dx = x - cx;
 	var dy = y - cy;
-	
+
 	this.setXY(-dx, -dy);
-}
+};
 
 PathwayViewer.prototype.mouseWheel = function(e) {
 	var svg = this.svgRoot;
@@ -928,7 +927,7 @@ PathwayViewer.prototype.mouseWheel = function(e) {
 	}
 
 	return false;
-}
+};
 
 /**
  * This object stores the drag state (mouse up/down, drag position) for each
@@ -947,7 +946,7 @@ PathwayViewer.prototype.newDragState = function() {
             y: 0
         }
     };
-    
+
     drag.mouseDown = function(e){
         //Check if mouse is over svg element
         var svgOffset = that.$svgObject.offset();
@@ -956,7 +955,7 @@ PathwayViewer.prototype.newDragState = function() {
         svgOffset.top <= e.pageY &&
         (svgOffset.top + that.$svgObject.height()) >= e.pageY) {
             drag.dragging = true;
-            
+
             drag.pMouseDown = {
                 x: e.pageX,
                 y: e.pageY
@@ -966,29 +965,29 @@ PathwayViewer.prototype.newDragState = function() {
                 y: that.getY()
             };
         }
-    }
-    
+    };
+
     drag.mouseMove = function(e) {
         if (!drag.dragging) {
             return;
         }
-        
+
         var dx = e.pageX - drag.pMouseDown.x;
         var dy = e.pageY - drag.pMouseDown.y;
         var x = drag.pTransDown.x + dx / that.svgRoot.currentScale;
         var y = drag.pTransDown.y + dy / that.svgRoot.currentScale;
         that.setXY(x, y);
-    }
-    
+    };
+
     drag.mouseUp = function(evt){
         drag.dragging = false;
-    }
+    };
     return drag;
-}
+};
 
 GpmlModel = function(gpmlUrl) {
 	this.gpmlUrl = gpmlUrl;
-	
+
 	this.gpmlSize = {
 		width: 0,
 		height: 0
@@ -1015,12 +1014,12 @@ GpmlModel = function(gpmlUrl) {
 	* - text: The text to search
 	*/
 	this.searchObjects = [];
-    
+
 	/**
 	* The jquery parsed GPML.
 	*/
 	this.$data = null;
-	
+
 	/**
 	 * Listeners to be executed when
 	 * the GPML has been loaded.
@@ -1030,7 +1029,7 @@ GpmlModel = function(gpmlUrl) {
 
 GpmlModel.prototype.load = function() {
 	var that = this;
-	
+
 	$.ajax({
 		url: this.gpmlUrl,
 		success: function(data, textStatus) {
@@ -1042,11 +1041,11 @@ GpmlModel.prototype.load = function() {
 		},
 		dataType: "xml"
 	});
-}
+};
 
 GpmlModel.prototype.loaded = function(data, textStatus) {
 	var that = this;
-	
+
 	this.$data = $(data);
 	if (typeof data == 'string') {
 		var xml = this.parseGPML(data);
@@ -1072,12 +1071,12 @@ GpmlModel.prototype.loaded = function(data, textStatus) {
 		obj.z = jq.attr('ZOrder');
 		obj.$data = jq.parent();
 		obj.textLabel = obj.$data.attr('TextLabel');
-		if(obj.textLabel) 
+		if(obj.textLabel)
 			obj.textLabel = obj.textLabel.replace(/[\f\n\r\t\v]+/g, " ");
 		obj.type = obj.$data.attr('Type');
 
 		return obj;
-	}
+	};
 	//Get the species
 	this.species = this.$data.find('Pathway').attr('Organism');
 
@@ -1090,9 +1089,9 @@ GpmlModel.prototype.loaded = function(data, textStatus) {
 		if(ver < 2010) r = 1 / 15;
 	}
 	this.scale = r;
-	
+
 	$.each(this.gpmlLoadListeners, function(k, v) {
-		try { v(that); } catch(e) { 
+		try { v(that); } catch(e) {
 			console.log("Unable to execute gpml load listener");
 			console.log(e);
 		}
@@ -1110,7 +1109,7 @@ GpmlModel.prototype.loaded = function(data, textStatus) {
 		var obj = parseObject($(this));
 		that.searchObjects.push(obj);
 	});
-}
+};
 
 GpmlModel.prototype.mouseMove = function(offset, viewer, e){
 	var hover = this.getHoverObject(offset, viewer, e);
@@ -1120,14 +1119,14 @@ GpmlModel.prototype.mouseMove = function(offset, viewer, e){
 	else {
 		viewer.svgRoot.setAttribute('cursor', 'default');
 	}
-}
+};
 
 GpmlModel.prototype.getXref = function(obj) {
 		var jqxref = obj.$data.find('Xref');
 		var id = jqxref.attr('ID');
 		var ds = jqxref.attr('Database');
 		return { id: id, ds: ds };
-}
+};
 
 GpmlModel.prototype.mouseDown = function(layout, $xrefContainer, offset, viewer, e){
 	var hover = this.getHoverObject(offset, viewer, e);
@@ -1146,12 +1145,12 @@ GpmlModel.prototype.mouseDown = function(layout, $xrefContainer, offset, viewer,
 		$panel.show();
 		layout.open('east');
 	}
-}
-    
+};
+
 GpmlModel.prototype.getHoverObject = function(offset, viewer, e) {
 	var hover = null;
 	var svg = viewer.svgRoot;
-	
+
 	var svgSize = {
 		width: svg.getAttribute('width'),
 		height: svg.getAttribute('height')
@@ -1160,7 +1159,7 @@ GpmlModel.prototype.getHoverObject = function(offset, viewer, e) {
 	var p = {
 		x: (e.pageX - offset.left) / svg.currentScale - viewer.getX(),
 		y: (e.pageY - offset.top) / svg.currentScale - viewer.getY()
-	}
+	};
 
 	for (var i in this.hoverObjects) {
 		obj = this.hoverObjects[i];
@@ -1170,7 +1169,7 @@ GpmlModel.prototype.getHoverObject = function(offset, viewer, e) {
 			right: obj.right,
 			bottom: obj.bottom,
 			top: obj.top
-		}
+		};
 
 		var inx = p.x >= robj.left && p.x <= robj.right;
 		var iny = p.y >= robj.top && p.y <= robj.bottom;
@@ -1185,8 +1184,8 @@ GpmlModel.prototype.getHoverObject = function(offset, viewer, e) {
 	}
 
 	return hover;
-}
-    
+};
+
 GpmlModel.prototype.search = function(query) {
 	query = query.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 	var re = new RegExp(query, 'i');
@@ -1197,7 +1196,7 @@ GpmlModel.prototype.search = function(query) {
 		}
 	});
 	return results;
-}
+};
 
 /**
  * Cross-browser xml parsing.
@@ -1216,16 +1215,22 @@ GpmlModel.prototype.parseGPML = function(xml){
         xmlDoc.loadXML(xml);
     }
     return xmlDoc;
-}
+};
 
 debug = function(text){
     $("#debug").html(text);
-}
+};
 
 function bind(toObject, methodName){
-    return function(){toObject[methodName]()}
-}
+    return function(){toObject[methodName]();};
+};
 
-//Fix for missing console function in IE9
-if (!window.console) window.console = {};
-if (!window.console.log) window.console.log = function () { };
+// Fix for missing console function in IE9
+// http://stackoverflow.com/questions/5538972/console-log-apply-not-working-in-ie9
+if (Function.prototype.bind && window.console && typeof console.log == "object"){
+    [
+      "log","info","warn","error","assert","dir","clear","profile","profileEnd"
+    ].forEach(function (method) {
+        console[method] = this.bind(console[method], console);
+    }, Function.prototype.call);
+}
