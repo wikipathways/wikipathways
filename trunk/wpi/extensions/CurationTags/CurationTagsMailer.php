@@ -6,12 +6,12 @@
  */
 class TagChangeNotification extends EmailNotification {
 	var $taghist;
-	
+
 	function __construct($taghist) {
 		$this->taghist = $taghist;
 	}
-	
-		/**
+
+	/**
 	 * Send emails corresponding to the user $editor editing the page $title.
 	 * Also updates wl_notificationtimestamp.
 	 *
@@ -35,7 +35,7 @@ class TagChangeNotification extends EmailNotification {
 			false
 		);
 	}
-	
+
 	function composeCommonMailtext() {
 		global $wgPasswordSender, $wgNoReplyAddress;
 		global $wgEnotifFromEditor, $wgEnotifRevealEditorAddress;
@@ -44,10 +44,10 @@ class TagChangeNotification extends EmailNotification {
 
 		$subject = $this->template_subject;
 		$body    = $this->template_body;
-		
+
 		$subject = wfMsgForContent( 'tagemail_subject' );
 		$body    = wfMsgForContent( 'tagemail_body' );
-		
+
 		$from    = ''; /* fail safe */
 		$replyto = ''; /* fail safe */
 		$keys    = array();
@@ -58,7 +58,7 @@ class TagChangeNotification extends EmailNotification {
 
 		$keys['$ACTION'] = $this->taghist->getAction();
 		$keys['$TAGNAME'] = CurationTag::getDisplayName($this->taghist->getTagName());
-		
+
 		$subject = strtr( $subject, $keys );
 
 		# Reveal the page editor's address as REPLY-TO address only if
@@ -69,8 +69,8 @@ class TagChangeNotification extends EmailNotification {
 		$adminAddress = new MailAddress( $wgPasswordSender, 'WikiPathways' );
 		$editorAddress = new MailAddress( $editor );
 		if( $wgEnotifRevealEditorAddress
-		    && ( $editor->getEmail() != '' )
-		    && $editor->getOption( 'enotifrevealaddr' ) ) {
+			&& ( $editor->getEmail() != '' )
+			&& $editor->getOption( 'enotifrevealaddr' ) ) {
 			if( $wgEnotifFromEditor ) {
 				$from    = $editorAddress;
 			} else {
@@ -98,7 +98,7 @@ class TagChangeNotification extends EmailNotification {
 		$keys['$PAGEEDITOR_WIKI'] = $userPage->getFullUrl();
 		$body = strtr( $body, $keys );
 		$body = wordwrap( $body, 72 );
-		
+
 		# now save this as the constant user-independent part of the message
 		$this->from    = $from;
 		$this->replyto = $replyto;

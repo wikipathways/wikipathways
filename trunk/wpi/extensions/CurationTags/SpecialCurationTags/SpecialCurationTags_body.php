@@ -11,8 +11,12 @@ class tableRow {
 	public function action( $tag, $ts, $delta ) {
 	}
 
-	public function format() {
-		return "<tr><td>".implode( "<td>", $this->data );
+	public function format( $id = null ) {
+		if( $id ) {
+			return "<tr id='$id'><td>".implode( "<td>", $this->data );
+		} else {
+			return "<tr><td>".implode( "<td>", $this->data );
+		}
 	}
 }
 
@@ -63,23 +67,31 @@ class deleteRow extends tableRow {
 
 		if( $date->format("YmdHis") < $tag->getTimeMod() && $prev->format("YmdHis") > $tag->getTimeMod() ) {
 			/* In the future, we'll set this to the ID of the tag or page, but for now ... */
-			$this->action = "<A title='". wfmsg( "wpict-delete" ) . "' ".
-				"href='javascript:CurationTags.removeTag(\"ProposedDeletion\")'>" .
-				"<IMG src='/wpi/extensions/CurationTags/cancel.png'/></A>";
+			$this->action = true;
 
 		} else {
 			$this->action = false;
 		}
 	}
 
-	static private function deleteButton( $action ) {
-		return $action;
+	private function deleteButton( $row ) {
+		global $wgUser, $wgStylePath;
+		$pageId = $this->action;
+
+		if( $wgUser->isLoggedIn() ) {
+			return "<A title='". wfmsg( "wpict-delete" ) . "' ".
+				"href='javascript:CurationTags.removeTag(\"ProposedDeletion\", $pageId, \"$row\" )'>" .
+				"<IMG src='$wgStylePath/wikipathways/cancel.png'/></A>";
+		} else {
+			return "";
+		}
 	}
 
 	public function format() {
 		// show a delete button
-		return parent::format()."<td>".($this->action !== false ?
-			self::deleteButton( $this->action ) : wfMsg( "wpict-too-new" ));
+		$row = "row".$this->action;
+		return parent::format( $row )."<td>".( $this->action !== false ?
+			$this->deleteButton( $row ) : wfMsg( "wpict-too-new" ) );
 	}
 }
 
@@ -120,6 +132,7 @@ class SpecialCurationTags extends SpecialPage {
 		if( $tagName = $wgRequest->getVal( 'showPathwaysFor' ) ) {
 			$disp = htmlentities( CurationTag::getDisplayName($tagName) );
 			$wgOut->setPageTitle( wfMsgExt( 'curation-tag-show', array( 'parsemsg' ), $disp ) );
+			$wgOut->addScriptFile( "../wikipathways/CurationTags.js"  );
 			$def = CurationTag::getTagDefinition();
 			// Don't you just love how php does things?
 			$useRev  = "" . array_shift( $def->xpath("Tag[@name='$tagName']/@useRevision") );

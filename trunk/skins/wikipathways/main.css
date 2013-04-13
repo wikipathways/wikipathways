@@ -108,6 +108,11 @@ img {
 	border: none;
 	vertical-align: middle;
 }
+td img {
+   margin-left: 25%;
+   margin-right: 25%;
+}
+
 p {
 	margin: .4em 0 .5em 0;
 	line-height: 1.5em;

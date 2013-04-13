@@ -52,10 +52,7 @@ function displayCurationTags($input, $argv, &$parser) {
 	global $wgOut, $wfCurationTagsPath;
 
 	//Add CSS
-	//Hack to add a css that's not in the skins directory
 	global $wgStylePath;
-	$oldStylePath = $wgStylePath;
-	$wgStylePath = $wfCurationTagsPath;
 	$wgOut->addStyle("CurationTags.css");
 	$wgStylePath = $oldStylePath;
 
@@ -68,7 +65,7 @@ function displayCurationTags($input, $argv, &$parser) {
 	$helpLink = Title::newFromText("CurationTags", NS_HELP)->getFullURL();
 
 	//Add javascript
-	$wgOut->addScript("<script type=\"{$wgJsMimeType}\" src=\"$wfCurationTagsPath/CurationTags.js\"></script>\n");
+	$wgOut->addScriptFile( "../wikipathways/CurationTags.js"  );
 	$wgOut->addScript(
 		"<script type=\"{$wgJsMimeType}\">" .
 		"CurationTags.extensionPath=\"$wfCurationTagsPath\";" .
