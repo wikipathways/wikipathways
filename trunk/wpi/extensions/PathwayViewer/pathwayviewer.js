@@ -275,27 +275,34 @@ PathwayViewer.prototype.removeImgAnchor = function($img) {
 
 // Flash version detection copied from https://github.com/jquerytools/jquerytools/issues/133
 PathwayViewer.prototype.isFlashSupported = function() {
-	function getFlashVersion() {
-            ver = null;
-            try {
-                ver = navigator.plugins["Shockwave Flash"].description.slice(16);
-            } catch(e) {
+    function isBrowserBlacklisted() {
+        if(navigator.userAgent.indexOf("Epiphany") > 0)
+            return true;
+        else
+            return false;
+    }
+
+    function getFlashVersion() {
+        var ver = "";
+        try {
+            ver = navigator.plugins["Shockwave Flash"].description.slice(16);
+        } catch(e) {
+            try  {
+                var fo = new ActiveXObject("ShockwaveFlash.ShockwaveFlash.7");
+                ver = fo && fo.GetVariable("$version");
+            } catch(err) {
                 try  {
-                    var fo = new ActiveXObject("ShockwaveFlash.ShockwaveFlash.7");
+                    var fo = new ActiveXObject("ShockwaveFlash.ShockwaveFlash.6");
                     ver = fo && fo.GetVariable("$version");
                 } catch(err) {
-                    try  {
-                        var fo = new ActiveXObject("ShockwaveFlash.ShockwaveFlash.6");
-                        ver = fo && fo.GetVariable("$version");
-                    } catch(err) {
-                    }
                 }
             }
+        }
+	ver = ver.substring(0, ver.indexOf(" "));
+        return ver;
+    };
 
-            return ver ? [ver[1], ver[3]] : [0, 0];
-        };
-	var version = getFlashVersion();
-	return version >= 10;
+    return !isBrowserBlacklisted() && getFlashVersion() >= 10;
 };
 
 PathwayViewer.prototype.addStartButton = function(){
