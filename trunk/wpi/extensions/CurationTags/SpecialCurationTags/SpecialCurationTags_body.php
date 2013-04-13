@@ -48,9 +48,9 @@ class redRow extends tableRow {
 		// Row is not red if the last edit date (5th column) is after the tag date (4th column)
 		$style = "";
 		if( ! $this->action ) {
-			$style = " style='background-color: #BC8F8FF'";
+			$style = " style='background-color: #BC8F8F'";
 		}
-		return "<tr$style><td>".implode( "<td>", $this->data );
+		return "<tr$style><td>".implode( "<td>", $this->data )."\n";
 	}
 }
 
@@ -83,21 +83,42 @@ class deleteRow extends tableRow {
 	}
 }
 
+class LegacySpecialCurationTags extends SpecialPage {
+	function __construct() {
+		parent::__construct( "SpecialCurationTags" );
+	}
+
+	function execute( $par ) {
+		global $wgRequest;
+
+		if( isset( $wgRequest->data['title'] ) ) unset( $wgRequest->data['title'] );
+		$query = array();
+		foreach( $wgRequest->data as $k => $v) {
+			$query[] = urlencode( $k ) . '=' . urlencode( $v );
+		}
+
+		$title = Title::newFromText( "CurationTags", NS_SPECIAL );
+		$wgRequest->response()->header( "HTTP/1.1 301 Moved Permanently" );
+		$wgRequest->response()->header( "Content-Type: text/html; charset=utf-8" );
+		$wgRequest->response()->header( "Location: ". $title->getLocalURL( implode( "&", $query ) ) );
+	}
+}
+
 class SpecialCurationTags extends SpecialPage {
 	function __construct() {
-		parent::__construct("SpecialCurationTags");
+		parent::__construct("CurationTags");
 		self::loadMessages();
 	}
 
 	private $tagNames;
 
 	function execute($par) {
-		global $wgOut, $wgUser, $wgLang, $wgRequest;
-		$url = SITE_URL . '/index.php?title=Special:SpecialCurationTags';
+		global $wgOut, $wgUser, $wgLang, $wgRequest, $wgTitle;
+		$url = $wgTitle->getLocalURL();
 		$this->setHeaders();
 
-		if($tagName = $wgRequest->getVal( 'showPathwaysFor' ) ) {
-			$disp = htmlentities(CurationTag::getDisplayName($tagName));
+		if( $tagName = $wgRequest->getVal( 'showPathwaysFor' ) ) {
+			$disp = htmlentities( CurationTag::getDisplayName($tagName) );
 			$wgOut->setPageTitle( wfMsgExt( 'curation-tag-show', array( 'parsemsg' ), $disp ) );
 			$def = CurationTag::getTagDefinition();
 			// Don't you just love how php does things?
@@ -180,7 +201,8 @@ class SpecialCurationTags extends SpecialPage {
 				$wgOut->addWikiText("[[$tmp|$tagName]]");
 				$wgOut->addHTML("<td>$descr");
 				$urlName = htmlentities($tagName);
-				$wgOut->addHTML("<td><a href='$url&showPathwaysFor=$urlName'>Show pathways</a>");
+				$url = $wgTitle->getLocalURL("showPathwaysFor=$urlName");
+				$wgOut->addHTML("<td><a href='".$url."'>Show pathways</a>");
 			}
 		}
 		$wgOut->addHTML("</tbody></table>");

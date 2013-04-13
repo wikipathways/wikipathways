@@ -212,6 +212,21 @@ CurationTags.removeTagCallback = function(xhr) {
 	CurationTags.refreshNoTagsMsg();
 };
 
+CurationTags.removeTagFromPage = function( tagName, pageId, rowId ) {
+	sajax_do_call(
+	    "CurationTagsAjax::removeTag",
+	    [tagName, pageId],
+            function(xhr) {
+                if(CurationTags.checkResponse(xhr)) {
+                    var row = document.getElementById( rowId );
+                    var table = row.parentNode;
+                    table.deleteChild(row);
+                }
+
+            }
+	);
+};
+
 /**
  * Update the tag to the current page revision (forces save and keeps tag text unchanged).
  */
@@ -681,9 +696,13 @@ CurationTags.hideProgress = function() {
 };
 
 CurationTags.showError = function(msg) {
+    if( CurationTags.errorDiv ) {
 	CurationTags.errorDiv.style.display = "block";
 	CurationTags.errorDiv.innerHTML = "<p class='tagerror'>" + msg +
 		" - <a href='javascript:CurationTags.hideError();'>close</a></p>";
+    } else {
+        alert(msg);
+    }
 };
 
 CurationTags.hideError = function() {
