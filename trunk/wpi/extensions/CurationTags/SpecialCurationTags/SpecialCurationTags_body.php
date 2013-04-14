@@ -67,8 +67,7 @@ class deleteRow extends tableRow {
 
 		if( $date->format("YmdHis") < $tag->getTimeMod() && $prev->format("YmdHis") > $tag->getTimeMod() ) {
 			/* In the future, we'll set this to the ID of the tag or page, but for now ... */
-			$this->action = true;
-
+			$this->action = $tag->getPageId();
 		} else {
 			$this->action = false;
 		}
@@ -80,7 +79,7 @@ class deleteRow extends tableRow {
 
 		if( $wgUser->isLoggedIn() ) {
 			return "<A title='". wfmsg( "wpict-delete" ) . "' ".
-				"href='javascript:CurationTags.removeTag(\"ProposedDeletion\", $pageId, \"$row\" )'>" .
+				"href='javascript:CurationTags.removeTagFromPathway(\"ProposedDeletion\", $pageId, \"$row\" )'>" .
 				"<IMG src='$wgStylePath/wikipathways/cancel.png'/></A>";
 		} else {
 			return "";
@@ -89,7 +88,10 @@ class deleteRow extends tableRow {
 
 	public function format() {
 		// show a delete button
-		$row = "row".$this->action;
+		$row = "";
+		if( $this->action ) {
+			$row = "row".$this->action;
+		}
 		return parent::format( $row )."<td>".( $this->action !== false ?
 			$this->deleteButton( $row ) : wfMsg( "wpict-too-new" ) );
 	}
