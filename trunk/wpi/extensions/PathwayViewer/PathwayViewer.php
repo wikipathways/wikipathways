@@ -67,7 +67,7 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 						gpmlUrl: "$gpml"$start
 						});
 		PathwayViewer_viewers.push(viewer);
-		SCRIPT;
+SCRIPT;
 		$script = "<script type=\"{$wgJsMimeType}\">" . $script . "</script>\n";
 		return array($script, 'isHTML'=>1, 'noparse'=>1);
 	} catch(Exception $e) {
