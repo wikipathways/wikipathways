@@ -694,7 +694,9 @@ CurationTags.showProgress = function() {
  * Removes the progress monitor from the given element
  */
 CurationTags.hideProgress = function() {
-	CurationTags.progressDiv.style.display = "none";
+    if( CurationTags.progressDiv ) {
+        CurationTags.progressDiv.style.display = "none";
+    }
 };
 
 CurationTags.showError = function(msg) {
