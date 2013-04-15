@@ -52,9 +52,7 @@ function displayCurationTags($input, $argv, &$parser) {
 	global $wgOut, $wfCurationTagsPath;
 
 	//Add CSS
-	global $wgStylePath;
-	$wgOut->addStyle("CurationTags.css");
-	$wgStylePath = $oldStylePath;
+	$wgOut->addStyle("wikipathways/CurationTags.css");
 
 	$title = $parser->getTitle();
 	$mayEdit = $title->userCan('edit') ? true : false;

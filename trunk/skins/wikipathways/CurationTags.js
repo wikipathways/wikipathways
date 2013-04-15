@@ -127,11 +127,11 @@ CurationTags.loadAvailableTagsCallback = function(xhr) {
 CurationTags.createToolDivContent = function() {
 	var helpTag = "<TD><A title='Show help page' " +
 		"href='" + CurationTags.helpLink + "' target='_blank'>" +
-		"<IMG src='" + stylePath + "/" + skin + "/help.png'/></A>";
+		"<IMG src='" + stylepath + "/" + skin + "/help.png'/></A>";
 
 	var histTag = "<TD><A title='Show history' id='showHistBtn'" +
 		"href='javascript:CurationTags.showHistory()'>" +
-		"<IMG src='" + stylePath + "/" + skin + "/history.png'/></A>";
+		"<IMG src='" + stylepath + "/" + skin + "/history.png'/></A>";
 
 	var newTag = "";
 	var newRevisionTag = "";
@@ -139,7 +139,7 @@ CurationTags.createToolDivContent = function() {
 	if(CurationTags.mayEdit) {
 		newTag = "<TD><A title='New tag' " +
 		"href='javascript:CurationTags.newTag()'>" +
-		"<IMG src='" + stylePath + "/" + skin + "/new.png'/></A>";
+		"<IMG src='" + stylepath + "/" + skin + "/new.png'/></A>";
 	}
 	CurationTags.toolDiv.innerHTML =
 	"<TABLE><TR>" + newTag + helpTag + histTag +
@@ -384,9 +384,9 @@ CurationTags.showEditDiv = function(tagName) {
 
 	var buttons = "<TR align='right'><TD colspan='2'>" +
 		"<A href='javascript:CurationTags.applyNewTag()' title='Apply'>" +
-		"<IMG src='" + stylePath + "/" + skin + "/apply.png'/></A>" +
+		"<IMG src='" + stylepath + "/" + skin + "/apply.png'/></A>" +
 		"<A href='javascript:CurationTags.cancelNewTag(\"" + tagName + "\")' title='Cancel'>" +
-		"<IMG src='" + stylePath + "/" + skin + "/cancel.png'/></A>";
+		"<IMG src='" + stylepath + "/" + skin + "/cancel.png'/></A>";
 	var html = "<TABLE>" + nameBox + textBox + buttons +"</TABLE>";
 	CurationTags.editDiv.innerHTML = html;
 	CurationTags.editDiv.style.display = "";
@@ -507,10 +507,10 @@ CurationTags.parseTagXml = function(tagElm) {
 			btns.className = "tagbuttons transparent";
 			remove = "<A title='Remove' " +
 				"href='javascript:CurationTags.removeTag(\"" + tagName + "\")'>" +
-				"<IMG src='" + stylePath + "/" + skin + "/cancel.png'/></A>";
+				"<IMG src='" + stylepath + "/" + skin + "/cancel.png'/></A>";
 			edit = "<A title='Edit' " +
 				"href='javascript:CurationTags.showEditDiv(\"" + tagName + "\")'>" +
-				"<IMG src='" + stylePath + "/" + skin + "/edit.png'/></A>";
+				"<IMG src='" + stylepath + "/" + skin + "/edit.png'/></A>";
 			btns.innerHTML = remove + edit;
 			newElm.appendChild(btns);
 		}

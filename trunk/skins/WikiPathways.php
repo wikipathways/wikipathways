@@ -76,15 +76,15 @@ class WikiPathwaysTemplate extends QuickTemplate {
  *			$this->data['content_actions'] = $actions;
  *		}
  */
-              //Remove edit tab on pathway pages
+			  //Remove edit tab on pathway pages
 //AP20070423 Don't remove edit buttons for sysops (sysops can protect)
 		$ns = $wgTitle->getNameSpace();
 		if(!array_search('sysop', $wgUser->getGroups())) {
 			if($ns == NS_PATHWAY) {
-	                        $actions = $this->data['content_actions'];
-	                        unset($actions['edit']);
-	                        unset($actions['history']); //Also remove history tab
-	                        $this->data['content_actions'] = $actions;
+							$actions = $this->data['content_actions'];
+							unset($actions['edit']);
+							unset($actions['history']); //Also remove history tab
+							$this->data['content_actions'] = $actions;
 			}
 		}
 		//Remove move button on pathway pages
@@ -96,7 +96,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
 			$this->data['content_actions'] = $actions;
 		}
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="<?php $this->text('xhtmldefaultnamespace') ?>" <?php 
+<html xmlns="<?php $this->text('xhtmldefaultnamespace') ?>" <?php
 	foreach($this->data['xhtmlnamespaces'] as $tag => $ns) {
 		?>xmlns:<?php echo "{$tag}=\"{$ns}\" ";
 	} ?>xml:lang="<?php $this->text('lang') ?>" lang="<?php $this->text('lang') ?>" dir="<?php $this->text('dir') ?>">
@@ -124,7 +124,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		<?php } if( in_array( 'IE70', $skin->cssfiles ) ) { ?><!--[if IE 7]><style type="text/css">@import "<?php $this->text('stylepath') ?>/<?php $this->text('stylename') ?>/IE70Fixes.css?<?php echo $GLOBALS['wgStyleVersion'] ?>";</style><![endif]-->
 		<?php } ?><!--[if lt IE 7]><?php if( in_array( 'IE', $skin->cssfiles ) ) { ?><script type="<?php $this->text('jsmimetype') ?>" src="<?php $this->text('stylepath') ?>/common/IEFixes.js?<?php echo $GLOBALS['wgStyleVersion'] ?>"></script>
 		<?php } ?><meta http-equiv="imagetoolbar" content="no" /><![endif]-->
-		
+
 		<?php print Skin::makeGlobalVariablesScript( $this->data ); ?>
 		<!-- TK: Import custom script -->
 		<script type="<?php $this->text('jsmimetype') ?>" src="<?php $this->text('stylepath') ?>/<?php $this->text('stylename') ?>/wikipathways-custom.js"></script>
@@ -156,7 +156,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
 	<div id="content">
 		<a name="top" id="top"></a>
 		<?php if($this->data['sitenotice']) { ?><div id="siteNotice"><?php $this->html('sitenotice') ?></div><?php } ?>
-		<h1 id="pageTitle" class="firstHeading"><?php 
+		<h1 id="pageTitle" class="firstHeading"><?php
 		/** TK: set custom title for pathway pages **/
 		$ns = $wgTitle->getNameSpace();
 		if($pathway) {
@@ -201,13 +201,13 @@ class WikiPathwaysTemplate extends QuickTemplate {
 					# give the edit tab an accesskey, because that's fairly su-
 					# perfluous and conflicts with an accesskey (Ctrl-E) often
 					# used for editing in Safari.
-				 	if( in_array( $action, array( 'edit', 'submit' ) )
-				 	&& in_array( $key, array( 'edit', 'watch', 'unwatch' ))) {
-				 		echo $skin->tooltip( "ca-$key" );
-				 	} else {
-				 		echo $skin->tooltipAndAccesskey( "ca-$key" );
-				 	}
-				 	echo '>'.htmlspecialchars($tab['text']).'</a></li>';
+					if( in_array( $action, array( 'edit', 'submit' ) )
+					&& in_array( $key, array( 'edit', 'watch', 'unwatch' ))) {
+						echo $skin->tooltip( "ca-$key" );
+					} else {
+						echo $skin->tooltipAndAccesskey( "ca-$key" );
+					}
+					echo '>'.htmlspecialchars($tab['text']).'</a></li>';
 				} ?>
 			</ul>
 		</div>
@@ -232,9 +232,9 @@ class WikiPathwaysTemplate extends QuickTemplate {
 			?>href="<?php echo htmlspecialchars($this->data['nav_urls']['mainpage']['href'])?>"<?php
 			echo $skin->tooltipAndAccesskey('n-mainpage') ?>></a>
 	</div>
-        <div id="p-search" class="portlet">
-                <h5><label for="searchInput">search</label></h5>
-                <div id="googleSearch" class="pBody">
+		<div id="p-search" class="portlet">
+				<h5><label for="searchInput">search</label></h5>
+				<div id="googleSearch" class="pBody">
 		<form id="searchbox_cref" action="<?php $siteURL?>/index.php/Special:SearchPathways">
 		<table  BORDER=0 CELLSPACING=0 CELLPADDING=0>
 		<tr>
@@ -244,12 +244,12 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		</td>
 		</tr>
 		</table></form>
-                </div>
-        </div>
+				</div>
+		</div>
 
 	<script type="<?php $this->text('jsmimetype') ?>"> if (window.isMSIE55) fixalpha(); </script>
-<?php 
-		$sidebar = $this->data['sidebar'];		
+<?php
+		$sidebar = $this->data['sidebar'];
 		if ( !isset( $sidebar['SEARCH'] ) ) $sidebar['SEARCH'] = true;
 		if ( !isset( $sidebar['TOOLBOX'] ) ) $sidebar['TOOLBOX'] = true;
 		if ( !isset( $sidebar['LANGUAGES'] ) ) $sidebar['LANGUAGES'] = true;
@@ -387,7 +387,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
 
 	/*************************************************************************************************/
 	function languageBox() {
-		if( $this->data['language_urls'] ) { 
+		if( $this->data['language_urls'] ) {
 ?>
 	<div id="p-lang" class="portlet">
 		<h5><?php $this->msg('otherlanguages') ?></h5>

@@ -213,8 +213,8 @@ class SpecialCurationTags extends SpecialPage {
 				$disp = htmlentities(CurationTag::getDisplayName($tagName));
 				$descr = htmlentities(CurationTag::getDescription($tagName));
 				$wgOut->addHTML("<tr><td>$disp<td>");
-				$l = new Linker;
-				$wgOut->addHTML( $l->makeLink( $tmp, $tagName ) );
+                                $l = new Linker;
+                                $wgOut->addHTML( $l->makeLink( $tmp, $tagName ) );
 				$wgOut->addHTML("<td>$descr");
 				$urlName = htmlentities($tagName);
 				$url = $wgTitle->getLocalURL("showPathwaysFor=$urlName");
