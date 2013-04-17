@@ -102,8 +102,8 @@ class AjaxDispatcher {
 				$result = call_user_func_array($func, $this->args);
 
 				if ( $result === false || $result === NULL ) {
-					wfDebug( __METHOD__ . ' ERROR while dispatching ' 
-							. $this->func_name . "(" . var_export( $this->args, true ) . "): " 
+					wfDebug( __METHOD__ . ' ERROR while dispatching '
+							. $this->func_name . "(" . var_export( $this->args, true ) . "): "
 							. "no data returned\n" );
 
 					wfHttpError( 500, 'Internal Error',
@@ -121,8 +121,8 @@ class AjaxDispatcher {
 				}
 
 			} catch (Exception $e) {
-				wfDebug( __METHOD__ . ' ERROR while dispatching ' 
-						. $this->func_name . "(" . var_export( $this->args, true ) . "): " 
+				wfDebug( __METHOD__ . ' ERROR while dispatching '
+						. $this->func_name . "(" . var_export( $this->args, true ) . "): "
 						. get_class($e) . ": " . $e->getMessage() . "\n" );
 
 				if (!headers_sent()) {
