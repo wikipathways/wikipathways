@@ -220,7 +220,7 @@ CurationTags.removeTagFromPathway = function( tagName, pathway, rowId ) {
                 if(CurationTags.checkResponse(xhr)) {
                     var row = document.getElementById( rowId );
                     var table = row.parentNode;
-                    table.deleteChild(row);
+                    table.removeChild(row);
                 }
 
             }
