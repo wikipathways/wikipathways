@@ -300,6 +300,9 @@ $wgHooks['AbortNewAccount'][] = 'abortOnBadDomain';
 $wgDebugLogFile = WPI_SCRIPT_PATH . '/tmp/wikipathwaysdebug.txt';
 //$wgProfiling = true; //Set to true for debugging info
 
+##New Autoloads
+$wgAutoloadClasses['LegacySpecialPage'] = dirname(__FILE__) . '/wpi/LegacySpecialPage.php';
+
 ##Extensions
 require_once('extensions/GoogleAnalytics/googleAnalytics.php'); //Google Analytics support
 require_once('extensions/inputbox.php');
@@ -327,7 +330,7 @@ require_once('wpi/extensions/SearchPathways/searchPathwaysBox.php');
 require_once('wpi/extensions/button.php');
 require_once('wpi/extensions/pathwayThumb.php');
 require_once('wpi/extensions/imageLink.php');
-require_once('wpi/extensions/BrowsePathwaysPage2/BrowsePathwaysPage.php');
+require_once('wpi/extensions/BrowsePathways/BrowsePathways.php');
 require_once('wpi/extensions/editApplet.php');
 require_once('wpi/extensions/listPathways.php');
 require_once('wpi/extensions/movePathway.php');

@@ -106,24 +106,9 @@ class deleteRow extends tableRow {
 	}
 }
 
-class LegacySpecialCurationTags extends SpecialPage {
+class LegacySpecialCurationTags extends LegacySpecialPage {
 	function __construct() {
-		parent::__construct( "SpecialCurationTags" );
-	}
-
-	function execute( $par ) {
-		global $wgRequest;
-
-		if( isset( $wgRequest->data['title'] ) ) unset( $wgRequest->data['title'] );
-		$query = array();
-		foreach( $wgRequest->data as $k => $v) {
-			$query[] = urlencode( $k ) . '=' . urlencode( $v );
-		}
-
-		$title = Title::newFromText( "CurationTags", NS_SPECIAL );
-		$wgRequest->response()->header( "HTTP/1.1 301 Moved Permanently" );
-		$wgRequest->response()->header( "Content-Type: text/html; charset=utf-8" );
-		$wgRequest->response()->header( "Location: ". $title->getLocalURL( implode( "&", $query ) ) );
+		parent::__construct( "SpecialCurationTags", "CurationTags" );
 	}
 }
 

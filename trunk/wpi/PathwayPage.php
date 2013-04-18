@@ -1,19 +1,19 @@
 <?php
 
-$wgHooks['ParserBeforeStrip'][] = array('renderPathwayPage'); 	
+$wgHooks['ParserBeforeStrip'][] = array('renderPathwayPage');
 $wgHooks['BeforePageDisplay'][] = array('addPreloaderScript');
 
 function renderPathwayPage(&$parser, &$text, &$strip_state) {
 	global $wgUser;
-	
-	$title = $parser->getTitle();	
+
+	$title = $parser->getTitle();
 	if(	$title->getNamespace() == NS_PATHWAY &&
-		preg_match("/^\s*\<\?xml/", $text)) 
+		preg_match("/^\s*\<\?xml/", $text))
 	{
 		$parser->disableCache();
-		
+
 		$oldId = $_REQUEST['oldid'];
-		
+
 		try {
 			$pathway = Pathway::newFromTitle($title);
 			if($oldId) {
@@ -34,7 +34,7 @@ the pathway using the pathway history displayed below or contact the site admini
 {$e}
 </pre>
 ERROR;
-			
+
 		}
 	}
 	return true;
@@ -46,7 +46,7 @@ function addPreloaderScript($out) {
 	if($wgTitle->getNamespace() == NS_PATHWAY && $wgUser->isLoggedIn()) {
 		$base = $wgScriptPath . "/wpi/applet/";
 		$class = "org.wikipathways.applet.Preloader.class";
-		
+
 		$out->addHTML("<applet code='$class' codebase='$base'
 			width='1' height='1' name='preloader'></applet>");
 	}
@@ -57,11 +57,11 @@ class PathwayPage {
 	private $pathway;
 	private $data;
 	static $msgLoaded = false;
-	
+
 	function __construct($pathway) {
 		$this->pathway = $pathway;
 		$this->data = $pathway->getPathwayData();
-		
+
 		global $wgMessageCache;
 		if(!self::$msgLoaded) {
 			$wgMessageCache->addMessages( array(
@@ -72,7 +72,7 @@ class PathwayPage {
 		}
 	}
 
-	function getContent() {	
+	function getContent() {
 		$text = <<<TEXT
 {$this->titleEditor()}
 {$this->privateWarning()}
@@ -86,20 +86,20 @@ class PathwayPage {
 TEXT;
 		return $text;
 	}
-	
+
 	function titleEditor() {
 		$title = $this->pathway->getName();
 		return "<pageEditor id='pageTitle' type='title'>$title</pageEditor>\n";
 	}
-	
+
 	function privateWarning() {
 		global $wgScriptPath, $wgLang;
-		
+
 		$warn = '';
 		if(!$this->pathway->isPublic()) {
 			$url = SITE_URL;
 			$msg = wfMsg('private_warning');
-			
+
 			$pp = $this->pathway->getPermissionManager()->getPermissions();
 			$expdate = $pp->getExpires();
 			$expdate = $wgLang->date($expdate, true);
@@ -108,26 +108,26 @@ TEXT;
 		}
 		return $warn;
 	}
-	
+
 	function curationTags() {
- 		$tags = "== Curation Tags ==\n" .
+		$tags = "== Curation Tags ==\n" .
 			"<CurationTags></CurationTags>";
 		return $tags;
 	}
-	
+
 	function descriptionText() {
 		//Get WikiPathways description
 		$content = $this->data->getWikiDescription();
-		
+
 		$description = $content;
 		if(!$description) {
 			$description = "<I>No description</I>";
 		}
 		$description = "== Description ==\n<div id='descr'>"
 			 . $description . "</div>";
-			 
+
 		$description .= "<pageEditor id='descr' type='description'>$content</pageEditor>\n";
-		
+
 		//Get additional comments
 		$comments = '';
 		foreach($this->data->getGpml()->Comment as $comment) {
@@ -148,7 +148,7 @@ TEXT;
 		}
 		return $description;
 	}
-	
+
 
 	function ontologyTags() {
 		global $wpiEnableOtag;
@@ -162,7 +162,7 @@ TEXT;
 
 	function bibliographyText() {
 		global $wgUser;
-		
+
 		$out = "<pathwayBibliography></pathwayBibliography>";
 		//No edit button for now, show help on how to add bibliography instead
 		//$button = $this->editButton('javascript:;', 'Edit bibliography', 'bibEdit');
@@ -173,19 +173,19 @@ TEXT;
 		}
 		return "== Bibliography ==\n$out\n$help";
 			//"<div id='bibliography'><div style='float:right'>$button</div>\n" .
-			//"$out</div>\n{{#editApplet:bibEdit|bibliography|0||bibliography|0|250px}}";		
+			//"$out</div>\n{{#editApplet:bibEdit|bibliography|0||bibliography|0|250px}}";
 	}
-	
+
 	function categoryText() {
 		$categories = $this->pathway->getCategoryHandler()->getCategories();
-	
+
 		$species = Pathway::getAvailableSpecies();
-		
+
 		$catlist = '';
 		foreach($categories as $c) {
 			$cat = Title::newFromText($c, NS_CATEGORY);
 			if(!$cat) continue; //Prevent error when empty category is introduced in GPML
-			
+
 			$name = $cat->getText();
 			if(in_array($name, $species)) {
 				$browseCat = '&browseCat=All+Categories';
@@ -194,14 +194,14 @@ TEXT;
 				$browse = '&browse=All+Species';
 				$browseCat = "&browseCat=" . urlencode($name);
 			}
-			$link = SITE_URL . "/index.php?title=Special:BrowsePathwaysPage{$browse}{$browseCat}";
+			$link = SITE_URL . "/index.php?title=Special:BrowsePathways{$browse}{$browseCat}";
 			$catlist .= "* <span class='plainlinks'>[{$link} {$name}]</span>\n";
 		}
 		$button = $this->editButton('javascript:;', 'Edit categories', 'catEdit');
 		$title = $this->pathway->getIdentifier();
-		
+
 		$cats = "== Categories ==\n<div id='catdiv'>\n$catlist</div>\n";
-		
+
 		$catArray = array();
 		foreach(Pathway::getAvailableCategories() as $c) {
 			$present = 0;
@@ -212,7 +212,7 @@ TEXT;
 		$cats .= "<pageEditor id='catdiv' type='category'>$catValue</pageEditor>\n";
 		return $cats;
 	}
-	
+
 	function editButton($href, $title, $id = '') {
 		global $wgUser, $wgTitle;
 		# Check permissions
@@ -229,7 +229,7 @@ TEXT;
 		}
 		return "<fancyButton title='$title' href='$href' id='$id'>$label</fancyButton>";
 	}
-	
+
 	static function getDownloadURL($pathway, $type) {
 		if($pathway->getActiveRevision()) {
 			$oldid = "&oldid={$pathway->getActiveRevision()}";
@@ -239,26 +239,26 @@ TEXT;
 
 	static function editDropDown($pathway) {
 		global $wgOut;
-		
+
 		//AP20081218: Operating System Detection
 		require_once 'DetectBrowserOS.php';
 		//echo (browser_detection( 'os' ));
 		 $download = array(
-                        'PathVisio (.gpml)' => self::getDownloadURL($pathway, 'gpml'),
-                        'Scalable Vector Graphics (.svg)' => self::getDownloadURL($pathway, 'svg'),
-                        'Gene list (.txt)' => self::getDownloadURL($pathway, 'txt'),
-                        'Biopax level 3 (.owl)' => self::getDownloadURL($pathway, 'owl'),
-                        'Eu.Gene (.pwf)' => self::getDownloadURL($pathway, 'pwf'),
-                        'Png image (.png)' => self::getDownloadURL($pathway, 'png'),
-                        'Acrobat (.pdf)' => self::getDownloadURL($pathway, 'pdf'),
-           );
+						'PathVisio (.gpml)' => self::getDownloadURL($pathway, 'gpml'),
+						'Scalable Vector Graphics (.svg)' => self::getDownloadURL($pathway, 'svg'),
+						'Gene list (.txt)' => self::getDownloadURL($pathway, 'txt'),
+						'Biopax level 3 (.owl)' => self::getDownloadURL($pathway, 'owl'),
+						'Eu.Gene (.pwf)' => self::getDownloadURL($pathway, 'pwf'),
+						'Png image (.png)' => self::getDownloadURL($pathway, 'png'),
+						'Acrobat (.pdf)' => self::getDownloadURL($pathway, 'pdf'),
+		   );
 		$downloadlist = '';
 		foreach(array_keys($download) as $key) {
 			$downloadlist .= "<li><a href='{$download[$key]}'>$key</a></li>";
 		}
-		
+
 		$dropdown = <<<DROPDOWN
-<ul id="nav" name="nav">		
+<ul id="nav" name="nav">
 <li><a href="#nogo2" class="button buttondown"><span>Download</span></a>
 		<ul>
 			$downloadlist
