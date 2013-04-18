@@ -122,7 +122,7 @@ class BrowsePathways extends SpecialPage {
 		if ($pickCat == $allCat){
 			$arrCat = Pathway::getAvailableCategories();
 			asort($arrCat);
-			$category_pickedCat = $categoryCat.implode( "|", $arrCat )
+			$category_pickedCat = $categoryCat.implode( "|", $arrCat );
 		} else if ($pickCat == $none){
 			$categoryCat = 'notcategory=';
 			$arrCat = Pathway::getAvailableCategories();
