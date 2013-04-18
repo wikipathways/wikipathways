@@ -40,22 +40,27 @@ class redRow extends tableRow {
 	public function action( $tag, $ts, $delta ) {
 		global $wgLang;
 		$date = date_create( $ts );
-		$prev = date_create( "now" )->modify( "-30 days" );
+		$prev = date_create( "now" );
+		$prev->modify( "-30 days" );
 
 		// http://developers.pathvisio.org/ticket/1534#comment:21
-		$dateFormatted = $date->format("YmdHis");
-		if( $dateFormatted > $tag->getTimeMod()
+		$dateFormated = $date->format("YmdHis");
+		if( $dateFormated < $tag->getTimeMod()
 			|| $dateFormated < $prev->format("YmdHis") ) {
 			$this->action = true;
 		} else {
 			$this->action = false;
 		}
+		$a = $tag->getTimeMod();
+		$b = $prev->format("YmdHis");
+		echo "<!-- " . ($dateFormated > $a) . " $dateFormated > {$a} || ". ($dateFormated < $b) ." $dateFormated < {$b}: {$this->action} -->\n";
 	}
 
 	public function format() {
-		// Row is not red if the last edit date (5th column) is after the tag date (4th column)
+		// Row is red if the last edit date (5th column) is not after the tag date (4th column)
+		// or if the last is older than 30 days
 		$style = "";
-		if( ! $this->action ) {
+		if( $this->action ) {
 			$style = " style='". wfmsg( "wpict-redrow" ) ."'";
 		}
 		return "<tr$style><td>".implode( "<td>", $this->data )."\n";
