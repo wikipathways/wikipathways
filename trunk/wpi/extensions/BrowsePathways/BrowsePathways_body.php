@@ -89,7 +89,6 @@ class BrowsePathways extends SpecialPage {
 		global $wgOut, $from, $pick, $all, $pickCat, $allCat;
 
 		$category = 'category=';
-		$picked;
 		$category_picked;
 		$all = 'All Species';
 		$none = 'Uncategorized';
@@ -102,21 +101,17 @@ class BrowsePathways extends SpecialPage {
 			asort($arr);
 			$category_picked = $category.implode("|", $arr);
 		} else if ($pick == $none){
-			//$picked = '';
 			$category = 'notcategory=';
 			$arr = Pathway::getAvailableSpecies();
 			asort($arr);
 			foreach ($arr as $index) {
-				//$picked .=  $index."|";
 				$category_picked .= $category.$index."\n";
 			}
 		} else {
-			$picked = $pick;
-			$category_picked = $category.$picked;
+			$category_picked = $category.$pick;
 		}
 
 		$categoryCat = 'category=';
-		$pickedCat;
 		$category_pickedCat;
 		$allCat = 'All Categories';
 		$noneCat = 'Uncategorized';
@@ -125,15 +120,9 @@ class BrowsePathways extends SpecialPage {
 			$pickCat = $allCat;
 		}
 		if ($pickCat == $allCat){
-			$pickedCat = '';
 			$arrCat = Pathway::getAvailableCategories();
 			asort($arrCat);
-			foreach ($arrCat as $cat) {
-				$pickedCat .=  $cat."|";
-			}
-			$pickedCat[strlen($pickedCat)-1] = ' ';
-			$category_pickedCat = $categoryCat.$pickedCat;
-			//$category_pickedCat = '';
+			$category_pickedCat = $categoryCat.implode( "|", $arrCat )
 		} else if ($pickCat == $none){
 			$categoryCat = 'notcategory=';
 			$arrCat = Pathway::getAvailableCategories();
@@ -142,10 +131,8 @@ class BrowsePathways extends SpecialPage {
 				$category_pickedCat .= $categoryCat.$cat."\n";
 			}
 		} else {
-			$pickedCat = $pickCat;
-			$category_pickedCat = $categoryCat.$pickedCat;
+			$category_pickedCat = $categoryCat.$pickCat;
 		}
-		//$wgOut->addHtml("Pick: ".$category_picked.$category_pickedCat."<br/>");
 
 		$wgOut->setPagetitle("Browse Pathways");
 
