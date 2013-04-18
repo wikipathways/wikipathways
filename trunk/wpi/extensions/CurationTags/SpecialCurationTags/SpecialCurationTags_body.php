@@ -45,7 +45,7 @@ class redRow extends tableRow {
 		// http://developers.pathvisio.org/ticket/1534#comment:21
 		$dateFormatted = $date->format("YmdHis");
 		if( $dateFormatted > $tag->getTimeMod()
-			|| $dateFormated < $pref->format("YmdHis") ) {
+			|| $dateFormated < $prev->format("YmdHis") ) {
 			$this->action = true;
 		} else {
 			$this->action = false;
