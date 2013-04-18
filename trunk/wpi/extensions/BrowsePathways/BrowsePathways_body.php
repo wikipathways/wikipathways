@@ -98,14 +98,9 @@ class BrowsePathways extends SpecialPage {
 			$pick = 'Homo sapiens';
 		}
 		if ($pick == $all){
-			$picked = '';
 			$arr = Pathway::getAvailableSpecies();
 			asort($arr);
-			foreach ($arr as $index) {
-				$picked .=  $index."|";
-			}
-			$picked[strlen($picked)-1] = ' ';
-			$category_picked = $category.$picked;
+			$category_picked = $category.implode("|", $arr);
 		} else if ($pick == $none){
 			//$picked = '';
 			$category = 'notcategory=';
