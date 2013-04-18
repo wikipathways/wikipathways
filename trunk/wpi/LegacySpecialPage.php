@@ -1,6 +1,6 @@
 <?php
 
-class LegacySpecialPage extends SpeciaPage {
+class LegacySpecialPage extends SpecialPage {
 
 	protected $legacyDestination = null;
 
