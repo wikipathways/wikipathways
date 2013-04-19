@@ -163,21 +163,21 @@ class CategoryHandler {
 	 */
 	public static function getAvailableCategories($includeSpecies = false) {
 		$arrayCat = array();
-				$NScat = NS_CATEGORY;
-				$dbr = wfGetDB( DB_SLAVE );
-				$categorylinks = $dbr->tableName( 'categorylinks' );
-				$implicit_groupby = $dbr->implicitGroupby() ? '1' : 'cl_to';
-				$sqlCat= "SELECT 'Categories' as type,
+		$NScat = NS_CATEGORY;
+		$dbr = wfGetDB( DB_SLAVE );
+		$categorylinks = $dbr->tableName( 'categorylinks' );
+		$implicit_groupby = $dbr->implicitGroupby() ? '1' : 'cl_to';
+		$sqlCat= "SELECT 'Categories' as type,
 								{$NScat} as namespace,
 								cl_to as title,
 								$implicit_groupby as value
 						   FROM $categorylinks
 						   GROUP BY 1,2,3,4";
-				$res = $dbr->query($sqlCat);
-				while ($obj =  $dbr->fetchObject( $res ) ) {
-						$cat = str_replace('_', ' ', $obj->title);
-						if($cat) {
-					array_push($arrayCat, $cat);
+		$res = $dbr->query($sqlCat);
+		while ($obj =  $dbr->fetchObject( $res ) ) {
+			$cat = str_replace('_', ' ', $obj->title);
+			if($cat) {
+				array_push($arrayCat, $cat);
 			}
 		}
 		//Exclude species if needed
@@ -188,5 +188,3 @@ class CategoryHandler {
 		return $arrayCat;
 	}
 }
-
-?>

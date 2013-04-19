@@ -41,6 +41,13 @@ class Pathway {
 		if($updateCache) $this->updateCache();
 	}
 
+function hasNewer( $tag, $diff ) {
+	var_dump($tag);
+	var_dump($diff);
+	exit;
+	return false;
+}
+
 	public function getIdentifier() {
 		return $this->id;
 	}
