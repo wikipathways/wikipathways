@@ -69,31 +69,6 @@ class CategoryHandler {
 		}
 	}
 
-	public function addToCategory($category) {
-		$gpml = $this->pathway->getGPML();
-
-		$dom = new DomDocument();
-		$dom->loadXML($gpml);
-
-		$node = $dom->createElement("Comment", $category);
-		$dom->appendChild($node);
-		$source_node = $dom->createAttribute("Source");
-		$node->appendChild($source_node);
-		$source = $dom->createTextNode("WikiPathways-category");
-		$source_node->appendChild($source);
-
-		$xpath = new DomXPath($dom);
-
-		$result = $xpath->query("//*[@BoardWidth]");
-		$result_comment = $xpath->query("/Comment");
-
-		$result->item(0)->parentNode->insertBefore($result_comment->item(0), $result->item(0));
-
-		$gpml =	$dom->saveXML();
-
-		$this->pathway->updatePathway($gpml, 'Added to category $category');
-	}
-
 	/**
 	 * Applies the categories stored in GPML to the
 	 * MediaWiki database
