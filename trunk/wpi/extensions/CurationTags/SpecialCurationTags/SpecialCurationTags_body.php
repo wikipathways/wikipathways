@@ -36,7 +36,7 @@ class tableRowFactory {
 }
 
 
-class redRow extends tableRow {
+class underConstructionRow extends tableRow {
 	public function action( $tag, $ts, $delta ) {
 		global $wgLang;
 		$date = date_create( $ts );
@@ -53,15 +53,14 @@ class redRow extends tableRow {
 		}
 		$a = $tag->getTimeMod();
 		$b = $prev->format("YmdHis");
-		echo "<!-- " . ($dateFormated > $a) . " $dateFormated > {$a} || ". ($dateFormated < $b) ." $dateFormated < {$b}: {$this->action} -->\n";
 	}
 
 	public function format() {
 		// Row is red if the last edit date (5th column) is not after the tag date (4th column)
-		// or if the last is older than 30 days
+		// or if the last edit is older than 30 days
 		$style = "";
 		if( $this->action ) {
-			$style = " style='". wfmsg( "wpict-redrow" ) ."'";
+			$style = " class='notUnderConstruction'";
 		}
 		return "<tr$style><td>".implode( "<td>", $this->data )."\n";
 	}

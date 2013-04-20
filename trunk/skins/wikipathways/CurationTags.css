@@ -93,3 +93,7 @@ div.tagtool {
 	position:relative;
 	left:2em;
 }
+
+tr.notUnderConstruction {
+   background-color: #BC8F8F;
+}
