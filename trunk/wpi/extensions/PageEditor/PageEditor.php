@@ -43,7 +43,7 @@ function displayPageEditor($input, $argv, &$parser) {
 
 	$wgOut->addScript("<script type=\"{$wgJsMimeType}\" src=\"{$wfPageEditorPath}/PageEditor.js\"></script>\n");
 
-	$script = "<script type='{$wgJsMimeType}'>var p = new PageEditor('$targetId', '$type', $content, '$pwId');$categories</script>";
+	$script = "<script type='{$wgJsMimeType}'>var p = new PageEditor('$targetId', '$type', $content, '$pwId');</script>";
 
 	return $script;
 }
@@ -79,11 +79,6 @@ class PageEditor {
 					//Save the new GPML
 					$gpml = $doc->saveXML();
 					$pathway->updatePathway($gpml, "Modified " . $type);
-					break;
-				case "category":
-					$categories = json_decode($content);
-					$handler = new CategoryHandler($pathway);
-					$handler->setCategories((array)$categories);
 					break;
 				case "title":
 					$doc = new DOMDocument();
