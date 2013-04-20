@@ -74,53 +74,40 @@ class LegacyBrowsePathways extends LegacySpecialPage {
 
 class BrowsePathways extends SpecialPage {
 
-	function BrowsePathways() {
-		SpecialPage::SpecialPage("BrowsePathways");
+	protected $maxPerPage  = 960;
+	protected $topLevelMax = 50;
+	protected $name        = 'BrowsePathways';
+	protected $all         = 'All Species';
+	protected $none        = 'Uncategorized';
+
+	# Determines, which message describes the input field 'nsfrom' (->SpecialPrefixindex.php)
+	var $nsfromMsg='allpagesfrom';
+
+
+	function __construct( $empty = null ) {
+		SpecialPage::SpecialPage( $this->name );
 		self::loadMessages();
 	}
 
 	function execute( $par) {
 
-		global $wgOut, $pick, $all;
+		global $wgOut;
 
-		$all = 'All Species';
-		$none = 'Uncategorized';
-		$pick = $_GET["browse"];
+		$wgOut->setPagetitle("browsepathways");
 
-		$wgOut->setPagetitle("Browse Pathways");
-
-		$nsForm = $this->namespaceForm( $namespace );
+		$nsForm = $this->namespaceForm( );
 
 		$wgOut->addHtml( $nsForm . '<hr />');
 
-		$wgOut->addWikiText("<DPL>
+		$wgOut->addWikiText(
+			"<DPL>
 				notnamespace=Image
-						namespace=Pathway
-						shownamespace=false
-						mode=category
-						ordermethod=title
-								</DPL>");
+				namespace=Pathway
+				shownamespace=false
+				mode=category
+				ordermethod=title
+			</DPL>");
 	}
-
-
-	function loadMessages() {
-		static $messagesLoaded = false;
-		global $wgMessageCache;
-		if ( $messagesLoaded ) return true;
-		$messagesLoaded = true;
-
-		require( dirname( __FILE__ ) . '/BrowsePathways.i18n.php' );
-		foreach ( $allMessages as $lang => $langMessages ) {
-			$wgMessageCache->addMessages( $langMessages, $lang );
-		}
-		return true;
-	}
-
-	var $maxPerPage=960;
-	var $topLevelMax=50;
-	var $name='BrowsePathways';
-	# Determines, which message describes the input field 'nsfrom' (->SpecialPrefixindex.php)
-	var $nsfromMsg='allpagesfrom';
 
 
 	/**
@@ -129,7 +116,7 @@ class BrowsePathways extends SpecialPage {
 	 * @param string $from Article name we are starting listing at.
 	 */
 	function namespaceForm ( $namespace = NS_PATHWAY ) {
-		global $wgScript, $wgContLang, $wgOut;
+		global $wgScript, $wgContLang, $wgOut, $wgRequest;
 		$t = SpecialPage::getTitleFor( $this->name );
 
 		/** AP20070419
@@ -141,14 +128,13 @@ class BrowsePathways extends SpecialPage {
 		/**
 		 * Species Selection
 		 */
-		$speciesselect = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
-
 		$arr = Pathway::getAvailableSpecies();
 		asort($arr);
-		$selected = $pick;
-		$all = 'All Species';
-		$none = 'Uncategorized';
+		$arr[] = $this->all;
+		$arr[] = $this->none;
 
+		$selected = $wgRequest->get("browse");
+		$speciesselect = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
 		foreach ($arr as $index) {
 			if ($index == $selected) {
 				$speciesselect .= "\t" . Xml::element("option",
@@ -157,20 +143,6 @@ class BrowsePathways extends SpecialPage {
 				$speciesselect .= "\t" . Xml::element("option", array("value" => $index), $index) . "\n";
 			}
 		}
-		if ($selected == $all){
-			$speciesselect .= "\t" . Xml::element("option",
-				array("value" => $all, "selected" => "selected"), $all) . "\n";
-		} else {
-			$speciesselect .= "\t" . Xml::element("option", array("value" => $all), $all) . "\n";
-		}
-
-		if ($selected == $none){
-			$speciesselect .= "\t" . Xml::element("option",
-				array("value" => $none, "selected" => "selected"), $none) . "\n";
-		} else {
-			$speciesselect .= "\t" . Xml::element("option", array("value" => $none), $none) . "\n";
-		}
-
 		$speciesselect .= "</select>\n";
 
 		$submitbutton = '<noscript><input type="submit" value="Go" name="pick" /></noscript>';
@@ -181,9 +153,7 @@ class BrowsePathways extends SpecialPage {
 <table id='nsselect' class='allpages'>
 	<tr>
 		<td align='right'>Display pathways from species:</td>
-		<td align='left'>$speciesselect</td>
-		$submitbutton
-		</td>
+		<td align='left'>$speciesselect</td>$submitbutton</td>
 	</tr>
 </table>
 ";
