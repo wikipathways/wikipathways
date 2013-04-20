@@ -9,8 +9,8 @@ try {
 	set_include_path( get_include_path() . PATH_SEPARATOR .
 		implode( PATH_SEPARATOR, array_map( 'realpath', array( $wpiDir, "$wpiDir/includes",
 					"$wpiDir/../includes", "$dir/../" ) ) ) );
-	require_once( "$IP/WebStart.php" );
-	require_once( "$IP/Wiki.php" );
+	require_once( "WebStart.php" );
+	require_once( "Wiki.php" );
 
 	require_once( 'MwUtils.php' );
 	require_once( 'globals.php' );
