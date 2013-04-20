@@ -273,7 +273,7 @@ class Pathway {
 	   \param Title The full title of the pathway page (e.g. Pathway:Human:Apoptosis),
 	   or the MediaWiki Title object
 	*/
-	public function newFromTitle($title, $checkCache = false) {
+	static public function newFromTitle($title, $checkCache = false) {
 		//Remove url and namespace from title
 		$id = self::parseIdentifier($title);
 		if(!$id) {
@@ -287,7 +287,7 @@ class Pathway {
 	   \param Title The full title of the pathway file (e.g. Hs_Apoptosis.gpml),
 	   or the MediaWiki Title object
 	*/
-	public function newFromFileTitle($title, $checkCache = false) {
+	static public function newFromFileTitle($title, $checkCache = false) {
 		if($title instanceof Title) {
 			$title = $title->getText();
 		}
