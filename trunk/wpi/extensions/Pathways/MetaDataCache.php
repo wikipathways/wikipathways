@@ -122,14 +122,17 @@ class MetaDataCache {
 	 * @param $field A cache field (use one of the $FIELD_* constants)
 	 */
 	public function getValue($field, $update = true) {
-		$tag = $this->tags[$field];
-		if(!$tag) {
-			$this->load($field);
-			if($update) $this->updateCache($field);
+		$ret = '';
+ 		if( isset( $this->tags[$field] ) ) {
 			$tag = $this->tags[$field];
+			if(!$tag) {
+				$this->load($field);
+				if($update) $this->updateCache($field);
+				$tag = $this->tags[$field];
+			}
+			$ret = $tag->getText();
 		}
-		if(!$tag) return '';
-		return $tag->getText();
+		return $ret;
 	}
 
 	/**
