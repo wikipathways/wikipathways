@@ -19,11 +19,11 @@ function wfEditApplet_Magic( &$magicWords, $langCode ) {
 /**
  * Creates the applet
  * @paramater type, type of the applet to start (editor, bibliography, ...)
- * @parameter $idClick Id of the element to attach an 'onclick' event 
- * to that will trigger the applet to start. If this argument equals 'direct', 
+ * @parameter $idClick Id of the element to attach an 'onclick' event
+ * to that will trigger the applet to start. If this argument equals 'direct',
  * the applet will be activated directly.
  * @parameter $idReplace Id of the element that will be replaced by the applet
- * @parameter $new Whether the pathway is yet to be created (will be passed on to the applet) 
+ * @parameter $new Whether the pathway is yet to be created (will be passed on to the applet)
  * and whether it should be private. Possible values:
  * - '' or false: not a new pathway
  * - 'private': a new pathway that should also be private
@@ -32,39 +32,33 @@ function wfEditApplet_Magic( &$magicWords, $langCode ) {
 */
 function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $new = false, $pwTitle = '', $type = 'editor', $width = 0, $height = '500px') {
 	global $wgUser, $wgScriptPath, $loaderAdded, $wpiJavascriptSources, $jsJQuery;
-	
+
 	//Check user rights
 	if( !$wgUser->isLoggedIn() || wfReadOnly()) {
 		return ""; //Don't return any applet code
 	}
-	
+
 	$parser->disableCache();
-	
+
 	$param = array(); //Extra parameters
 	$main = 'org.wikipathways.applet.gui.';
 	$noresize = 'false';
 	switch($type) {
-		case 'bibliography': 
-		$main .= 'BibliographyApplet';
-		$noresize = 'true';
-		break;
+		case 'bibliography':
+			$main .= 'BibliographyApplet';
+			$noresize = 'true';
+			break;
 		case 'description':
-		$main .= 'DescriptionApplet';
-		$noresize = 'true';
-		break;
-		case 'categories':
-		$main .= 'CategoryApplet';
-		$cats = implode(',', Pathway::getAvailableCategories());
-		$param = array('categories' => $cats);
-		$noresize = 'true';
-		break;
+			$main .= 'DescriptionApplet';
+			$noresize = 'true';
+			break;
 		default: $main .= 'AppletMain';
 	}
-	
+
 	if($new == 'private') {
 		$param['private'] = "true";
 	}
-	
+
 	try {
 		if($new) { //Pathway title contains species:name
 			$editApplet = new EditApplet(null, $main, $idReplace, $idClick, $width, $height, $noresize, $param);
@@ -81,10 +75,10 @@ function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $n
 			}
 			$editApplet = new EditApplet($title, $main, $idReplace, $idClick, $width, $height, $noresize, $param);
 		}
-		
+
 		$appletCode = $editApplet->makeAppletFunctionCall();
 		$jardir = $wgScriptPath . '/wpi/applet';
-		
+
 		/** Don't use jar preloading for now
 		if(!$loaderAdded) {
 			$cache = $editApplet->getCacheParameters();
@@ -117,7 +111,7 @@ function scriptTag($code, $src = '') {
 }
 
 function createJsArray($array) {
-	$jsa = "new Array(";      
+	$jsa = "new Array(";
 	foreach($array as $elm) {
 		$jsa .= "'{$elm}', ";
 	}
@@ -160,10 +154,10 @@ class EditApplet {
 
 	function setPathwayName($name) { $this->pathwayName = $name; }
 	function setPathwaySpecies($species) { $this->pathwaySpecies = $species; }
-	
+
 	private static $version_string = false;
 	private	static $archive_string = false;
-	
+
 	static function getCacheParameters() {
 		if(self::$version_string && self::$archive_string) {
 			return array("version"=>self::$version_string, "archive"=>self::$archive_string);
@@ -212,14 +206,14 @@ class EditApplet {
 		writefile("$jardir/cache_version", $out);
 		return array("archive"=>self::$archive_string, "version"=>self::$version_string);
 	}
-	
+
 	static function getParameterArray($pathwayId, $pathwayName, $pathwaySpecies, $param = array()) {
 		global $wgUser, $wpiBridgeAppletUrl;
-		
+
 		if(!isset($wpiBridgeUrl)) {
 			$wpiBridgeUrl = 'http://webservice.bridgedb.org/';
 		}
-		
+
 		if($pathwayId) {
 			$pathway = new Pathway($pathwayId);
 			$revision = $pathway->getLatestRevision();
@@ -234,7 +228,7 @@ class EditApplet {
 		$cache = self::getCacheParameters();
 		$archive_string = $cache["archive"];
 		$version_string = $cache["version"];
-				
+
 		$args = array(
 			'rpcUrl' => WPI_URL . "/wpi_rpc.php",
 			'pwId' => $pathwayId,
@@ -257,14 +251,14 @@ class EditApplet {
 		$args = array_merge($args, $param);
 		return $args;
 	}
-	
+
 	function getJsParameters() {
 		$args = self::getParameterArray($this->pathwayId, $this->pathwayName, $this->pathwaySpecies, $this->param);
 		$keys = createJsArray(array_keys($args));
 		$values = createJsArray(array_values($args));
-		return array('keys' => $keys, 'values' => $values); 
+		return array('keys' => $keys, 'values' => $values);
 	}
-	
+
 	function makeAppletObjectCall() {
 		global $wgScriptPath;
 		$site = SITE_URL;
@@ -279,19 +273,19 @@ class EditApplet {
 		global $wgScriptPath;
 		return "$wgScriptPath/wpi/applet";
 	}
-	
+
 	function makeAppletFunctionCall() {
 		$base = self::getAppletBase();
 		$param = $this->getJsParameters();
 		$keys = $param['keys'];
 		$values = $param['values'];
-		
+
 		$function = $this->makeAppletObjectCall();
 		if($this->idClick == 'direct') {
 			return scriptTag($function);
 		} else {
 			return scriptTag(
-				"var elm = document.getElementById('{$this->idClick}');" . 
+				"var elm = document.getElementById('{$this->idClick}');" .
 				"var listener = function() { $function };" .
 				"if(elm.attachEvent) { elm.attachEvent('onclick',listener); }" .
 				"else { elm.addEventListener('click',listener, false); }" .

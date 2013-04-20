@@ -344,15 +344,8 @@ function hasNewer( $tag, $diff ) {
 	}
 
 	/**
-	 * Returns a list of categories, excluding species
+	 * @deprecated this won't work with stable IDs
 	 */
-	public static function getAvailableCategories() {
-		return CategoryHandler::getAvailableCategories(false);
-	}
-
-	/**
-		 * @deprecated this won't work with stable IDs
-		 */
 	private static function nameFromTitle($title) {
 		$parts = explode(':', $title);
 
