@@ -1,7 +1,6 @@
 <?php
 
 require_once("wpi.php");
-require_once("Pathway.php");
 require_once("DataSources.php");
 
 
@@ -9,12 +8,12 @@ if(isset($argv[0]) && $argv[0] == "StatisticsCache.php") { //Called from command
 	ini_set("memory_limit", "256M");
 	echo("Updating statistics cache\n");
 	$start = microtime(true);
-	
+
 	StatisticsCache::updatePathwaysCache();
 	foreach(Pathway::getAvailableSpecies() as $species) {
 		StatisticsCache::updateUniqueGenesCache($species);
 	}
-	
+
 	$time = (microtime(true) - $start);
 	echo("\tUpdated in $time seconds\n");
 }
@@ -28,19 +27,19 @@ This class is responsible for reading values from and writing values to that cac
 class StatisticsCache
 {
 	private static $pathways;
-	
+
 	private static function getAllPathways() {
 		if(!self::$pathways) {
-			self::$pathways = Pathway::getAllPathways();	
+			self::$pathways = Pathway::getAllPathways();
 		}
 		return self::$pathways;
 	}
-	
+
 	/**
 	 * returns the number of unique genes for a certain species.
 	 * re-creates the cache if it doesn't exist.
 	 */
-	public static function howManyUniqueGenes($species) 
+	public static function howManyUniqueGenes($species)
 	{
 		global $wgScriptPath;
 		$count = 0;
@@ -53,32 +52,32 @@ class StatisticsCache
 			$data[$species] = StatisticsCache::countUniqueGenes ($species);
 			StatisticsCache::writeGeneCache ($data);
 		}
-		
+
 		return $data[$species];
 	}
 
-        /**        
+		/**
 	 * returns the number of pathways for a certain species.
-	 * given species = 'total', it returns total number of pathways        
-	 * re-creates the cache if it doesn't exist.        
- 	 */
-        public static function howManyPathways($species)        
+	 * given species = 'total', it returns total number of pathways
+	 * re-creates the cache if it doesn't exist.
+	 */
+		public static function howManyPathways($species)
 	{
-                global $wgScriptPath;
-                $count = 0;
+				global $wgScriptPath;
+				$count = 0;
 
-                // initialize variable $data with the contents of the cache                
+				// initialize variable $data with the contents of the cache
 		$data = StatisticsCache::readPathwayCache();
-                
-		// update cache if this species has never been calculated before                
-		if (!array_key_exists ($species, $data))                
-		{
-                        $data = StatisticsCache::countPathways();
-                        StatisticsCache::writePathwayCache($data); 
-               }
 
-               return $data[$species];
-        }              	
+		// update cache if this species has never been calculated before
+		if (!array_key_exists ($species, $data))
+		{
+						$data = StatisticsCache::countPathways();
+						StatisticsCache::writePathwayCache($data);
+			   }
+
+			   return $data[$species];
+		}
 
 	/**
 	 * Calculates the number of unique genes in all pathways per species.
@@ -87,7 +86,7 @@ class StatisticsCache
 	{
 		global $wgScriptPath;
 
-		$databases = DataSource::getDatasourcesByType('gene'); 
+		$databases = DataSource::getDatasourcesByType('gene');
 		$geneList = array();
 		$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
 		$all_pathways = self::getAllPathways();
@@ -100,7 +99,7 @@ class StatisticsCache
 			try
 			{
 				$xrefs = $pathway->getUniqueXrefs();
-				
+
 				foreach ($xrefs as $xref){
 					$id = $xref->getId();
 					$db = $xref->getSystem();
@@ -120,35 +119,35 @@ class StatisticsCache
 		$geneList = array_unique($geneList);
 		return count ($geneList);
 	}
-	
-        /**
-         * Calculates the number of pathways for each species. Unlike countUniqueGenes(),
+
+		/**
+		 * Calculates the number of pathways for each species. Unlike countUniqueGenes(),
 	 * this methods counts for all species every time. It's basically just as fast with the
 	 * current logic below.
-         */
-        private static function countPathways()
-        {
+		 */
+		private static function countPathways()
+		{
 			$taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
-        	$pathwaysPerSpecies = array();
-        	
-        	//Set all species to 0
-        	foreach(Pathway::getAvailableSpecies() as $species) {
-        		$pathwaysPerSpecies[$species] = 0;
-        	}
-        	
+			$pathwaysPerSpecies = array();
+
+			//Set all species to 0
+			foreach(Pathway::getAvailableSpecies() as $species) {
+				$pathwaysPerSpecies[$species] = 0;
+			}
+
 			$total = 0;
-        	$pathways = self::getAllPathways();
-        	foreach($pathways as $pathway) {
-        		if ($pathway->isDeleted()) continue; //skip deleted pathways
+			$pathways = self::getAllPathways();
+			foreach($pathways as $pathway) {
+				if ($pathway->isDeleted()) continue; //skip deleted pathways
 			if(!$pathway->isPublic()) continue; //Skip private pathways
 			$page_id = $pathway->getPageIdDB();
 			if (in_array($page_id, $taggedIds)) continue; // skip Tutorial pathways
-            		$species = $pathway->getSpecies();
-                	if ($species == '') continue; //skip pathways without a species category
+					$species = $pathway->getSpecies();
+					if ($species == '') continue; //skip pathways without a species category
 			$pathwaysPerSpecies{$species} += 1;
 			$total += 1;
-        	}
-        	$pathwaysPerSpecies{'total'} = $total;
+			}
+			$pathwaysPerSpecies{'total'} = $total;
 			return $pathwaysPerSpecies;
 	}
 
@@ -160,38 +159,38 @@ class StatisticsCache
 	{
 		try
 		{
-			$data = StatisticsCache::readGeneCache();			
+			$data = StatisticsCache::readGeneCache();
 			$data[$species] = StatisticsCache::countUniqueGenes ($species);
 			StatisticsCache::writeGeneCache ($data);
-			
+
 			return $data;
-		} 
-		catch(Exception $e) 
+		}
+		catch(Exception $e)
 		{
 			// likely having trouble opening files, perhaps due to permissions
 			// files should have 664 permissions
 		}
 	}
-		
-        /**
-        re-calculate the pathway count for all species.
-        This should be called when a pathway has been created or deleted.
-        */
-        public static function updatePathwaysCache()
-        {
-                try
-                {
-                        $data = StatisticsCache::countPathways();
-                        StatisticsCache::writePathwayCache($data);
 
-                        return $data;
-                }
-                catch(Exception $e)
-                {
-                        // likely having trouble opening files, perhaps due to permissions
-                        // files should have 664 permissions
-                }
-        }
+		/**
+		re-calculate the pathway count for all species.
+		This should be called when a pathway has been created or deleted.
+		*/
+		public static function updatePathwaysCache()
+		{
+				try
+				{
+						$data = StatisticsCache::countPathways();
+						StatisticsCache::writePathwayCache($data);
+
+						return $data;
+				}
+				catch(Exception $e)
+				{
+						// likely having trouble opening files, perhaps due to permissions
+						// files should have 664 permissions
+				}
+		}
 
 
 	private static function writeGeneCache ($data)
@@ -205,9 +204,9 @@ class StatisticsCache
 			fwrite ($file, "$key\t$c\n");
 		}
 		fclose ($file);
-		chmod($filename, 0666); 	
+		chmod($filename, 0666);
 	}
-	
+
 	/**
 	read the contents of the gene cache
 	and return this as a set of $species => $count pairs
@@ -215,15 +214,15 @@ class StatisticsCache
 	private static function readGeneCache()
 	{
 		global $wgScriptPath;
-		
+
 		// read contents of the cache into variable $data
 		$data = array();
-		
+
 		$filename = WPI_CACHE_PATH . '/UniqueGeneCounts.data';
 		$file = fopen($filename, 'r');
-		if ($file) 
+		if ($file)
 		{
-			while (!feof($file)) 
+			while (!feof($file))
 			{
 				if($line = trim(fgets($file))) {
 					$explodedLine = explode("\t", $line);
@@ -233,47 +232,47 @@ class StatisticsCache
 		}
 		return $data;
 	}
-                        
-        private static function writePathwayCache ($data)
-        {       
-                global $wgScriptPath;
-                
-                // write all data in $data back to the file again
-                $filename = WPI_CACHE_PATH . '/PathwayCounts.data';
-                $file = fopen($filename, 'w+');
-                foreach ($data as $key => $c)
-                {
-                        fwrite ($file, "$key\t$c\n");
-                }
-                fclose ($file);
-                chmod($filename, 0666);   
-        }
-                
-        /**     
-        read the contents of the pathway cache
-        and return this as a set of $species => $count pairs
-        */              
-        private static function readPathwayCache()
-        {               
-                global $wgScriptPath;
-                        
-                // read contents of the cache into variable $data
-                $data = array();
-                                
-                $filename = WPI_CACHE_PATH . '/PathwayCounts.data';
-                $file = @fopen($filename, 'r'); 
-                if ($file)
-                {
-                        while (!feof($file))
-                        {
-                                if($line = trim(fgets($file))) {
-                                        $explodedLine = explode("\t", $line);
-                                        $data[$explodedLine[0]] = $explodedLine[1];
-                                }
-                        }
-                }
-                return $data;
-        }
+
+		private static function writePathwayCache ($data)
+		{
+				global $wgScriptPath;
+
+				// write all data in $data back to the file again
+				$filename = WPI_CACHE_PATH . '/PathwayCounts.data';
+				$file = fopen($filename, 'w+');
+				foreach ($data as $key => $c)
+				{
+						fwrite ($file, "$key\t$c\n");
+				}
+				fclose ($file);
+				chmod($filename, 0666);
+		}
+
+		/**
+		read the contents of the pathway cache
+		and return this as a set of $species => $count pairs
+		*/
+		private static function readPathwayCache()
+		{
+				global $wgScriptPath;
+
+				// read contents of the cache into variable $data
+				$data = array();
+
+				$filename = WPI_CACHE_PATH . '/PathwayCounts.data';
+				$file = @fopen($filename, 'r');
+				if ($file)
+				{
+						while (!feof($file))
+						{
+								if($line = trim(fgets($file))) {
+										$explodedLine = explode("\t", $line);
+										$data[$explodedLine[0]] = $explodedLine[1];
+								}
+						}
+				}
+				return $data;
+		}
 
 
 }
