@@ -86,63 +86,15 @@ class BrowsePathways extends SpecialPage {
 
 	function execute( $par) {
 
-		global $wgOut, $from, $pick, $all, $pickCat, $allCat;
-
-		$category = 'category=';
-		$category_picked;
-		$all = 'All Species';
-		$none = 'Uncategorized';
-		$pick = $_GET["browse"];
-		if (!isset($pick)){
-			$pick = 'Homo sapiens';
-		}
-		if ($pick == $all){
-			$arr = Pathway::getAvailableSpecies();
-			asort($arr);
-			$category_picked = $category.implode("|", $arr);
-		} else if ($pick == $none){
-			$category = 'notcategory=';
-			$arr = Pathway::getAvailableSpecies();
-			asort($arr);
-			foreach ($arr as $index) {
-				$category_picked .= $category.$index."\n";
-			}
-		} else {
-			$category_picked = $category.$pick;
-		}
-
-		$categoryCat = 'category=';
-		$category_pickedCat;
-		$allCat = 'All Categories';
-		$noneCat = 'Uncategorized';
-		$pickCat = $_GET["browseCat"];
-		if (!isset($pickCat)){
-			$pickCat = $allCat;
-		}
-		if ($pickCat == $allCat){
-			$arrCat = Pathway::getAvailableCategories();
-			asort($arrCat);
-			$category_pickedCat = $categoryCat.implode( "|", $arrCat );
-		} else if ($pickCat == $none){
-			$categoryCat = 'notcategory=';
-			$arrCat = Pathway::getAvailableCategories();
-			asort($arrCat);
-			foreach ($arrCat as $cat) {
-				$category_pickedCat .= $categoryCat.$cat."\n";
-			}
-		} else {
-			$category_pickedCat = $categoryCat.$pickCat;
-		}
+		global $wgOut, $from;
 
 		$wgOut->setPagetitle("Browse Pathways");
 
-		$nsForm = $this->namespaceForm( $namespace, $pick, $pickCat);
+		$nsForm = $this->namespaceForm( $namespace );
 
 		$wgOut->addHtml( $nsForm . '<hr />');
 
 		$wgOut->addWikiText("<DPL>
-			$category_picked
-						$category_pickedCat
 				notnamespace=Image
 						namespace=Pathway
 						shownamespace=false
@@ -177,7 +129,7 @@ class BrowsePathways extends SpecialPage {
 	 * @param integer $namespace A namespace constant (default NS_PATHWAY).
 	 * @param string $from Article name we are starting listing at.
 	 */
-	function namespaceForm ( $namespace = NS_PATHWAY, $pick, $pickCat ) {
+	function namespaceForm ( $namespace = NS_PATHWAY ) {
 		global $wgScript, $wgContLang, $wgOut;
 		$t = SpecialPage::getTitleFor( $this->name );
 
@@ -222,40 +174,6 @@ class BrowsePathways extends SpecialPage {
 
 		$speciesselect .= "</select>\n";
 
-		/**
-		 * Category Selection
-		 */
-		$catselect = "\n<select onchange='this.form.submit()' name='browseCat' class='namespaceselector'>\n";
-
-		$arrCat = Pathway::getAvailableCategories();
-		asort($arrCat);
-		$selectedCat = $pickCat;
-		$allCat = 'All Categories';
-		$noneCat = 'Uncategorized';
-
-		foreach ($arrCat as $cat){
-			if ($cat == $selectedCat) {
-				$catselect .= "\t" . Xml::element("option",
-					array("value" => $cat, "selected" => "selected"), $cat) . "\n";
-			} else {
-				$catselect .= "\t" . Xml::element("option", array("value" => $cat), $cat) . "\n";
-			}
-		}
-		if ($selectedCat == $allCat){
-			$catselect .= "\t" . Xml::element("option",
-				array("value" => $allCat, "selected" => "selected"), $allCat) . "\n";
-		} else {
-			$catselect .= "\t" . Xml::element("option", array("value" => $allCat), $allCat) . "\n";
-		}
-		if ($selectedCat == $noneCat){
-			$catselect .= "\t" . Xml::element("option",
-				array("value" => $noneCat, "selected" => "selected"), $noneCat) . "\n";
-		} else {
-			$catselect .= "\t" . Xml::element("option", array("value" => $noneCat), $noneCat) . "\n";
-		}
-
-		$catselect .= "</select>\n";
-
 		$submitbutton = '<noscript><input type="submit" value="Go" name="pick" /></noscript>';
 
 		$out = "<form method='get' action='{$wgScript}'>";
@@ -278,4 +196,3 @@ class BrowsePathways extends SpecialPage {
 		return $out;
 	}
 }
-
