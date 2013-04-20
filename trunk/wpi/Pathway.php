@@ -21,7 +21,6 @@ class Pathway {
 	private $id; //The pathway identifier
 
 	private $pwData; //The PathwayData for this pathway
-	private $pwCategories; //The CategoryHandler for this pathway
 	private $firstRevision; //The first revision of the pathway article
 	private $revision; //The active revision for this instance
 	private $metaDataCache; //The MetaDataCache object that handles the cached title/species
@@ -131,7 +130,6 @@ function hasNewer( $tag, $diff ) {
 		if($this->revision != $revision) {
 			$this->revision = $revision;
 			$this->pwData = null; //Invalidate loaded pathway data
-			$this->pwCategories = null; //Invalidate category data
 			if($updateCache) $this->updateCache(); //Make sure the cache for this revision is up to date
 		}
 	}
@@ -150,17 +148,6 @@ function hasNewer( $tag, $diff ) {
 			$this->pwData = new PathwayData($this);
 		}
 		return $this->pwData;
-	}
-
-	/**
-	 * Get the CategoryHandler object that handles
-	 * categories for this pathway
-	 */
-	public function getCategoryHandler() {
-		if(!$this->pwCategories) {
-			$this->pwCategories = new CategoryHandler($this);
-		}
-		return $this->pwCategories;
 	}
 
 	public function getPermissionManager() {
