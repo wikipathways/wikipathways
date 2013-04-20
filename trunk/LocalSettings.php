@@ -68,8 +68,8 @@ $wgDBserver         = "localhost";
 $wgDBport           = "5432";
 $wgDBprefix         = "";
 
-if(!$wpiJavascriptSnippets) $wpiJavascriptSnippets = array();
-if(!$wpiJavascriptSources) $wpiJavascriptSources = array();
+if( !isset( $wpiJavascriptSnippets ) ) $wpiJavascriptSnippets = array();
+if( !isset( $wpiJavascriptSources ) ) $wpiJavascriptSources = array();
 
 require_once( "$IP/extensions/ConfirmEdit/ConfirmEdit.php" );
 require_once( "$IP/extensions/ConfirmEdit/ReCaptcha.php" );
@@ -81,10 +81,10 @@ require_once('pass.php');
 require_once('wpi/globals.php');
 
 # Default javascript locations
-if(!isset($jsJQuery)) $jsJQuery = "$wgScriptPath/wpi/js/jquery/jquery-1.5.1.js";
-if(!isset($jsJQueryUI)) $jsJQueryUI = "$wgScriptPath/wpi/js/jquery-ui/jquery-ui-1.8.10.custom.min.js";
-if(!isset($cssJQueryUI)) $cssJQueryUI = "$wgScriptPath/wpi/js/jquery-ui/jquery-ui-1.8.10.custom.css";
-if(!isset($jsSvgWeb)) $jsSvgWeb = "$wgScriptPath/wpi/js/svgweb/svg-uncompressed.js\" data-path=\"$wgScriptPath/wpi/js/svgweb";
+if( !isset( $jsJQuery ) ) $jsJQuery = "$wgScriptPath/wpi/js/jquery/jquery-1.5.1.js";
+if( !isset( $jsJQueryUI ) ) $jsJQueryUI = "$wgScriptPath/wpi/js/jquery-ui/jquery-ui-1.8.10.custom.min.js";
+if( !isset( $cssJQueryUI ) ) $cssJQueryUI = "$wgScriptPath/wpi/js/jquery-ui/jquery-ui-1.8.10.custom.css";
+if( !isset( $jsSvgWeb ) ) $jsSvgWeb = "$wgScriptPath/wpi/js/svgweb/svg-uncompressed.js\" data-path=\"$wgScriptPath/wpi/js/svgweb";
 $jsRequireJQuery = false; //Only load jquery when required by extension
 
 # Schemas for Postgres
