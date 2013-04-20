@@ -19,11 +19,6 @@ function wfSpecialBrowsePathways( $par=NULL, $specialPage ) {
 
 	# GET values
 
-	//	$pick = $_POST["from"];
-	//	if (isset($_POST['browse'])){
-	//	echo "Pick: ".$pick."<br/>";
-	//	}
-
 	/** AP20070419
 	 * Parse species header from 'from' so that prev/next links can work
 	 */
@@ -86,7 +81,11 @@ class BrowsePathways extends SpecialPage {
 
 	function execute( $par) {
 
-		global $wgOut, $from;
+		global $wgOut, $pick, $all;
+
+		$all = 'All Species';
+		$none = 'Uncategorized';
+		$pick = $_GET["browse"];
 
 		$wgOut->setPagetitle("Browse Pathways");
 
@@ -183,9 +182,6 @@ class BrowsePathways extends SpecialPage {
 	<tr>
 		<td align='right'>Display pathways from species:</td>
 		<td align='left'>$speciesselect</td>
-		<td align='right'> in category:</td>
-		<td align='left'>
-		$catselect
 		$submitbutton
 		</td>
 	</tr>
