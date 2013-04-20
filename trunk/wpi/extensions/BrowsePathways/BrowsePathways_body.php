@@ -146,7 +146,7 @@ class BrowsePathways extends SpecialPage {
 		$arr[] = $this->all;
 		$arr[] = $this->none;
 
-		$selected = $wgRequest->get("browse");
+		$selected = $wgRequest->getVal("browse");
 		$speciesselect = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
 		foreach ($arr as $index) {
 			if ($index == $selected) {
