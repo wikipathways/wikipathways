@@ -66,7 +66,7 @@ function checkSoleAuthor($title, $user, $action, $result) {
 $wgHooks['SkinTemplateContentActions'][] = 'deleteTab';
 
 function deleteTab(&$content_actions) {
-	global $wgTitle;
+	global $wgTitle, $pathway;
 	try {
 		if($wgTitle->getNamespace() == NS_PATHWAY) {
 			$pathway = Pathway::newFromTitle($wgTitle);
@@ -82,10 +82,9 @@ function deleteTab(&$content_actions) {
 		} else {
 			//Use default delete action, but link to special deletion page
 			$content_actions['delete']['text'] = 'delete';
-			$content_actions['delete']['href'] = 
+			$content_actions['delete']['href'] =
 				SITE_URL . '/index.php?title=Special:DeletePathway&id=' . $pathway->getIdentifier();
 		}
 	}
 	return true;
 }
-?>
