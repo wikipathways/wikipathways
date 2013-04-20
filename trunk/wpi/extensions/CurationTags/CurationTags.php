@@ -49,7 +49,7 @@ Feedback and further assistance:
 }
 
 function displayCurationTags($input, $argv, &$parser) {
-	global $wgOut, $wfCurationTagsPath;
+	global $wgOut, $wfCurationTagsPath, $wgJsMimeType;
 
 	//Add CSS
 	$wgOut->addStyle("wikipathways/CurationTags.css");
