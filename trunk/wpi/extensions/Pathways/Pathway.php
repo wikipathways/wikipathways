@@ -11,9 +11,9 @@ class Pathway {
 	public static $DELETE_PREFIX = "Deleted pathway: ";
 
 	private static $fileTypes = array(
-				FILETYPE_IMG => FILETYPE_IMG,
-				FILETYPE_GPML => FILETYPE_GPML,
-				FILETYPE_PNG => FILETYPE_IMG,
+		FILETYPE_IMG => FILETYPE_IMG,
+		FILETYPE_GPML => FILETYPE_GPML,
+		FILETYPE_PNG => FILETYPE_IMG,
 	);
 
 	private $pwPageTitle; //The title object for the pathway page
@@ -29,7 +29,7 @@ class Pathway {
 	 * Constructor for this class.
 	 * @param $id The pathway identifier (NOTE: during the transition phase to stable identifiers,
 	 * this will be the page title without namespace prefix).
-	*/
+	 */
 	function __construct($id, $updateCache = false) {
 		if(!$id) throw new Exception("id argument missing in constructor for Pathway");
 
@@ -39,12 +39,12 @@ class Pathway {
 		if($updateCache) $this->updateCache();
 	}
 
-function hasNewer( $tag, $diff ) {
-	var_dump($tag);
-	var_dump($diff);
-	exit;
-	return false;
-}
+	function hasNewer( $tag, $diff ) {
+		var_dump($tag);
+		var_dump($diff);
+		exit;
+		return false;
+	}
 
 	public function getIdentifier() {
 		return $this->id;
@@ -61,11 +61,11 @@ function hasNewer( $tag, $diff ) {
 	}
 
 	/**
-	 Constructor for this class.
-	 \param name The name of the pathway (without namespace and species prefix!)
-	 \param species The species (full name, e.g. Human)
-	 \param updateCache Whether the cache should be updated if needed
-	 @deprecated This constructor will be removed after the transision to stable identifiers.
+	   Constructor for this class.
+	   \param name The name of the pathway (without namespace and species prefix!)
+	   \param species The species (full name, e.g. Human)
+	   \param updateCache Whether the cache should be updated if needed
+	   @deprecated This constructor will be removed after the transision to stable identifiers.
 	*/
 	public static function newFromName($name, $species, $updateCache = false) {
 		wfDebug("Creating pathway: $name, $species\n");
@@ -77,9 +77,9 @@ function hasNewer( $tag, $diff ) {
 		//~ $rxIllegal = '/[^' . Title::legalChars() . ']/';
 		$rxIllegal = '/[^a-zA-Z0-9_ -]/';
 		if (preg_match ($rxIllegal, $name, $matches))
-		{
-			throw new Exception("Illegal character '" . $matches[0] . "' in pathway name");
-		}
+			{
+				throw new Exception("Illegal character '" . $matches[0] . "' in pathway name");
+			}
 
 		return self::newFromTitle("$species:$name", $checkCache);
 	}
@@ -219,7 +219,7 @@ function hasNewer( $tag, $diff ) {
 	}
 
 	/**
-	 Convert a species code to a species name (e.g. Hs to Human)
+	   Convert a species code to a species name (e.g. Hs to Human)
 	*/
 	public static function speciesFromCode($code) {
 		$org = Organism::getByCode($code);
@@ -259,7 +259,7 @@ function hasNewer( $tag, $diff ) {
 	}
 
 	/**
-	 Convert a species name to species code (e.g. Human to Hs)
+	   Convert a species name to species code (e.g. Human to Hs)
 	*/
 	public static function codeFromSpecies($species) {
 		$org = Organism::getByLatinName($species);
@@ -269,9 +269,9 @@ function hasNewer( $tag, $diff ) {
 	}
 
 	/**
-	 Create a new Pathway from the given title
-	 \param Title The full title of the pathway page (e.g. Pathway:Human:Apoptosis),
-	 or the MediaWiki Title object
+	   Create a new Pathway from the given title
+	   \param Title The full title of the pathway page (e.g. Pathway:Human:Apoptosis),
+	   or the MediaWiki Title object
 	*/
 	public function newFromTitle($title, $checkCache = false) {
 		//Remove url and namespace from title
@@ -283,9 +283,9 @@ function hasNewer( $tag, $diff ) {
 	}
 
 	/**
-	 Create a new Pathway based on a filename
-	 \param Title The full title of the pathway file (e.g. Hs_Apoptosis.gpml),
-	 or the MediaWiki Title object
+	   Create a new Pathway based on a filename
+	   \param Title The full title of the pathway file (e.g. Hs_Apoptosis.gpml),
+	   or the MediaWiki Title object
 	*/
 	public function newFromFileTitle($title, $checkCache = false) {
 		if($title instanceof Title) {
@@ -322,7 +322,7 @@ function hasNewer( $tag, $diff ) {
 
 	/**
 	 * Get the full url to the pathway page
-	*/
+	 */
 	public function getFullURL() {
 		return $this->getTitleObject()->getFullURL();
 	}
@@ -486,21 +486,21 @@ function hasNewer( $tag, $diff ) {
 	 * matching pathway was found
 	 */
 	public function findCaseInsensitive() {
-			$title = strtolower($this->getTitleObject()->getDbKey());
-			$dbr =& wfGetDB(DB_SLAVE);
-			$ns = NS_PATHWAY;
-			$query = "SELECT page_id FROM page
+		$title = strtolower($this->getTitleObject()->getDbKey());
+		$dbr =& wfGetDB(DB_SLAVE);
+		$ns = NS_PATHWAY;
+		$query = "SELECT page_id FROM page
 					WHERE page_namespace = $ns
 					AND page_is_redirect = 0
 					AND LOWER(page_title) = '$title'";
-			$res = $dbr->query($query, __METHOD__);
-			$title = null;
-			if($res->numRows() > 0) {
-				$row = $dbr->fetchRow($res);
-				$title = Title::newFromID($row[0]);
-			}
-			$dbr->freeResult($res);
-			return $title;
+		$res = $dbr->query($query, __METHOD__);
+		$title = null;
+		if($res->numRows() > 0) {
+			$row = $dbr->fetchRow($res);
+			$title = Title::newFromID($row[0]);
+		}
+		$dbr->freeResult($res);
+		return $title;
 	}
 
 	/**
@@ -848,7 +848,7 @@ function hasNewer( $tag, $diff ) {
 				case LIBXML_ERR_WARNING:
 					$return .= "Warning $error->code: ";
 					break;
-				 case LIBXML_ERR_ERROR:
+				case LIBXML_ERR_ERROR:
 					$return .= "Error $error->code: ";
 					break;
 				case LIBXML_ERR_FATAL:
@@ -857,8 +857,8 @@ function hasNewer( $tag, $diff ) {
 			}
 
 			$return .= trim($error->message) .
-					   "\n  Line: $error->line" .
-					   "\n  Column: $error->column";
+				"\n  Line: $error->line" .
+				"\n  Column: $error->column";
 
 			if ($error->file) {
 				$return .= "\n  File: $error->file";
@@ -1003,15 +1003,15 @@ function hasNewer( $tag, $diff ) {
 		if($this->isOutOfDate($fileType)) {
 			wfDebug("\t->Updating cached file for $fileType\n");
 			switch($fileType) {
-			case FILETYPE_PNG:
-				$this->savePngCache();
-				break;
-			case FILETYPE_GPML:
-				$this->saveGpmlCache();
-				break;
-			default:
-				$this->saveConvertedCache($fileType);
-				break;
+				case FILETYPE_PNG:
+					$this->savePngCache();
+					break;
+				case FILETYPE_GPML:
+					$this->saveGpmlCache();
+					break;
+				default:
+					$this->saveConvertedCache($fileType);
+					break;
 			}
 		}
 	}
@@ -1130,9 +1130,9 @@ function hasNewer( $tag, $diff ) {
 			$cmd = str_replace( //TODO: calculate proper height for rsvg
 				array( '$path/', '$width', '$input', '$output' ),
 				array( $wgSVGConverterPath ? wfEscapeShellArg( "$wgSVGConverterPath/" ) : "",
-				intval( $width ),
-				wfEscapeShellArg( $input ),
-				wfEscapeShellArg( $output ) ),
+					intval( $width ),
+					wfEscapeShellArg( $input ),
+					wfEscapeShellArg( $output ) ),
 				$wgSVGConverters[$wgSVGConverter] ) . " 2>&1";
 			$err = wfShellExec( $cmd, $retval );
 			if($retval != 0 || !file_exists($output)) {
@@ -1146,4 +1146,3 @@ function hasNewer( $tag, $diff ) {
 		wfDebug("PNG CACHE SAVED: $output, $ex;\n");
 	}
 }
-?>

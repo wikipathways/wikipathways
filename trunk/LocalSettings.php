@@ -75,8 +75,6 @@ require_once( "$IP/extensions/ConfirmEdit/ConfirmEdit.php" );
 require_once( "$IP/extensions/ConfirmEdit/ReCaptcha.php" );
 $wgCaptchaClass = 'ReCaptcha';
 
-# Load organism registry
-require_once('wpi/Organism.php');
 # Load passwords/usernames
 require_once('pass.php');
 # Load globals
@@ -336,7 +334,7 @@ require_once('wpi/extensions/listPathways.php');
 require_once('wpi/extensions/movePathway.php');
 require_once('wpi/extensions/deletePathway.php');
 require_once('wpi/batchDownload.php');
-require_once('wpi/PathwayPage.php');
+require_once('wpi/extensions/Pathway/PathwayPage.php');
 require_once('wpi/extensions/SpecialWishList/SpecialWishList.php');
 require_once('wpi/extensions/SpecialWishList/TopWishes.php');
 require_once('wpi/extensions/DiffAppletPage/DiffAppletPage.php');

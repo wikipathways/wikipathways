@@ -8,8 +8,7 @@ function renderPathwayPage(&$parser, &$text, &$strip_state) {
 
 	$title = $parser->getTitle();
 	if(	$title->getNamespace() == NS_PATHWAY &&
-		preg_match("/^\s*\<\?xml/", $text))
-	{
+		preg_match("/^\s*\<\?xml/", $text)) {
 		$parser->disableCache();
 
 		$oldId = $_REQUEST['oldid'];
@@ -65,9 +64,9 @@ class PathwayPage {
 		global $wgMessageCache;
 		if(!self::$msgLoaded) {
 			$wgMessageCache->addMessages( array(
-				'private_warning' => '{{SERVER}}{{SCRIPTPATH}}/skins/common/images/lock.png This pathway will not be visible to other users until $DATE. ' .
-				'To make it publicly available before that time, <span class="plainlinks">[{{fullurl:{{FULLPAGENAMEE}}|action=manage_permissions}} change the permissions]</span>.'
-			), 'en' );
+					'private_warning' => '{{SERVER}}{{SCRIPTPATH}}/skins/common/images/lock.png This pathway will not be visible to other users until $DATE. ' .
+					'To make it publicly available before that time, <span class="plainlinks">[{{fullurl:{{FULLPAGENAMEE}}|action=manage_permissions}} change the permissions]</span>.'
+				), 'en' );
 			self::$msgLoaded = true;
 		}
 	}
@@ -83,7 +82,7 @@ class PathwayPage {
 {$this->bibliographyText()}
 {{Template:PathwayPage:Bottom}}
 TEXT;
-		return $text;
+return $text;
 	}
 
 	function titleEditor() {
@@ -248,17 +247,16 @@ if (window.attachEvent) window.attachEvent("onload", sfHover);
 
 </script>
 SCRIPT;
-		$wgOut->addScript($script);
-		return $dropdown;
+$wgOut->addScript($script);
+return $dropdown;
 	}
 	static function formatPubMed($text) {
-	$link = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=pubmed&cmd=Retrieve&dopt=AbstractPlus&list_uids=";
-	if(preg_match_all("/PMID: ([0-9]+)/", $text, $ids)) {
-		foreach($ids[1] as $id) {
-			$text = str_replace($id, "[$link$id $id]", $text);
+		$link = "http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?db=pubmed&cmd=Retrieve&dopt=AbstractPlus&list_uids=";
+		if(preg_match_all("/PMID: ([0-9]+)/", $text, $ids)) {
+			foreach($ids[1] as $id) {
+				$text = str_replace($id, "[$link$id $id]", $text);
+			}
 		}
+		return $text;
 	}
-	return $text;
 }
-}
-?>

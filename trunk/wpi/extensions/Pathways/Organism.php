@@ -1,26 +1,26 @@
 <?php
 /**
- * Utility class to hold information about an organism and 
+ * Utility class to hold information about an organism and
  * maintain a list of registered organisms.
  */
 class Organism {
 	private $latinName;
 	private $code;
-	
+
 	private static $byLatinName = array();
 	private static $byCode = array();
-	
+
 	public function getLatinName() { return $this->latinName; }
 	public function getCode() { return $this->code; }
-	
+
 	public static function getByLatinName($name) {
 		return self::$byLatinName[$name];
 	}
-	
+
 	public static function getByCode($code) {
 		return self::$byCode[$code];
 	}
-	
+
 	/**
 	 * List all registered organisms.
 	 * @return An array where the keys are the latin names and the values
@@ -29,7 +29,7 @@ class Organism {
 	public static function listOrganisms() {
 		return self::$byLatinName;
 	}
-	
+
 	/**
 	 * Register a new organism for which pathways can be created.
 	 */
@@ -48,7 +48,7 @@ class Organism {
 		unset(self::$byLatinName[$org->latinName]);
 		unset(self::$byCode[$org->code]);
 	}
-	
+
 	/**
 	 * Register all organisms supported by default on WikiPathways.
 	 */
@@ -67,7 +67,7 @@ class Organism {
 		self::register('Gallus gallus', 'Gg');
 		self::register('Glycine max', 'Gm');
 		self::register('Gibberella zeae', 'Gz');
-		self::register('Homo sapiens', 'Hs'); 
+		self::register('Homo sapiens', 'Hs');
 		self::register('Mus musculus', 'Mm');
 		self::register('Mycobacterium tuberculosis', 'Mx');
 		self::register('Oryza sativa', 'Oj');
@@ -84,4 +84,3 @@ class Organism {
 }
 //Register the default organisms
 Organism::registerDefaultOrganisms();
-?>

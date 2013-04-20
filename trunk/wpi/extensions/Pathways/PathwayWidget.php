@@ -18,7 +18,7 @@ You can include a pathway viewer in another website using an iframe:
 <html>
 <head>
 <style  type="text/css">
-a#wplink { 
+a#wplink {
 text-decoration:none;
 font-family:serif;
 color:black;
@@ -47,37 +47,37 @@ html, body {
 </style>
 <meta name="svg.render.forceflash" content="true">
 <?php
-	echo '<link rel="stylesheet" href="' . $cssJQueryUI . '" type="text/css" />' . "\n";
+	  echo '<link rel="stylesheet" href="' . $cssJQueryUI . '" type="text/css" />' . "\n";
 
-	//Initialize javascript
-	echo '<script type="text/javascript" src="' . $jsJQuery . '"></script>' . "\n";
-	
-	$jsSnippets = XrefPanel::getJsSnippets();
-	foreach($jsSnippets as $js) {
-		echo "<script type=\"text/javascript\">$js</script>\n";
-	}
-	
-	$imgPath = "$wgServer/$wgScriptPath/skins/common/images/";
-	echo "<script type=\"text/javascript\">XrefPanel_imgPath = '$imgPath';</script>";
+//Initialize javascript
+echo '<script type="text/javascript" src="' . $jsJQuery . '"></script>' . "\n";
 
-	$jsSrc = PathwayViewer::getJsDependencies();
-	$jsSrc = array_merge($jsSrc, XrefPanel::getJsDependencies());
-	foreach($jsSrc as $js) {
-		echo '<script type="text/javascript" src="' . $js . '"></script>' . "\n";
-	}
-	
-	$id = $_REQUEST['id'];
-	$rev = $_REQUEST['rev'];
-	
-	$pathway = Pathway::newFromTitle($id);
-	if($rev) {
-		$pathway->setActiveRevision($rev);
-	}
-	
-	$svg = $pathway->getFileURL(FILETYPE_IMG);
-	$gpml = $pathway->getFileURL(FILETYPE_GPML);
-		
-	echo <<<SCRIPT
+$jsSnippets = XrefPanel::getJsSnippets();
+foreach($jsSnippets as $js) {
+	echo "<script type=\"text/javascript\">$js</script>\n";
+}
+
+$imgPath = "$wgServer/$wgScriptPath/skins/common/images/";
+echo "<script type=\"text/javascript\">XrefPanel_imgPath = '$imgPath';</script>";
+
+$jsSrc = PathwayViewer::getJsDependencies();
+$jsSrc = array_merge($jsSrc, XrefPanel::getJsDependencies());
+foreach($jsSrc as $js) {
+	echo '<script type="text/javascript" src="' . $js . '"></script>' . "\n";
+}
+
+$id = $_REQUEST['id'];
+$rev = $_REQUEST['rev'];
+
+$pathway = Pathway::newFromTitle($id);
+if($rev) {
+	$pathway->setActiveRevision($rev);
+}
+
+$svg = $pathway->getFileURL(FILETYPE_IMG);
+$gpml = $pathway->getFileURL(FILETYPE_GPML);
+
+echo <<<SCRIPT
 <script type="text/javascript">
 	PathwayViewer_basePath = '$wfPathwayViewerPath/';
 	PathwayViewer_viewers.push(new PathwayViewer({
@@ -100,8 +100,8 @@ SCRIPT;
 <div style="position:absolute;height:0px;overflow:visible;bottom:0;right:0;">
 	<div id="logolink">
 		<?php
-			echo "<a id='wplink' target='top' href='{$pathway->getFullUrl()}'>View at "; 
-			echo "<img style='border:none' src='$wgScriptPath/skins/common/images/wikipathways_name.png' /></a>"; 
+			echo "<a id='wplink' target='top' href='{$pathway->getFullUrl()}'>View at ";
+			echo "<img style='border:none' src='$wgScriptPath/skins/common/images/wikipathways_name.png' /></a>";
 		?>
 	</div>
 </div>

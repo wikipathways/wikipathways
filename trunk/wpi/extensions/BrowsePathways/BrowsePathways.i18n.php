@@ -1,7 +1,7 @@
 <?php
 $allMessages = array(
-        'en' => array( 
-                'browsepathwayspage' => 'Browse pathways'
-        )
+		'en' => array(
+			'browsepathways' => 'Browse pathways',
+		)
 );
 ?>

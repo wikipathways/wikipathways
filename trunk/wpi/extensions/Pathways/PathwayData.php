@@ -11,7 +11,7 @@ class PathwayData {
 	private $gpml;
 	private $interactions;
 	private $byGraphId;
-	
+
 	/**
 	 * Creates an instance of PathwayData, containing
 	 * the GPML code parsed as SimpleXml object
@@ -21,28 +21,28 @@ class PathwayData {
 		$this->pathway = $pathway;
 		$this->loadGpml();
 	}
-	
+
 	/**
 	 * Gets the SimpleXML representation of the GPML code
 	 */
 	function getGpml() {
 		return $this->gpml;
 	}
-	
+
 	/**
 	 * Gets the name of the pathway, as stored in GPML
 	 */
 	function getName() {
 		return (string)$this->gpml["Name"];
 	}
-	
+
 	/**
 	 * Gets the organism of the pathway, as stored in GPML
 	 */
 	function getOrganism() {
 		return (string)$this->gpml["Organism"];
 	}
-	
+
 	/**
 	 * Gets the interactions
 	 * \return an array of instances of the Interaction class
@@ -65,7 +65,7 @@ class PathwayData {
 		}
 		return $this->interactions;
 	}
-	 
+
 	/**
 	 * Gets the WikiPathways categories that are stored in GPML
 	 * Categories are stored as Comments with Source attribute COMMENT_WP_CATEGORY
@@ -82,7 +82,7 @@ class PathwayData {
 		}
 		return $categories;
 	}
-	
+
 	/**
 	 * Gets the WikiPathways description that is stored in GPML
 	 * The description is stored as Comment with Source attribute COMMENT_WP_DESCRIPTION
@@ -94,7 +94,7 @@ class PathwayData {
 			}
 		}
 	}
-	
+
 	/**
 	 * Get a list of elements of the given type
 	 * @param name the name of the elements to include
@@ -102,7 +102,7 @@ class PathwayData {
 	function getElements($name) {
 		return $this->getGpml()->$name;
 	}
-	
+
 	/**
 	 * Get a list of unique elements
 	 * \param name The name of the elements to include
@@ -116,22 +116,22 @@ class PathwayData {
 		}
 		return $unique;
 	}
-	
+
 	function getUniqueXrefs() {
 		$elements = $this->getElements('DataNode');
-		
+
 		$xrefs = array();
-		
+
 		foreach($elements as $elm) {
 			$id = $elm->Xref['ID'];
 			$system = $elm->Xref['Database'];
 			$ref = new Xref($id, $system);
 			$xrefs[$ref->asText()] = $ref;
 		}
-		
+
 		return $xrefs;
 	}
-	
+
 	function getElementsForPublication($xrefId) {
 		$gpml = $this->getGpml();
 		$elements = array();
@@ -145,16 +145,16 @@ class PathwayData {
 		}
 		return $elements;
 	}
-	
+
 	private $pubXRefs;
-	
+
 	public function getPublicationXRefs() {
 		return $this->pubXRefs;
 	}
-	
+
 	private function findPublicationXRefs() {
 		$this->pubXRefs = array();
-		
+
 		$gpml = $this->gpml;
 
 		//Format literature references
@@ -167,7 +167,7 @@ class PathwayData {
 		$this->processXrefs($xrefs2);
 		$this->processXrefs($xrefs3);
 	}
-	
+
 	private function processXrefs($xrefs) {
 		foreach($xrefs as $xref) {
 			//Get the rdf:id attribute
@@ -177,7 +177,7 @@ class PathwayData {
 			$this->pubXRefs[$id] = $xref;
 		}
 	}
-	
+
 	private function loadGpml() {
 		if(!$this->gpml) {
 			$gpml = $this->pathway->getGpml();
@@ -202,17 +202,17 @@ class Interaction {
 	private $source;
 	private $target;
 	private $edge;
-	
+
 	function __construct($source, $target, $edge) {
 		$this->source = $source;
 		$this->target = $target;
 		$this->edge = $edge;
 	}
-	
+
 	function getSource() { return $this->source; }
 	function getTarget() { return $this->target; }
 	function getEdge() { return $this->edge; }
-	
+
 	function getName() {
 		$source = $this->source['TextLabel'];
 		if(!$source) $source = $this->source->getName() . $this->source['GraphId'];
@@ -220,7 +220,7 @@ class Interaction {
 		if(!$target) $target = $this->target->getName() . $this->target['GraphId'];
 		return $source . " -> " . $target;
 	}
-	
+
 	function getPublicationXRefs($pathwayData) {
 		$xrefs = $pathwayData->getPublicationXRefs();
 		foreach($this->edge->BiopaxRef as $bpref) {
@@ -233,27 +233,26 @@ class Interaction {
 class Xref {
 	private $id;
 	private $system;
-	
+
 	public function __construct($id, $system) {
 		$this->id = $id;
 		$this->system = $system;
 	}
-	
+
 	public function getId() { return $this->id; }
-	
+
 	public function getSystem() { return $this->system; }
-	
+
 	public static function fromText($txt) {
 		$data = explode(':', $txt);
 		return new Xref($data[0], $data[1]);
 	}
-	
+
 	public function asText() {
 		return "{$this->id}:{$this->system}";
 	}
-	
+
 	public function __toString() {
 		return $this->asText();
 	}
 }
-?>
