@@ -21,7 +21,7 @@ function wfPathwayViewer_Magic( &$magicWords, $langCode ) {
 
 function displayPathwayViewer(&$parser, $pwId, $imgId) {
 	global $wgOut, $wgStylePath, $wfPathwayViewerPath, $wpiJavascriptSources, $wgScriptPath,
-		$wpiJavascriptSnippets, $jsRequireJQuery, $wpiAutoStartViewer;
+		$wpiJavascriptSnippets, $jsRequireJQuery, $wpiAutoStartViewer, $wgRequest, $wgJsMimeType;
 
 	$jsRequireJQuery = true;
 
@@ -39,7 +39,7 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 		$script = "PathwayViewer_basePath = '" . $wfPathwayViewerPath . "/';";
 		$wpiJavascriptSnippets[] = $script;
 
-		$revision = $_REQUEST['oldid'];
+		$revision = $wgRequest->getval('oldid');
 		$pvPwAdded[] = $pwId . '@' . $revision;
 
 		$pathway = Pathway::newFromTitle($pwId);
@@ -56,7 +56,7 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 		if(!$wpiAutoStartViewer) $start = $dostart;
 
 		//Allow override via get parameter
-		$getStart = $_GET['startViewer'];
+		$getStart = $wgRequest->getval('startViewer');
 		if($getStart == 'false' || $getStart == '0') $start = '';
 		if($getStart == 'true' || $getStart == '1') $start = $dostart;
 
