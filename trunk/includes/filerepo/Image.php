@@ -13,20 +13,6 @@ class Image extends LocalFile {
 	}
 
 	/**
-	 * Wrapper for wfFindFile(), for backwards-compatibility only
-	 * Do not use in core code.
-	 * @deprecated
-	 */
-	static function newFromTitle( $title, $time = false ) {
-		wfDeprecated( __METHOD__ );
-		$img = wfFindFile( $title, $time );
-		if ( !$img ) {
-			$img = wfLocalFile( $title );
-		}
-		return $img;
-	}
-
-	/**
 	 * Wrapper for wfFindFile(), for backwards-compatibility only.
 	 * Do not use in core code.
 	 *
