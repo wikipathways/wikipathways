@@ -3853,7 +3853,7 @@ class DPL2 {
 			$this->filteredCount = $this->filteredCount + 1;
 		}
 
-		$cv = new CategoryViewer( "Bogus Title" );
+		$cv = new CategoryViewer( "Main Page" );
 		if ( count ( $aArticles ) > $wgDPL2CategoryStyleListCutoff ) {
 			//AP20070821
 			if ($pick == 'All Species'){
