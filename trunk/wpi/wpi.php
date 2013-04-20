@@ -4,20 +4,17 @@ try {
 	//Initialize MediaWiki
 	$wpiDir = dirname( realpath(__FILE__) );
 	$dir = getcwd();
+	if( !isset( $IP ) ) $IP = dirname( $wpiDir );
+
 	set_include_path( get_include_path() . PATH_SEPARATOR .
 		implode( PATH_SEPARATOR, array_map( 'realpath', array( $wpiDir, "$wpiDir/includes",
 					"$wpiDir/../includes", "$dir/../" ) ) ) );
-	chdir( $wpiDir . "/../" ); //Ugly, but we need to change to the
-							   //MediaWiki install dir to include
-							   //these files, otherwise we'll get an
-							   //error
-	require_once( 'WebStart.php' );
-	require_once( 'Wiki.php' );
-	chdir( $dir );
+	require_once( "$IP/WebStart.php" );
+	require_once( "$IP/Wiki.php" );
 
 	require_once( 'MwUtils.php' );
 	require_once( 'globals.php' );
-	require_once( 'extension/pathways/Pathway.php' );
+	require_once( "$IP/wpi/extension/pathways/Pathway.php" );
 	require_once( 'MimeTypes.php' );
 	//Parse HTTP request (only if script is directly called!)
 	if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
