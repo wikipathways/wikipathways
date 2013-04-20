@@ -3845,28 +3845,29 @@ class DPL2 {
 		return DPL2Include::limitTranscludedText($text, $lim);
 	}
 
-	//slightly different from CategoryViewer::formatList() (no need to instantiate a CategoryViewer object)
+	//slightly different from CategoryViewer::formatList()
 	function formatCategoryList($iStart, $iCount) {
 		for($i = $iStart; $i < $iStart + $iCount; $i++) {
 			$aArticles[] = $this->mArticles[$i]->mLink;
 			$aArticles_start_char[] = $this->mArticles[$i]->mStartChar;
 			$this->filteredCount = $this->filteredCount + 1;
 		}
-		require_once ('CategoryPage.php');
+
+		$cv = new CategoryViewer( "Bogus Title" );
 		if ( count ( $aArticles ) > $wgDPL2CategoryStyleListCutoff ) {
 			//AP20070821
 			if ($pick == 'All Species'){
-				return CategoryViewer::columnList( $aArticles, $aArticles_start_char );
+				return $cv->columnList( $aArticles, $aArticles_start_char );
 			} else {
-				return CategoryViewer::columnListSimple( $aArticles );
+				return $cv->columnListSimple( $aArticles );
 			}
 		} elseif ( count($aArticles) > 0) {
 			//AP20070822
 			// for short lists of articles in categories.
 			if ($pick == 'All Species'){
-				return CategoryViewer::shortList( $aArticles, $aArticles_start_char );
+				return $cv->shortList( $aArticles, $aArticles_start_char );
 			} else {
-				return CategoryViewer::shortListSimple( $aArticles );
+				return $cv->shortListSimple( $aArticles );
 			}
 		}
 		return '';
