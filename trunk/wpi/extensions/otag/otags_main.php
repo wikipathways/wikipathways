@@ -26,8 +26,8 @@ function oheader(&$parser, &$text)
 }
 
 function ofunction( $input, $argv, &$parser ) {
-	global $wgTitle , $wgOut, $opath, $wgOntologiesJSON,$wgStylePath, $wgJsMimeType
-		$oldStylePath = $wgStylePath;
+	global $wgTitle , $wgOut, $opath, $wgOntologiesJSON,$wgStylePath, $wgJsMimeType;
+	$oldStylePath = $wgStylePath;
 	$wgStylePath = $opath . "/css/";
 
 	$title = $parser->getTitle();
