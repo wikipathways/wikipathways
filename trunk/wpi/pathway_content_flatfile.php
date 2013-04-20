@@ -1,7 +1,5 @@
 <?php
 require_once("wpi.php");
-require_once("Pathway.php");
-require_once("PathwayData.php");
 require_once('search.php');
 
 //Get commandline options

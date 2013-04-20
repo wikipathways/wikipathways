@@ -1,7 +1,6 @@
 <?php
 require_once("Article.php");
 require_once("ImagePage.php");
-require_once("wpi/Pathway.php");
 require_once("wpi/DataSources.php");
 
 /*

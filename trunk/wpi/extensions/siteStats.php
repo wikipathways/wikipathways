@@ -1,8 +1,6 @@
 <?php
 
 require_once("wpi/wpi.php");
-require_once("wpi/Pathway.php");
-require_once("wpi/PathwayData.php");
 require_once("wpi/StatisticsCache.php");
 
 /*
@@ -19,18 +17,18 @@ $wgExtensionFunctions[] = 'wfSiteStats';
 $wgHooks['LanguageGetMagic'][]  = 'wfSiteStats_Magic';
 
 function wfSiteStats() {
-        global $wgParser;
-        # Set a function hook associating the "example" magic word with our function
-        $wgParser->setFunctionHook( 'siteStats', 'getSiteStats' );
+		global $wgParser;
+		# Set a function hook associating the "example" magic word with our function
+		$wgParser->setFunctionHook( 'siteStats', 'getSiteStats' );
 }
 
 function wfSiteStats_Magic( &$magicWords, $langCode ) {
-        # Add the magic word
-        # The first array element is case sensitive, in this case it is not case sensitive
-        # All remaining elements are synonyms for our parser function
-        $magicWords['siteStats'] = array( 0, 'siteStats' );
-        # unless we return true, other parser functions extensions won't get loaded.
-        return true;
+		# Add the magic word
+		# The first array element is case sensitive, in this case it is not case sensitive
+		# All remaining elements are synonyms for our parser function
+		$magicWords['siteStats'] = array( 0, 'siteStats' );
+		# unless we return true, other parser functions extensions won't get loaded.
+		return true;
 }
 
 function getSiteStats( &$parser, $tableAttr ) {
