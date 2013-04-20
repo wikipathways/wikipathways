@@ -66,13 +66,11 @@ function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $n
 			$editApplet->setPathwaySpecies(array_pop($title));
 			$editApplet->setPathwayName(array_pop($title));
 		} else {
-			if($title == null) {
-				//Check if the title is a pathway before continuing
-				if($parser->mTitle->getNamespace() != NS_PATHWAY) {
-					return "";
-				}
-				$title = $parser->mTitle->getDbKey();
+			//Check if the title is a pathway before continuing
+			if($parser->mTitle->getNamespace() != NS_PATHWAY) {
+				return "";
 			}
+			$title = $parser->mTitle->getDbKey();
 			$editApplet = new EditApplet($title, $main, $idReplace, $idClick, $width, $height, $noresize, $param);
 		}
 
@@ -244,9 +242,6 @@ class EditApplet {
 
 		if($wgUser && $wgUser->isLoggedIn()) {
 			$args = array_merge($args, array('user' => $wgUser->getRealName()));
-		}
-		if($new) {
-			$args = array_merge($args, array('new' => true));
 		}
 		$args = array_merge($args, $param);
 		return $args;
