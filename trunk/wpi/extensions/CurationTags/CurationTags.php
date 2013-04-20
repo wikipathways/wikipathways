@@ -430,7 +430,8 @@ class CurationTagsAjax {
 		$tmp = "{{Template:" . $tmp . "}}";
 
 		$parser = new Parser();
-		$out = $parser->parse($tmp, Title::newFromID($pageId), new ParserOptions());
+		$title = Title::newFromID($pageId);
+		$out = $parser->parse($tmp, $title, new ParserOptions());
 		$html = $out->getText();
 
 		$elm = $doc->createElement("Tag");
