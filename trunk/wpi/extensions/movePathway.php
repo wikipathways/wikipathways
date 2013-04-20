@@ -9,8 +9,8 @@ $wgHooks['AbortMove'][] = 'checkMoveAllowed';
 
 function checkMoveAllowed($oldtitle, $newtitle, $user, &$error) {
 	if($oldtitle->getNamespace() == NS_PATHWAY ||
-	 	$newtitle->getNamespace() == NS_PATHWAY) {
-	 	$error = "Pathway pages can't be moved, rename the pathway in the editor instead.";
+		$newtitle->getNamespace() == NS_PATHWAY) {
+		$error = "Pathway pages can't be moved, rename the pathway in the editor instead.";
 		return false;
 	}
 	return true;
@@ -24,10 +24,10 @@ $wgHooks['SpecialMovepageAfterMove'][] = 'movePathwayPages';
 
 function movePathwayPages(&$movePageForm , &$ot , &$nt) {
 	if($ot->getNamespace() == NS_PATHWAY) {
-		$pwOld = Pathway::newFromTitle($ot);		
+		$pwOld = Pathway::newFromTitle($ot);
 		//Clean up old cache and update for the new page
 		$pwOld->clearCache(null, true);
-	
+
 		$pwNew = Pathway::newFromTitle($nt);
 		$pwNew->updateCache();
 		$pwNew->updateCategories();
