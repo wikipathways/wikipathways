@@ -104,6 +104,7 @@ class RecentChangesBox {
 					$date = 'Today';
 				}
 				$fr = $this->formatRow($title_row);
+				$this->rows[$date] = '';
 				if($fr) {
 					$this->rows[$date] .= $fr;
 					$i += 1;
@@ -176,4 +177,3 @@ class RecentChangesBox {
 		return "<a href='{$a['href']}'>{$a['text']}</a>";
 	}
 }
-?>
