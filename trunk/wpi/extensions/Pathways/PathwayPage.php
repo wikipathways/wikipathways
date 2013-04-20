@@ -4,14 +4,13 @@ $wgHooks['ParserBeforeStrip'][] = array('renderPathwayPage');
 $wgHooks['BeforePageDisplay'][] = array('addPreloaderScript');
 
 function renderPathwayPage(&$parser, &$text, &$strip_state) {
-	global $wgUser;
+	global $wgUser, $wgRequest;
 
 	$title = $parser->getTitle();
+	$oldId = $wgRequest->getVal( "oldid" );
 	if(	$title->getNamespace() == NS_PATHWAY &&
 		preg_match("/^\s*\<\?xml/", $text)) {
 		$parser->disableCache();
-
-		$oldId = $_REQUEST['oldid'];
 
 		try {
 			$pathway = Pathway::newFromTitle($title);
