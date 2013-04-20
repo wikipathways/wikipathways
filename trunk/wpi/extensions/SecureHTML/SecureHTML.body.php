@@ -70,7 +70,7 @@ class SecureHTML
 		if (!is_object( $obj ))
 			return false; // paranoia
 
-		if ($obj !instanceOf Article)
+		if (! ($obj instanceOf Article) )
 			return false;
 
 		$title = $obj->mTitle;
