@@ -1,17 +1,17 @@
 <?php
 
 # Copyright (C) 2007 Bernhard Hoisl <berni@hoisl.com>
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or 
+# the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -68,7 +68,7 @@ function SocialRewardingMostViewed($article) {
 		$revCounter = $rs->rev_counter;
 
 		// Do not count when article is saved, edited etc. or the history is displayed
-		if (!$_GET["action"] && !$_GET["diff"]) {
+		if (!isset($_GET["action"]) && !isset($_GET["diff"])) {
 			$checkAuthor = true;
 
 			// Checks if user is also author of the article
@@ -344,7 +344,7 @@ function SocialRewardingRatingCountAuthor() {
 			return true;
 		}
 
-	} else { 
+	} else {
 		return true;
 	}
 }
@@ -528,66 +528,66 @@ function SocialRewardingRatingCommentManual($comment, $user, $points) {
  * @return boolean Inserted data
  */
 function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMinor, $wIsWatch, $wSection, $flags, $rev) {
-        global $wgTitle, $mediaWiki;
-        global $SocialRewarding;
+		global $wgTitle, $mediaWiki;
+		global $SocialRewarding;
 
-        $dbw =& wfGetDB(DB_MASTER);
-        $dbr =& wfGetDB(DB_SLAVE);
-        $table = $dbr->tableName($SocialRewarding["DB"]["references"]);
+		$dbw =& wfGetDB(DB_MASTER);
+		$dbr =& wfGetDB(DB_SLAVE);
+		$table = $dbr->tableName($SocialRewarding["DB"]["references"]);
 
-        if (is_object($rev)) {
+		if (is_object($rev)) {
 		$revision = $rev;
 		$rev_id = $revision->getId();
 	} else {
 		$rev_id = $rev;
-	       	$revision = Revision::newFromID($rev_id);
+			$revision = Revision::newFromID($rev_id);
 	}
-	
+
 	if (is_object($revision)){
 
 		$ns = $revision->getTitle()->getNamespace();
-		if($ns != NS_PATHWAY) return 0; 
+		if($ns != NS_PATHWAY) return 0;
 
-                $rs = $dbr->query("SELECT * FROM $table WHERE rev_id = $rev_id");
-                if ($dbr->numRows($rs) == 0) {
+				$rs = $dbr->query("SELECT * FROM $table WHERE rev_id = $rev_id");
+				if ($dbr->numRows($rs) == 0) {
 
 
-                        $i = 0;
+						$i = 0;
 
-                        //AP20081020  custom way to split text and count links
-                        $pathway = Pathway::newFromTitle($revision->getTitle());
+						//AP20081020  custom way to split text and count links
+						$pathway = Pathway::newFromTitle($revision->getTitle());
 			//$pathway->setActiveRevision($rev_id); //only needed during initialization; breaks when saving a pathway
-                        $text = $pathway->getGpml();
-                        $split_text = explode('PublicationXRef xmlns', $text);
+						$text = $pathway->getGpml();
+						$split_text = explode('PublicationXRef xmlns', $text);
 
-                        foreach($split_text as $key => $val) {
-                                $i++;
-                        }
+						foreach($split_text as $key => $val) {
+								$i++;
+						}
 
-                        $countSize = 0;
-                        $countLink = 0;
-                        $countSelfLink = 0;
+						$countSize = 0;
+						$countLink = 0;
+						$countSelfLink = 0;
 
-                        //AP20081020 new definitions of count and countSelfLink
-                        $count = $i - 1;
-                        $countSelfLink = $count;
+						//AP20081020 new definitions of count and countSelfLink
+						$count = $i - 1;
+						$countSelfLink = $count;
 
-                        // Only insert data in table if at least one factor is activated
-                        if ($SocialRewarding["references"]["siteSizeFactor"] == true || $SocialRewarding["references"]["siteLinkFactor"] == true || $SocialRewarding["references"]["siteSelfLinkFactor"] == true) {
-                                SocialRewardingDeleteFromTable($table, "rev_id = $rev_id");
-                                $dbw->insert($table, array(
-                                                "rev_id" => $rev_id,
-                                                "size" => $countSize,
-                                                "link" => $countLink,
-                                                "count" => $count,
-                                                "self_link" => $countSelfLink
-                                ));
-                        }
+						// Only insert data in table if at least one factor is activated
+						if ($SocialRewarding["references"]["siteSizeFactor"] == true || $SocialRewarding["references"]["siteLinkFactor"] == true || $SocialRewarding["references"]["siteSelfLinkFactor"] == true) {
+								SocialRewardingDeleteFromTable($table, "rev_id = $rev_id");
+								$dbw->insert($table, array(
+												"rev_id" => $rev_id,
+												"size" => $countSize,
+												"link" => $countLink,
+												"count" => $count,
+												"self_link" => $countSelfLink
+								));
+						}
 
-                        return 1;
-                } else {
-                        return 0;
-                }
+						return 1;
+				} else {
+						return 0;
+				}
 	} else { //revision is not an object (typically a non-pathway article)
 		return 0;
 	}
