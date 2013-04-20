@@ -16,15 +16,16 @@ $wgExtensionFunctions[] = 'wfPathwayInfo';
 $wgHooks['LanguageGetMagic'][]  = 'wfPathwayInfo_Magic';
 
 function wfPathwayInfo() {
-		global $wgParser;
-		$wgParser->setFunctionHook( 'pathwayInfo', 'getPathwayInfoText' );
+	global $wgParser;
+	$wgParser->setFunctionHook( 'pathwayInfo', 'getPathwayInfoText' );
 }
 
 function getPathwayInfoText( &$parser, $pathway, $type ) {
+	global $wgRequest;
 	$parser->disableCache();
 	try {
 		$pathway = Pathway::newFromTitle($pathway);
-		$oldid = $_REQUEST['oldid'];
+		$oldid = $wgRequest->getval('oldid');
 		if($oldid) {
 			$pathway->setActiveRevision($oldid);
 		}
@@ -40,8 +41,8 @@ function getPathwayInfoText( &$parser, $pathway, $type ) {
 }
 
 function wfPathwayInfo_Magic( &$magicWords, $langCode ) {
-		$magicWords['pathwayInfo'] = array( 0, 'pathwayInfo' );
-		return true;
+	$magicWords['pathwayInfo'] = array( 0, 'pathwayInfo' );
+	return true;
 }
 
 class PathwayInfo extends PathwayData {
@@ -56,7 +57,7 @@ class PathwayInfo extends PathwayData {
 	 * Creates a table of all datanodes and their info
 	 */
 	function datanodes() {
-					$table = <<<TABLE
+		$table = <<<TABLE
 <table class="wikitable sortable" id="dnTable">
 <tbody>
 <th>Name
@@ -64,7 +65,7 @@ class PathwayInfo extends PathwayData {
 <th>Database reference
 
 TABLE;
-//style="border:1px #AAA solid;margin:1em 1em 0;background:#F9F9F9"
+		//style="border:1px #AAA solid;margin:1em 1em 0;background:#F9F9F9"
 		$all = $this->getElements('DataNode');
 
 		//Check for uniqueness, based on textlabel and xref
@@ -139,4 +140,3 @@ TABLE;
 		return $table;
 	}
 }
-?>
