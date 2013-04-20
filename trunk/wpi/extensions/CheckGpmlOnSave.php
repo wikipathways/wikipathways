@@ -21,7 +21,6 @@ function wfCheckGpml(&$article, &$user, &$text, &$summary, $minor, $watch, $sect
 function wfUpdateAfterSave(&$article, &$user, &$text, &$summary, $minor, $watch, $sectionanchor, &$flags) {
 	if($article->getTitle()->getNamespace() == NS_PATHWAY) {
 		$pw = Pathway::newFromTitle($article->getTitle());
-		$pw->updateCategories();
 	}
 	return true;
 }

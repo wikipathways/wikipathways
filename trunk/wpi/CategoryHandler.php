@@ -69,42 +69,6 @@ class CategoryHandler {
 		}
 	}
 
-	/**
-	 * Applies the categories stored in GPML to the
-	 * MediaWiki database
-	 */
-	public function setGpmlCategories() {
-		wfDebug("::setGpmlCategories\n");
-
-		$dbw =& wfGetDB( DB_MASTER );
-		$clFrom = $this->pathway->getTitleObject()->getArticleID();
-		$categorylinks = $dbw->tableName( 'categorylinks' );
-
-		$dbw->immediateBegin();
-		//Purge old categories
-		$dbw->delete( $categorylinks, array( 'cl_from' => $clFrom ) );
-		$dbw->immediateCommit();
-
-		$dbw->immediateBegin();
-
-		//Add the GPML categories
-		foreach($this->getGpmlCategories() as $cat) {
-			wfDebug("\tCategory: $cat\n");
-
-			//Format to title (replace '_' with ' ');
-			$catTitle = Title::makeTitle(NS_CATEGORY, $cat);
-			$cat = $catTitle->getDBKey();
-
-			$clTo = $dbw->addQuotes($cat);
-			$sort = $dbw->addQuotes($this->pathway->getName());
-
-			$sql = "INSERT INTO $categorylinks (cl_from, cl_to, cl_sortkey)
-					VALUES ({$dbw->addQuotes($clFrom)}, $clTo, $sort)";
-			$dbw->query( $sql, 'SpecialMovepage::doSubmit' );
-		}
-		$dbw->immediateCommit();
-	}
-
 	private function getMediaWikiCategories() {
 		$categories = array();
 		$title = $this->pathway->getTitleObject();

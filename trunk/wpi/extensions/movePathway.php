@@ -30,7 +30,6 @@ function movePathwayPages(&$movePageForm , &$ot , &$nt) {
 
 		$pwNew = Pathway::newFromTitle($nt);
 		$pwNew->updateCache();
-		$pwNew->updateCategories();
 	}
 	return(true);
 }

@@ -783,8 +783,6 @@ function hasNewer( $tag, $diff ) {
 			$this->setActiveRevision($this->getLatestRevision());
 			//Update metadata cache
 			$this->invalidateMetaDataCache();
-			//Update category links
-			$this->updateCategories();
 		} else {
 			throw new Exception("Unable to save GPML, are you logged in?");
 		}
@@ -973,8 +971,6 @@ function hasNewer( $tag, $diff ) {
 
 		$succ =  $article->doEdit("{{deleted|$reason}}", self::$DELETE_PREFIX . $reason);
 		if($succ) {
-			//Remove from categories
-			$this->updateCategories();
 			//Update metadata cache
 			$this->invalidateMetaDataCache();
 
@@ -1004,14 +1000,6 @@ function hasNewer( $tag, $diff ) {
 			$article->doDeleteArticle($reason);
 			wfRunHooks('ArticleDeleteComplete', array(&$this, &$wgUser, $reason));
 		}
-	}
-
-	/**
-	 * Updates the MediaWiki category links for this pathway to match
-	 * the categories stored in the GPML
-	 */
-	public function updateCategories() {
-		$this->getCategoryHandler()->setGpmlCategories();
 	}
 
 	/**
