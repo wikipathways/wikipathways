@@ -81,7 +81,6 @@ class PathwayPage {
 {$this->descriptionText()}
 {$this->ontologyTags()}
 {$this->bibliographyText()}
-{$this->categoryText()}
 {{Template:PathwayPage:Bottom}}
 TEXT;
 		return $text;
@@ -174,43 +173,6 @@ TEXT;
 		return "== Bibliography ==\n$out\n$help";
 			//"<div id='bibliography'><div style='float:right'>$button</div>\n" .
 			//"$out</div>\n{{#editApplet:bibEdit|bibliography|0||bibliography|0|250px}}";
-	}
-
-	function categoryText() {
-		$categories = $this->pathway->getCategoryHandler()->getCategories();
-
-		$species = Pathway::getAvailableSpecies();
-
-		$catlist = '';
-		foreach($categories as $c) {
-			$cat = Title::newFromText($c, NS_CATEGORY);
-			if(!$cat) continue; //Prevent error when empty category is introduced in GPML
-
-			$name = $cat->getText();
-			if(in_array($name, $species)) {
-				$browseCat = '&browseCat=All+Categories';
-				$browse = "&browse=" . urlencode($name);
-			} else {
-				$browse = '&browse=All+Species';
-				$browseCat = "&browseCat=" . urlencode($name);
-			}
-			$link = SITE_URL . "/index.php?title=Special:BrowsePathways{$browse}{$browseCat}";
-			$catlist .= "* <span class='plainlinks'>[{$link} {$name}]</span>\n";
-		}
-		$button = $this->editButton('javascript:;', 'Edit categories', 'catEdit');
-		$title = $this->pathway->getIdentifier();
-
-		$cats = "== Categories ==\n<div id='catdiv'>\n$catlist</div>\n";
-
-		$catArray = array();
-		foreach(Pathway::getAvailableCategories() as $c) {
-			$present = 0;
-			if(in_array(str_replace(' ', '_', $c), $categories)) $present = 1;
-			$catArray[$c] = $present;
-		}
-		$catValue = json_encode($catArray);
-		$cats .= "<pageEditor id='catdiv' type='category'>$catValue</pageEditor>\n";
-		return $cats;
 	}
 
 	function editButton($href, $title, $id = '') {
