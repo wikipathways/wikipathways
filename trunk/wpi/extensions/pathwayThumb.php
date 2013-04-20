@@ -3,61 +3,61 @@ $wgExtensionFunctions[] = 'wfPathwayThumb';
 $wgHooks['LanguageGetMagic'][]  = 'wfPathwayThumb_Magic';
 
 function wfPathwayThumb() {
-    global $wgParser;
-    $wgParser->setFunctionHook( "pwImage", "renderPathwayImage" );
+	global $wgParser;
+	$wgParser->setFunctionHook( "pwImage", "renderPathwayImage" );
 }
 
 function wfPathwayThumb_Magic( &$magicWords, $langCode ) {
-        $magicWords['pwImage'] = array( 0, 'pwImage' );
-        return true;
+		$magicWords['pwImage'] = array( 0, 'pwImage' );
+		return true;
 }
 
-function renderPathwayImage( &$parser, $pwTitleEncoded, $width = 0, $align = '', $caption = '', $href = '', $tooltip = '', $id='pwthumb') {      
-	global $wgUser;
+function renderPathwayImage( &$parser, $pwTitleEncoded, $width = 0, $align = '', $caption = '', $href = '', $tooltip = '', $id='pwthumb') {
+	global $wgUser, $wgRequest;
 	$pwTitle = urldecode ($pwTitleEncoded);
 	$parser->disableCache();
-      try {
-                $pathway = Pathway::newFromTitle($pwTitle);
-                $revision = $_REQUEST['oldid'];
-                if($revision) {
-                	$pathway->setActiveRevision($revision);
-                }
-                $img = new Image($pathway->getFileTitle(FILETYPE_IMG));
-                switch($href) {
-                        case 'svg':
-                                $href = Image::imageUrl($pathway->getFileTitle(FILETYPE_IMG)->getPartialURL());
-                                break;
-                        case 'pathway':
-                                $href = $pathway->getFullURL();
-                                break;
-                        default:
-                                if(!$href) $href = $pathway->getFullURL();
-                }
-		
+	try {
+		$pathway = Pathway::newFromTitle($pwTitle);
+		$revision = $wgRequest->getVal('oldid');
+		if($revision) {
+			$pathway->setActiveRevision($revision);
+		}
+		$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
+		switch($href) {
+			case 'svg':
+				$href = Image::imageUrl($pathway->getFileTitle(FILETYPE_IMG)->getPartialURL());
+				break;
+			case 'pathway':
+				$href = $pathway->getFullURL();
+				break;
+			default:
+				if(!$href) $href = $pathway->getFullURL();
+		}
+
 		switch($caption) {
 			case 'edit':
 				$caption = createEditCaption($pathway);
-			break;
+				break;
 			case 'view':
 				$caption = $pathway->name() . " (" . $pathway->species() . ")";
-			break;
+				break;
 			default:
-			$caption = html_entity_decode($caption);        //This can be quite dangerous (injection),
-                                                                //we would rather parse wikitext, let me know if
-                                                                //you know a way to do that (TK)
+				$caption = html_entity_decode($caption);        //This can be quite dangerous (injection),
+				                                                //we would rather parse wikitext, let me know if
+                                                 				//you know a way to do that (TK)
 		}
 
-                $output = makeThumbLinkObj($pathway, $caption, $href, $tooltip, $align, $id, $width);
+		$output = makeThumbLinkObj($pathway, $caption, $href, $tooltip, $align, $id, $width);
 
-        } catch(Exception $e) {
-                return "invalid pathway title: $e";
-        }
-        return array($output, 'isHTML'=>1, 'noparse'=>1);
+	} catch(Exception $e) {
+		return "invalid pathway title: $e";
+	}
+	return array($output, 'isHTML'=>1, 'noparse'=>1);
 }
 
 function createEditCaption($pathway) {
 	global $wgUser;
-	
+
 	//Create edit button
 	$pathwayURL = $pathway->getTitleObject()->getPrefixedURL();
 	//AP20070918
@@ -67,7 +67,7 @@ function createEditCaption($pathway) {
 	} else {
 		if(wfReadOnly()) {
 			$hrefbtn = "";
-			$label = "Database locked";				
+			$label = "Database locked";
 		} else if(!$pathway->getTitleObject()->userCan('edit')) {
 			$hrefbtn = "";
 			$label = "Editing is disabled";
@@ -77,10 +77,10 @@ function createEditCaption($pathway) {
 		}
 	}
 	$helpUrl = Title::newFromText("Help:Known_problems")->getFullUrl();
-	$caption = "<a href='$hrefbtn' title='$label' id='edit' ". 
-				"class='button'><span>$label</span></a>" .
-				"<div style='float:left;'><a href='$helpUrl'> not working?</a></div>";
-				
+	$caption = "<a href='$hrefbtn' title='$label' id='edit' ".
+		"class='button'><span>$label</span></a>" .
+		"<div style='float:left;'><a href='$helpUrl'> not working?</a></div>";
+
 	//Create dropdown action menu
 	$pwTitle = $pathway->getTitleObject()->getFullText();
 	//disable dropdown for now
@@ -90,77 +90,75 @@ function createEditCaption($pathway) {
 }
 
 
-    /** MODIFIED FROM Linker.php
-        * Make HTML for a thumbnail including image, border and caption
-        * $img is an Image object
-        */
-    function makeThumbLinkObj( $pathway, $label = '', $href = '', $alt, $align = 'right', $id = 'thumb', $boxwidth = 180, $boxheight=false, $framed=false ) {
-            global $wgStylePath, $wgContLang;
+/** MODIFIED FROM Linker.php
+ * Make HTML for a thumbnail including image, border and caption
+ * $img is an Image object
+ */
+function makeThumbLinkObj( $pathway, $label = '', $href = '', $alt, $align = 'right', $id = 'thumb', $boxwidth = 180, $boxheight=false, $framed=false ) {
+	global $wgStylePath, $wgContLang;
 
-			$pathway->updateCache(FILETYPE_IMG);
-            $img = new Image($pathway->getFileTitle(FILETYPE_IMG));
-            $img->loadFromFile();
-            
-            $imgURL = $img->getURL();
+	$pathway->updateCache(FILETYPE_IMG);
+	$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
+	$img->loadFromFile();
 
-            $thumbUrl = '';
-            $error = '';
+	$imgURL = $img->getURL();
 
-            $width = $height = 0;
-            if ( $img->exists() ) {
-                    $width  = $img->getWidth();
-                    $height = $img->getHeight();
-            }
-            if ( 0 == $width || 0 == $height ) {
-                    $width = $height = 180;
-            }
-            if ( $boxwidth == 0 ) {
-                    $boxwidth = 180;
-            }
-            if ( $framed ) {
-                    // Use image dimensions, don't scale
-                    $boxwidth  = $width;
-                    $boxheight = $height;
-                    $thumbUrl  = $img->getViewURL();
-            } else {
-                    if ( $boxheight === false ) $boxheight = -1;
-                    $thumb = $img->getThumbnail( $boxwidth, $boxheight );
-                    if ( $thumb ) {
-                            $thumbUrl = $thumb->getUrl();
-                            $boxwidth = $thumb->width;
-                            $boxheight = $thumb->height;
-                    } else {
-                            $error = $img->getLastError();
-                    }
-            }
-            $oboxwidth = $boxwidth + 2;
+	$thumbUrl = '';
+	$error = '';
 
-            $more = htmlspecialchars( wfMsg( 'thumbnail-more' ) );
-            $magnifyalign = $wgContLang->isRTL() ? 'left' : 'right';
-            $textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
+	$width = $height = 0;
+	if ( $img->exists() ) {
+		$width  = $img->getWidth();
+		$height = $img->getHeight();
+	}
+	if ( 0 == $width || 0 == $height ) {
+		$width = $height = 180;
+	}
+	if ( $boxwidth == 0 ) {
+		$boxwidth = 180;
+	}
+	if ( $framed ) {
+		// Use image dimensions, don't scale
+		$boxwidth  = $width;
+		$boxheight = $height;
+		$thumbUrl  = $img->getViewURL();
+	} else {
+		if ( $boxheight === false ) $boxheight = -1;
+		$thumb = $img->getThumbnail( $boxwidth, $boxheight );
+		if ( $thumb ) {
+			$thumbUrl = $thumb->getUrl();
+			$boxwidth = $thumb->width;
+			$boxheight = $thumb->height;
+		} else {
+			$error = $img->getLastError();
+		}
+	}
+	$oboxwidth = $boxwidth + 2;
 
-            $s = "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">";
-            if( $thumbUrl == '' ) {
-                    // Couldn't generate thumbnail? Scale the image client-side.
-                    $thumbUrl = $img->getViewURL();
-                    if( $boxheight == -1 ) {
-                            // Approximate...
-                            $boxheight = intval( $height * $boxwidth / $width );
-                    }
-            }
-            if ( $error ) {
-                    $s .= htmlspecialchars( $error );
-            } elseif( !$img->exists() ) {
-                    $s .= "Image does not exist";
-            } else {
-                    $s .= '<a href="'.$href.'" class="internal" title="'.$alt.'">'.
-                            '<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
-                            'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
-                            'longdesc="'.$href.'" class="thumbimage" /></a>';
-            }
-            $s .= '  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
-            return str_replace("\n", ' ', $s);
-            //return $s;
-    }
+	$more = htmlspecialchars( wfMsg( 'thumbnail-more' ) );
+	$magnifyalign = $wgContLang->isRTL() ? 'left' : 'right';
+	$textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
 
-?>
+	$s = "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">";
+	if( $thumbUrl == '' ) {
+		// Couldn't generate thumbnail? Scale the image client-side.
+		$thumbUrl = $img->getViewURL();
+		if( $boxheight == -1 ) {
+			// Approximate...
+			$boxheight = intval( $height * $boxwidth / $width );
+		}
+	}
+	if ( $error ) {
+		$s .= htmlspecialchars( $error );
+	} elseif( !$img->exists() ) {
+		$s .= "Image does not exist";
+	} else {
+		$s .= '<a href="'.$href.'" class="internal" title="'.$alt.'">'.
+			'<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
+			'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
+			'longdesc="'.$href.'" class="thumbimage" /></a>';
+	}
+	$s .= '  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
+	return str_replace("\n", ' ', $s);
+	//return $s;
+}
