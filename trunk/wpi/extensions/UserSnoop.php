@@ -230,7 +230,7 @@ class UserSnoop extends SpecialPage
 
 		#print what we've got!
 		$wgOut->addHTML( $s );
-	};
+	}
 
 	#Creates the page header and if a user is selected already through the 'username' variable, process
 	#
