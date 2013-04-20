@@ -1,7 +1,6 @@
 <?php
 require_once('Organism.php');
 require_once('PathwayData.php');
-require_once('CategoryHandler.php');
 require_once('MetaDataCache.php');
 
 /**
