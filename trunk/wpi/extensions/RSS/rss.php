@@ -124,17 +124,15 @@ function renderRss( $input ) {
 		return "<div>Failed to load RSS feed from $url!</div>"; #localize…
 	}
 
-	#Build title line
-	#$title = iconv($charset, $wgOutputEncoding, $rss->channel['title']);
-	#if( $rss->channel['link'] ) $title = "<a href='".$rss->channel['link']."'>$title</a>";
-
 	$output = '';
-	if( $reverse ) $rss->items = array_reverse( $rss->items );
-	$description = false;
-	foreach ( $rss->items as $item ) {
-		if ( $item['description'] ) {
-			$description = true;
-			break;
+	if ( $rss && is_object( $rss ) ) {
+		if( $reverse ) $rss->items = array_reverse( $rss->items );
+		$description = false;
+		foreach ( $rss->items as $item ) {
+			if ( $item['description'] ) {
+				$description = true;
+				break;
+			}
 		}
 	}
 
@@ -142,46 +140,49 @@ function renderRss( $input ) {
 	if ( !$short and $description ) { #full item list
 		$output.= '<dl>';
 
-		foreach ( $rss->items as $item ) {
-			$d_text = true;
-			$d_title = true;
+		if ( $rss && is_object( $rss ) ) {
+			foreach ( $rss->items as $item ) {
+				$d_text = true;
+				$d_title = true;
 
-			$href = htmlspecialchars( trim( iconv( $charset, $wgOutputEncoding, $item['link'] ) ) );
-			$title = htmlspecialchars( trim( iconv( $charset, $wgOutputEncoding, $item['title'] ) ) );
+				$href = htmlspecialchars( trim( iconv( $charset, $wgOutputEncoding, $item['link'] ) ) );
+				$title = htmlspecialchars( trim( iconv( $charset, $wgOutputEncoding, $item['title'] ) ) );
 
-			if ($date) {
-				$pubdate = trim( iconv( $charset, $wgOutputEncoding, $item['pubdate'] ) );
-				$pubdate = date( $date, strtotime( $pubdate ) );
+				if ($date) {
+					$pubdate = trim( iconv( $charset, $wgOutputEncoding, $item['pubdate'] ) );
+					$pubdate = date( $date, strtotime( $pubdate ) );
+				}
+
+				$d_title = wfRssFilter( $title, $rssFilter );
+				$d_title = wfRssFilterout( $title, $rssFilterout );
+				$title = wfRssHighlight( $title, $rssHighlight );
+
+				#Build description text if desired
+				if ( $item['description'] ) {
+					$text = trim( iconv( $charset, $wgOutputEncoding, $item['description'] ) );
+					#Avoid pre-tags
+					$text = str_replace( "\r", ' ', $text );
+					$text = str_replace( "\n", ' ', $text );
+					$text = str_replace( "\t", ' ', $text );
+					$text = str_replace( '<br>', '', $text );
+
+					$d_text = wfRssFilter( $text, $rssFilter );
+					$d_text = wfRssFilterout( $text, $rssFilterout );
+					$text = wfRssHighlight( $text, $rssHighlight );
+					$display = $d_text or $d_title;
+				} else {
+					$text = '';
+					$display = $d_title;
+				}
+				if ( $display ) {
+					$output.= "<dt><a href='$href'><b>$title</b></a></dt>";
+					if ( $date ) $output.= " ($pubdate)";
+					if ( $text ) $output.= "<dd>$text <b>[<a href='$href'>?</a>]</b></dd>";
+				}
+				#Cut off output when maxheads is reached:
+				if ( ++$headcnt == $maxheads )
+					break;
 			}
-
-			$d_title = wfRssFilter( $title, $rssFilter );
-			$d_title = wfRssFilterout( $title, $rssFilterout );
-			$title = wfRssHighlight( $title, $rssHighlight );
-
-			#Build description text if desired
-			if ( $item['description'] ) {
-				$text = trim( iconv( $charset, $wgOutputEncoding, $item['description'] ) );
-				#Avoid pre-tags
-				$text = str_replace( "\r", ' ', $text );
-				$text = str_replace( "\n", ' ', $text );
-				$text = str_replace( "\t", ' ', $text );
-				$text = str_replace( '<br>', '', $text );
-
-				$d_text = wfRssFilter( $text, $rssFilter );
-				$d_text = wfRssFilterout( $text, $rssFilterout );
-				$text = wfRssHighlight( $text, $rssHighlight );
-				$display = $d_text or $d_title;
-			} else {
-				$text = '';
-				$display = $d_title;
-			}
-			if ( $display ) {
-				$output.= "<dt><a href='$href'><b>$title</b></a></dt>";
-				if ( $date ) $output.= " ($pubdate)";
-				if ( $text ) $output.= "<dd>$text <b>[<a href='$href'>?</a>]</b></dd>";
-			}
-			#Cut off output when maxheads is reached:
-			if ( ++$headcnt == $maxheads ) break;
 		}
 
 		$output.= '</dl>';
@@ -189,29 +190,31 @@ function renderRss( $input ) {
 		## HACKY HACKY HACKY
 		$output.= '<ul>';
 		$displayed = array();
-		foreach ( $rss->items as $item ) {
-			$href = htmlspecialchars( trim( iconv( $charset, $wgOutputEncoding, $item['link'] ) ) );
-			$title = htmlspecialchars( trim( iconv( $charset, $wgOutputEncoding, $item['title'] ) ) );
-			$d_title = wfRssFilter( $title, $rssFilter ) && wfRssFilterout( $title, $rssFilterout );
-			$title = wfRssHighlight( $title, $rssHighlight );
-			if ($date) {
-				$pubdate = trim( iconv( $charset, $wgOutputEncoding, $item['pubdate'] ) );
-				if ( $pubdate == '' ) {
-					$pubdate = trim( iconv( $charset, $wgOutputEncoding, $item['dc']['date'] ) );
-			}
-				$pubdate = date( $date, strtotime( $pubdate ) );
-			}
-			if ( $d_title && !in_array( $title, $displayed ) ) {
-				// Add date to ouput if specified
-				$output.= '<li><a href="'.$href.'" title="'.$title.'">'.$title.'</a>';
-				if( $date ) {
-					$output.= " ($pubdate)";
+		if ( $rss && is_object( $rss ) ) {
+			foreach ( $rss->items as $item ) {
+				$href = htmlspecialchars( trim( iconv( $charset, $wgOutputEncoding, $item['link'] ) ) );
+				$title = htmlspecialchars( trim( iconv( $charset, $wgOutputEncoding, $item['title'] ) ) );
+				$d_title = wfRssFilter( $title, $rssFilter ) && wfRssFilterout( $title, $rssFilterout );
+				$title = wfRssHighlight( $title, $rssHighlight );
+				if ($date) {
+					$pubdate = trim( iconv( $charset, $wgOutputEncoding, $item['pubdate'] ) );
+					if ( $pubdate == '' ) {
+						$pubdate = trim( iconv( $charset, $wgOutputEncoding, $item['dc']['date'] ) );
+					}
+					$pubdate = date( $date, strtotime( $pubdate ) );
 				}
-				$output.= '</li>';
+				if ( $d_title && !in_array( $title, $displayed ) ) {
+					// Add date to ouput if specified
+					$output.= '<li><a href="'.$href.'" title="'.$title.'">'.$title.'</a>';
+					if( $date ) {
+						$output.= " ($pubdate)";
+					}
+					$output.= '</li>';
 
-				$displayed[] = $title;
-				#Cut off output when maxheads is reached:
-				if ( ++$headcnt == $maxheads ) break;
+					$displayed[] = $title;
+					#Cut off output when maxheads is reached:
+					if ( ++$headcnt == $maxheads ) break;
+				}
 			}
 		}
 		$output.= '</ul>';
