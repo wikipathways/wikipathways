@@ -14,7 +14,7 @@ try {
 
 	require_once( 'MwUtils.php' );
 	require_once( 'globals.php' );
-	require_once( "$IP/wpi/extension/pathways/Pathway.php" );
+	require_once( "$IP/wpi/extension/Pathways/Pathway.php" );
 	require_once( 'MimeTypes.php' );
 	//Parse HTTP request (only if script is directly called!)
 	if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
