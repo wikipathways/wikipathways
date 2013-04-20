@@ -3847,13 +3847,15 @@ class DPL2 {
 
 	//slightly different from CategoryViewer::formatList()
 	function formatCategoryList($iStart, $iCount) {
+		global $wgRequest, $wgDPL2CategoryStyleListCutoff;
 		for($i = $iStart; $i < $iStart + $iCount; $i++) {
 			$aArticles[] = $this->mArticles[$i]->mLink;
 			$aArticles_start_char[] = $this->mArticles[$i]->mStartChar;
 			$this->filteredCount = $this->filteredCount + 1;
 		}
 
-		$cv = new CategoryViewer( "Main Page" );
+		$cv = new CategoryViewer( Title::newFromText("Homo sapiens", NS_CATEGORY) );
+		$pick = $wgRequest->getval( "browse" );
 		if ( count ( $aArticles ) > $wgDPL2CategoryStyleListCutoff ) {
 			//AP20070821
 			if ($pick == 'All Species'){
