@@ -65,6 +65,7 @@ function SocialRewardingMostViewed($article) {
 				array("rev_id" => $rev_id)
 		);
 
+		if(!$rs) return false;
 		$revCounter = $rs->rev_counter;
 
 		// Do not count when article is saved, edited etc. or the history is displayed
