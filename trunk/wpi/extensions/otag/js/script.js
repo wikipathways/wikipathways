@@ -168,7 +168,7 @@ function loadNodeData(node, fnLoadComplete)  {
             oDS: oDS,
             oAC: oAC
         };
-    }();
+    };
 }
 
 function getOntologyName(tag_id)
@@ -213,7 +213,7 @@ function removeTag(conceptId)
     disableSave();
     var rand = Math.random();
     var ontology = getOntologyName(conceptId);
-    
+
     var handleSuccess = function(o){
         enableSave();
         if(o.responseText != "SUCCESS"){
@@ -243,7 +243,7 @@ function removeTag(conceptId)
 }
 function addTag(concept, conceptId)
 {
-    
+
     var ontology = getOntologyName(conceptId);
     var rand = Math.random();
     disableSave();
@@ -253,7 +253,7 @@ function addTag(concept, conceptId)
         document.getElementById('ontologyTagDisplay').innerHTML = "<div class='otag'><font color='red'>Error : The pathway is already tagged with this term !</font><br><a title='Close' href='javascript:closeTag();'><img src='" + stylepath + "/common/images/cancel.png' /></a><br></div>";
         return;
     }
-    
+
     var handleSuccess = function(o){
         enableSave();
         if(o.responseText != "SUCCESS"){
@@ -306,7 +306,7 @@ function fetchTags()
             }
 
             toggleOntologyDisplay();
-            
+
             if(totalTagsCount < 3 && otagloggedIn == 1)
                 toggleOntologyControls();
 
@@ -342,18 +342,18 @@ function displayTag(concept, conceptId, newTag)
         var output = " ";
 
 		output += "<div class='otag'><b>Term</b> : " + concept + "<br/><b>ID</b> : " + conceptId + "<br/>";
-		
+
 		 //Info link
          var url = "http://bioportal.bioontology.org/visualize/" + ontology_version_id + "/" + conceptId;
-        
+
         output += "<a href='" + url + "'  title='More info at BioPortal' target='_blank'><img src='" + stylepath + "/common/images/info_large.png'></a>&nbsp;"
-        
+
         //Other pathways search link
         var term = conceptId.replace(/:/g, '');
         url = "?query=" + term + "&species=ALL+SPECIES&title=Special%3ASearchPathways&doSearch=1&type=query";
         url = wgServer + wgScriptPath + url;
         output += "<a title='More pathways with this term' href='" + url + "'><img src='" + stylepath + "/common/images/search_circle.png' /></a>&nbsp;";
-		
+
         if(otagloggedIn == 1)
         {
             if(newTag == "true")
@@ -428,7 +428,7 @@ function toggleOntologyDisplay()
     for(i=0;i<ontologies.length;i++)
     {
         var ontologyName = ontologies[i][0];
-        
+
         if(oTagsCount[ontologyName] > 0)
             document.getElementById(ontologyName).style.display = "Block";
         else
