@@ -42,6 +42,10 @@ class MetaTag {
 		$this->loadFromDB();
 	}
 
+	public function __toString() {
+		return $this->getText();
+	}
+
 	/**
 	 * Specify whether a history should be stored when modifying this tag. Set to false to disable
 	 * storing history.
