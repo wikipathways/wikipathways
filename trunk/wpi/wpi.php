@@ -9,6 +9,7 @@ try {
 	set_include_path( get_include_path() . PATH_SEPARATOR .
 		implode( PATH_SEPARATOR, array_map( 'realpath', array( $wpiDir, "$wpiDir/includes",
 					"$wpiDir/../includes", "$dir/../" ) ) ) );
+	putenv( "MW_INSTALL_PATH=$IP" );
 	require_once( "WebStart.php" );
 	require_once( "Wiki.php" );
 
