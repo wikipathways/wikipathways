@@ -46,6 +46,7 @@ class MetaDataCache {
 	private function load($f) {
 		$tag = new MetaTag($this->createTagName($f), $this->page_id);
 		$this->tags[$f] = $tag;
+		return $tag;
 	}
 
 	/**
@@ -87,7 +88,8 @@ class MetaDataCache {
 	}
 
 	private function doUpdate($field, $value) {
-		$tag = $this->tags[$field];
+		$tag = isset( $this->tags[$field] ) ? $this->tags[$field] : null;
+
 		if(!$tag) {
 			$tag = new MetaTag($this->createTagName($field), $this->page_id);
 			$this->tags[$field] = $tag;
@@ -122,17 +124,9 @@ class MetaDataCache {
 	 * @param $field A cache field (use one of the $FIELD_* constants)
 	 */
 	public function getValue($field, $update = true) {
-		$ret = '';
- 		if( isset( $this->tags[$field] ) ) {
-			$tag = $this->tags[$field];
-			if(!$tag) {
-				$this->load($field);
-				if($update) $this->updateCache($field);
-				$tag = $this->tags[$field];
-			}
-			$ret = $tag->getText();
-		}
-		return $ret;
+		$tag = isset( $this->tags[$field] ) ? $this->tags[$field] : $this->load($field);
+		if($update) $this->updateCache($field);
+		return $tag;
 	}
 
 	/**
