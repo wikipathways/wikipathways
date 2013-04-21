@@ -33,15 +33,18 @@ function ofunction( $input, $argv, &$parser ) {
 	$title = $parser->getTitle();
 	$loggedIn = $title->userCan('edit') ? 1 : 0;
 
-	if($loggedIn)
-		{
-			$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/yui2.7.0.allcomponents.js"></script>');
-			$wgOut->addStyle("yui2.7.0.css");
-		}
-	else
-		{
-			$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/yui2.7.0.mincomponents.js"></script>');
-		}
+	if($loggedIn) {
+		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/yahoo-min.js"></script>');
+		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/json-min.js"></script>');
+		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/event-min.js"></script>');
+		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/connection_core-min.js"></script>');
+		$wgOut->addStyle("yui2.7.0.css");
+	} else {
+		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/yahoo-min.js"></script>');
+		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/json-min.js"></script>');
+		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/event-min.js"></script>');
+		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/connection_core-min.js"></script>');
+	}
 
 	$wgOut->addStyle("otag.css");
 	$wgStylePath = $oldStylePath;
