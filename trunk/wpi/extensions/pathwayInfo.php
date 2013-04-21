@@ -45,6 +45,8 @@ function wfPathwayInfo_Magic( &$magicWords, $langCode ) {
 	return true;
 }
 
+require_once("Pathways/Pathway.php");
+/* Need autoloader here */
 class PathwayInfo extends PathwayData {
 	private $parser;
 
