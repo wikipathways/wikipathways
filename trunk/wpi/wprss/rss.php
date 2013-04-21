@@ -153,4 +153,3 @@ foreach ($changedPathways["pathways"] as $p){
 	}
 }
 echo $dom->saveXML();
-?>
