@@ -61,7 +61,7 @@ class DataSource {
 		if(!self::$linkouts) {
 			self::initLinkouts();
 		}
-		if($datasource && array_key_exists($datasource, self::$linkouts)) {
+		if($id != '' && $datasource && array_key_exists($datasource, self::$linkouts)) {
 			$value = self::$linkouts[$datasource];
 			return str_ireplace('$id', $id, $value);
 		} else {

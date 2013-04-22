@@ -4,9 +4,9 @@ require_once("ImagePage.php");
 require_once("wpi/DataSources.php");
 
 /*
-Generates info text for pathway page
-- datanode
-	> generate table of datanodes
+  Generates info text for pathway page
+  - datanode
+  > generate table of datanodes
 */
 
 #### DEFINE EXTENSION
@@ -60,13 +60,13 @@ class PathwayInfo extends PathwayData {
 	 */
 	function datanodes() {
 		$table = <<<TABLE
-<table class="wikitable sortable" id="dnTable">
-<tbody>
-<th>Name
-<th>Type
-<th>Database reference
-<th>Comment
-TABLE;
+			<table class="wikitable sortable" id="dnTable">
+		<tbody>
+		<th>Name
+		<th>Type
+		<th>Database reference
+		<th>Comment
+		TABLE;
 		//style="border:1px #AAA solid;margin:1em 1em 0;background:#F9F9F9"
 		$all = $this->getElements('DataNode');
 
@@ -85,19 +85,15 @@ TABLE;
 		if(count($nodes) > $nrShow) {
 			$expand = "<B>View all $nrNodes...</B>";
 			$collapse = "<B>View last " . ($nrShow) . "...</B>";
-			$button = "<table><td width='51%'> <div onClick='toggleRows(\"dnTable\", this, \"$expand\",
-				\"$collapse\", " . ($nrShow + 1) . ", true)' style='cursor:pointer;color:#0000FF'>$expand<td width='45%'></table>";
+			$button = "<table><td width='51%'> <div onClick='toggleRows(\"dnTable\", this, \"$expand\",".
+				"\"$collapse\", " . ($nrShow + 1) . ", true)' style='cursor:pointer;color:#0000FF'>".
+				"$expand<td width='45%'></table>";
 		}
 		//Sort and iterate over all elements
 		$species = $this->getOrganism();
 		sort($nodes);
 		$i = 0;
 		foreach($nodes as $datanode) {
-			$doShow = $i++ < $nrShow ? "" : "style='display:none'";
-			$table .= "<tr $doShow>";
-			$table .= '<td>' . $datanode['TextLabel'];
-			$table .= '<td>' . $datanode['Type'];
-			$table .= '<td>';
 			$xref = $datanode->Xref;
 			$xid = (string)$xref['ID'];
 			$xds = (string)$xref['Database'];
@@ -105,7 +101,7 @@ TABLE;
 			if($link) {
 				$l = new Linker();
 				$link = $l->makeExternalLink( $link, "{$xref['ID']} ({$xref['Database']})" );
-			} elseif( $xref['ID'] ) {
+			} elseif( $xref['ID'] != '' ) {
 				$link = $xref['ID'];
 				if($xref['Database'] != '') {
 					$link .= ' (' . $xref['Database'] . ')';
@@ -113,13 +109,23 @@ TABLE;
 			}
 			//Add xref info button
 			$html = $link;
-			if($xid && $xds) $html = XrefPanel::getXrefHTML($xid, $xds, $datanode['TextLabel'], $link, $this->getOrganism());
-			$table .= $html;
+			if($xid && $xds) {
+				$html = XrefPanel::getXrefHTML($xid, $xds, $datanode['TextLabel'], $link, $this->getOrganism());
+			}
 
-			//Comment Data
-			$table .= "<td class='xref-comment'>";
-			if( $datanode->Comment ) {
-				$table .= $datanode->Comment;
+			if( $datanode['TextLabel'] != '' || $datanode['Type'] != '' ||
+				$html != '' || $datanode->Comment != '' ) {
+				$doShow = $i++ < $nrShow ? "" : "style='display:none'";
+				$table .= "<tr $doShow>";
+				$table .= '<td>' . $datanode['TextLabel'];
+				$table .= '<td>' . $datanode['Type'];
+				$table .= '<td>' . $html;
+
+				//Comment Data
+				$table .= "<td class='xref-comment'>";
+				if( $datanode->Comment ) {
+					$table .= $datanode->Comment;
+				}
 			}
 		}
 		$table .= '</tbody></table>';
