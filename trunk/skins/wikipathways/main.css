@@ -112,7 +112,9 @@ td img {
    margin-left: 25%;
    margin-right: 25%;
 }
-
+td#dnTable img {
+   margin: 8px;
+}
 p {
 	margin: .4em 0 .5em 0;
 	line-height: 1.5em;
