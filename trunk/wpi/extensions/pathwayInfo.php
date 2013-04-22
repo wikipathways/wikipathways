@@ -65,7 +65,7 @@ class PathwayInfo extends PathwayData {
 <th>Name
 <th>Type
 <th>Database reference
-
+<th>Comment
 TABLE;
 		//style="border:1px #AAA solid;margin:1em 1em 0;background:#F9F9F9"
 		$all = $this->getElements('DataNode');
@@ -114,8 +114,13 @@ TABLE;
 			//Add xref info button
 			$html = $link;
 			if($xid && $xds) $html = XrefPanel::getXrefHTML($xid, $xds, $datanode['TextLabel'], $link, $this->getOrganism());
-
 			$table .= $html;
+
+			//Comment Data
+			$table .= "<td class='xref-comment'>";
+			if( $datanode->Comment ) {
+				$table .= $datanode->Comment;
+			}
 		}
 		$table .= '</tbody></table>';
 		return array($button . $table, 'isHTML'=>1, 'noparse'=>1);
