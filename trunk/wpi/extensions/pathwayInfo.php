@@ -105,7 +105,7 @@ TABLE;
 			if($link) {
 				$l = new Linker();
 				$link = $l->makeExternalLink( $link['url'], "{$xref['ID']} ({$xref['Database']})" );
-			} else {
+			} elseif( $xref['ID'] ) {
 				$link = $xref['ID'];
 				if($xref['Database'] != '') {
 					$link .= ' (' . $xref['Database'] . ')';
