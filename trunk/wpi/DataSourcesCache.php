@@ -6,9 +6,9 @@ require_once("globals.php");
 if(isset($argv[0]) && $argv[0] == "DataSourcesCache.php") {
 	echo("Updating datasources cache\n");
 	$start = microtime(true);
-	
+
 	DataSourcesCache::update();
-	
+
 	$time = (microtime(true) - $start);
 	echo("\tUpdated in $time seconds\n");
 }
@@ -17,7 +17,7 @@ class DataSourcesCache {
 	private static $url = "http://svn.bigcat.unimaas.nl/bridgedb/trunk/org.bridgedb.bio/resources/org/bridgedb/bio/datasources.txt";
 	static $file = "datasources.txt";
 	static $content = null;
-	
+
 	public static function update() {
 		## Download a fresh datasources file
 		$txt = file_get_contents(self::$url);
@@ -30,14 +30,14 @@ class DataSourcesCache {
 			self::$content = $txt;
 		}
 	}
-	
+
 	private static function read() {
 		$f = WPI_CACHE_PATH . "/" . self::$file;
 		if(file_exists($f)) {
 			return file_get_contents($f);
 		}
 	}
-	
+
 	public static function getContent() {
 		if(!self::$content) {
 			//Try to read from cached file
