@@ -107,19 +107,28 @@ class PathwayInfo extends PathwayData {
 				$html = XrefPanel::getXrefHTML($xid, $xds, $datanode['TextLabel'], $link, $this->getOrganism());
 			}
 
+			$class = "";
 			if( $datanode['TextLabel'] != '' || $datanode['Type'] != '' ||
 				$html != '' || $datanode->Comment != '' ) {
-				$doShow = $i++ < $nrShow ? "" : "style='display:none'";
-				$table .= "<tr $doShow>";
-				$table .= '<td>' . $datanode['TextLabel'];
-				$table .= '<td>' . $datanode['Type'];
-				$table .= '<td>' . $html;
+				$class = " class='dataNodeProblem'";
+			}
+			$doShow = $i++ < $nrShow ? "" : " style='display:none'";
+			$table .= "<tr$doShow$class>";
+			$table .= '<td>' . $datanode['TextLabel'];
+			$table .= '<td>' . $datanode['Type'];
+			$table .= '<td>' . $html;
 
-				//Comment Data
-				$table .= "<td class='xref-comment'>";
-				if( $datanode->Comment ) {
-					$table .= $datanode->Comment;
+			//Comment Data
+			$table .= "<td class='xref-comment'>";
+			$comment = $datanode->children();
+			if( count( $comment ) > 1 ) {
+				$table .= "<ul>";
+				foreach( $comment as $c ) {
+					$table .= "<li>$c";
 				}
+				$table = "</ul>";
+			} elseif( count( $comment ) == 1 ) {
+				$table .= $comment[0];
 			}
 		}
 		$table .= '</tbody></table>';
