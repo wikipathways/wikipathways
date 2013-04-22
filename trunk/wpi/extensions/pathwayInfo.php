@@ -104,7 +104,7 @@ TABLE;
 			$link = DataSource::getLinkout($xid, $xds);
 			if($link) {
 				$l = new Linker();
-				$link = $l->makeExternalLink( $link['url'], "{$xref['ID']} ({$xref['Database']})" );
+				$link = $l->makeExternalLink( $link, "{$xref['ID']} ({$xref['Database']})" );
 			} elseif( $xref['ID'] ) {
 				$link = $xref['ID'];
 				if($xref['Database'] != '') {
