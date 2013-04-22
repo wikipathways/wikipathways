@@ -55,7 +55,7 @@ class underConstructionRow extends tableRow {
 		$b = $prev->format("YmdHis");
 	}
 
-	public function format() {
+	public function format( $id = null ) {
 		// Row is red if the last edit date (5th column) is not after the tag date (4th column)
 		// or if the last edit is older than 30 days
 		$style = "";
@@ -94,7 +94,7 @@ class deleteRow extends tableRow {
 		}
 	}
 
-	public function format() {
+	public function format( $id = null ) {
 		// show a delete button
 		$row = "";
 		if( $this->action ) {
