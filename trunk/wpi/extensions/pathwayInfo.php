@@ -107,16 +107,18 @@ class PathwayInfo extends PathwayData {
 				$html = XrefPanel::getXrefHTML($xid, $xds, $datanode['TextLabel'], $link, $this->getOrganism());
 			}
 
-			$class = "";
 			//Comment Data
 			$comment = array();
-
+			$biopaxRef = array();
 			foreach( $datanode->children() as $child ) {
 				if( $child->getName() == 'Comment' ) {
 					$comment[] = (string)$child;
+				} elseif( $child->getName() == 'BiopaxRef' ) {
+					$biopaxRef[] = (string)$child;
 				}
 			}
 
+			$class = "";
 			if( $datanode['TextLabel'] == '' || $datanode['Type'] == '' || $html == '' ) {
 				$class = " class='dataNodeProblem'";
 			}
@@ -127,18 +129,25 @@ class PathwayInfo extends PathwayData {
 			$table .= '<td>' . $html;
 			$table .= "<td class='xref-comment'>";
 
-			if( count( $comment ) > 1 ) {
-				$table .= "<ul>";
-				foreach( $comment as $c ) {
-					$table .= "<li>$c";
-				}
-				$table .= "</ul>";
-			} elseif( count( $comment ) == 1 ) {
-				$table .= $comment[0];
-			}
+			$table .= self::displayItem( $comment );
+			$table .= self::displayItem( $biopaxRef );
 		}
 		$table .= '</tbody></table>';
 		return array($button . $table, 'isHTML'=>1, 'noparse'=>1);
+	}
+
+	protected static function displayItem( $item ) {
+		$ret = "";
+		if( count( $item ) > 1 ) {
+			$ret .= "<ul>";
+			foreach( $item as $c ) {
+				$ret .= "<li>$c";
+			}
+			$ret .= "</ul>";
+		} elseif( count( $item ) == 1 ) {
+			$ret .= $item[0];
+		}
+		return $ret;
 	}
 
 	function interactions() {
