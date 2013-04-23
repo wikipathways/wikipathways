@@ -1,8 +1,7 @@
 <?php
 require_once("wpi/wpi.php");
 
-class CreatePathwayPage extends SpecialPage
-{
+class CreatePathwayPage extends SpecialPage {
 	private $this_url;
 	private $create_priv_msg;
 
@@ -30,16 +29,16 @@ class CreatePathwayPage extends SpecialPage
 			return;
 		}
 
-		$pwName = $_GET['pwName'];
+		$pwName = $wgRequest->getVal('pwName');
 		$pwNameLen = strlen($pwName);
-		$pwSpecies = $_GET['pwSpecies'];
-		$override = $_GET['override'];
-		$private = $_GET['private'];
-		$uploading = $_POST['upload'];
-		$private2 = $_POST['private2'];
+		$pwSpecies = $wgRequest->getVal('pwSpecies');
+		$override = $wgRequest->getVal('override');
+		$private = $wgRequest->getVal('private');
+		$uploading = $wgRequest->getVal('upload');
+		$private2 = $wgRequest->getVal('private2');
 
 
-		if($_GET['create'] == '1') { //Submit button pressed
+		if($wgRequest->getVal('create') == '1') { //Submit button pressed
 			//Check for pathways with the same name and species
 			$exist = Pathway::getPathwaysByName($pwName, $pwSpecies);
 			if(count($exist) > 0 && !$override) {
