@@ -108,25 +108,24 @@ class PathwayInfo extends PathwayData {
 			}
 
 			$class = "";
-                        $error = "";
 			//Comment Data
 			$comment = array();
-                        foreach( $datanode->children() as $child ) {
-                            if( $child->getName() == 'Comment' ) {
-                                $comment[] = (string)$child;
-                            }
-                        }
+
+			foreach( $datanode->children() as $child ) {
+				if( $child->getName() == 'Comment' ) {
+					$comment[] = (string)$child;
+				}
+			}
 
 			if( $datanode['TextLabel'] == '' || $datanode['Type'] == '' || $html == '' ) {
 				$class = " class='dataNodeProblem'";
-                                $error = "This data node has a problem!<br>";
 			}
 			$doShow = $i++ < $nrShow ? "" : " style='display:none'";
 			$table .= "<tr$doShow$class>";
 			$table .= '<td>' . $datanode['TextLabel'];
 			$table .= '<td>' . $datanode['Type'];
 			$table .= '<td>' . $html;
-			$table .= "<td class='xref-comment'>$error";
+			$table .= "<td class='xref-comment'>";
 
 			if( count( $comment ) > 1 ) {
 				$table .= "<ul>";
