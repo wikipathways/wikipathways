@@ -193,10 +193,12 @@ function renderRss( $input ) {
 		if ( $rss && is_object( $rss ) ) {
 			foreach ( $rss->items as $item ) {
 				$title = $href = "";
-				if( isset( $item['link'] ) )
+				if( isset( $item['link'] ) ) {
 					$href = htmlspecialchars( trim( iconv( $charset, $wgOutputEncoding, $item['link'] ) ) );
+				}
 				if( isset( $item['title'] ) ) {
 					$title = htmlspecialchars( trim( iconv( $charset, $wgOutputEncoding, $item['title'] ) ) );
+				}
 				$d_title = wfRssFilter( $title, $rssFilter ) && wfRssFilterout( $title, $rssFilterout );
 				$title = wfRssHighlight( $title, $rssHighlight );
 				if ($date) {
