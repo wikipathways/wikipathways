@@ -13,20 +13,20 @@ class WebserviceCounts {
 			'/137\.120\.17\.33/',
 			'/169\.230\.76\.87/'
 		);
-		
+
 		$dates = array();
 		$own = array();
 		$ext = array();
-		
+
 		$tsPrev = array_shift($times);
 		foreach($times as $tsCurr) {
 			$date = date('Y/m/d', wfTimestamp(TS_UNIX, $tsCurr));
 			logger($date);
-			
-			$ipCounts = StatWebservice::getCountsByIp($tsPrev, $tsCurr);			
+
+			$ipCounts = StatWebservice::getCountsByIp($tsPrev, $tsCurr);
 			$ownCount = 0;
 			$extCount = 0;
-			
+
 			foreach(array_keys($ipCounts) as $ip) {
 				$isOwn = false;
 				foreach($ownIps as $r) {
@@ -38,13 +38,13 @@ class WebserviceCounts {
 				if($isOwn) $ownCount += $ipCounts[$ip];
 				else $extCount += $ipCounts[$ip];
 			}
-			
+
 			$own[$date] = $ownCount;
 			$ext[$date] = $extCount;
 			$dates[] = $date;
 			$tsPrev = $tsCurr;
 		}
-		
+
 		$fout = fopen($file, 'w');
 		fwrite($fout, "date\tnumber\tnumber\n");
 		fwrite($fout, "Time\tExternal\tInternal\n");
@@ -59,4 +59,3 @@ class WebserviceCounts {
 		fclose($fout);
 	}
 }
-?>

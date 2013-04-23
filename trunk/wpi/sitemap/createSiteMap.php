@@ -2,7 +2,7 @@
 # (TK) Modified from:
 # -----------------------------------------------------
 # MediaWiki - Google Sitemaps generation. v0.3
-# 
+#
 # A page that'll generate valid Google Sitemaps code
 # from the current MediaWiki installation.
 # v0.3: Small changes to fix others situations
@@ -29,14 +29,14 @@ header("Content-Type: application/xml; charset=UTF-8");
 # Send xml-prolog
 # -----------------------------------------------------
 
-echo '<'.'?xml version="1.0" encoding="utf-8" ?'.">\n"; 
+echo '<'.'?xml version="1.0" encoding="utf-8" ?'.">\n";
 
 # -----------------------------------------------------
 # Start connection
 # -----------------------------------------------------
 
-$connWikiDB = mysql_pconnect($wgDBserver, $wgDBuser, $wgDBpassword) 
-	or trigger_error(mysql_error(),E_USER_ERROR); 
+$connWikiDB = mysql_pconnect($wgDBserver, $wgDBuser, $wgDBpassword)
+	or trigger_error(mysql_error(),E_USER_ERROR);
 mysql_select_db($wgDBname, $connWikiDB);
 
 # -----------------------------------------------------
@@ -69,14 +69,14 @@ error_reporting(E_ALL);
 <!-- <?php echo $totalRows_rsPages ?> wikipages found. -->
 <!-- Created on <?php echo fnTimestampToIso(time()); ?> -->
 <urlset xmlns="http://www.google.com/schemas/sitemap/0.84">
-<?php 
+<?php
 
-do { 
+do {
 	$nPriority = 0.1;
 	$ns = $row_rsPages['page_namespace'];
 	$title = Title::makeTitle($ns, $row_rsPages['page_title']);
 
-	//Use latest modification of both GPML and Pathway pages	
+	//Use latest modification of both GPML and Pathway pages
 	if($ns == NS_PATHWAY) {
 		$pathway = Pathway::newFromTitle($title);
 		$mod = $pathway->getGpmlModificationTime();
@@ -124,5 +124,3 @@ function fnXmlEncode( $string ) {
 	$string = preg_replace( '/[\x00-\x08\x0b\x0c\x0e-\x1f]/', '', $string );
 	return htmlspecialchars( $string );
 }
-
-?>

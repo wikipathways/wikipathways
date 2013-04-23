@@ -6,15 +6,15 @@ Move the pathway pages to stable identifier pages
 require_once("Maintenance.php");
 
 $spName2Code = array(
-	'Homo sapiens' => 'Hs', 
-	'Rattus norvegicus' => 'Rn', 
+	'Homo sapiens' => 'Hs',
+	'Rattus norvegicus' => 'Rn',
 	'Mus musculus' => 'Mm',
 	'Drosophila melanogaster' => 'Dm',
 	'Caenorhabditis elegans' => 'Ce',
 	'Saccharomyces cerevisiae' => 'Sc',
 	'Danio rerio' => 'Dr',
 );
-	
+
 $pathways = array();
 $dbr =& wfGetDB(DB_SLAVE);
 $ns = NS_PATHWAY;
@@ -27,11 +27,11 @@ while( $row = $dbr->fetchRow( $res )) {
 $dbr->freeResult($res);
 
 shuffle($pathways);
-		
+
 foreach($pathways as $page_title) {
 	$title = Title::newFromText($page_title, NS_PATHWAY);
 	$talk = Title::newFromText($page_title, NS_PATHWAY_TALK);
-	
+
 	echo("Processing " . $title->getFullText() . "<BR>\n");
 
 	if($title->isDeleted()) {
@@ -48,9 +48,9 @@ foreach($pathways as $page_title) {
 		echo("\tSkipping, already identifier<BR>\n");
 		continue; //Already an identifier
 	}
-	
+
 	$id = generateUniqueId();
-	
+
 	$newTitle = Title::newFromText($id, NS_PATHWAY);
 	$newTalk = Title::newFromText($id, NS_PATHWAY_TALK);
 	echo "\tNew title: {$newTitle->getFullText()}<br>\n";
@@ -67,10 +67,10 @@ foreach($pathways as $page_title) {
 	$name = nameFromTitle($page_title);
 	$species = speciesFromTitle($page_title);
 	$species = $spName2Code[$species];
-	
+
 	$imgTitle = Title::newFromText($species . "_" . $name . ".svg", NS_IMAGE);
 	echo($imgTitle->getFullText() . ": " . $imgTitle->exists() . "<BR>\n");
-	
+
 	if($doit) {
 		//Remove svg cache
 		Pathway::deleteArticle($imgTitle, "removed old cache");
@@ -98,7 +98,7 @@ function generateUniqueId() {
 			$lastid = Pathway::$ID_PREFIX . "0";
 		}
 		$dbr->freeResult( $res );
-		
+
 		$lastidNum = substr($lastid, 2);
 		$newidNum = $lastidNum + 1;
 		$newid = Pathway::$ID_PREFIX . $newidNum;
@@ -126,4 +126,3 @@ function speciesFromTitle($title) {
 	$species = str_replace('_', ' ', $species);
 	return $species;
 }
-?>

@@ -15,5 +15,3 @@ while($row = $dbr->fetchRow($res)) {
 		echo "Exception: {$e->getMessage()}<BR>\n";
 	}
 }
-
-?>

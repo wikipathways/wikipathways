@@ -14,20 +14,20 @@ $i = 0;
 $np = $dbr->numRows( $res );
 while( $row = $dbr->fetchRow( $res )) {
 	$title = Title::newFromID($row[0]);
-	
+
 	echo("PROCESSING: " . $title->getFullText() . "<BR>\n");
 
 	if($title->getNamespace() != NS_PATHWAY) {
 		echo("SKIPPED {$title->getFullText()}, wrong namespace<BR>\n");
 		continue;
 	}
-	
+
 	$rev = Revision::newFromTitle($title);
 	$text = $rev->getText();
-		
+
 	##Find the description
 	$title = $title->getText();
-	
+
 	//DescriptionStub}}<!-- PLEASE DO NOT MODIFY THIS LINE -->\n|DESCR|\n== Biblio
 	if(ereg("DescriptionStub\}\}<!-- PLEASE DO NOT MODIFY THIS LINE -->\n(.+)\n== Biblio", $text, $regs)) {
 		echo("DESCRIPTION: {$regs[1]}<BR>\n");
@@ -39,23 +39,23 @@ while( $row = $dbr->fetchRow( $res )) {
 
 function transferToGpml($title, $description) {
 	global $doit;
-	
+
 	$description = htmlentities($description);
-	
+
 	$pathway = Pathway::newFromTitle($title);
 	$title = $pathway->getFileTitle(FILETYPE_GPML);
 	$article = new Article($title);
 	$rev = Revision::newFromTitle($title);
 	$text = $rev->getText();
-		
+
 	$category = "<Comment Source=\"WikiPathways-description\">$description</Comment>";
-	
+
 	if(stripos($text, $category) !== false) {
 		//The category is already present, nothing to do
 		echo "SKIPPING: category already in GPML<BR>\n";
 		return;
 	}
-	
+
 	$text = preg_replace('/(<Pathway (?U).+)(<Graphics)/s',"$1$category\n$2", $text);
 	$id = $rev->getId();
 	//Write new text to database
@@ -67,4 +67,3 @@ function transferToGpml($title, $description) {
 		}
 	}
 }
-?>

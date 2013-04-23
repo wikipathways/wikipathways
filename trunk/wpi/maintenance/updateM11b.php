@@ -18,4 +18,3 @@ $dbw->immediateBegin();
 $dbw->query("ALTER TABLE `tag` CHANGE `tag_text` `tag_text` TEXT NULL DEFAULT NULL");
 $dbw->query("ALTER TABLE `tag_history` CHANGE `text` `text` TEXT NULL DEFAULT NULL");
 $dbw->immediateCommit();
-?>

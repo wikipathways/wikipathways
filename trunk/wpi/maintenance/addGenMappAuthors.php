@@ -35,7 +35,7 @@ foreach ($lines as $line_num => $line) {
 	$ex_usr = explode(";", $cols[1]);
 	$nw_usr = explode(";", $cols[2]);
 	$nw_nm = explode(";", $cols[3]);
-	
+
 	$authors = array();
 	foreach($ex_usr as $u) {
 		if($u) {
@@ -49,7 +49,7 @@ foreach ($lines as $line_num => $line) {
 		}
 		$i++;
 	}
-	
+
 	$map[$field] = $authors;
 }
 
@@ -92,25 +92,25 @@ foreach(Pathway::getAllPathways() as $pathway) {
 function addAuthor($pathway, $gma) {
 	$dbw =& wfGetDB(DB_MASTER);
 	$dbw->immediateBegin();
-	
+
 	println("\tAdding author " . $gma->real_name);
 
 	$uid = $gma->getUser()->getId();
 	$rev = $pathway->getFirstRevision()->getId();
 	$pid = $pathway->getTitleObject()->getArticleId();
-	
+
 	//Check if user contributed already
 	$dbr =& wfGetDB(DB_SLAVE);
-	
+
 	$query = "SELECT rev_id FROM revision WHERE rev_page = '$pid' AND rev_user = '$uid'";
-	
+
 	$res = $dbr->query($query);
 	while($row = $dbr->fetchObject( $res )) {
 		println("\t\tSkipping: author already contributed to this pathway");
 		return;
 	}
-	
-	$query = 
+
+	$query =
 		"INSERT INTO revision (rev_page, rev_text_id, rev_comment, rev_user, " .
 		"rev_user_text, rev_timestamp, rev_minor_edit, rev_deleted, rev_len, rev_parent_id) " .
 		"SELECT rev_page, rev_text_id, rev_comment, $uid, '{$gma->user_name}', rev_timestamp, " .
@@ -123,40 +123,40 @@ function addAuthor($pathway, $gma) {
 function addFirstAuthor($pathway, $gma) {
 	$dbw =& wfGetDB(DB_MASTER);
 	$dbw->immediateBegin();
-	
+
 	println("\tAdding first author " . $gma->real_name);
 	//Replace user id in first revision
 	$uid = $gma->getUser()->getId();
 	$rev = $pathway->getFirstRevision()->getId();
-	
+
 	$dbw->query(
 		"UPDATE revision " .
-		"SET rev_user = " . $uid . ", rev_user_text ='" . 
+		"SET rev_user = " . $uid . ", rev_user_text ='" .
 		$gma->user_name . "' " .
 		" WHERE rev_id = " . $rev
 	);
-	
+
 	$dbw->immediateCommit();
 }
 
 class GMAuthor {
 	public $real_name;
 	public $user_name;
-	
+
 	function __construct($real_name, $user_name) {
 		$this->real_name = $real_name;
 		$this->user_name = $user_name;
 	}
-	
+
 	function exists() {
 		$user = $this->getUser();
 		return $user && $user->getId() != 0;
 	}
-	
+
 	function getUser() {
 		return User::newFromName($this->user_name);
 	}
-	
+
 	function create() {
 		global $pass;
 		$user = User::createNew($this->user_name, array(
@@ -170,4 +170,3 @@ class GMAuthor {
 function println($str) {
 	echo($str . "\n");
 }
-?>

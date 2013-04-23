@@ -8,7 +8,7 @@ $pathways = Pathway::getAllPathways();
 foreach($pathways as $pathway) {
 	$species = $pathway->species();
 	$name = $pathway->name();
-	
+
 	$gpml = $pathway->getGPML();
 	$gpmlNew = str_replace('_', ' ', $gpml);
 	if($gpmlNew !== $gpml) {
@@ -20,4 +20,3 @@ foreach($pathways as $pathway) {
 		echo "No update needed for $name ($species)<br>\n";
 	}
 }
-?>

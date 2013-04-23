@@ -2,20 +2,19 @@
 require_once("wpi/wpi.php");
 require_once("PathwayWishList.php");
 
-class SpecialWishList extends SpecialPage
-{		
+class SpecialWishList extends SpecialPage {
 	private $wishlist;
-	
-	private $this_url;
-	
-        function SpecialWishList() {
-                SpecialPage::SpecialPage("SpecialWishList");
-                self::loadMessages();
-        }
 
-        function execute( $par ) {
-                global $wgRequest, $wgOut, $wgUser;
-                $this->setHeaders();
+	private $this_url;
+
+	function SpecialWishList() {
+		SpecialPage::SpecialPage("SpecialWishList");
+		self::loadMessages();
+	}
+
+	function execute( $par ) {
+		global $wgRequest, $wgOut, $wgUser;
+		$this->setHeaders();
 
 		$this->this_url = SITE_URL . '/index.php?title=Special:SpecialWishList';
 
@@ -25,10 +24,10 @@ class SpecialWishList extends SpecialPage
 		foreach(array_keys($_REQUEST) as $key) {
 			if('check_' == substr($key, 0, 6)) {
 				$wid = substr($key, 6);
-					$checkwishes[$wid] = $_REQUEST[$key];
+				$checkwishes[$wid] = $_REQUEST[$key];
 			}
 		}
-		
+
 		try {
 			switch($_REQUEST['wishaction']) {
 				case 'add':
@@ -55,40 +54,40 @@ class SpecialWishList extends SpecialPage
 		} catch(Exception $e) {
 			global $wgOut;
 			$wgOut->showErrorPage("Error", $e->getMessage());
-		}	}
+		}	}
 
 	function reload() {
 		global $wgOut;
 		$wgOut->redirect($this->this_url);
 	}
-	
+
 	function add($name, $comments) {
 		$this->wishlist->addWish($name, $comments);
 		$this->reload();
 	}
-	
+
 	function remove($id) {
-		
+
 		$wish = new Wish($id);
 		$wish->remove();
-		
+
 		$this->reload();
 	}
-	
+
 	function vote($id) {
 		global $wgUser;
 		$wish = new Wish($id);
 		$wish->vote($wgUser->getId());
 		$this->reload();
 	}
-	
+
 	function unvote($id) {
 		global $wgUser;
 		$wish = new Wish($id);
 		$wish->unvote($wgUser->getId());
 		$this->reload();
 	}
-	
+
 	function setWatch($wishes) {
 		//Unwatch all unchecked items
 		foreach($this->wishlist->getWishlist() as $wish) {
@@ -100,20 +99,20 @@ class SpecialWishList extends SpecialPage
 		}
 		$this->reload();
 	}
-	
+
 	static function comparePathways($p1, $p2) {
 		$o1 = $p1->getSpecies() . $p1->getName();
 		$o2 = $p2->getSpecies() . $p2->getName();
 		return strcmp($o1, $o2);
 	}
-	
+
 	function markResolved($id, $pathwayTitle = '') {
 		global $wgOut, $wgUser;
 		if($pathwayTitle) {
 			$this->doMarkResolved($id, $pathwayTitle);
 			$this->reload();
 		}
-		
+
 		$select = "<select name='pathway'>$pwSelect";
 		//First show a form to fill in the pathway names
 		$pathways = Pathway::getAllPathways();
@@ -128,13 +127,13 @@ class SpecialWishList extends SpecialPage
 		//resolved wish info
 		$wish = new Wish($id);
 		$title = $wish->getTitle()->getText();
-                $user = $wish->getRequestUser();
+		$user = $wish->getRequestUser();
 		$user = $wgUser->getSkin()->userLink( $user, $user->getName());
-                $date = self::getSortTimeDate($wish->getRequestDate());    
-                $fullComment = str_replace('"', "'", $wish->getComments());
-                $comment = $this->truncateComment($wish, 75); //Cutoff comment at 20 chars
-		//displayed html	
-		$this->addJavaScript();	
+		$date = self::getSortTimeDate($wish->getRequestDate());
+		$fullComment = str_replace('"', "'", $wish->getComments());
+		$comment = $this->truncateComment($wish, 75); //Cutoff comment at 20 chars
+		//displayed html
+		$this->addJavaScript();
 		$html = <<<HTML
 <H2>Resolve wishlist item</H2>
 <table class="prettytable"><tbody>
@@ -158,33 +157,33 @@ HTML;
 		$wgOut->addHTML($html2);
 		return true;
 	}
-	
+
 	function doMarkResolved($id, $pathwayTitle) {
 		$wish = new Wish($id);
 		$pathway = Pathway::newFromTitle($pathwayTitle);
 		$wish->markResolved($pathway);
 	}
-	
+
 	function showlist() {
-	 	global $wgRequest, $wgOut, $wgUser, $wgLang, $wgScriptPath;
-	 	$this->addJavaScript();
-		
+		global $wgRequest, $wgOut, $wgUser, $wgLang, $wgScriptPath;
+		$this->addJavaScript();
+
 		//Create a small toolbar with 'new' and 'help' actions
-		//TODO: pretty style	 	
-	 	$wgOut->addHTML("<ul><li>");
-	 	$elm = $this->getNewFormElements();
-	 	$newdiv = $elm['div'];
-	 	$newbutton = $elm['button'];
-	 	$wgOut->addHTML("$newbutton<li>");
-	 	$elm = $this->getHelpElements();
-	 	$helpbutton = $elm['button'];
-	 	$helpdiv = $elm['div'];
+		//TODO: pretty style
+		$wgOut->addHTML("<ul><li>");
+		$elm = $this->getNewFormElements();
+		$newdiv = $elm['div'];
+		$newbutton = $elm['button'];
+		$wgOut->addHTML("$newbutton<li>");
+		$elm = $this->getHelpElements();
+		$helpbutton = $elm['button'];
+		$helpdiv = $elm['div'];
 		$wgOut->addHTML("$helpbutton</ul>");
 		$wgOut->addHTML($newdiv . $helpdiv);
-		
+
 		//Create the actual wishlist
-	 	$wishes = $this->wishlist->getWishlist();
-	 	$html = <<<HTML
+		$wishes = $this->wishlist->getWishlist();
+		$html = <<<HTML
 <form action='{$this->this_url}' method='post'>
 <table class="prettytable sortable"><tbody>
 <tr class='table-blue-tableheadings'>
@@ -193,7 +192,7 @@ HTML;
 		if($wgUser->isLoggedIn()) {
 			$html .= "<td class='table-blue-headercell' class='unsortable'>Watch</td><td class='table-blue-headercell' class='unsortable'>Resolve";
 		}
-	 	$wgOut->addHTML($html);
+		$wgOut->addHTML($html);
 		$altrow = '';
 		foreach($wishes as $wish) {
 			if(!$wish->isResolved()) {
@@ -215,25 +214,25 @@ HTML;
 		}
 		$html .= "</tbody></table></form>";
 		$wgOut->addHTML($html);
-				
+
 		$wgOut->addWikiText("== Resolved items ==");
 		$wgOut->addHTML("<table class='prettytable sortable'><tbody>
 				<tr class='table-green-tableheadings'>
 				<td class='table-green-headercell'>Suggested pathway name<td class='table-green-headercell'>Suggested by user<td class='table-green-headercell'>Suggested on date<td class='table-green-headercell'>Resolved by pathway name<td class='table-green-headercell'>Resolved by user<td class='table-green-headercell'>Resolved on date");
-		$altrow2 = '';
-		foreach($wishes as $wish) {
-			if($wish->isResolved()) {
-				$this->createResolvedRow($wish, $altrow2);
-				if($altrow2 == ''){
-                                        $altrow2 = 'table-green-altrow';
-                                } else {
-                                        $altrow2 = '';
-                                }
+			$altrow2 = '';
+			foreach($wishes as $wish) {
+				if($wish->isResolved()) {
+					$this->createResolvedRow($wish, $altrow2);
+					if($altrow2 == ''){
+						$altrow2 = 'table-green-altrow';
+					} else {
+						$altrow2 = '';
+					}
+				}
 			}
-		}
-		$wgOut->addHTML("</tbody></table>");
+			$wgOut->addHTML("</tbody></table>");
 	}
-	
+
 	function addJavaScript() {
 		global $wgOut, $wgScriptPath;
 		$js = <<<JS
@@ -253,26 +252,26 @@ HTML;
 JS;
 		$wgOut->addScript($js);
 	}
-	
+
 	function getNewFormElements() {
 		global $wgUser;
-		
+
 		$div = <<<DIV
 <div id="new" style="display:none">
 Fill in the form below to add a new item to the wishlist.
 <FORM action="{$this->this_url}" method="post">
-    <P>
-    <LABEL for="name">Name of pathway: </LABEL>
-              <INPUT type="text" id="name" name="name"><BR>
-    <LABEL for="comments">Description, example urls or comments: </LABEL>
-              <TEXTAREA id="comments" name="comments" rows="10" cols="30"></TEXTAREA><BR>
-    <INPUT type="hidden" name="wishaction" value="add">
-    <INPUT type="submit" value="Add">
-    </P>
+	<P>
+	<LABEL for="name">Name of pathway: </LABEL>
+			  <INPUT type="text" id="name" name="name"><BR>
+	<LABEL for="comments">Description, example urls or comments: </LABEL>
+			  <TEXTAREA id="comments" name="comments" rows="10" cols="30"></TEXTAREA><BR>
+	<INPUT type="hidden" name="wishaction" value="add">
+	<INPUT type="submit" value="Add">
+	</P>
 </FORM>
-</div>	
+</div>
 DIV;
-		
+
 		if(wfReadOnly() || !$wgUser->isAllowed('edit')) {
 			$href = SITE_URL . "/index.php?title=Special:Userlogin&returnto=Special:SpecialWishList";
 			$button = "<a href=$href>Log in</a> to add pathways to the wishlist";
@@ -281,10 +280,10 @@ DIV;
 		}
 		return array('button' => $button, 'div' => $div);
 	}
-	
+
 	function getHelpElements() {
 		global $wgScriptPath;
-		
+
 		$button = "<a href=\"javascript:showhide('help', this, 'Help', 'Hide help');\">Help</a>";
 		$div = <<<HELP
 <div id="help" style="display:none">
@@ -319,12 +318,12 @@ items that you created yourself.
 HELP;
 		return array('button' => $button, 'div' => $div);
 	}
-		
+
 	function createResolvedRow($wish, $altrow2) {
 		global $wgOut, $wgLang, $wgUser, $wgScriptPath;
 		$title = $wish->getTitle()->getText();
-                $user = $wish->getRequestUser();
-                $user = $wgUser->getSkin()->userLink( $user, $user->getName());
+		$user = $wish->getRequestUser();
+		$user = $wgUser->getSkin()->userLink( $user, $user->getName());
 		$pathway = $wish->getResolvedPathway();
 		if($pathway->exists()) {
 			$rev = $pathway->getFirstRevision();
@@ -339,14 +338,14 @@ HELP;
 			if($wish->userCan('delete')) {
 				$wgOut->addHTML("<td class='table-green-contentcell'>" . $this->createButton("cancel.gif", "remove", "Remove this item", $wish->getId()));
 			}
-		}	
+		}
 	}
-	
+
 	function createUnresolvedRow($wish, $altrow) {
 		global $wgOut, $wgLang, $wgScriptPath, $wgUser;
-		
+
 		$login = $wgUser->isLoggedIn();
-		
+
 		$id = $wish->getId();
 		$url = $wish->getTitle()->getFullURL();
 		$title = $wish->getTitle()->getText();
@@ -358,37 +357,37 @@ HELP;
 		$fullComment = str_replace('"', "'", $wish->getComments());
 		$comment = $this->truncateComment($wish, 75); //Cutoff comment at 20 chars
 		if($wish->userCan('vote')) {
-			$voteButton = '<td class="table-blue-contentcell" style="border:0px">' . 
+			$voteButton = '<td class="table-blue-contentcell" style="border:0px">' .
 				$this->createButton('plus.png', 'vote', 'Vote for this pathway', $id);
 		} else if ($wish->userCan('unvote')) {
-			$voteButton = '<td class="table-blue-contentcell" style="border:0px">' . 
+			$voteButton = '<td class="table-blue-contentcell" style="border:0px">' .
 				$this->createButton('minus.png', 'unvote', 'Remove your vote', $id);
 		}
 		$wgOut->addHTML("<tr class='{$altrow}'><td class='table-blue-contentcell'><b><a href='$url'>$title</a></b><td class='table-blue-contentcell'>$user
 				<td class='table-blue-contentcell'>$date<td class='table-blue-contentcell' title=\"$fullComment\">");
-		$wgOut->addWikiText($comment);
-		$wgOut->addHTML("<td class='table-blue-contentcell'><table class='prettytable' style='border:0px'><tr class='{$altrow}'><td style='border:0px'>$votes" . $voteButton . '</table>');
-		if($login) { //Following columns only when user is logged in
-			$wgOut->addHTML("<td class='table-blue-contentcell' align='center'><input type=checkbox value='1' name='check_$id' $watching>");
-			$wgOut->addHTML("<td class='table-blue-contentcell'><table class='prettytable' style='border:0px'><tr class='{$altrow}'>");
-			if($wish->userCan('resolve')) {
-				$wgOut->addHTML('<td style="border:0px">' . 
-					$this->createButton("apply.gif", "resolved", "Resolve this item", $id));
+			$wgOut->addWikiText($comment);
+			$wgOut->addHTML("<td class='table-blue-contentcell'><table class='prettytable' style='border:0px'><tr class='{$altrow}'><td style='border:0px'>$votes" . $voteButton . '</table>');
+			if($login) { //Following columns only when user is logged in
+				$wgOut->addHTML("<td class='table-blue-contentcell' align='center'><input type=checkbox value='1' name='check_$id' $watching>");
+				$wgOut->addHTML("<td class='table-blue-contentcell'><table class='prettytable' style='border:0px'><tr class='{$altrow}'>");
+				if($wish->userCan('resolve')) {
+					$wgOut->addHTML('<td style="border:0px">' .
+						$this->createButton("apply.gif", "resolved", "Resolve this item", $id));
+				}
+				if($wish->userCan('delete')) {
+					$wgOut->addHTML('<td style="border:0px">' .
+						$this->createButton("cancel.gif", "remove", "Remove this item", $id));
+				}
+				$wgOut->addHTML("</table>");
 			}
-			if($wish->userCan('delete')) {
-				$wgOut->addHTML('<td style="border:0px">' . 
-					$this->createButton("cancel.gif", "remove", "Remove this item", $id));
-			}
-			$wgOut->addHTML("</table>");
-		}
 	}
-	
+
 	static function getSortTimeDate($ts) {
 		global $wgLang;
-		return "<span style='display:none'>$ts</span>" . 
+		return "<span style='display:none'>$ts</span>" .
 			$wgLang->timeanddate( $ts, true );
 	}
-	
+
 	function truncateComment($wish, $cutoff = 0) {
 		$pagename = $wish->getTitle()->getFullText();
 		$comment = $wish->getComments();
@@ -400,31 +399,30 @@ HELP;
 		}
 		return $comment;
 	}
-	
+
 	function createButton($image, $action, $title, $id) {
 		global $wgScriptPath;
-		return "<a href='{$this->this_url}&wishaction=$action&id=$id'> 
+		return "<a href='{$this->this_url}&wishaction=$action&id=$id'>
 						<img align='right' style='border:1' src='$wgScriptPath/skins/common/images/$image'
 						title='$title'/></a>";
 	}
-	
+
 	function createLink($label, $action, $title, $id) {
 		global $wgScriptPath;
 		return "<a href='{$this->this_url}&wishaction=$action&id=$id' title='$title'>$label</a>";
 	}
-	
-		
-    function loadMessages() {
-        static $messagesLoaded = false;
-        global $wgMessageCache;
-        if ( $messagesLoaded ) return true;
-        $messagesLoaded = true;
 
-        require( dirname( __FILE__ ) . '/SpecialWishList.i18n.php' );
-        foreach ( $allMessages as $lang => $langMessages ) {
-                $wgMessageCache->addMessages( $langMessages, $lang );
-        }
-        return true;
-    }
+
+	static function loadMessages() {
+		static $messagesLoaded = false;
+		global $wgMessageCache;
+		if ( $messagesLoaded ) return true;
+		$messagesLoaded = true;
+
+		require( dirname( __FILE__ ) . '/SpecialWishList.i18n.php' );
+		foreach ( $allMessages as $lang => $langMessages ) {
+			$wgMessageCache->addMessages( $langMessages, $lang );
+		}
+		return true;
+	}
 }
-?>

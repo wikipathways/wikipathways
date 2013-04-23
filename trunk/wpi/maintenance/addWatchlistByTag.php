@@ -41,4 +41,3 @@ foreach($pages as $p) {
 	$user->addWatch($title->getTalkPage()); //Add the talk page as well
 }
 $dbw->immediateCommit();
-?>

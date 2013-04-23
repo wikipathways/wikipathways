@@ -44,9 +44,9 @@ echo "</TABLE>";
 
 function userFromRealName($name) {
 	$dbr = wfGetDB( DB_SLAVE );
-	
+
 	$query = "SELECT user_id FROM `user` WHERE user_real_name = '$name'";
-		
+
 	$res = $dbr->query($query);
 	while($row = $dbr->fetchObject( $res )) {
 		return User::newFromId($row->user_id);

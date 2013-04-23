@@ -10,16 +10,16 @@ $wgHooks['SpecialContributionsAfterForm'][] = 'PrivateContributions::privateCont
 class PrivateContributions {
 	public static function privateContributionsList($uid) {
 		global $wgOut, $wgUser, $wgLang;
-		
+
 		if($uid != $wgUser->getId()) {
 			return true; //Only show this section if we're looking at our own contributions
 		}
-		
+
 		self::loadMessages();
-		
+
 		$title = wfMsg("pcontr_title");
 		$wgOut->addWikiText("==$title==");
-		
+
 		$table = "<TABLE class='prettytable sortable'><TH>Pathway<TH>Allowed users<TH>Expires";
 		$permissions = MetaTag::getTags(PermissionManager::$TAG);
 		$rows = "";
@@ -33,7 +33,7 @@ class PrivateContributions {
 				}
 				$pathway = Pathway::newFromTitle($title);
 				$tr .= "<TD><A href='{$title->getFullURL()}'>{$pathway->getName()} ({$pathway->getSpecies()})</A>";
-			
+
 				$p = $pp->getPermissions();
 				$tr .= "<TD>" . ListPrivatePathways::createUserString($p['read']);
 				$tr .= "<TD>" . $wgLang->date($pp->getExpires(), true);
@@ -50,9 +50,9 @@ class PrivateContributions {
 		$wgOut->addHTML("<H2>My contributions</H2>");
 		return true;
 	}
-	
+
 	static $messagesLoaded = false;
-	
+
 	public static function loadMessages() {
 		global $wgMessageCache;
 		if ( self::$messagesLoaded ) return true;
@@ -65,4 +65,3 @@ class PrivateContributions {
 		return true;
 	}
 }
-?>

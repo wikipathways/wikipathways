@@ -148,9 +148,8 @@ class Test {
 			echo("\t<font color='green'>Pass!</font><BR>\n");
 		}
 	}
-	
+
 	static function echoStart($case) {
 		echo("<h3>Testing $case</h3>\n");
 	}
 }
-?>

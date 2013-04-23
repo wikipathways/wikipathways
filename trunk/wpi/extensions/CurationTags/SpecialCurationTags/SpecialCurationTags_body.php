@@ -217,7 +217,7 @@ class SpecialCurationTags extends SpecialPage {
 		$wgOut->addHTML("</tbody></table>");
 	}
 
-	function loadMessages() {
+	static function loadMessages() {
 		static $messagesLoaded = false;
 		global $wgMessageCache;
 		if ( $messagesLoaded ) return true;

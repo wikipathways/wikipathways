@@ -13,9 +13,8 @@ while( $row = $dbr->fetchRow( $res )) {
 	$title = $row[0];
 	$title = Title::newFromText($title, 100);
 	echo("Removing {$title->getFullText()}<br>\n");
-	
+
 	if($doit) {
 		Pathway::deleteArticle($title, "cleaning up old pathway pages");
 	}
 }
-?>

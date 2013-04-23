@@ -58,4 +58,4 @@ $dbw->immediateCommit();
 function printSql($txt) {
 	echo "SQL> $txt\n";
 }
-?>
+

@@ -44,4 +44,3 @@ $dbw->query(
 );
 
 $dbw->immediateCommit();
-?>

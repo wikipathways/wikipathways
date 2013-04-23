@@ -19,7 +19,7 @@ $dbr->freeResult($res);
 
 foreach($wishTitles as $wishTitle) {
 	echo("Processing {$wishTitle->getFullText()}<BR>\n");
-	
+
 	//Find out if the resolved pathway is a redirect
 	$rev = Revision::newFromTitle($wishTitle);
 	$pwTitle = parseRedirect($rev->getText());
@@ -31,15 +31,15 @@ foreach($wishTitles as $wishTitle) {
 		echo("<B>Pathway is redirect, moving to {$newTitle->getFullText()}</B>\n<BR>");
 		if($doit) {
 			echo("Changing redirect...<BR>\n");
-			
+
 			$txt = "#REDIRECT [[{$newTitle->getFullText()}]]";
 			$txt_id = $rev->getTextID();
-			
+
 			$dbw =& wfGetDB( DB_MASTER );
 			$dbw->immediateBegin();
 			$sql = "UPDATE text SET old_text='$txt' WHERE old_id = $txt_id";
 			$dbw->query($sql);
-			
+
 			$dbw->immediateCommit();
 		}
 	}
@@ -51,4 +51,3 @@ function parseRedirect($text) {
 	$title = $match[1];
 	return $title;
 }
-?>

@@ -38,9 +38,9 @@ class PathwayCounts {
 		array_unshift($allSpecies, "All species");
 
 		$fout = fopen($file, 'w');
-		fwrite($fout, "date\t" . 
+		fwrite($fout, "date\t" .
 			implode("\t", array_fill(0, count($allSpecies), "number")) . "\n");
-		fwrite($fout, "Time\t" . 
+		fwrite($fout, "Time\t" .
 			implode("\t", $allSpecies) . "\n");
 
 		foreach(array_keys($allCounts) as $date) {
@@ -57,4 +57,3 @@ class PathwayCounts {
 		fclose($fout);
 	}
 }
-?>

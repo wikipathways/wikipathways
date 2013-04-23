@@ -334,4 +334,3 @@ class PathwayIndex {
 	static $f_ontology_id = 'ontologyId';
 	static $f_source_id = 'sourceId';
 }
-?>

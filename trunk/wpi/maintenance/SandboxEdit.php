@@ -14,7 +14,7 @@ if(count($_SERVER['argv']) < 3) {
 	$help = <<<HELP
 Wrong number of arguments, 2 or 3 expected. Usage:
 	php SandboxEdit.php user pass [url]
-	
+
 	- user: The username of a WikiPathways bot account
 	- pass: The password of a WikiPathways bot account
 	- url: The url to the webservice WSDL. Defaults to http://www.wikipathways.org/wpi/webservice/webservice.php?wsdl
@@ -52,7 +52,6 @@ if(preg_match('/Source="BotTest"/', $gpml)) {
 
 $client->updatePathway(array(
 	'pwId' => $sandbox, 'description' => 'Bot edit test',
-	'revision' => $rev, 'gpml' => $gpml, 
+	'revision' => $rev, 'gpml' => $gpml,
 	'auth' => array('key' => $key, 'user' => $user)
 ));
-?>

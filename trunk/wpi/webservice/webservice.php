@@ -34,7 +34,7 @@ ini_set("display_errors", "0");
 
 $operations = array(
 	"listOrganisms",
-	"listPathways", 
+	"listPathways",
 	"getPathway",
 	"getPathwayInfo",
 	"getPathwayHistory",
@@ -54,14 +54,14 @@ $operations = array(
 	"findInteractions",
 	"getXrefList",
 	"findPathwaysByLiterature",
-    "getOntologyTermsByPathway",
-    "getOntologyTermsByOntology",
-    "getPathwaysByOntologyTerm",
-    "getPathwaysByParentOntologyTerm",
+	"getOntologyTermsByPathway",
+	"getOntologyTermsByOntology",
+	"getPathwaysByOntologyTerm",
+	"getPathwaysByParentOntologyTerm",
 );
 $opParams = array(
 	"listOrganisms" => "MIXED",
-	"listPathways" => "MIXED", 
+	"listPathways" => "MIXED",
 	"getPathway" => "MIXED",
 	"getPathwayInfo" => "MIXED",
 	"getPathwayHistory" => "MIXED",
@@ -81,10 +81,10 @@ $opParams = array(
 	"findInteractions" => "MIXED",
 	"getXrefList" => "MIXED",
 	"findPathwaysByLiterature" => "MIXED",
-    "getOntologyTermsByPathway" => "MIXED",
-    "getOntologyTermsByOntology" => "MIXED",
-    "getPathwaysByOntologyTerm" => "MIXED",
-    "getPathwaysByParentOntologyTerm" => "MIXED",
+	"getOntologyTermsByPathway" => "MIXED",
+	"getOntologyTermsByOntology" => "MIXED",
+	"getPathwaysByOntologyTerm" => "MIXED",
+	"getPathwaysByParentOntologyTerm" => "MIXED",
 );
 
 $classmap = array(); //just let the engine know you prefer classmap mode
@@ -246,13 +246,13 @@ function getPathwayHistory($pwId, $timestamp) {
 		$id = $pathway->getTitleObject()->getArticleId();
 		$dbr =& wfGetDB( DB_SLAVE );
 		$res = $dbr->select(
-			"revision", 
+			"revision",
 			array("rev_id", "rev_user_text", "rev_timestamp", "rev_comment"),
 			array('rev_page' => $id, 'rev_timestamp >= ' . $dbr->addQuotes($timestamp))
 		);
 
 		$hist = new WSPathwayHistory($pathway);
-		
+
 		while($row = $dbr->fetchObject( $res )) {
 			$hr = new WSHistoryRow();
 			$hr->revision = $row->rev_id;
@@ -261,9 +261,9 @@ function getPathwayHistory($pwId, $timestamp) {
 			$hr->timestamp = $row->rev_timestamp;
 			$hist->history[] = $hr;
 		}
-		
+
 		$dbr->freeResult( $res );
-		
+
 		return array('history' => $hist);
 	} catch(Exception $e) {
 		wfDebug(__METHOD__ . " (ERROR): $e\n");
@@ -282,7 +282,7 @@ function getPathwayHistory($pwId, $timestamp) {
  **/
 function updatePathway($pwId, $description, $gpml, $revision, $auth = NULL) {
 	global $wgUser;
-	
+
 	try {
 		//Authenticate first, if token is provided
 		if($auth) {
@@ -303,8 +303,8 @@ function updatePathway($pwId, $description, $gpml, $revision, $auth = NULL) {
 			);
 		}
 	} catch(Exception $e) {
-		if($e instanceof WSFault) { 
-			throw $e; 
+		if($e instanceof WSFault) {
+			throw $e;
 		} else {
 			throw new WSFault("Receiver", $e);
 			wfDebug("ERROR: $e");
@@ -326,7 +326,7 @@ function createPathway($gpml, $auth) {
 		if($auth) {
 			authenticate($auth['user'], $auth['key'], true);
 		}
-		
+
 		$pathway = Pathway::createNewPathway($gpml, "New pathway");
 		return array("pathwayInfo" => new WSPathwayInfo($pathway));
 	} catch(Exception $e) {
@@ -336,8 +336,8 @@ function createPathway($gpml, $auth) {
 }
 
 /**
- * Start a logged in session, using an existing WikiPathways account. 
- * This function will return an authentication code that can be used 
+ * Start a logged in session, using an existing WikiPathways account.
+ * This function will return an authentication code that can be used
  * to excecute methods that need authentication (e.g. updatePathway)
  * @param string $name The usernameset_include_path(get_include_path().PATH_SEPARATOR.realpath('../includes').PATH_SEPARATOR.realpath('../').PATH_SEPARATOR);
  * @param string $pass The password
@@ -345,7 +345,7 @@ function createPathway($gpml, $auth) {
  **/
 function login($name, $pass) {
 	global $wgUser, $wgAuth;
-	
+
 	$user = User::newFromName( $name );
 	if( is_null($user) || $user->getID() == 0) {
 		//throw new Exception("Invalid user name");
@@ -400,19 +400,19 @@ function getRecentChanges($timestamp)
 	$forceclause = $dbr->useIndexClause("rc_timestamp");
 	$recentchanges = $dbr->tableName( 'recentchanges');
 
-	$sql = "SELECT  
-				rc_namespace, 
-				rc_title, 
+	$sql = "SELECT
+				rc_namespace,
+				rc_title,
 				MAX(rc_timestamp)
 			FROM $recentchanges $forceclause
-			WHERE 
+			WHERE
 				rc_namespace = " . NS_PATHWAY . "
 				AND
 				rc_timestamp > '$timestamp'
 			GROUP BY rc_title
 			ORDER BY rc_timestamp DESC
 		";
-		
+
 	//~ wfDebug ("SQL: $sql");
 
 	$res = $dbr->query( $sql, "getRecentChanges" );
@@ -424,7 +424,7 @@ function getRecentChanges($timestamp)
 				$ts = $row['rc_title'];
 			$p = Pathway::newFromTitle($ts);
 			if(!$p->getTitleObject()->isRedirect() && $p->isReadable()) {
-				$objects[] = new WSPathwayInfo($p);			
+				$objects[] = new WSPathwayInfo($p);
 			}
 		} catch(Exception $e) {
 			wfDebug("Unable to create pathway object for recent changes: $e");
@@ -514,7 +514,7 @@ function findPathwaysByLiterature($query) {
 				foreach(array_keys($wsr->fields) as $fn) {
 					if($nwsr->fields[$fn]) {
 						$newvalues = array_merge(
-							$nwsr->fields[$fn]->values, 
+							$nwsr->fields[$fn]->values,
 							$wsr->fields[$fn]->values
 						);
 						$newvalues = array_unique($newvalues);
@@ -582,7 +582,7 @@ function saveCurationTag($pwId, $tagName, $text, $revision, $auth) {
 	if($auth) {
 		authenticate($auth['user'], $auth['key'], true);
 	}
-	
+
 	try {
 		$pathway = new Pathway($pwId);
 		if($pathway->exists()) {
@@ -607,7 +607,7 @@ function removeCurationTag($pwId, $tagName, $auth) {
 	if($auth) {
 		authenticate($auth['user'], $auth['key'], true);
 	}
-	
+
 	try {
 		$pathway = new Pathway($pwId);
 		if($pathway->exists()) {
@@ -686,7 +686,7 @@ function getColoredPathway($pwId, $revision, $graphId, $color, $fileType) {
 		$p = new Pathway($pwId);
 		$p->setActiveRevision($revision);
 		$gpmlFile = realpath($p->getFileLocation(FILETYPE_GPML));
-		
+
 		$outFile = WPI_TMP_PATH . "/" . $p->getTitleObject()->getDbKey() . '.' . $fileType;
 
 		if(count($color) != count($graphId)) {
@@ -696,12 +696,12 @@ function getColoredPathway($pwId, $revision, $graphId, $color, $fileType) {
 		for($i = 0; $i < count($color); $i++) {
 			$colorArg .= " -c '{$graphId[$i]}' '{$color[$i]}'";
 		}
-		
+
 		$basePath = WPI_SCRIPT_PATH;
 		$cmd = "java -jar $basePath/bin/pathvisio_color_exporter.jar '$gpmlFile' '$outFile' $colorArg 2>&1";
 		wfDebug("COLOR EXPORTER: $cmd\n");
 		exec($cmd, $output, $status);
-		
+
 		foreach ($output as $line) {
 			$msg .= $line . "\n";
 		}
@@ -744,68 +744,68 @@ function authenticate($username, $token, $write = false) {
  * @return array of object WSOntologyTerm $terms The ontology terms
  **/
 function getOntologyTermsByPathway($pwId) {
-      try {
-              $pw = new Pathway($pwId);
-              $terms = array();
-              $dbr = wfGetDB( DB_SLAVE );
-              $res = $dbr->select(
-                      'ontology',
-                      array('*'),
-                      array('pw_id = ' . $dbr->addQuotes($pwId))
-              );
+	  try {
+			  $pw = new Pathway($pwId);
+			  $terms = array();
+			  $dbr = wfGetDB( DB_SLAVE );
+			  $res = $dbr->select(
+					  'ontology',
+					  array('*'),
+					  array('pw_id = ' . $dbr->addQuotes($pwId))
+			  );
 
-              $terms = array();
-              $count = 0;
-              while($row = $dbr->fetchObject( $res )) {
-                      $term = new WSOntologyTerm();
-                      $term->id = $row->term_id;
-                      $term->name = $row->term;
-                      $term->ontology = $row->ontology;
-                      $terms[] = $term;
-                      $count++;
-              }
-              $dbr->freeResult( $res );
+			  $terms = array();
+			  $count = 0;
+			  while($row = $dbr->fetchObject( $res )) {
+					  $term = new WSOntologyTerm();
+					  $term->id = $row->term_id;
+					  $term->name = $row->term;
+					  $term->ontology = $row->ontology;
+					  $terms[] = $term;
+					  $count++;
+			  }
+			  $dbr->freeResult( $res );
 
-              $termObjects = array();
+			  $termObjects = array();
   } catch(Exception $e) {
-              throw new WSFault("Receiver", "Unable to get ontology
+			  throw new WSFault("Receiver", "Unable to get ontology
 terms: " . $e);
-      }
+	  }
   return array("terms" => $terms);
 }
 
 /**
  * Get a list of ontology terms from a given ontology
  * @param string $ontology The Ontology name
- * @return array of object WSOntologyTerm $terms The ontology terms 
+ * @return array of object WSOntologyTerm $terms The ontology terms
  **/
 function getOntologyTermsByOntology($ontology) {
-      try {
-              $terms = array();
-              $dbr = wfGetDB( DB_SLAVE );
-              $res = $dbr->select(
-                      'ontology',
-                      array('*'),
-                      array('ontology = ' . $dbr->addQuotes($ontology))
-              );
+	  try {
+			  $terms = array();
+			  $dbr = wfGetDB( DB_SLAVE );
+			  $res = $dbr->select(
+					  'ontology',
+					  array('*'),
+					  array('ontology = ' . $dbr->addQuotes($ontology))
+			  );
 
-              $terms = array();
-              $count = 0;
-              while($row = $dbr->fetchObject( $res )) {
-                      $term = new WSOntologyTerm();
-                      $term->id = $row->term_id;
-                      $term->name = $row->term;
-                      $term->ontology = $row->ontology;
-                      $terms[] = $term;
-                      $count++;
-              }
-              $dbr->freeResult( $res );
+			  $terms = array();
+			  $count = 0;
+			  while($row = $dbr->fetchObject( $res )) {
+					  $term = new WSOntologyTerm();
+					  $term->id = $row->term_id;
+					  $term->name = $row->term;
+					  $term->ontology = $row->ontology;
+					  $terms[] = $term;
+					  $count++;
+			  }
+			  $dbr->freeResult( $res );
 
-              $termObjects = array();
+			  $termObjects = array();
   } catch(Exception $e) {
-              throw new WSFault("Receiver", "Unable to get ontology
+			  throw new WSFault("Receiver", "Unable to get ontology
 terms: " . $e);
-      }
+	  }
   return array("terms" => $terms);
 }
 
@@ -815,23 +815,23 @@ terms: " . $e);
  * @return array of object WSPathwayInfo $pathways Array of pathway info objects
  **/
 function getPathwaysByOntologyTerm($term) {
-      try {
-              $dbr = wfGetDB( DB_SLAVE );
-              $res = $dbr->select(
-                      'ontology',
-                      array('*'),
-                      array('term_id = ' . $dbr->addQuotes($term))
-              );
-              $objects = array();
-              while($row = $dbr->fetchObject( $res )) {
-                    $pathway = Pathway::newFromTitle($row->pw_id);
-                    $objects[] = new WSPathwayInfo($pathway);
-              }
-              $dbr->freeResult( $res );
+	  try {
+			  $dbr = wfGetDB( DB_SLAVE );
+			  $res = $dbr->select(
+					  'ontology',
+					  array('*'),
+					  array('term_id = ' . $dbr->addQuotes($term))
+			  );
+			  $objects = array();
+			  while($row = $dbr->fetchObject( $res )) {
+					$pathway = Pathway::newFromTitle($row->pw_id);
+					$objects[] = new WSPathwayInfo($pathway);
+			  }
+			  $dbr->freeResult( $res );
   } catch(Exception $e) {
-              throw new WSFault("Receiver", "Unable to get Pathways: " . $e);
-      }
-      return array("pathways" => $objects);
+			  throw new WSFault("Receiver", "Unable to get Pathways: " . $e);
+	  }
+	  return array("pathways" => $objects);
 }
 
 /**
@@ -840,21 +840,21 @@ function getPathwaysByOntologyTerm($term) {
  * @return array of object WSPathwayInfo $pathways Array of pathway info objects
  **/
 function getPathwaysByParentOntologyTerm($term) {
-      try {
-              $term = mysql_escape_string($term);
-              $dbr = wfGetDB( DB_SLAVE );
-              $query = "SELECT * FROM `ontology` " . "WHERE `term_path` LIKE '%$term%' ";
-              $res = $dbr->query($query);
-              $objects = array();
-              while($row = $dbr->fetchObject( $res )) {
-                    $pathway = Pathway::newFromTitle($row->pw_id);
-                    $objects[] = new WSPathwayInfo($pathway);
-              }
-              $dbr->freeResult( $res );
+	  try {
+			  $term = mysql_escape_string($term);
+			  $dbr = wfGetDB( DB_SLAVE );
+			  $query = "SELECT * FROM `ontology` " . "WHERE `term_path` LIKE '%$term%' ";
+			  $res = $dbr->query($query);
+			  $objects = array();
+			  while($row = $dbr->fetchObject( $res )) {
+					$pathway = Pathway::newFromTitle($row->pw_id);
+					$objects[] = new WSPathwayInfo($pathway);
+			  }
+			  $dbr->freeResult( $res );
   } catch(Exception $e) {
-              throw new WSFault("Receiver", "Unable to get Pathways: " . $e);
-      }
-      return array("pathways" => $objects);
+			  throw new WSFault("Receiver", "Unable to get Pathways: " . $e);
+	  }
+	  return array("pathways" => $objects);
 }
 
 function formatXml($xml) {
@@ -876,16 +876,16 @@ class WSPathwayInfo {
 		$this->species = $pathway->species();
 		$this->name = formatXml($pathway->name());
 		$this->url = $pathway->getTitleObject()->getFullURL();
-		
+
 		//Hack to make response valid in case of missing revision
 		if(!$this->revision) $this->revision = 0;
 	}
-	
+
 	/**
 	 * @var string $id - the pathway identifier
 	 */
 	public $id;
-	
+
 	/**
 	* @var string $url - the url to the pathway
 	**/
@@ -911,11 +911,11 @@ class WSPathwayHistory extends WSPathwayInfo {
 	public function __construct($pathway) {
 		parent::__construct($pathway);
 	}
-	
+
 	public function addRow($histRow) {
 		$history[] = $histRow;
 	}
-	
+
 	/**
 	* @var array of object WSHistoryRow $history - The pathway history
 	**/
@@ -969,7 +969,7 @@ class WSSearchResult extends WSPathwayInfo {
 			}
 		}
 	}
-	
+
 	/**
 	* @var double $score - the score of the search result
 	**/
@@ -990,12 +990,12 @@ class WSIndexField {
 		$this->values = $values;
 		$this->values = formatXml($this->values);
 	}
-	
+
 	/**
 	* @var string $name - the name of the index field
 	**/
 	public $name;
-	
+
 	/**
 	* @var array of string - the value(s) of the field
 	**/
@@ -1024,7 +1024,7 @@ class WSAuth {
 	 * @var string $user The username
 	 **/
 	public $user;
-	
+
 	/**
 	 * @var string $key The authentication key
 	 **/
@@ -1051,37 +1051,37 @@ class WSCurationTag {
 		$this->timeModified = $metatag->getTimeMod();
 		$this->userModified = User::newFromId($metatag->getUserMod())->getName();
 	}
-	
+
 	/**
 	 * @var string $name The internal tag name
 	 **/
 	public $name;
-	
+
 	/**
 	 * @var string $displayName The display name of the tag
 	 */
 	public $displayName;
-	
+
 	/**
 	 * @var object WSPathwayInfo $pathway The pathway this tag applies to
 	 */
 	public $pathway;
-	
+
 	/**
 	 *@var string $revision The revision this tag applies to. '0' is used for tags that apply to all revisions.
 	 */
 	public $revision;
-	
+
 	/**
 	 *@var string $text The tag text.
 	 */
 	public $text;
-	
+
 	/**
 	 *@var long $timeModified The timestamp of the last modified date
 	 */
 	public $timeModified;
-	
+
 	/**
 	 *@var string $userModified The username of the user that last modified the tag
 	 */
@@ -1101,32 +1101,32 @@ class WSCurationTagHistory {
 		$this->time = $histRow->getTime();
 		$this->text = $histRow->getText();
 	}
-	
+
 	/**
 	 *@var string $tagName The name of the tag that was affected
 	 */
 	public $tagName;
-	
+
 	/**
 	 *@var string $text The text of the tag at time this action was performed
 	 */
 	public $text;
-	
+
 	/**
 	 *@var string $pathwayId The id of the pathway this tag applies to
 	 */
 	public $pathwayId;
-	
+
 	/**
 	 *@var string $action The action that was performed on the tag
 	 */
 	public $action;
-	
+
 	/**
 	 *@var string $user The name of the user that performed the action
 	 */
 	public $user;
-	
+
 	/**
 	 *@var string $time The timestamp of the date the action was performed
 	 */
@@ -1138,19 +1138,19 @@ class WSCurationTagHistory {
  */
  class WSOntologyTerm {
 
-      /**
-       * @var string $ontology - the ontology to which the term belongs
-       */
-      public $ontology;
-      /**
-       * @var string $id - the ontology term identifier
-       */
-      public $id;
+	  /**
+	   * @var string $ontology - the ontology to which the term belongs
+	   */
+	  public $ontology;
+	  /**
+	   * @var string $id - the ontology term identifier
+	   */
+	  public $id;
 
-       /**
-       * @var string $name - the ontology term name
-       */
-      public $name;
+	   /**
+	   * @var string $name - the ontology term name
+	   */
+	  public $name;
  }
 
  /**
@@ -1159,18 +1159,18 @@ class WSCurationTagHistory {
  class WSRelation {
 
 	public function __construct($result) {
-                if($result->pwId_1) {
-                    $this->pathway1 = new WSPathwayInfo(
-                            Pathway::newFromTitle($result->pwId_1)
-                    );
+				if($result->pwId_1) {
+					$this->pathway1 = new WSPathwayInfo(
+							Pathway::newFromTitle($result->pwId_1)
+					);
 		}
-                if($result->pwId_2) {
-                    $this->pathway2 = new WSPathwayInfo(
-                            Pathway::newFromTitle($result->pwId_2)
-                    );
+				if($result->pwId_2) {
+					$this->pathway2 = new WSPathwayInfo(
+							Pathway::newFromTitle($result->pwId_2)
+					);
 		}
-                $this->type = $result->type;
-                $this->score = (float)$result->score;
+				$this->type = $result->type;
+				$this->score = (float)$result->score;
 	}
 
 	/**
@@ -1194,4 +1194,3 @@ class WSCurationTagHistory {
 	public $score;
 }
 
-?>

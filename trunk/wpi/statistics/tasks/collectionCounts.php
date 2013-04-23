@@ -13,14 +13,14 @@ class CollectionCounts {
 			"Curation:Wikipedia",
 			"Curation:Reactome_Approved"
 		);
-		
+
 		foreach($times as $tsCurr) {
 			$date = date('Y/m/d', wfTimestamp(TS_UNIX, $tsCurr));
 			logger($date);
-			
+
 			$snapshot = StatTag::getSnapshot($tsCurr, $collections);
 			$pathways = StatPathway::getSnapshot($tsCurr);
-			
+
 			//Remove tags on deleted pages
 			$existPages = array();
 			foreach($pathways as $p) $existPages[] = $p->getPageId();
@@ -29,7 +29,7 @@ class CollectionCounts {
 				$removeTags[] = $t;
 			}
 			$snapshot = array_diff($snapshot, $removeTags);
-			
+
 			$counts = array();
 			foreach($collections as $c) $counts[$c] = 0;
 			foreach($snapshot as $tag) {
@@ -40,16 +40,16 @@ class CollectionCounts {
 			}
 			$collectionCounts[$date] = $counts;
 		}
-		
+
 		$collectionNames = array();
 		foreach($collections as $c) {
 			$collectionNames[] = CurationTag::getDisplayName($c);
 		}
-		
+
 		$fout = fopen($file, 'w');
-		fwrite($fout, "date\t" . 
+		fwrite($fout, "date\t" .
 			implode("\t", array_fill(0, count($collections), "number")) . "\n");
-		fwrite($fout, "Time\t" . 
+		fwrite($fout, "Time\t" .
 			implode("\t", $collectionNames) . "\n");
 
 		foreach(array_keys($collectionCounts) as $date) {
@@ -60,4 +60,3 @@ class CollectionCounts {
 		fclose($fout);
 	}
 }
-?>

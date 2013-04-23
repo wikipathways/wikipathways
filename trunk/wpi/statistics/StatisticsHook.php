@@ -17,7 +17,7 @@ function wfStatistics_Magic( &$magicWords, $langCode ) {
 
 function loadStatistics(&$parser) {
 	global $wgOut;
-	
+
 	$src = WPI_URL . "/statistics/statistics.js";
 	$parser->mOutput->addHeadItem(
 		"<script src=\"https://www.google.com/jsapi\" type=\"text/javascript\"></script>\n");
@@ -26,7 +26,6 @@ function loadStatistics(&$parser) {
 	$css = WPI_URL . "/statistics/statistics.css";
 	$parser->mOutput->addHeadItem(
 		"<link rel=\"stylesheet\" href=\"$css\" type=\"text/css\"/>");
-	
+
 	return '';
 }
-?>

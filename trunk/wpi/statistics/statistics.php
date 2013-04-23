@@ -38,7 +38,7 @@ $times = WikiPathwaysStatistics::getTimeStampPerMonth($tsStart, $tsEnd);
 $allTasks = array();
 function registerTask($name, $functionName) {
 	global $allTasks;
-	
+
 	$allTasks[$name] = $functionName;
 }
 
@@ -52,7 +52,7 @@ foreach(scandir($base) as $f) {
 
 $tasks = $_SERVER['argv'];
 array_shift($tasks);
-if(count($tasks) == 0 || in_array('all', $tasks)) 
+if(count($tasks) == 0 || in_array('all', $tasks))
 	$tasks = array_keys($allTasks);
 foreach($tasks as $task) {
 	if(!in_array($task, array_keys($allTasks))) {
@@ -73,8 +73,8 @@ class WikiPathwaysStatistics {
 	static $excludeTags = array(
 		"Curation:Tutorial"
 	);
-	
-	
+
+
 	static function writeFrequencies($fout, $counts, $includeKey = 0) {
 		arsort($counts);
 		$i = 0;
@@ -85,7 +85,7 @@ class WikiPathwaysStatistics {
 			$i += 1;
 		}
 	}
-	
+
 	/**
 	 * Get page ids to exclude based on a test/tutorial curation tag.
 	 */
@@ -96,7 +96,7 @@ class WikiPathwaysStatistics {
 		}
 		return $exclude;
 	}
-	
+
 	/*
 	 * Get an array of timestamps, one for each month from $tsStart
 	 * to $tsEnd. Timestamps are in MW format.
@@ -111,7 +111,7 @@ class WikiPathwaysStatistics {
 		while($tsCurr <= $tsEnd) {
 			$ts[] = $tsCurr;
 			$monthIncr += 1;
-			$tsCurr = date('YmdHis', 
+			$tsCurr = date('YmdHis',
 				mktime(0, 0, 0, $startM + $monthIncr, $startD, $startY));
 		}
 		$nm = count($ts);
@@ -126,17 +126,17 @@ class WikiPathwaysStatistics {
 class StatPathway {
 	static function getSnapshot($timestamp) {
 		$snapshot = array();
-		
+
 		$ns_pathway = NS_PATHWAY;
 		$q = <<<QUERY
-				SELECT DISTINCT(r.rev_page) AS page_id, p.page_title as page_title 
-				FROM revision AS r JOIN page AS p 
+				SELECT DISTINCT(r.rev_page) AS page_id, p.page_title as page_title
+				FROM revision AS r JOIN page AS p
 				ON r.rev_page = p.page_id
 				WHERE r.rev_timestamp <= $timestamp
 				AND p.page_is_redirect = 0
 				AND p.page_namespace = $ns_pathway
 QUERY;
-		
+
 		$dbr = wfGetDB(DB_SLAVE);
 		$res = $dbr->query($q);
 		while($row = $dbr->fetchObject($res)) {
@@ -148,31 +148,31 @@ QUERY;
 			}
 		}
 		$dbr->freeResult($res);
-		
+
 		return $snapshot;
 	}
-	
+
 	private $pwId;
 	private $pageId;
 	private $rev;
-	
+
 	function __construct($pwId, $pageId, $rev = 0) {
 		$this->pwId = $pwId;
 		$this->pageId = $pageId;
 		$this->rev = $rev;
 	}
-	
+
 	function getPageId() { return $this->pageId; }
 	function getPwId() { return $this->pwId; }
 	function getRevision() { return $this->rev; }
-	
+
 	function findClosestRevision($timestamp) {
 		$q = <<<QUERY
-				SELECT MAX(rev_id) FROM revision 
+				SELECT MAX(rev_id) FROM revision
 				WHERE rev_timestamp <= $timestamp AND rev_page = $this->pageId
 QUERY;
 		$rev = 0;
-		
+
 		$dbr = wfGetDB(DB_SLAVE);
 		$res = $dbr->query($q);
 		while($row = $dbr->fetchRow($res)) {
@@ -181,7 +181,7 @@ QUERY;
 		$dbr->freeResult($res);
 		return $rev;
 	}
-	
+
 	function getGpml() {
 		$q = <<<QUERY
 				SELECT t.old_text FROM text AS t JOIN revision AS r
@@ -194,15 +194,15 @@ QUERY;
 		$dbr->freeResult($res);
 		return $gpml;
 	}
-	
+
 	function isDeleted($gpml) {
-		return Pathway::isDeletedMark($gpml);	
+		return Pathway::isDeletedMark($gpml);
 	}
-	
+
 	function isRedirect($gpml) {
 		return substr($gpml, 0, 9) == "#REDIRECT";
 	}
-	
+
 	function getSpecies() {
 		$gpml = $this->getGpml();
 		$species = "undefined";
@@ -214,7 +214,7 @@ QUERY;
 		}
 		return $species;
 	}
-	
+
 	function getNrRevisions() {
 		$q = <<<QUERY
 SELECT COUNT(rev_id) FROM revision WHERE rev_page = $this->pageId
@@ -226,7 +226,7 @@ QUERY;
 		$dbr->freeResult($res);
 		return $count;
 	}
-	
+
 	function getNrViews() {
 		$q = <<<QUERY
 SELECT page_counter FROM page WHERE page_id = $this->pageId
@@ -246,7 +246,7 @@ QUERY;
 class StatTag {
 	static function getSnapshot($timestamp, $tagTypes) {
 		$snapshot = array();
-		
+
 		$q = <<<QUERY
 SELECT tag_name, page_id FROM tag_history
 WHERE tag_name LIKE 'Curation:%'
@@ -258,16 +258,16 @@ QUERY;
 			$snapshot[] =  new StatTag($row->tag_name, $row->page_id);
 		}
 		$dbr->freeResult($res);
-		
+
 		array_unique($snapshot); //remove duplicates
-		
+
 		//Only include collection tags
 		$removeTags = array();
 		foreach($snapshot as $tag) if(!in_array($tag->getType(), $tagTypes)) {
 			$removeTags[] = $tag;
 		}
 		$snapshot = array_diff($snapshot, $removeTags);
-			
+
 		$remove = array();
 		foreach($snapshot as $tag) {
 			//For each curation tag, find:
@@ -284,9 +284,9 @@ QUERY;
 			$row = $dbr->fetchRow($res);
 			$latest_remove = $row[0];
 			$dbr->freeResult($res);
-			
+
 			if(!$latest_remove) continue;
-			
+
 			$q_create = <<<QUERY
 SELECT time FROM tag_history
 WHERE tag_name = '$tag->type' AND page_id = $tag->pageId
@@ -297,26 +297,26 @@ QUERY;
 			$row = $dbr->fetchRow($res);
 			$latest_create = $row[0];
 			$dbr->freeResult($res);
-			
+
 			if($latest_remove > $latest_create) $remove[] = $tag;
 		}
-		
+
 		$snapshot = array_diff($snapshot, $remove);
 		return $snapshot;
 	}
-	
+
 	private $type;
 	private $pageId;
-	
+
 	function __construct($type, $pageId) {
 		$this->type = $type;
 		$this->pageId = $pageId;
 	}
-	
+
 	function __toString() {
 		return $this->type . $this->pageId;
 	}
-	
+
 	function getPageId() { return $this->pageId; }
 	function getType() { return $this->type; }
 }
@@ -327,12 +327,12 @@ QUERY;
 class StatUser {
 	static function getSnapshot($timestamp) {
 		$snapshot = array();
-		
+
 		$q = <<<QUERY
-SELECT user_id, user_name, user_real_name FROM user 
+SELECT user_id, user_name, user_real_name FROM user
 WHERE user_registration <= $timestamp
 QUERY;
-		
+
 		$dbr = wfGetDB(DB_SLAVE);
 		$res = $dbr->query($q);
 		while($row = $dbr->fetchObject($res)) {
@@ -340,27 +340,27 @@ QUERY;
 			$snapshot[] = $u;
 		}
 		$dbr->freeResult($res);
-		
+
 		return $snapshot;
 	}
-	
+
 	private $id;
 	private $name;
 	private $realName;
-	
+
 	function __construct($id, $name, $realName) {
 		$this->id = $id;
 		$this->name = $name;
 		$this->realName = $realName;
 	}
-	
+
 	function getId() { return $this->id; }
 	function getName() { return $this->name; }
 	function getRealName() { return $this->realName; }
-	
+
 	function getPageEdits($tsTo = '', $tsFrom = '') {
 		$pageEdits = array();
-		
+
 		$qto = '';
 		$qfrom = '';
 		if($tsTo) $qto = "AND r.rev_timestamp <= $tsTo ";
@@ -368,8 +368,8 @@ QUERY;
 		$ns_pathway = NS_PATHWAY;
 		$q = <<<QUERY
 SELECT r.rev_page FROM revision AS r JOIN page AS p
-WHERE r.rev_user = $this->id AND p.page_namespace = $ns_pathway 
-AND p.page_id = r.rev_page 
+WHERE r.rev_user = $this->id AND p.page_namespace = $ns_pathway
+AND p.page_id = r.rev_page
 $qfrom $qto
 QUERY;
 		$dbr = wfGetDB(DB_SLAVE);
@@ -378,7 +378,7 @@ QUERY;
 			$pageEdits[] = $row[0];
 		}
 		$dbr->freeResult($res);
-		
+
 		return $pageEdits;
 	}
 }
@@ -386,13 +386,13 @@ QUERY;
 class StatWebservice {
 	static function getCountsByIp($tsFrom, $tsTo) {
 		$q = <<<QUERY
-SELECT ip, count(ip) FROM webservice_log 
+SELECT ip, count(ip) FROM webservice_log
 WHERE request_timestamp >= $tsFrom AND request_timestamp < $tsTo
 GROUP BY ip ORDER BY count(ip) DESC
 QUERY;
-		
+
 		$counts = array();
-		
+
 		$dbr = wfGetDB(DB_SLAVE);
 		$res = $dbr->query($q);
 		while($row = $dbr->fetchRow($res)) {
@@ -402,21 +402,21 @@ QUERY;
 
 		return $counts;
 	}
-	
+
 	static function getCounts($tsFrom, $tsTo) {
 		$snapshot = array();
-		
+
 		$q = <<<QUERY
-SELECT count(ip) FROM webservice_log 
+SELECT count(ip) FROM webservice_log
 WHERE request_timestamp >= $tsFrom AND request_timestamp < $tsTo
 QUERY;
-		
+
 		$dbr = wfGetDB(DB_SLAVE);
 		$res = $dbr->query($q);
 		$row = $dbr->fetchRow($res);
 		$count = $row[0];
 		$dbr->freeResult($res);
-		
+
 		return $count;
 	}
 }
@@ -424,4 +424,3 @@ QUERY;
 function logger($msg, $newline = "\n") {
 	fwrite(STDOUT, $msg . $newline);
 }
-?>

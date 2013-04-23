@@ -13,13 +13,13 @@ require("wpi.php");
 //Definition of functions
 $updatePathway_sig=array(
 	array(
-		$xmlrpcInt, 
+		$xmlrpcInt,
 		$xmlrpcString, $xmlrpcString, $xmlrpcBase64,
 		$xmlrpcInt
 	),
 	array(
 		$xmlrpcBoolean,
-		$xmlrpcString, $xmlrpcString, $xmlrpcBase64, 
+		$xmlrpcString, $xmlrpcString, $xmlrpcBase64,
 		$xmlrpcInt, $xmlrpcStruct
 	),
 );
@@ -48,11 +48,11 @@ $updatePathway_docsig = array(
 
 $createPathway_sig=array(
 	array(
-		$xmlrpcStruct, 
+		$xmlrpcStruct,
 		$xmlrpcString, $xmlrpcBase64,
 	),
 	array(
-		$xmlrpcStruct, 
+		$xmlrpcStruct,
 		$xmlrpcString, $xmlrpcBase64, $xmlrpcBoolean,
 	),
 	array(
@@ -66,14 +66,14 @@ $createPathway_doc= "Create a new pathway on wikipathways.";
 
 $createPathway_docsig = array(
 	array(
-		"A struct with the key/value pairs:" . 
+		"A struct with the key/value pairs:" .
 		"<BR>'id', the pathway id<BR>'revision', the newest revision number<BR>" .
 		"'url', the url to the pathway page",
 		"Description of the modifications",
 		"The GPML data (base64 encoded)",
 	),
 	array(
-		"A struct with the key/value pairs:" . 
+		"A struct with the key/value pairs:" .
 		"<BR>'id', the pathway id<BR>'revision', the newest revision number<BR>" .
 		"'url', the url to the pathway page",
 		"Description of the modifications",
@@ -81,7 +81,7 @@ $createPathway_docsig = array(
 		"Boolean indicated whether the pathway should be private or not",
 	),
 	array(
-		"A struct with the key/value pairs:" . 
+		"A struct with the key/value pairs:" .
 		"<BR>'id', the pathway id<BR>'revision', the newest revision number<BR>" .
 		"'url', the url to the pathway page",
 		"Description of the modifications",
@@ -143,9 +143,9 @@ $login_sig = array(
 	)
 );
 
-$login_doc = "Start a logged in session, using an existing WikiPathways account. 
+$login_doc = "Start a logged in session, using an existing WikiPathways account.
 This will return an authentication code
-that can be used to excecute methods that need authentication (e.g. 
+that can be used to excecute methods that need authentication (e.g.
 updatePathway)";
 
 $login_docsig = array(
@@ -158,7 +158,7 @@ $login_docsig = array(
 
 $getPathwayList_sig = array(
 	array(
-			$xmlrpcArray
+		$xmlrpcArray
 	)
 );
 
@@ -188,41 +188,41 @@ $getRecentChanges_docsig = array(
 
 //Definition of dispatch map
 $disp_map=array(
-		"WikiPathways.updatePathway" => 
-			array("function" => "updatePathway",
-			"signature" => $updatePathway_sig,
-			"docstring" => $updatePathway_doc,
-			"signature_docs" => $updatePathway_docsig),
-		"WikiPathways.createPathway" => 
-			array("function" => "createPathway",
-			"signature" => $createPathway_sig,
-			"docstring" => $createPathway_doc,
-			"signature_docs" => $createPathway_docsig),
-		"WikiPathways.convertPathway" =>
-			array("function" => "convertPathway",
-			"signature" => $convertPathway_sig,
-			"docstring" => $convertPathway_doc,
-			"signature_docs" => $convertPathway_docsig),
-		"WikiPathways.getPathway" =>
-			array("function" => "getPathway",
-			"signature" => $getPathway_sig,
-			"docstring" => $getPathway_doc,
-			"signature_docs" => $getPathway_docsig),
-		"WikiPathways.login" =>
-			array("function" => "login",
-			"signature" => $login_sig,
-			"docstring" => $login_doc,
-			"signature_docs" => $login_docsig),
-		"WikiPathways.getPathwayList" =>
-			array("function" => "getPathwayList",
-			"signature" => $getPathwayList_sig,
-			"docstring" => $getPathwayList_doc,
-			"signature_docs" => $getPathwayList_docsig),
-		"WikiPathways.getRecentChanges" =>
-			array("function" => "getRecentChanges",
-			"signature" => $getRecentChanges_sig,
-			"docstring" => $getRecentChanges_doc,
-			"signature_docs" => $getRecentChanges_docsig),
+	"WikiPathways.updatePathway" =>
+	array("function" => "updatePathway",
+		"signature" => $updatePathway_sig,
+		"docstring" => $updatePathway_doc,
+		"signature_docs" => $updatePathway_docsig),
+	"WikiPathways.createPathway" =>
+	array("function" => "createPathway",
+		"signature" => $createPathway_sig,
+		"docstring" => $createPathway_doc,
+		"signature_docs" => $createPathway_docsig),
+	"WikiPathways.convertPathway" =>
+	array("function" => "convertPathway",
+		"signature" => $convertPathway_sig,
+		"docstring" => $convertPathway_doc,
+		"signature_docs" => $convertPathway_docsig),
+	"WikiPathways.getPathway" =>
+	array("function" => "getPathway",
+		"signature" => $getPathway_sig,
+		"docstring" => $getPathway_doc,
+		"signature_docs" => $getPathway_docsig),
+	"WikiPathways.login" =>
+	array("function" => "login",
+		"signature" => $login_sig,
+		"docstring" => $login_doc,
+		"signature_docs" => $login_docsig),
+	"WikiPathways.getPathwayList" =>
+	array("function" => "getPathwayList",
+		"signature" => $getPathwayList_sig,
+		"docstring" => $getPathwayList_doc,
+		"signature_docs" => $getPathwayList_docsig),
+	"WikiPathways.getRecentChanges" =>
+	array("function" => "getRecentChanges",
+		"signature" => $getRecentChanges_sig,
+		"docstring" => $getRecentChanges_doc,
+		"signature_docs" => $getRecentChanges_docsig),
 );
 
 //Setup the XML-RPC server
@@ -243,7 +243,7 @@ function getPathwayList() {
 
 function updatePathway($id, $description, $gpmlData, $revision, $auth = NULL) {
 	global $xmlrpcerruser, $wgUser;
-	
+
 	//Authenticate first, if token is provided
 	if($auth) {
 		try {
@@ -252,9 +252,9 @@ function updatePathway($id, $description, $gpmlData, $revision, $auth = NULL) {
 			return new xmlrpcresp(0, $xmlrpcerruser, $e);
 		}
 	}
-		
+
 	$resp = 0;
-	
+
 	try {
 		$pathway = new Pathway($id);
 		//Only update if the given revision is the newest
@@ -263,7 +263,7 @@ function updatePathway($id, $description, $gpmlData, $revision, $auth = NULL) {
 			$pathway->updatePathway($gpmlData, $description);
 			$resp = $pathway->getLatestRevision();
 		} else {
-		wfDebug("REVISION: $revision , " . $pathway->getLatestRevision());
+			wfDebug("REVISION: $revision , " . $pathway->getLatestRevision());
 			$resp = new xmlrpcresp(0, $xmlrpcerruser,
 				"Revision out of date: your GPML code originates from " .
 				"an old revision. This means somebody else modified the pathway " .
@@ -280,7 +280,7 @@ function updatePathway($id, $description, $gpmlData, $revision, $auth = NULL) {
 
 function createPathway($description, $gpmlData, $private = false, $auth = NULL) {
 	global $xmlrpcerruser, $wgUser;
-	
+
 	//Authenticate first, if token is provided
 	if($auth) {
 		try {
@@ -289,9 +289,9 @@ function createPathway($description, $gpmlData, $private = false, $auth = NULL) 
 			return new xmlrpcresp(0, $xmlrpcerruser, $e);
 		}
 	}
-		
+
 	$resp = 0;
-	
+
 	try {
 		$pathway = Pathway::createNewPathway($gpmlData, $description);
 		$title = $pathway->getTitleObject();
@@ -313,7 +313,7 @@ function createPathway($description, $gpmlData, $private = false, $auth = NULL) 
 
 function convertPathway($gpmlData64, $fileType) {
 	global $xmlrpcerruser;
-	
+
 	$gpmlData = base64_decode($gpmlData64);
 	$gpmlFile = tempnam(WPI_TMP_PATH, "gpml");
 	writeFile($gpmlFile, $gpmlData);
@@ -321,7 +321,7 @@ function convertPathway($gpmlData64, $fileType) {
 	$cmd = "cd " . WPI_SCRIPT_PATH . "; java -jar bin/pathvisio_core.jar $gpmlFile $imgFile 2>&1";
 	wfDebug($cmd);
 	exec($cmd, $output, $status);
-	
+
 	foreach ($output as $line) {
 		$msg .= $line . "\n";
 	}
@@ -339,16 +339,16 @@ function convertPathway($gpmlData64, $fileType) {
 
 function getPathway($id, $revision = 0) {
 	global $xmlrpcerruser;
-	
+
 	try {
 		$pathway = new Pathway($id);
 		$revision = $pathway->getLatestRevision();
 		$gpmlData64 = base64_encode($pathway->getGPML());
 		ob_clean();
 		return array(
-    			"gpml" => $gpmlData64,
-    			"revision" => $revision
-    		);
+			"gpml" => $gpmlData64,
+			"revision" => $revision
+		);
 	} catch(Exception $e) {
 		wfDebug("XML-RPC ERROR: $e");
 		$resp = new xmlrpcresp(0, $xmlrpcerruser, $e);
@@ -357,7 +357,7 @@ function getPathway($id, $revision = 0) {
 
 function login($name, $pass) {
 	global $wgUser, $wgAuth, $xmlrpcerruser;
-	
+
 	$user = User::newFromName( $name );
 	if( is_null($user) || $user->getID() == 0) {
 		return new xmlrpcresp(0, $xmlrpcerruser, "Invalid user name");
@@ -375,56 +375,55 @@ function login($name, $pass) {
 function getRecentChanges($timestamp)
 {
 	global $xmlrpcerruser;
-	
+
 	//check safety of $timestamp, must be exactly 14 digits and nothing else.
 	if (!preg_match ("/^\d{14}$/", $timestamp))
-	{
-		return new xmlrpcresp(0, $xmlrpcerruser, "Invalid timestamp " . htmlentities ($timestamp));
-	}
+		{
+			return new xmlrpcresp(0, $xmlrpcerruser, "Invalid timestamp " . htmlentities ($timestamp));
+		}
 
 	$dbr =& wfGetDB( DB_SLAVE );
 	$forceclause = $dbr->useIndexClause("rc_timestamp");
 	$recentchanges = $dbr->tableName( 'recentchanges');
 
-	$sql = "SELECT  
-				rc_namespace, 
-				rc_title, 
+	$sql = "SELECT
+				rc_namespace,
+				rc_title,
 				MAX(rc_timestamp)
 			FROM $recentchanges $forceclause
-			WHERE 
+			WHERE
 				rc_namespace = " . NS_PATHWAY . "
 				AND
 				rc_timestamp > '$timestamp'
 			GROUP BY rc_title
 			ORDER BY rc_timestamp DESC
 		";
-		
+
 	//~ wfDebug ("SQL: $sql");
 
 	$res = $dbr->query( $sql, "getRecentChanges" );
 
 	$titles = array();
 	while ($row = $dbr->fetchRow ($res))
-	{
-		$titles[] = $row['rc_title'];
-	}
+		{
+			$titles[] = $row['rc_title'];
+		}
 	return $titles;
 }
 
 //Non-rpc functions
 function authenticate($username, $token) {
 	global $wgUser, $wgAuth;
-	
+
 	$user = User::newFromName( $username );
 	if( is_null($user) || $user->getID() == 0) {
 		throw new Exception("Invalid user name");
 	}
 	$user->load();
 	if ($user->mToken == $token) {
-			$wgAuth->updateUser($user);
-			$wgUser = $user;
+		$wgAuth->updateUser($user);
+		$wgUser = $user;
 	} else {
 		throw new Exception("Wrong authentication token");
 	}
 }
-?>

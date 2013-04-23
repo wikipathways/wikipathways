@@ -19,14 +19,13 @@ if(!$tag) {
 
 $pathways = Pathway::parsePathwayListPage($pwPage);
 
-foreach($pathways as $pathway) {	
+foreach($pathways as $pathway) {
 	$revision = $pathway->getLatestRevision();
 	$pageId = $pathway->getTitleObject()->getArticleId();
-	
+
 	echo("* Tagging {$pathway->getName()} ({$pathway->getSpecies()}); tag = '$tag', text = '$text'<BR>");
-	
+
 	if($doit) {
 		CurationTag::saveTag($pageId, $tag, $text, $revision);
 	}
 }
-?>

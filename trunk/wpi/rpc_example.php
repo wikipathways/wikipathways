@@ -39,7 +39,7 @@ for($i = 0; $i < $v->arraysize(); $i++) {
 }
 
 //Get an authentication token
-$m = new xmlrpcmsg("WikiPathways.login", 
+$m = new xmlrpcmsg("WikiPathways.login",
 	array(
 		new xmlrpcval($user),
 		new xmlrpcval($pass)
@@ -53,7 +53,7 @@ echo "<H2>Fetched authentication code</H2><P>User: $user<P>Token: $token";
 
 
 //Get the latest GPML and revision id
-$m = new xmlrpcmsg("WikiPathways.getPathway", 
+$m = new xmlrpcmsg("WikiPathways.getPathway",
 	array(
 		new xmlrpcval("Sandbox"),
 		new xmlrpcval("Homo sapiens")
@@ -75,7 +75,7 @@ $gpmlMod = preg_replace('/Color=".{6}"/', 'Color="a020f0"', $gpml);
 $gpmlMod64 = base64_encode($gpmlMod);
 
 //Update the pathway
-$m = new xmlrpcmsg("WikiPathways.updatePathway", 
+$m = new xmlrpcmsg("WikiPathways.updatePathway",
 	array(
 		new xmlrpcval("Sandbox"),
 		new xmlrpcval("Homo sapiens"),
@@ -105,4 +105,3 @@ function getvalue($r) {
 		return $r->value();
 	}
 }
-?>

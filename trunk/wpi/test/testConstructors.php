@@ -42,5 +42,3 @@ function testConstructed($pathway) {
 		throw new Exception("Pathway doesn't exist");
 	}
 }
-
-?>

@@ -98,4 +98,3 @@ foreach($history as $hr) {
 	echo "<TD>" . $hr->getTime();
 }
 echo "</TABLE>";
-?>

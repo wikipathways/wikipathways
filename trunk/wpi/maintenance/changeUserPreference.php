@@ -19,5 +19,3 @@ while( $row = $dbr->fetchRow( $res )) {
 		}
 	}
 }
-
-?>

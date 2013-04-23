@@ -23,7 +23,7 @@ class MostEditedPathwaysPage extends SpecialPage
 		return true;
 	}
 
-	static function loadMessages() {
+	static static function loadMessages() {
 		static $messagesLoaded = false;
 		global $wgMessageCache;
 		if ( $messagesLoaded ) return true;
@@ -60,8 +60,7 @@ class PathwayQueryPage extends QueryPage {
 		$dbr =& wfGetDB( DB_SLAVE );
 		list( $revision, $page ) = $dbr->tableNamesN( 'revision', 'page' );
 		return
-			"
-			SELECT
+			"SELECT
 				'Mostrevisions' as type,
 				page_namespace as namespace,
 				page_id as id,
@@ -72,8 +71,7 @@ class PathwayQueryPage extends QueryPage {
 			WHERE page_namespace = " . $this->namespace . "
 			AND page_is_redirect = 0
 			GROUP BY 1,2,3
-			HAVING COUNT(*) > 1
-			";
+			HAVING COUNT(*) > 1";
 	}
 
 	private $taggedIds;

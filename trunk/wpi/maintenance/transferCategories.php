@@ -1,4 +1,4 @@
-<?php	
+<?php
 
 ## Transfers all categories to GPML
 
@@ -24,36 +24,36 @@ while( $row = $dbr->fetchRow( $res )) {
 	}
 	$category = $row[1];
 	$sort = $row[2];
-	
+
 	//Skip species categories
 	if($category == 'Rat' || $category == 'Mouse' || $category == 'Human') {
 		echo("SKIPPED, organism category<BR>\n");
 		continue;
 	}
-			
+
 	//Transfer categories to GPML
 	transferToGpml($title, $category);
-	
+
 	//if(++$i > 2) break;
 }
 
 function transferToGpml($title, $category) {
 	global $doit;
-	
+
 	$pathway = Pathway::newFromTitle($title);
 	$title = $pathway->getFileTitle(FILETYPE_GPML);
 	$article = new Article($title);
 	$rev = Revision::newFromTitle($title);
 	$text = $rev->getText();
-		
+
 	$category = "<Comment Source=\"WikiPathways-category\">$category</Comment>";
-	
+
 	if(stripos($text, $category) !== false) {
 		//The category is already present, nothing to do
 		echo "SKIPPING: category already in GPML<BR>\n";
 		return;
 	}
-	
+
 	$text = preg_replace('/(<Pathway (?U).+)(<Graphics)/s',"$1$category\n$2", $text);
 	$id = $rev->getId();
 	//Write new text to database
@@ -65,4 +65,3 @@ function transferToGpml($title, $category) {
 		}
 	}
 }
-?>

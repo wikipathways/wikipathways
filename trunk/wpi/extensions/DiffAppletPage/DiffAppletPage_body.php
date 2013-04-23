@@ -35,7 +35,7 @@ TABLE;
 		$wgOut->addHTML(self::createDiffApplet($pathway, $revOld, $revNew));
 	}
 
-	function loadMessages() {
+	static function loadMessages() {
 		static $messagesLoaded = false;
 		global $wgMessageCache;
 		if ( $messagesLoaded ) return true;
@@ -78,6 +78,6 @@ TABLE;
 		<param name="new" value="$file2"/>
 	</applet>
 APPLET;
-		return $applet;
+	return $applet;
 	}
 }

@@ -12,7 +12,7 @@ class ShowError extends SpecialPage {
 		$wgOut->addWikiText("<pre><nowiki>$error</nowiki></pre>");
 	}
 
-	function loadMessages() {
+	static function loadMessages() {
 		static $messagesLoaded = false;
 		global $wgMessageCache;
 		if ( $messagesLoaded ) return true;
@@ -25,4 +25,3 @@ class ShowError extends SpecialPage {
 		return true;
 	}
 }
-?>
