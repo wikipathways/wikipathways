@@ -108,7 +108,7 @@ img {
 	border: none;
 	vertical-align: middle;
 }
-td img {
+img.center-button {
    margin-left: 25%;
    margin-right: 25%;
 }

@@ -88,7 +88,7 @@ class deleteRow extends tableRow {
 		if( $wgUser->isLoggedIn() ) {
 			return "<A title='". wfmsg( "wpict-delete" ) . "' ".
 				"href='javascript:CurationTags.removeTagFromPathway(\"Curation:ProposedDeletion\", $pageId, \"$row\" )'>" .
-				"<IMG src='$wgStylePath/wikipathways/cancel.png'/></A>";
+				"<IMG class='center-button' src='$wgStylePath/wikipathways/cancel.png'/></A>";
 		} else {
 			return "";
 		}
