@@ -28,7 +28,7 @@ class PathwayBibliography {
 		$gpml = $pathway->getGpml();
 
 		$i = 0;
-		$nrShow = 4;
+		$nrShow = 5;
 
 		if(!$data) return "";
 
@@ -36,7 +36,7 @@ class PathwayBibliography {
 		$pubXRefs = $data->getPublicationXRefs();
 		$out = "";
 		foreach(array_keys($pubXRefs) as $id) {
-			$doShow = $i++ < $nrShow ? "" : "style='display:none'";
+			$doShow = $i++ < $nrShow ? "" : "class='toggleMe'";
 
 			$xref = $pubXRefs[$id];
 
@@ -66,10 +66,11 @@ class PathwayBibliography {
 			$out = "<OL id='$id'>$out</OL>";
 			$nrNodes = count($pubXRefs);
 			if($nrNodes > $nrShow) {
-				$expand = "<B>View all $nrNodes references</B>";
-				$collapse = "<B>View first " . ($nrShow) . " references</B>";
-				$button = "<table><td width='51%'> <div onClick='toggleList(\"$id\", this, \"$expand\",
-					\"$collapse\", " . ($nrShow) . ", true)' style='cursor:pointer;color:#0000FF'>$expand</div><td width='45%'></table>";
+				$expand = "<b>View all...</b>";
+				$collapse = "<b>View last " . ($nrShow) . "</b>";
+				$button = "<table><td width='51%'><div onClick='".
+					'doToggle("'.$id.'", this, "'.$expand.'", "'.$collapse.'")'."' style='cursor:pointer;color:#0000FF'>".
+					"$expand</div><td width='45%'></table>";
 				$out = $button . $out;
 			}
 		} else {

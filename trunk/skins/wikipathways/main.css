@@ -1265,6 +1265,8 @@ span.changedby {
 	color: gray;
 }
 
+.toggleMe { display: none; }
+
 .toggle {
 	margin-left: 2em;
 	text-indent: -2em;

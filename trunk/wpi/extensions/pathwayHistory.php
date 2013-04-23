@@ -7,8 +7,8 @@ require_once('PageHistory.php');
 $wgExtensionFunctions[] = "wfPathwayHistory";
 
 function wfPathwayHistory() {
-    global $wgParser;
-    $wgParser->setHook( "pathwayHistory", "history" );
+	global $wgParser;
+	$wgParser->setHook( "pathwayHistory", "history" );
 }
 
 function history( $input, $argv, &$parser ) {
@@ -22,16 +22,16 @@ function history( $input, $argv, &$parser ) {
 }
 
 function getHistory($pathway) {
-		global $wgUser, $wpiScriptURL;
-		
-		$gpmlTitle = $pathway->getTitleObject();
-		$gpmlArticle = new Article($gpmlTitle);
-		$hist = new PageHistory($gpmlArticle);
+	global $wgUser, $wpiScriptURL;
 
-		$pager = new GpmlHistoryPager( $pathway, $hist );
+	$gpmlTitle = $pathway->getTitleObject();
+	$gpmlArticle = new Article($gpmlTitle);
+	$hist = new PageHistory($gpmlArticle);
 
-		$s = $pager->getBody();
-		return $s;
+	$pager = new GpmlHistoryPager( $pathway, $hist );
+
+	$s = $pager->getBody();
+	return $s;
 }
 
 function historyRow($h, $style) {
@@ -52,30 +52,30 @@ function historyRow($h, $style) {
 
 function historyLine($pathway, $row, $nr, $counter = '', $cur = false, $firstInList = false) {
 	global $wpiScript, $wgLang, $wgUser, $wgTitle;
-	
+
 	$rev = new Revision( $row );
-	
+
 	$user = User::newFromId($rev->getUser());
 	/* Show bots
-	if($user->isBot()) {
-		//Ignore bots
-		return "";
-	}
+	   if($user->isBot()) {
+	   //Ignore bots
+	   return "";
+	   }
 	*/
-	
+
 	$rev->setTitle( $pathway->getFileTitle(FILETYPE_GPML) );
 
 	$revUrl = WPI_SCRIPT_URL . '?action=revert&pwTitle=' .
-				$pathway->getTitleObject()->getPartialURL() .
-				"&oldid={$rev->getId()}";
-	
+		$pathway->getTitleObject()->getPartialURL() .
+		"&oldid={$rev->getId()}";
+
 	$diff = diffButtons( $rev, $firstInList, $counter, $nr );
 
 	$revert = "";
 	if($wgUser->getID() != 0 && $wgTitle && $wgTitle->userCanEdit()) {
 		$revert = $cur ? "" : "(<A href=$revUrl>revert</A>), ";
 	}
-	
+
 	$dt = $wgLang->timeanddate( wfTimestamp(TS_MW, $rev->getTimestamp()), true );
 	$oldid = $firstInList ? '' : "oldid=" . $rev->getId();
 	$view = $wgUser->getSkin()->makeKnownLinkObj($pathway->getTitleObject(), 'view', $oldid );
@@ -85,56 +85,56 @@ function historyLine($pathway, $row, $nr, $counter = '', $cur = false, $firstInL
 	$descr = $rev->getComment();
 	return array('diff'=>$diff, 'rev'=>$revert, 'view'=>$view, 'date'=>$date, 'user'=>$user, 'descr'=>$descr, 'id'=>$rev->getId());
 }
-        
+
 /**
  * Generates dynamic display of radio buttons for selecting versions to compare
  */
 function diffButtons( $rev, $firstInList, $counter, $linesonpage) {
-                if( $linesonpage > 1) {
-                        $radio = array(
-                                'type'  => 'radio',
-                                'value' => $rev->getId(),
-# do we really need to flood this on every item?
-#                               'title' => wfMsgHtml( 'selectolderversionfordiff' )
-                        );
+	if( $linesonpage > 1) {
+		$radio = array(
+			'type'  => 'radio',
+			'value' => $rev->getId(),
+			# do we really need to flood this on every item?
+			#                               'title' => wfMsgHtml( 'selectolderversionfordiff' )
+		);
 
-                        if( !$rev->userCan( Revision::DELETED_TEXT ) ) {
-                                $radio['disabled'] = 'disabled';
-                        }
+		if( !$rev->userCan( Revision::DELETED_TEXT ) ) {
+			$radio['disabled'] = 'disabled';
+		}
 
-                        /** @todo: move title texts to javascript */
-                        if ( $firstInList ) {
-			           $first = wfElement( 'input', array_merge(
-                                        $radio,
-                                        array(
-                                                'style' => 'visibility:hidden',
-                                                'name'  => 'old' ) ) );
-                                $checkmark = array( 'checked' => 'checked' );
-                        } else {
-                                if( $counter == 2 ) {
-                                        $checkmark = array( 'checked' => 'checked' );
-                                } else {
-                                        $checkmark = array();
-                                }
-                                $first = wfElement( 'input', array_merge(
-                                        $radio,
-                                        $checkmark,
-                                        array( 'name'  => 'old' ) ) );
-                                $checkmark = array();
-                        }
-                        $second = wfElement( 'input', array_merge(
-                                $radio,
-                                $checkmark,
-                                array( 'name'  => 'new' ) ) );
-                        return $first . $second;
-                } else {
-                        return '';
-                }
+		/** @todo: move title texts to javascript */
+		if ( $firstInList ) {
+			$first = wfElement( 'input', array_merge(
+					$radio,
+					array(
+						'style' => 'visibility:hidden',
+						'name'  => 'old' ) ) );
+			$checkmark = array( 'checked' => 'checked' );
+		} else {
+			if( $counter == 2 ) {
+				$checkmark = array( 'checked' => 'checked' );
+			} else {
+				$checkmark = array();
+			}
+			$first = wfElement( 'input', array_merge(
+					$radio,
+					$checkmark,
+					array( 'name'  => 'old' ) ) );
+			$checkmark = array();
+		}
+		$second = wfElement( 'input', array_merge(
+				$radio,
+				$checkmark,
+				array( 'name'  => 'new' ) ) );
+		return $first . $second;
+	} else {
+		return '';
+	}
 }
 
 class GpmlHistoryPager extends PageHistoryPager {
 	private $pathway;
-	private $nrShow = 4;
+	private $nrShow = 5;
 
 	function __construct( $pathway, $pageHistory ) {
 		parent::__construct( $pageHistory );
@@ -144,10 +144,10 @@ class GpmlHistoryPager extends PageHistoryPager {
 	function formatRow( $row ) {
 		$latest = $this->mCounter == 1;
 		$firstInList = $this->mCounter == 1;
-		$style = ($this->mCounter <= $this->nrShow) ? '' : 'style="display:none"';
-		
+		$style = ($this->mCounter <= $this->nrShow) ? '' : 'class="toggleMe"';
+
 		$s = historyRow(historyLine($this->pathway, $row, $this->getNumRows(), $this->mCounter++, $latest, $firstInList), $style);
-		
+
 		$this->mLastRow = $row;
 		return $s;
 	}
@@ -155,9 +155,9 @@ class GpmlHistoryPager extends PageHistoryPager {
 	function getStartBody() {
 		$this->mLastRow = false;
 		$this->mCounter = 1;
-		
+
 		$nr = $this->getNumRows();
-		
+
 		if($nr < 1) {
 			$table = '';
 		} else {
@@ -170,10 +170,11 @@ class GpmlHistoryPager extends PageHistoryPager {
 		}
 
 		if($nr >= $this->nrShow) {
-			$expand = "<B>View all</B>";
-			$collapse = "<B>View last " . ($this->nrShow - 1) . "</B>";
-			$button = "<table><td width='51%'><div onClick='toggleRows(\"historyTable\", this, \"$expand\",
-                                \"$collapse\", {$this->nrShow}, true)' style='cursor:pointer;color:#0000FF'>$expand<td width='20%'></table>";
+			$expand = "<b>View all...</b>";
+			$collapse = "<b>View last " . ($this->nrShow) . "</b>";
+			$button = "<table><td width='51%'><div onClick='".
+				'doToggle("historyTable", this, "'.$expand.'", "'.$collapse.'")'."' style='cursor:pointer;color:#0000FF'>".
+				"$expand<td width='20%'></table>";
 			$table = $button . $table;
 		}
 
@@ -186,5 +187,3 @@ class GpmlHistoryPager extends PageHistoryPager {
 		return $end;
 	}
 }
-
-?>

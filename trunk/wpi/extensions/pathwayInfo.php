@@ -77,10 +77,10 @@ class PathwayInfo extends PathwayData {
 		$nrShow = 5;
 		$nrNodes = count($nodes);
 		if(count($nodes) > $nrShow) {
-			$expand = "<B>View all $nrNodes...</B>";
-			$collapse = "<B>View last " . ($nrShow) . "...</B>";
-			$button = "<table><td width='51%'> <div onClick='toggleRows(\"dnTable\", this, \"$expand\",".
-				"\"$collapse\", " . ($nrShow + 1) . ", true)' style='cursor:pointer;color:#0000FF'>".
+			$expand = "<b>View all...</b>";
+			$collapse = "<b>View last " . ($nrShow) . "...</b>";
+			$button = "<table><td width='51%'> <div onClick='".
+				'doToggle("dnTable", this, "'.$expand.'", "'.$collapse.'")'."' style='cursor:pointer;color:#0000FF'>".
 				"$expand<td width='45%'></table>";
 		}
 		//Sort and iterate over all elements
@@ -118,12 +118,8 @@ class PathwayInfo extends PathwayData {
 				}
 			}
 
-			$class = "";
-			if( $datanode['TextLabel'] == '' || $datanode['Type'] == '' || $html == '' ) {
-				$class = " class='dataNodeProblem'";
-			}
-			$doShow = $i++ < $nrShow ? "" : " style='display:none'";
-			$table .= "<tr$doShow$class>";
+			$doShow = $i++ < $nrShow ? "" : " class='toggleMe'";
+			$table .= "<tr$doShow>";
 			$table .= '<td>' . $datanode['TextLabel'];
 			$table .= '<td>' . $datanode['Type'];
 			$table .= '<td>' . $html;
