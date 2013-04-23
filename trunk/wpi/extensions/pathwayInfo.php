@@ -126,7 +126,7 @@ class PathwayInfo extends PathwayData {
 				foreach( $comment as $c ) {
 					$table .= "<li>$c";
 				}
-				$table = "</ul>";
+				$table .= "</ul>";
 			} elseif( count( $comment ) == 1 ) {
 				$table .= $comment[0];
 			}
