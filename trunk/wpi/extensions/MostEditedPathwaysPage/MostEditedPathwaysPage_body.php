@@ -3,49 +3,49 @@ require_once("QueryPage.php");
 require_once("wpi/wpi.php");
 
 class MostEditedPathwaysPage extends SpecialPage
-{		
-        function MostEditedPathwaysPage() {
-                SpecialPage::SpecialPage("MostEditedPathwaysPage");
-                self::loadMessages();
-        }
+{
+	function MostEditedPathwaysPage() {
+		SpecialPage::SpecialPage("MostEditedPathwaysPage");
+		self::loadMessages();
+	}
 
-        function execute( $par ) {
-                global $wgRequest, $wgOut;
-                
-                $this->setHeaders();
+	function execute( $par ) {
+		global $wgRequest, $wgOut;
 
-                list( $limit, $offset ) = wfCheckLimits();				
-				//Most edited pathway articles
-				$ppp = new PathwayQueryPage(NS_PATHWAY);
+		$this->setHeaders();
 
-				$ppp->doQuery( $offset, $limit );
-							
-				return true;
-        }
+		list( $limit, $offset ) = wfCheckLimits();
+		//Most edited pathway articles
+		$ppp = new PathwayQueryPage(NS_PATHWAY);
 
-        function loadMessages() {
-                static $messagesLoaded = false;
-                global $wgMessageCache;
-                if ( $messagesLoaded ) return true;
-                $messagesLoaded = true;
+		$ppp->doQuery( $offset, $limit );
 
-                require( dirname( __FILE__ ) . '/MostEditedPathwaysPage.i18n.php' );
-                foreach ( $allMessages as $lang => $langMessages ) {
-                        $wgMessageCache->addMessages( $langMessages, $lang );
-                }
-                return true;
-        }
-		
+		return true;
+	}
+
+	static function loadMessages() {
+		static $messagesLoaded = false;
+		global $wgMessageCache;
+		if ( $messagesLoaded ) return true;
+		$messagesLoaded = true;
+
+		require( dirname( __FILE__ ) . '/MostEditedPathwaysPage.i18n.php' );
+		foreach ( $allMessages as $lang => $langMessages ) {
+			$wgMessageCache->addMessages( $langMessages, $lang );
+		}
+		return true;
+	}
+
 }
 
 class PathwayQueryPage extends QueryPage {
 	private $namespace;
-	
+
 	function __construct($namespace) {
 		$this->namespace = $namespace;
 		$this->taggedIds = CurationTag::getPagesForTag('Curation:Tutorial');
 	}
-	
+
 	function getName() {
 		return "MostEditedPathwaysPage";
 	}
@@ -77,26 +77,25 @@ class PathwayQueryPage extends QueryPage {
 	}
 
 	private $taggedIds;
-	
+
 	function formatResult( $skin, $result ) {
 		global $wgLang, $wgContLang;
-		if (in_array($result->id, $this->taggedIds)){ 
+		if (in_array($result->id, $this->taggedIds)){
 			return null;
 		}
-                $pathway = Pathway::newFromTitle($result->title);
-                if(!$pathway->isReadable()) return null; //Skip private pathways
-                $title = Title::makeTitle( $result->namespace, $pathway->getSpecies().":".$pathway->getName() );
-                $id = Title::makeTitle( $result->namespace, $result->title );
+		$pathway = Pathway::newFromTitle($result->title);
+		if(!$pathway->isReadable()) return null; //Skip private pathways
+		$title = Title::makeTitle( $result->namespace, $pathway->getSpecies().":".$pathway->getName() );
+		$id = Title::makeTitle( $result->namespace, $result->title );
 		$text = $wgContLang->convert("$result->value revisions");
 		$plink = $skin->makeKnownLinkObj( $id, htmlspecialchars( $wgContLang->convert($title->getBaseText())) );
 
 		/* Not link to history for now, later on link to our own pathway history
-		$nl = wfMsgExt( 'nrevisions', array( 'parsemag', 'escape'),
-			$wgLang->formatNum( $result->value ) );
-		$nlink = $skin->makeKnownLinkObj( $nt, $nl, 'action=history' );
+		   $nl = wfMsgExt( 'nrevisions', array( 'parsemag', 'escape'),
+		   $wgLang->formatNum( $result->value ) );
+		   $nlink = $skin->makeKnownLinkObj( $nt, $nl, 'action=history' );
 		*/
 
 		return wfSpecialList($plink, $text);
 	}
 }
-?>
