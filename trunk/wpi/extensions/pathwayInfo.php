@@ -126,7 +126,8 @@ class PathwayInfo extends PathwayData {
 			$table .= "<td class='xref-comment'>";
 
 			$table .= self::displayItem( $comment );
-			$table .= self::displayItem( $biopaxRef );
+			// http://developers.pathvisio.org/ticket/800#comment:9
+			//$table .= self::displayItem( $biopaxRef );
 		}
 		$table .= '</tbody></table>';
 		return array($button . $table, 'isHTML'=>1, 'noparse'=>1);
