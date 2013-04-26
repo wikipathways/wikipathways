@@ -72,8 +72,8 @@ if( !isset( $wpiJavascriptSnippets ) ) $wpiJavascriptSnippets = array();
 if( !isset( $wpiJavascriptSources ) ) $wpiJavascriptSources = array();
 
 require_once( "$IP/extensions/ConfirmEdit/ConfirmEdit.php" );
-require_once( "$IP/extensions/ConfirmEdit/ReCaptcha.php" );
-$wgCaptchaClass = 'ReCaptcha';
+require_once( "$IP/extensions/ConfirmEdit/QuestyCaptcha.php" );
+$wgCaptchaClass = 'QuestyCaptcha';
 
 # Load passwords/usernames
 require_once('pass.php');
@@ -151,27 +151,6 @@ $wgDiff3 = "/usr/bin/diff3";
 $configdate = gmdate( 'YmdHis', @filemtime( __FILE__ ) );
 $wgCacheEpoch = max( $wgCacheEpoch, $configdate );
 
-$wgGroupPermissions['confirmed']['createpage'] = true;
-$wgGroupPermissions['confirmed']['minoredit'] = true;
-$wgGroupPermissions['confirmed']['move'] = true;
-$wgGroupPermissions['confirmed']['move-subpages'] = true;
-$wgGroupPermissions['confirmed']['reupload-shared'] = true;
-$wgGroupPermissions['confirmed']['reupload'] = true;
-$wgGroupPermissions['confirmed']['upload'] = true;
-$wgGroupPermissions['confirmed']['edit'] = true;
-$wgGroupPermissions['confirmed']['createtalk'] = true;
-$wgGroupPermissions['confirmed']['autoconfirmed'] = true;
-
-$wgGroupPermissions['user']['createpage'] = false;
-$wgGroupPermissions['user']['minoredit'] = false;
-$wgGroupPermissions['user']['move'] = false;
-$wgGroupPermissions['user']['move-subpages'] = false;
-$wgGroupPermissions['user']['reupload-shared'] = false;
-$wgGroupPermissions['user']['reupload'] = false;
-$wgGroupPermissions['user']['upload'] = false;
-$wgGroupPermissions['user']['edit'] = false;
-$wgGroupPermissions['user']['createtalk'] = false;
-
 $wgGroupPermissions['autoconfirmed']['autoconfirmed'] = false;
 
 $wgGroupPermissions['*'    ]['createaccount']   = true;
@@ -229,70 +208,96 @@ define("NS_WISHLIST", 104);
 define("NS_WISHLIST_TALK", 105);
 define("NS_PORTAL", 106);
 define("NS_PORTAL_TALK", 107);
+define("NS_QUESTION", 108);
+define("NS_QUESTION_TALK", 109);
 
-$wgExtraNamespaces =
-	array(	NS_PATHWAY => "Pathway", NS_PATHWAY_TALK => "Pathway_Talk",
-			100 => "Pw_Old", 101 => "Pw_Old_Talk", //Old namespace
-			NS_WISHLIST => "Wishlist", NS_WISHLIST_TALK => "Wishlist_Talk",
-			NS_PORTAL => "Portal", NS_PORTAL_TALK => "Portal_Talk"
-		);
-$wgNamespacesToBeSearchedDefault +=
-	array( 	NS_PATHWAY => true, NS_PATHWAY_TALK => true,
-			100 => false, 100 => false); //Old namespace
+$wgExtraNamespaces[100]              = "Pw_Old";
+$wgExtraNamespaces[101]              = "Pw_Old_Talk";
+$wgExtraNamespaces[NS_PATHWAY]       = "Pathway";
+$wgExtraNamespaces[NS_PATHWAY_TALK]  = "Pathway_Talk";
+$wgExtraNamespaces[NS_WISHLIST]      = "Wishlist";
+$wgExtraNamespaces[NS_WISHLIST_TALK] = "Wishlist_Talk";
+$wgExtraNamespaces[NS_PORTAL]        = "Portal";
+$wgExtraNamespaces[NS_PORTAL_TALK]   = "Portal_Talk";
+
+$wgNamespacesToBeSearchedDefault[100] = false;
+$wgNamespacesToBeSearchedDefault[101] = false;
+$wgNamespacesToBeSearchedDefault[NS_PATHWAY]      = true;
+$wgNamespacesToBeSearchedDefault[NS_PATHWAY_TALK] = true;
+
 $wgContentNamespaces += array(NS_PATHWAY, NS_PATHWAY_TALK);
 
-//AP20080328 - setting permissions for custom namespaces
-$wgGroupPermissions[ '*'          ][ 'ns102_read'   ] = true;
-$wgGroupPermissions[ 'confirmed'  ][ 'ns102_edit'   ] = true;
-$wgGroupPermissions[ 'confirmed'  ][ 'ns102_create' ] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns102_move'   ] = true;
-$wgGroupPermissions[ 'sysop'      ][ 'ns102_delete' ] = true;
-$wgGroupPermissions[ '*'          ][ 'ns103_read'   ] = true;
-$wgGroupPermissions[ 'confirmed'  ][ 'ns103_edit'   ] = true;
-$wgGroupPermissions[ 'confirmed'  ][ 'ns103_create' ] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns103_move'   ] = true;
-$wgGroupPermissions[ 'sysop'      ][ 'ns103_delete' ] = true;
-$wgGroupPermissions[ '*'          ][ 'ns104_read'   ] = true;
-$wgGroupPermissions[ 'confirmed'  ][ 'ns104_edit'   ] = true;
-$wgGroupPermissions[ 'confirmed'  ][ 'ns104_create' ] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns104_move'   ] = true;
-$wgGroupPermissions[ 'sysop'      ][ 'ns104_delete' ] = true;
-$wgGroupPermissions[ '*'          ][ 'ns105_read'   ] = true;
-$wgGroupPermissions[ 'confirmed'  ][ 'ns105_edit'   ] = true;
-$wgGroupPermissions[ 'confirmed'  ][ 'ns105_create' ] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns105_move'   ] = true;
-$wgGroupPermissions[ 'sysop'      ][ 'ns105_delete' ] = true;
-$wgGroupPermissions[ '*'          ][ 'ns106_read'   ] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns106_edit'   ] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns106_create' ] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns106_move'   ] = true;
-$wgGroupPermissions[ 'sysop'      ][ 'ns106_delete' ] = true;
-$wgGroupPermissions[ '*'          ][ 'ns107_read'   ] = true;
-$wgGroupPermissions[ 'confirmed'  ][ 'ns107_edit'   ] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns107_create' ] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'ns107_move'   ] = true;
-$wgGroupPermissions[ 'sysop'      ][ 'ns107_delete' ] = true;
-$wgGroupPermissions[ 'usersnoop'  ][ 'usersnoop'    ] = true;
-$wgGroupPermissions[ 'sysop'      ][ 'usersnoop'    ] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'usersnoop'    ] = true;
-$wgGroupPermissions[ 'sysop'      ][ 'list_private_pathways'] = true;
-$wgGroupPermissions[ 'webservice' ][ 'webservice_write'] = true;
-
 ##Protecting non-pathway namespaces from user edits
-$wgNamespaceProtection[NS_MAIN]      = array('main-edit');
-$wgNamespaceProtection[NS_TALK]      = array('main-talk-edit');
-$wgNamespaceProtection[NS_USER]      = array('user-edit');
-$wgNamespaceProtection[NS_USER_TALK] = array('user-talk-edit');
-$wgNamespaceProtection[NS_HELP]      = array('help-edit');
-$wgNamespaceProtection[NS_HELP_TALK] = array('help-talk-edit');
-$wgGroupPermissions['confirmed']['user-edit'] = true;
-$wgGroupPermissions['confirmed']['user-talk-edit'] = true;
-$wgGroupPermissions['bureaucrat']['main-edit'] = true;
-$wgGroupPermissions['bureaucrat']['main-talk-edit'] = true;
-$wgGroupPermissions['bureaucrat']['help-edit'] = true;
-$wgGroupPermissions['bureaucrat']['help-talk-edit'] = true;
+$wgNamespaceProtection[NS_HELP]          = array( 'help-edit' );
+$wgNamespaceProtection[NS_HELP_TALK]     = array( 'help-talk-edit' );
+$wgNamespaceProtection[NS_PATHWAY]       = array( 'pathway-edit' );
+$wgNamespaceProtection[NS_PATHWAY_TALK]  = array( 'pathway-talk-edit' );
+$wgNamespaceProtection[NS_WISHLIST]      = array( 'wishlist-edit' );
+$wgNamespaceProtection[NS_WISHLIST_TALK] = array( 'wishlist-talk-edit' );
+$wgNamespaceProtection[NS_PORTAL]        = array( 'portal-edit' );
+$wgNamespaceProtection[NS_PORTAL_TALK]   = array( 'portal-tlk-edt' );
+
+$wgGroupPermissions[ '*'          ][ 'read'       ] = true;
+$wgGroupPermissions[ '*'          ][ 'edit'       ] = false;
+$wgGroupPermissions[ '*'          ][ 'createpage' ] = false;
+$wgGroupPermissions[ '*'          ][ 'createtalk' ] = false;
+$wgGroupPermissions[ '*'          ][ 'move'       ] = false;
+$wgGroupPermissions[ '*'          ][ 'delete'     ] = false;
+
+$wgGroupPermissions[ 'user'       ][ 'read'       ] = true;
+$wgGroupPermissions[ 'user'       ][ 'edit'       ] = false;
+$wgGroupPermissions[ 'user'       ][ 'createpage' ] = false;
+$wgGroupPermissions[ 'user'       ][ 'createtalk' ] = false;
+$wgGroupPermissions[ 'user'       ][ 'minoredit'  ] = false;
+$wgGroupPermissions[ 'user'       ][ 'move'       ] = false;
+$wgGroupPermissions[ 'user'       ][ 'delete'     ] = false;
+
+$wgGroupPermissions[ 'confirmed'  ][ 'read'       ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'edit'       ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'createpage' ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'createtalk' ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'upload'     ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'reupload'   ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'move'       ] = false;
+$wgGroupPermissions[ 'confirmed'  ][ 'delete'     ] = false;
+
+$wgGroupPermissions[ 'bureaucrat' ][ 'read'       ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'edit'       ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'createtalk' ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'createpage' ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'move'       ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'upload'     ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'reupload'   ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'delete'     ] = false;
+$wgGroupPermissions[ 'bureaucrat' ][ 'main-edit'      ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'main-talk-edit' ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'help-edit'      ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'help-talk-edit' ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'portal-edit'    ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'portal-tlk-edt' ] = true;
+
+$wgGroupPermissions[ 'sysop'      ][ 'read'       ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'edit'       ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'createtalk' ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'createpage' ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'move'       ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'upload'     ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'reupload'   ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'delete'     ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'main-edit'      ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'main-talk-edit' ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'help-edit'      ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'help-talk-edit' ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'portal-edit'    ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'portal-tlk-edt' ] = true;
 
 $wgHooks['AbortNewAccount'][] = 'abortOnBadDomain';
+
+$wgGroupPermissions[ 'usersnoop'  ][ 'usersnoop'             ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'usersnoop'             ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'usersnoop'             ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'list_private_pathways' ] = true;
+$wgGroupPermissions[ 'webservice' ][ 'webservice_write'      ] = true;
 
 ##Debug
 $wgDebugLogFile = WPI_SCRIPT_PATH . '/tmp/wikipathwaysdebug.txt';
@@ -305,8 +310,6 @@ $wgAutoloadClasses['LegacySpecialPage'] = dirname(__FILE__) . '/wpi/LegacySpecia
 require_once('extensions/GoogleAnalytics/googleAnalytics.php'); //Google Analytics support
 require_once('extensions/inputbox.php');
 require_once('extensions/GoogleGroups.php');
-//require_once('extensions/ParserFunctions.php');
-//require_once('wpi/extensions/redirectImage.php'); //Redirect all image pages to file
 require_once('wpi/extensions/PathwayOfTheDay.php');
 require_once("$IP/extensions/LocalHooks.php");
 require_once('wpi/extensions/siteStats.php');
