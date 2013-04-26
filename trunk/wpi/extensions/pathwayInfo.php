@@ -92,15 +92,17 @@ class PathwayInfo extends PathwayData {
 			$xid = (string)$xref['ID'];
 			$xds = (string)$xref['Database'];
 			$link = DataSource::getLinkout($xid, $xds);
+			$id = trim( $xref['ID'] );
 			if($link) {
 				$l = new Linker();
-				$link = $l->makeExternalLink( $link, "{$xref['ID']} ({$xref['Database']})" );
-			} elseif( $xref['ID'] != '' ) {
-				$link = $xref['ID'];
+				$link = $l->makeExternalLink( $link, "$id ({$xref['Database']})" );
+			} elseif( $id != '' ) {
+				$link = $id;
 				if($xref['Database'] != '') {
 					$link .= ' (' . $xref['Database'] . ')';
 				}
 			}
+
 			//Add xref info button
 			$html = $link;
 			if($xid && $xds) {
@@ -121,9 +123,9 @@ class PathwayInfo extends PathwayData {
 			$doShow = $i++ < $nrShow ? "" : " class='toggleMe'";
 			$table .= "<tr$doShow>";
 			$table .= '<td>' . $datanode['TextLabel'];
-			$table .= '<td>' . $datanode['Type'];
-			$table .= '<td>' . $html;
-			$table .= "<td class='xref-comment'>";
+			$table .= '<td class="path-type">' . $datanode['Type'];
+			$table .= '<td class="path-dbref">' . $html;
+			$table .= "<td class='path-comment'>";
 
 			$table .= self::displayItem( $comment );
 			// http://developers.pathvisio.org/ticket/800#comment:9

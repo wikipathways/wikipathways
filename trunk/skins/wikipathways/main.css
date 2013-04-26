@@ -1573,3 +1573,18 @@ span.searchmatch {
 .os-suggest {
 	font-size: 127%;
 }
+
+.path-dbref {
+   min-width: 200px;
+   text-align: center;
+}
+
+.path-type {
+   min-width: 150px;
+   text-align: center;
+}
+
+#dnTable .path-comment {
+   padding-left: 1em;
+   padding-right: 1em;
+}
