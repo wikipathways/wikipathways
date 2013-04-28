@@ -830,7 +830,8 @@ class Pathway {
 			$return = $e->getMessage();
 		}
 		//Second, validate GPML to schema
-		$xml = DOMDocument::loadXML($gpml);
+		$doc = new DOMDocument();
+		$xml = $doc->loadXML($gpml);
 		if(!$xml) {
 			return "Error: no valid XML provided\n$gpml";
 		}
