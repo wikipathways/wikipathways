@@ -3848,6 +3848,8 @@ class DPL2 {
 	//slightly different from CategoryViewer::formatList()
 	function formatCategoryList($iStart, $iCount) {
 		global $wgRequest, $wgDPL2CategoryStyleListCutoff;
+
+		$aArticles = array();
 		for($i = $iStart; $i < $iStart + $iCount; $i++) {
 			$aArticles[] = $this->mArticles[$i]->mLink;
 			$aArticles_start_char[] = $this->mArticles[$i]->mStartChar;
