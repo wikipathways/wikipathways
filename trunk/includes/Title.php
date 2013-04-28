@@ -1185,7 +1185,7 @@ class Title {
 			$errors[] = array('ns-specialprotected');
 		}
 
-		if ( $action !== "read" && $this->isNamespaceProtected() ) {
+		if ( $this->isNamespaceProtected() ) {
 			$ns = $this->getNamespace() == NS_MAIN
 				? wfMsg( 'nstab-main' )
 				: $this->getNsText();

@@ -186,6 +186,8 @@ class Pathway {
 	 * Find out if the current user has permissions to view this pathway
 	 */
 	public function isReadable() {
+		return $this->getTitleObject()->userCanRead();
+		// After MW 1.19, this form should be used, but in earlier MW it is buggy.
 		return $this->getTitleObject()->userCan('read');
 	}
 
