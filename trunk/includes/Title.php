@@ -61,7 +61,7 @@ class Title {
 	var $mRestrictionsLoaded; 	# Boolean for initialisation on demand
 	var $mPrefixedText;       	# Text form including namespace/interwiki, initialised on demand
 	var $mDefaultNamespace;   	# Namespace index when there is no namespace
-	                    		# Zero except in {{transclusion}} tags
+								# Zero except in {{transclusion}} tags
 	var $mWatched;      		# Is $wgUser watching this page? NULL if unfilled, accessed through userIsWatching()
 	var $mLength;              # The page length, 0 for special pages
 	var $mRedirect;            # Is the article at this title a redirect?
@@ -283,7 +283,7 @@ class Title {
 		} else {
 			return NULL;
 		}
- 	}
+	}
 
 	/**
 	 * Create a new Title for the Main Page
@@ -1015,7 +1015,7 @@ class Title {
 	 *
 	 * @param string $action action that permission needs to be checked for
 	 * @return boolean
- 	 */
+	 */
 	public function quickUserCan( $action ) {
 		return $this->userCan( $action, false );
 	}
@@ -1042,7 +1042,7 @@ class Title {
 	 * @param string $action action that permission needs to be checked for
 	 * @param bool $doExpensiveQueries Set this to false to avoid doing unnecessary queries.
 	 * @return boolean
- 	 */
+	 */
 	public function userCan( $action, $doExpensiveQueries = true ) {
 		global $wgUser;
 		return ( $this->getUserPermissionsErrorsInternal( $action, $wgUser, $doExpensiveQueries ) === array());
@@ -1121,15 +1121,15 @@ class Title {
 
 			$intended = $user->mBlock->mAddress;
 
-			$errors[] = array( ($block->mAuto ? 'autoblockedtext' : 'blockedtext'), $link, $reason, $ip, $name, 
+			$errors[] = array( ($block->mAuto ? 'autoblockedtext' : 'blockedtext'), $link, $reason, $ip, $name,
 				$blockid, $blockExpiry, $intended, $blockTimestamp );
 		}
-		
+
 		// Remove the errors being ignored.
-		
+
 		foreach( $errors as $index => $error ) {
 			$error_key = is_array($error) ? $error[0] : $error;
-			
+
 			if (in_array( $error_key, $ignoreErrors )) {
 				unset($errors[$index]);
 			}
@@ -1179,13 +1179,13 @@ class Title {
 			else if ($result === false )
 				$errors[] = array('badaccess-group0'); # a generic "We don't want them to do that"
 		}
-		
+
 		$specialOKActions = array( 'createaccount', 'execute' );
 		if( NS_SPECIAL == $this->mNamespace && !in_array( $action, $specialOKActions) ) {
 			$errors[] = array('ns-specialprotected');
 		}
 
-		if ( $this->isNamespaceProtected() ) {
+		if ( $action !== "read" && $this->isNamespaceProtected() ) {
 			$ns = $this->getNamespace() == NS_MAIN
 				? wfMsg( 'nstab-main' )
 				: $this->getNsText();
@@ -1738,7 +1738,7 @@ class Title {
 		# Backwards-compatibility: also load the restrictions from the page record (old format).
 
 		if ( $oldFashionedRestrictions === NULL ) {
-			$oldFashionedRestrictions = $dbr->selectField( 'page', 'page_restrictions', 
+			$oldFashionedRestrictions = $dbr->selectField( 'page', 'page_restrictions',
 				array( 'page_id' => $this->getArticleId() ), __METHOD__ );
 		}
 
@@ -2159,13 +2159,13 @@ class Title {
 		 * with 'relative' URLs. Forbid them explicitly.
 		 */
 		if ( strpos( $dbkey, '.' ) !== false &&
-		     ( $dbkey === '.' || $dbkey === '..' ||
-		       strpos( $dbkey, './' ) === 0  ||
-		       strpos( $dbkey, '../' ) === 0 ||
-		       strpos( $dbkey, '/./' ) !== false ||
-		       strpos( $dbkey, '/../' ) !== false  ||
-		       substr( $dbkey, -2 ) == '/.' ||
-		       substr( $dbkey, -3 ) == '/..' ) )
+			 ( $dbkey === '.' || $dbkey === '..' ||
+			   strpos( $dbkey, './' ) === 0  ||
+			   strpos( $dbkey, '../' ) === 0 ||
+			   strpos( $dbkey, '/./' ) !== false ||
+			   strpos( $dbkey, '/../' ) !== false  ||
+			   substr( $dbkey, -2 ) == '/.' ||
+			   substr( $dbkey, -3 ) == '/..' ) )
 		{
 			return false;
 		}
@@ -2342,12 +2342,12 @@ class Title {
 
 		$res = $db->safeQuery(
 			  "SELECT pl_namespace, pl_title
-			     FROM !
+				 FROM !
 			LEFT JOIN !
-			       ON pl_namespace=page_namespace
-			      AND pl_title=page_title
-			    WHERE pl_from=?
-			      AND page_namespace IS NULL
+				   ON pl_namespace=page_namespace
+				  AND pl_title=page_title
+				WHERE pl_from=?
+				  AND page_namespace IS NULL
 				  !",
 			$db->tableName( 'pagelinks' ),
 			$db->tableName( 'page' ),
@@ -2418,7 +2418,7 @@ class Title {
 	 * @return mixed True on success, getUserPermissionsErrors()-like array on failure
 	 */
 	public function isValidMoveOperation( &$nt, $auth = true, $reason = '' ) {
-		$errors = array();	
+		$errors = array();
 		if( !$nt ) {
 			// Normally we'd add this to $errors, but we'll get
 			// lots of syntax errors if $nt is not an object
@@ -2439,7 +2439,7 @@ class Title {
 		}
 		if ( ( '' == $this->getDBkey() ) ||
 			 ( !$oldid ) ||
-		     ( '' == $nt->getDBkey() ) ) {
+			 ( '' == $nt->getDBkey() ) ) {
 			$errors[] = array('badarticleerror');
 		}
 
@@ -2461,7 +2461,7 @@ class Title {
 
 		if ( $auth ) {
 			global $wgUser;
-			$errors = array_merge($errors, 
+			$errors = array_merge($errors,
 					$this->getUserPermissionsErrors('move', $wgUser),
 					$this->getUserPermissionsErrors('edit', $wgUser),
 					$nt->getUserPermissionsErrors('move', $wgUser),
@@ -2642,7 +2642,7 @@ class Title {
 		# Save a null revision in the page's history notifying of the move
 		$nullRevision = Revision::newNullRevision( $dbw, $oldid, $comment, true );
 		$nullRevId = $nullRevision->insertOn( $dbw );
-		
+
 		$article = new Article( $this );
 		wfRunHooks( 'NewRevisionFromEditComplete', array($article, $nullRevision, false) );
 
@@ -2671,7 +2671,7 @@ class Title {
 				'text'    => $redirectText ) );
 			$redirectRevision->insertOn( $dbw );
 			$redirectArticle->updateRevisionOn( $dbw, $redirectRevision, 0 );
-			
+
 			wfRunHooks( 'NewRevisionFromEditComplete', array($redirectArticle, $redirectRevision, false) );
 
 			# Now, we record the link from the redirect to the new title.
@@ -2686,7 +2686,7 @@ class Title {
 		} else {
 			$this->resetArticleID( 0 );
 		}
-		
+
 		# Move an image if this is a file
 		if( $this->getNamespace() == NS_IMAGE ) {
 			$file = wfLocalFile( $this );
@@ -2710,7 +2710,7 @@ class Title {
 			$u = new SquidUpdate( $urls );
 			$u->doUpdate();
 		}
-		
+
 	}
 
 	/**
@@ -2730,7 +2730,7 @@ class Title {
 
 		$newid = $nt->getArticleID();
 		$oldid = $this->getArticleID();
-		
+
 		$dbw = wfGetDB( DB_MASTER );
 		$dbw->begin();
 		$now = $dbw->timestamp();
@@ -2738,7 +2738,7 @@ class Title {
 		# Save a null revision in the page's history notifying of the move
 		$nullRevision = Revision::newNullRevision( $dbw, $oldid, $comment, true );
 		$nullRevId = $nullRevision->insertOn( $dbw );
-		
+
 		$article = new Article( $this );
 		wfRunHooks( 'NewRevisionFromEditComplete', array($article, $nullRevision, false) );
 
@@ -2767,7 +2767,7 @@ class Title {
 				'text'    => $redirectText ) );
 			$redirectRevision->insertOn( $dbw );
 			$redirectArticle->updateRevisionOn( $dbw, $redirectRevision, 0 );
-			
+
 			wfRunHooks( 'NewRevisionFromEditComplete', array($redirectArticle, $redirectRevision, false) );
 
 			# Record the just-created redirect's linking to the page
@@ -2780,7 +2780,7 @@ class Title {
 		} else {
 			$this->resetArticleID( 0 );
 		}
-		
+
 		# Move an image if this is a file
 		if( $this->getNamespace() == NS_IMAGE ) {
 			$file = wfLocalFile( $this );
@@ -2804,7 +2804,7 @@ class Title {
 		# Purge old title from squid
 		# The new title, and links to the new title, are purged in Article::onArticleCreate()
 		$this->purgeSquid();
-		
+
 	}
 
 	/**
@@ -2897,7 +2897,7 @@ class Title {
 
 		# NEW SQL
 		$sql = "SELECT * FROM $categorylinks"
-		     ." WHERE cl_from='$titlekey'"
+			 ." WHERE cl_from='$titlekey'"
 			 ." AND cl_from <> '0'"
 			 ." ORDER BY cl_sortkey";
 
@@ -2920,7 +2920,7 @@ class Title {
 	 * @return array
 	 */
 	public function getParentCategoryTree( $children = array() ) {
-	  	$stack = array();
+		$stack = array();
 		$parents = $this->getParentCategories();
 
 		if( $parents ) {
@@ -3115,8 +3115,8 @@ class Title {
 		// Spec: http://www.sixapart.com/pronet/docs/trackback_spec
 		return "<!--
 <rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"
-         xmlns:dc=\"http://purl.org/dc/elements/1.1/\"
-         xmlns:trackback=\"http://madskills.com/public/xml/rss/module/trackback/\">
+		 xmlns:dc=\"http://purl.org/dc/elements/1.1/\"
+		 xmlns:trackback=\"http://madskills.com/public/xml/rss/module/trackback/\">
 <rdf:Description
    rdf:about=\"$url\"
    dc:identifier=\"$url\"
@@ -3210,15 +3210,15 @@ class Title {
 
 	public function getRedirectsHere( $ns = null ) {
 		$redirs = array();
-		
-		$dbr = wfGetDB( DB_SLAVE );	
+
+		$dbr = wfGetDB( DB_SLAVE );
 		$where = array(
 			'rd_namespace' => $this->getNamespace(),
 			'rd_title' => $this->getDBkey(),
 			'rd_from = page_id'
 		);
 		if ( !is_null($ns) ) $where['page_namespace'] = $ns;
-		
+
 		$result = $dbr->select(
 			array( 'redirect', 'page' ),
 			array( 'page_namespace', 'page_title' ),
