@@ -7,6 +7,7 @@ chdir($dir);
 ## Log the request ##
 //Try to find the called operation
 $operation = '';
+if(!isset($HTTP_RAW_POST_DATA)) $HTTP_RAW_POST_DATA = "";
 if(preg_match("/Body>(.*?)>/us", $HTTP_RAW_POST_DATA, $match)) {
 	$operation = trim($match[1]);
 #} else if(preg_match("/Body>(.*?)>/us", file_get_contents('php://input'), $match)){
@@ -1193,4 +1194,3 @@ class WSCurationTagHistory {
 	 */
 	public $score;
 }
-
