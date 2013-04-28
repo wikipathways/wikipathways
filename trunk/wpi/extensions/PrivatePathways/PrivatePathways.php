@@ -14,10 +14,10 @@ class PermissionManager {
 	 * can be managed
 	 */
 	public static $permission_namespaces = array(NS_PATHWAY);
-	
+
 	private $pageId;
 	private $permissions;
-	
+
 	public function __construct($pageId) {
 		$this->pageId = $pageId;
 		$this->read();
@@ -26,7 +26,7 @@ class PermissionManager {
 			$this->clearPermissions(true);
 		}
 	}
-	
+
 	private function write($force = false) {
 		$tag = new MetaTag(self::$TAG, $this->pageId);
 		if($force) {
@@ -39,23 +39,23 @@ class PermissionManager {
 			$tag->remove();
 		}
 	}
-	
+
 	private function read() {
 		$tag = new MetaTag(self::$TAG, $this->pageId);
 		if($tag->exists()) {
 			$this->permissions = unserialize($tag->getText());
 		}
 	}
-	
+
 	/**
-	 * Get the permissions. 
+	 * Get the permissions.
 	 * @returns A PagePermissions object, or NULL if there are no permissions
 	 * set (the page is public).
 	 */
 	public function getPermissions() {
 		return $this->permissions;
 	}
-	
+
 	/**
 	 * Set the permissions. Old permissions will be overwritten.
 	 * @param $permissions The PagePermissions object containing the
@@ -69,7 +69,7 @@ class PermissionManager {
 		}
 		$this->write();
 	}
-	
+
 	/**
 	 * Clear all current permissions and make the page public.
 	 * @param $force Force write to database, even if the currently logged
@@ -79,7 +79,7 @@ class PermissionManager {
 		$this->permissions = '';
 		$this->write($force);
 	}
-	
+
 	/**
 	 * Hook function that checks for page restrictions for the given user.
 	 */
@@ -96,7 +96,7 @@ class PermissionManager {
 			} else { //If not, check page permissions
 				$mgr = new PermissionManager($title->getArticleID());
 				$perm = $mgr->getPermissions();
-			
+
 				if($perm) {
 					$result = $perm->userCan($action, $user);
 					return false;
@@ -121,7 +121,7 @@ class PermissionManager {
 		$result = null;
 		return true;
 	}
-	
+
 	/**
 	 * Reset the expiration date of the given permissions
 	 * to $ppExpiresAfter days from now
@@ -136,27 +136,27 @@ class PermissionManager {
 		$perm->setExpires($expires);
 		return $perm;
 	}
-	
+
 	/**
 	 * Hook function that adds a tab to manage permissions, if
 	 * the user is allowed to.
 	 */
 	static function addPermissionTab(&$content_actions) {
 		global $wgTitle, $wgRequest;
-		
+
 		if($wgTitle->userCan(self::$ACTION_MANAGE)) {
 			$action = $wgRequest->getText( 'action' );
-			
+
 			//Permissions already set, publish
 			$content_actions[self::$ACTION_MANAGE] = array(
-				'text' => 'permissions', 
+				'text' => 'permissions',
 				'href' => $wgTitle->getLocalUrl( 'action=' . self::$ACTION_MANAGE ),
 				'class' => $action == self::$ACTION_MANAGE ? 'selected' : false
 			);
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Excecuted when the user presses the 'permissions' tab
 	 */
@@ -168,7 +168,7 @@ class PermissionManager {
 		}
 		return true;
 	}
-	
+
 	public static $TAG = "page_permissions"; #The name of the meta tag used to store the data
 	public static $ACTION_MANAGE = "manage_permissions";
 }
@@ -180,19 +180,19 @@ class PagePermissions {
 	private $pageId;
 	private $permissions = array(); #Array where key is action, value is array of users
 	private $expires;
-	
+
 	public function __construct($pageId) {
 		$this->pageId = $pageId;
 	}
-	
+
 	public function getPermissions() {
 		return $this->permissions;
 	}
-	
+
 	public function getPageId() {
 		return $this->pageId;
 	}
-	
+
 	/**
 	 * Find out if the user can perform the given
 	 * action based on the permissions in this object
@@ -207,14 +207,14 @@ class PagePermissions {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Permit the user to perform the given action
 	 */
 	public function setUserPermission($user_id, $action) {
 		$this->permissions[$action][$user_id] = $user_id;
 	}
-	
+
 	/**
 	 * Permit the user to read/write this page
 	 */
@@ -222,18 +222,18 @@ class PagePermissions {
 		$this->setUserPermission($user_id, 'read');
 		$this->setUserPermission($user_id, 'edit');
 	}
-	
+
 	public function getManageUsers() {
 		return $this->permissions[PermissionManager::$ACTION_MANAGE];
 	}
-	
+
 	/**
 	 * Permit the user to manage the permissions of this page
 	 */
 	public function addManage($user_id) {
 		$this->setUserPermission($user_id, PermissionManager::$ACTION_MANAGE);
 	}
-	
+
 	/**
 	 * Remove all permissions for the given user
 	 */
@@ -242,14 +242,14 @@ class PagePermissions {
 			unset($a[$user_id]);
 		}
 	}
-	
+
 	/**
 	 * Forbid the user to perform the given action
 	 */
 	public function removeUserPermission($user_id, $action) {
 		unset($this->permissions[$action][$user_id]);
 	}
-	
+
 	/**
 	 * Set the expiration date of the permissions.
 	 * The permissions will be cleared automatically
@@ -258,18 +258,18 @@ class PagePermissions {
 	public function setExpires($timestamp) {
 		$this->expires = $timestamp;
 	}
-	
+
 	public function getExpires() {
 		return $this->expires;
 	}
-	
+
 	/**
 	 * Check if the permissions are expired
 	 */
 	public function isExpired() {
 		return $this->expires && ((float)$this->expires - (float)wfTimestamp(TS_MW)) <= 0;
 	}
-	
+
 	/**
 	 * Check if there are any permissions specified
 	 * in this object.
