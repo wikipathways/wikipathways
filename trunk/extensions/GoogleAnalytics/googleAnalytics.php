@@ -16,9 +16,8 @@ $wgExtensionMessagesFiles['googleAnalytics'] = dirname(__FILE__) . '/googleAnaly
 
 $wgHooks['SkinAfterBottomScripts'][]  = 'efGoogleAnalyticsHookText';
 
-$wgGoogleAnalyticsAccount = "";
-$wgGoogleAnalyticsIgnoreSysops = true;
-$wgGoogleAnalyticsIgnoreBots = true;
+if( !isset( $wgGoogleAnalyticsIgnoreSysops ) ) $wgGoogleAnalyticsIgnoreSysops = true;
+if( !isset( $wgGoogleAnalyticsIgnoreBots ) )  $wgGoogleAnalyticsIgnoreBots = true;
 
 function efGoogleAnalyticsHookText($skin, &$text='') {
 	$text .= efAddGoogleAnalytics();
