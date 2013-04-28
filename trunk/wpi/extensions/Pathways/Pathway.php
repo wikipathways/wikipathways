@@ -744,7 +744,7 @@ class Pathway {
 		if($wgUser->isBlocked()) {
 			throw new Exception("User is blocked");
 		}
-		if(!$gpmlTitle->userCanEdit()) {
+		if(!$gpmlTitle->userCan( 'edit' )) {
 			throw new Exception("User has wrong permissions to edit the pathway");
 		}
 		if(wfReadOnly()) {
