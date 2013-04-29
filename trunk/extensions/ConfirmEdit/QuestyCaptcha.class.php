@@ -55,15 +55,15 @@ class QuestyCaptcha extends SimpleCaptcha {
 
 	function getMessage( $action ) {
 		$name = 'questycaptcha-' . $action;
-		$text = wfMessage( $name )->text();
+		$text = wfMsg( $name );
 		# Obtain a more tailored message, if possible, otherwise, fall back to
 		# the default for edits
-		return wfMessage( $name, $text )->isDisabled() ? wfMessage( 'questycaptcha-edit' )->text() : $text;
+		return $text == '&lt;$name&gt;' ? wfMsg( 'questycaptcha-edit' ) : $text;
 	}
 
 	function showHelp() {
 		global $wgOut;
-		$wgOut->setPageTitle( wfMessage( 'captchahelp-title' )->text() );
+		$wgOut->setPageTitle( wfMsg( 'captchahelp-title' ) );
 		$wgOut->addWikiMsg( 'questycaptchahelp-text' );
 		if ( CaptchaStore::get()->cookiesNeeded() ) {
 			$wgOut->addWikiMsg( 'captchahelp-cookies-needed' );
