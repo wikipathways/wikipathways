@@ -49,10 +49,10 @@ class PathwayBibliography {
 			}
 
 			if($authors) $authors = substr($authors, 0, -2) . "; ";
-			if($xref->TITLE) $title = $xref->TITLE . "; ";
+			if($xref->TITLE) $title = "''" . $xref->TITLE . "''; ";
 			if($xref->SOURCE) $source = $xref->SOURCE;
 			if($xref->YEAR) $year = ", " . $xref->YEAR;
-			$out .= "<LI $doShow>$authors''$title''$source$year";
+			$out .= "<LI $doShow>$authors" . $title . "$source$year";
 
 			if((string)$xref->ID && (strtolower($xref->DB) == 'pubmed')) {
 				$l = new Linker();
