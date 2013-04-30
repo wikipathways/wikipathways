@@ -40,17 +40,8 @@ class QuestyCaptcha extends SimpleCaptcha {
 		}
 		$index = $this->storeCaptcha( $captcha );
 		return "<p><label for=\"wpCaptchaWord\">{$captcha['question']}</label> " .
-			Html::element( 'input', array(
-				'name' => 'wpCaptchaWord',
-				'id'   => 'wpCaptchaWord',
-				'required',
-				'tabindex' => 1 ) ) . // tab in before the edit textarea
-			"</p>\n" .
-			Xml::element( 'input', array(
-				'type'  => 'hidden',
-				'name'  => 'wpCaptchaId',
-				'id'    => 'wpCaptchaId',
-				'value' => $index ) );
+                    '<input type="text" name="wpCaptchaWord" id="wpCaptchaWord" required="1">'.
+                    '<input type="hidden" name="wpCaptchaId" id="wpCaptchaId" value="'.$index.'">';
 	}
 
 	function getMessage( $action ) {
@@ -58,7 +49,7 @@ class QuestyCaptcha extends SimpleCaptcha {
 		$text = wfMsg( $name );
 		# Obtain a more tailored message, if possible, otherwise, fall back to
 		# the default for edits
-		return $text == '&lt;$name&gt;' ? wfMsg( 'questycaptcha-edit' ) : $text;
+		return $text == "&lt;$name&gt;" ? wfMsg( 'questycaptcha-edit' ) : $text;
 	}
 
 	function showHelp() {
