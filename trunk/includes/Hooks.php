@@ -80,7 +80,6 @@ function wfRunHooks($event, $args = array()) {
 					$have_data = true;
 				}
 			} else {
-				var_dump( $wgHooks );
 				throw new MWException("Unknown datatype in hooks for " . $event . "\n");
 			}
 		} else if (is_string($hook)) { # functions look like strings, too

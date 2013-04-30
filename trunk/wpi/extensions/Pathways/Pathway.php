@@ -40,9 +40,6 @@ class Pathway {
 	}
 
 	function hasNewer( $tag, $diff ) {
-		var_dump($tag);
-		var_dump($diff);
-		exit;
 		return false;
 	}
 
