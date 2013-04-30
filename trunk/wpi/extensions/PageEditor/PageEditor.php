@@ -13,7 +13,7 @@ function wfPageEditor() {
 }
 
 function displayPageEditor($input, $argv, &$parser) {
-	global $wgOut, $wfPageEditorPath, $wgUser;
+	global $wgOut, $wfPageEditorPath, $wgUser, $wgTitle;
 
 	//Check user rights
 	if( !$wgUser->isLoggedIn() || wfReadOnly()) {
@@ -40,10 +40,11 @@ function displayPageEditor($input, $argv, &$parser) {
 	$type = $argv['type'];
 	$content = json_encode($input);
 	$pwId = $title->getText();
+	$userCanEdit = $wgTitle->userCan('edit') ? "true" : "false";
 
 	$wgOut->addScript("<script type=\"{$wgJsMimeType}\" src=\"{$wfPageEditorPath}/PageEditor.js\"></script>\n");
 
-	$script = "<script type='{$wgJsMimeType}'>var p = new PageEditor('$targetId', '$type', $content, '$pwId');</script>";
+	$script = "<script type='{$wgJsMimeType}'>var p = new PageEditor('$targetId', '$type', $content, '$pwId', $userCanEdit);</script>";
 
 	return $script;
 }
