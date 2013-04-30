@@ -440,7 +440,7 @@ class WebRequest {
 			$base = substr( $base, 0, $hash );
 		}
 		if( $base{0} == '/' ) {
-			if( $base[1] == '/' ) { /* More than one slash will look like it is protocol relative */
+			if( isset($base[1]) && $base[1] == '/' ) { /* More than one slash will look like it is protocol relative */
 				return preg_replace( '!//*!', '/', $base );
 			}
 			return $base;
