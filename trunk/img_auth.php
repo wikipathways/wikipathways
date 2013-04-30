@@ -62,7 +62,7 @@ if( !$title instanceof Title ) {
 }
 
 //Check read permissions
-if(!$title->userCan('read')) {
+if(!$title->userCanRead()) {
 	wfDebugLog( 'img_auth', "User not permitted to view page {$title->getFullText()}" );
 	wfForbidden();
 }

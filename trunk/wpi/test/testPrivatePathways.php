@@ -26,7 +26,7 @@ $mgr->clearPermissions();
 
 ##* can read
 $wgUser = $anon;
-$can = $title->userCan('read');
+$can = $title->userCanRead();
 Test::assert("anonymous can read", $can, true);
 
 ##* can't edit
@@ -36,7 +36,7 @@ Test::assert("anonymous can't edit", $can, false);
 
 ##users can read/edit
 $wgUser = $user1;
-$can = $title->userCan('read');
+$can = $title->userCanRead();
 Test::assert("Users can read", $can, true);
 $can = $title->userCan('edit');
 Test::assert("Users can edit", $can, true);
@@ -50,7 +50,7 @@ $mgr->setPermissions($pms);
 
 ##user1 can read/write/manage
 $wgUser = $user1;
-$can = $title->userCan('read');
+$can = $title->userCanRead();
 Test::assert("User1 can read", $can, true);
 $can = $title->userCan('edit');
 Test::assert("User1 can edit", $can, true);
@@ -59,7 +59,7 @@ Test::assert("User1 can manage", $can, true);
 
 ##admin can read/write/manage
 $wgUser = $admin;
-$can = $title->userCan('read');
+$can = $title->userCanRead();
 Test::assert("User1 can read", $can, true);
 $can = $title->userCan('edit');
 Test::assert("User1 can edit", $can, true);
@@ -68,7 +68,7 @@ Test::assert("User1 can manage", $can, true);
 
 ##user2 cannot read/write/manage
 $wgUser = $user2;
-$can = $title->userCan('read');
+$can = $title->userCanRead();
 Test::assert("User2 can't read", $can, false);
 $can = $title->userCan('edit');
 Test::assert("User2 can't read", $can, false);
@@ -77,7 +77,7 @@ Test::assert("User2 can't manage", $can, false);
 
 ##anonymous cannot read/write/manage
 $wgUser = $anon;
-$can = $title->userCan('read');
+$can = $title->userCanRead();
 Test::assert("Anonymous can't read", $can, false);
 $can = $title->userCan('edit');
 Test::assert("Anonymous can't edit", $can, false);
@@ -91,14 +91,14 @@ $mgr->setPermissions($pms);
 
 ##user2 can read/write/manage
 $wgUser = $user2;
-$can = $title->userCan('read');
+$can = $title->userCanRead();
 Test::assert("User2 can read", $can, true);
 $can = $title->userCan('edit');
 Test::assert("User1 can edit", $can, true);
 
 ##user1 can still read/write/manage
 $wgUser = $user1;
-$can = $title->userCan('read');
+$can = $title->userCanRead();
 Test::assert("User1 can still read", $can, true);
 $can = $title->userCan('edit');
 Test::assert("User1 can still edit", $can, true);
@@ -110,14 +110,14 @@ $mgr->setPermissions($pms);
 
 ##user1 can read/write/manage
 $wgUser = $user1;
-$can = $title->userCan('read');
+$can = $title->userCanRead();
 Test::assert("User1 can read", $can, true);
 $can = $title->userCan('edit');
 Test::assert("User1 can edit", $can, true);
 
 ##user2 cannot read/write/manage
 $wgUser = $user2;
-$can = $title->userCan('read');
+$can = $title->userCanRead();
 Test::assert("User2 can't read", $can, false);
 $can = $title->userCan('edit');
 Test::assert("User2 can't read", $can, false);
@@ -131,7 +131,7 @@ $mgr->setPermissions($pms);
 
 ##user2 can read/edit again
 $wgUser = $user2;
-$can = $title->userCan('read');
+$can = $title->userCanRead();
 Test::assert("User2 can read again", $can, true);
 $can = $title->userCan('edit');
 Test::assert("User2 can edit again", $can, true);
