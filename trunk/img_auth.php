@@ -11,7 +11,7 @@
  * Your server needs to support PATH_INFO; CGI-based configurations
  * usually don't.
  */
- 
+
 define( 'MW_NO_OUTPUT_COMPRESSION', 1 );
 require_once( dirname( __FILE__ ) . '/includes/WebStart.php' );
 wfProfileIn( 'img_auth.php' );
@@ -47,7 +47,8 @@ $id = Pathway::parseIdentifier($name);
 if($id) {
 	//Check pathway permissions
 	$pwTitle = Title::newFromText($id, NS_PATHWAY);
-	if(!$pwTitle->userCan('read')) {
+// This will need to change to userCan('read') for 1.19 or later.
+	if(!$pwTitle->userCanRead()) {
 		wfDebugLog( 'img_auth', "User not permitted to view pathway $id" );
 		wfForbidden();
 	}
