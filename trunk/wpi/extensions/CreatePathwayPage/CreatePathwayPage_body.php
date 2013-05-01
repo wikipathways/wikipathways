@@ -136,6 +136,12 @@ class CreatePathwayPage extends SpecialPage {
 	function showForm($pwName = '', $pwSpecies = '', $override = '', $private = '', $uploading = 0, $private2 = '') {
 		global $wgRequest, $wgOut, $wpiScriptURL;
 
+		$form_method = null;
+		$form_extra = null;
+		$upload_check = null;
+		$editor_vis = null;
+		$editor_check = null;
+		$upload_vis = null;
 		if ($uploading) {
 			$form_method = "post";
 			$form_extra = "enctype='multipart/form-data'";
