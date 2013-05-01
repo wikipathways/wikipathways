@@ -14,8 +14,7 @@ function wfotag() {
 	$wgParser->setHook( "OntologyTags", "ofunction" );
 }
 
-function oheader(&$parser, &$text)
-{
+function oheader(&$parser, &$text) {
 	$text = preg_replace(
 		'/<!-- ENCODED_CONTENT ([0-9a-zA-Z\\+]+=*) -->/e',
 		'base64_decode("$1")',
@@ -26,7 +25,7 @@ function oheader(&$parser, &$text)
 }
 
 function ofunction( $input, $argv, &$parser ) {
-	global $wgTitle , $wgOut, $opath, $wgOntologiesJSON,$wgStylePath, $wgJsMimeType;
+    global $wgTitle, $wgOut,  $opath, $wgOntologiesJSON, $wgStylePath, $wgJsMimeType;
 	$oldStylePath = $wgStylePath;
 	$wgStylePath = $opath . "/css/";
 
@@ -34,16 +33,10 @@ function ofunction( $input, $argv, &$parser ) {
 	$loggedIn = $title->userCan('edit') ? 1 : 0;
 
 	if($loggedIn) {
-		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/yahoo-min.js"></script>');
-		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/json-min.js"></script>');
-		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/event-min.js"></script>');
-		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/connection_core-min.js"></script>');
+        $wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/yui2.7.0.allcomponents.js"></script>');
 		$wgOut->addStyle("yui2.7.0.css");
 	} else {
-		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/yahoo-min.js"></script>');
-		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/json-min.js"></script>');
-		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/event-min.js"></script>');
-		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/2.9.0/connection_core-min.js"></script>');
+        $wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/yui2.7.0.mincomponents.js"></script>');
 	}
 
 	$wgOut->addStyle("otag.css");
@@ -57,8 +50,7 @@ function ofunction( $input, $argv, &$parser ) {
 		"</script>\n"
 	);
 
-	if($loggedIn)
-
+	if($loggedIn) {
 		$output = <<<HTML
 <div id="otagprogress" style="display:none" align='center'><span><img src='$wgStylePath/common/images/progress.gif'> Saving...</span></div>
 <div id="ontologyContainer" class="yui-skin-sam">
@@ -82,9 +74,7 @@ function ofunction( $input, $argv, &$parser ) {
 	YAHOO.util.Event.onDOMReady(ontologytree.init, ontologytree,true);
 </script>
 HTML;
-
-	else
-
+	} else {
 		$output = <<<HTML
 <div id="otagprogress" style="display:none" align='center'><span><img src='$wgStylePath/common/images/progress.gif'> Saving...</span></div>
 <div id="ontologyContainer" class="yui-skin-sam">
@@ -94,7 +84,6 @@ HTML;
 </div>
 <script type="text/javascript" src="$opath/js/script.js"></script>
 HTML;
-
-return   '<!-- ENCODED_CONTENT '.base64_encode($output).' -->' ;
-
+	}
+	return   '<!-- ENCODED_CONTENT '.base64_encode($output).' -->' ;
 }
