@@ -93,6 +93,7 @@ class PageEditor {
 		} catch(Exception $e) {
 			$r = new AjaxResponse($e);
 			$r->setResponseCode(500);
+			wfHttpError( 500, $e->getMessage() );
 			return $r;
 		}
 		return new AjaxResponse("");
