@@ -20,13 +20,13 @@ class CreatePathwayPage extends SpecialPage {
 			$wgOut->readOnlyPage( "" );
 		}
 
-		if(!$wgUser || !$wgUser->isLoggedIn()) {
-			$wgOut->addWikiText(
-				"== Not logged in ==\n
-			You're not logged in. To create a new pathway, please [" . SITE_URL .
-				"/index.php?title=Special:Userlogin&returnto=Special:CreatePathwayPage log in] or
-			create an account first!");
-			return;
+		if( !$wgUser->isAllowed( 'createpathway' ) ) {
+                    if( !$wgUser->isLoggedIn() ) { /* Two different messages so we can keep the old error */
+			$wgOut->showPermissionsErrorPage( array( 'wpi-createpage-not-logged-in' ) );
+                    } else {
+			$wgOut->showPermissionsErrorPage( array( 'wpi-createpage-permission' ) );
+                    }
+                    return;
 		}
 
 		$pwName = $wgRequest->getVal('pwName');

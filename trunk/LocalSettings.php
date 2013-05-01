@@ -260,6 +260,7 @@ $wgGroupPermissions[ 'confirmed'  ][ 'read'                  ] = true;
 $wgGroupPermissions[ 'confirmed'  ][ 'edit'                  ] = true;
 $wgGroupPermissions[ 'confirmed'  ][ 'createpage'            ] = true;
 $wgGroupPermissions[ 'confirmed'  ][ 'createtalk'            ] = true;
+$wgGroupPermissions[ 'confirmed'  ][ 'createpathway'         ] = true;
 $wgGroupPermissions[ 'confirmed'  ][ 'upload'                ] = true;
 $wgGroupPermissions[ 'confirmed'  ][ 'reupload'              ] = true;
 $wgGroupPermissions[ 'confirmed'  ][ 'reupload-shared'       ] = true;
