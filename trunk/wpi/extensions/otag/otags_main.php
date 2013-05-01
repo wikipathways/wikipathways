@@ -25,7 +25,7 @@ function oheader(&$parser, &$text) {
 }
 
 function ofunction( $input, $argv, &$parser ) {
-    global $wgTitle, $wgOut,  $opath, $wgOntologiesJSON, $wgStylePath, $wgJsMimeType;
+	global $wgTitle, $wgOut,  $opath, $wgOntologiesJSON, $wgStylePath, $wgJsMimeType;
 	$oldStylePath = $wgStylePath;
 	$wgStylePath = $opath . "/css/";
 
@@ -33,10 +33,10 @@ function ofunction( $input, $argv, &$parser ) {
 	$loggedIn = $title->userCan('edit') ? 1 : 0;
 
 	if($loggedIn) {
-        $wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/yui2.7.0.allcomponents.js"></script>');
+		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/yui2.7.0.allcomponents.js"></script>');
 		$wgOut->addStyle("yui2.7.0.css");
 	} else {
-        $wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/yui2.7.0.mincomponents.js"></script>');
+		$wgOut->addScript('<script type="text/javascript" src="' . $opath . '/js/yui2.7.0.mincomponents.js"></script>');
 	}
 
 	$wgOut->addStyle("otag.css");
