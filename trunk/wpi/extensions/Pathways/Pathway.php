@@ -306,7 +306,7 @@ class Pathway {
 	 * @param $species The species to match, leave blank to include all species
 	 * @returns A list of pathway objects for the pathways that match the name/species
 	 */
-	public function getPathwaysByName($name, $species = '') {
+	static public function getPathwaysByName($name, $species = '') {
 		$pages = MetaDataCache::getPagesByCache(MetaDataCache::$FIELD_NAME, $name);
 		$pathways = array();
 		foreach($pages as $page_id) {
