@@ -39,12 +39,12 @@ class MetaDataCache {
 		);
 	}
 
-	private function createTagName($field) {
+	static private function createTagName($field) {
 		return self::$TAG_PREFIX . $field;
 	}
 
 	private function load($f) {
-		$tag = new MetaTag($this->createTagName($f), $this->page_id);
+		$tag = new MetaTag(self::createTagName($f), $this->page_id);
 		$this->tags[$f] = $tag;
 		return $tag;
 	}
@@ -91,7 +91,7 @@ class MetaDataCache {
 		$tag = isset( $this->tags[$field] ) ? $this->tags[$field] : null;
 
 		if(!$tag) {
-			$tag = new MetaTag($this->createTagName($field), $this->page_id);
+			$tag = new MetaTag(self::createTagName($field), $this->page_id);
 			$this->tags[$field] = $tag;
 		}
 		$tag->setPermissions(array());
