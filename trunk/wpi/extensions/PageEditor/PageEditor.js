@@ -1,8 +1,9 @@
-function PageEditor(targetId, type, content, pwId) {
+function PageEditor(targetId, type, content, pwId, userCanEdit) {
 	this.$target = $('#' + targetId);
 	this.type = type;
 	this.content = content;
 	this.pwId = pwId;
+	this.userCanEdit = userCanEdit;
 	this.addEditButton();
 }
 
@@ -14,9 +15,12 @@ PageEditor.images = {
 
 PageEditor.prototype.addEditButton = function() {
 	var that = this;
-	this.$edit = $('<img class="pageEditBtn" src="' + PageEditor.images.edit + '" />').attr('title', 'Edit ' + this.type);
-	this.$target.before(this.$edit);
-	this.$edit.click(function() { that.startEditor(); });
+	if(this.userCanEdit) {
+		this.$edit = $('<img class="pageEditBtn" src="' + PageEditor.images.edit + '" />')
+                	.attr('title', 'Edit ' + this.type);
+		this.$target.before(this.$edit);
+		this.$edit.click(function() { that.startEditor(); });
+	}
 };
 
 PageEditor.prototype.startEditor = function() {
