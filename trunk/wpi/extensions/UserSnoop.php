@@ -166,17 +166,17 @@ class UserSnoop extends SpecialPage
 			#these are the main actions
 			switch($this->action) {
 				case 'pageviews':
-					$up = new UserSnoopPagerPageviews($uid);
+					$up = new UserSnoopPagerPageviews($this->uid);
 					break;
 				case 'watchlist':
-					$up = new UserSnoopPagerWatchlist($uid);
+					$up = new UserSnoopPagerWatchlist($this->uid);
 					break;
 				case 'newpages':
-					$up = new UserSnoopPagerNewpages($uid);
+					$up = new UserSnoopPagerNewpages($this->uid);
 					break;
 				default:
 					$ignore = true;
-					$up = new UserSnoopPager($uid);
+					$up = new UserSnoopPager($this->uid);
 					break;
 			}
 
