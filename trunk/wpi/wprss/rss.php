@@ -83,9 +83,7 @@ $channel->appendChild($mainImageElement);
 
 $changedPathways = getRecentChanges();
 //var_dump($changedPathways); /*
-$GetTags = $_GET["tags"];
-if($GetTags) $GetTags = explode(",", $GetTags);
-else $GetTags = array();
+$GetTags = isset( $_GET["tags"] ) ? explode( ",", $_GET["tags"] ) : array();
 
 $printItem = false;
 foreach ($changedPathways["pathways"] as $p){
