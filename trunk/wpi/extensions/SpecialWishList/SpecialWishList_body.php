@@ -28,25 +28,28 @@ class SpecialWishList extends SpecialPage {
 			}
 		}
 
+		foreach( array( "wishaction", "name", "comments", "pathway", "id" ) as $key ) {
+				$r[$key] = isset( $_REQUEST[$key] ) ? $_REQUEST[$key] : null;
+		}
 		try {
-			switch($_REQUEST['wishaction']) {
+			switch($r['wishaction']) {
 				case 'add':
-					$done = $this->add($_REQUEST['name'], $_REQUEST['comments']);
+					$done = $this->add($r['name'], $r['comments']);
 					break;
 				case 'resolved':
-					$done = $this->markResolved($_REQUEST['id'], $_REQUEST['pathway']);
+					$done = $this->markResolved($r['id'], $r['pathway']);
 					break;
 				case 'watch':
 					$done = $this->setWatch($checkwishes);
 					break;
 				case 'remove':
-					$done = $this->remove($_REQUEST['id']);
+					$done = $this->remove($r['id']);
 					break;
 				case 'vote':
-					$done = $this->vote($_REQUEST['id']);
+					$done = $this->vote($r['id']);
 					break;
 				case 'unvote':
-					$done = $this->unvote($_REQUEST['id']);
+					$done = $this->unvote($r['id']);
 					break;
 				default:
 					$this->showlist();
