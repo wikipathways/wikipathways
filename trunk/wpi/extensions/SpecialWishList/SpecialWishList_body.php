@@ -359,7 +359,7 @@ HELP;
 		$votes = (int)$wish->countVotes();
 		$fullComment = str_replace('"', "'", $wish->getComments());
 		$comment = $this->truncateComment($wish, 75); //Cutoff comment at 20 chars
-		$voteButton = '<td class="table-blue-contentcell" style="border:0px">'
+		$voteButton = '<td class="table-blue-contentcell" style="border:0px">';
 		if($wish->userCan('vote')) {
 			$voteButton .= $this->createButton('plus.png', 'vote', 'Vote for this pathway', $id);
 		} else if ($wish->userCan('unvote')) {
