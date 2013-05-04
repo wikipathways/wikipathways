@@ -115,7 +115,7 @@ class LqtDispatch {
 		// We are being invoked on the subject page, not the talk page.
 
 		$threads = Threads::where( array( Threads::articleClause(new Article($ot)),
-		                                  Threads::topLevelClause() ));
+										  Threads::topLevelClause() ));
 
 		foreach ($threads as $t) {
 			$t->moveToSubjectPage( $nt, false );
@@ -204,14 +204,14 @@ class LqtDispatch {
 		}
 		return true;
 	}
-	
+
 	static function customizeOldChangesList(&$changeslist, &$s, &$rc) {
 		if( $rc->getTitle()->getNamespace() == NS_LQT_THREAD ) {
 			$thread = Threads::withRoot(new Post( $rc->getTitle() ));
 			if( !$thread ) return true;
-			
+
 			LqtView::addJSandCSS(); // TODO only do this once.
-			
+
 			if( $rc->mAttribs['rc_type'] != RC_NEW ) {
 				// Add whether it was original author.
 				// TODO: this only asks whether ANY edit has been by another, not this edit.
@@ -236,7 +236,7 @@ class LqtDispatch {
 							array('class'=>'lqt_rc_ellipsis'), array(), array('known'));
 				}
 				// TODO we must parse or sanitize the quote.
-					
+
 				if( $thread->isTopmostThread() ) {
 					$message_name = 'lqt_rc_new_discussion';
 					$tmp_title = $thread->title();
@@ -245,17 +245,17 @@ class LqtDispatch {
 					$tmp_title = $thread->topmostThread()->title();
 					$tmp_title->setFragment( '#' . LqtView::anchorName( $thread ) );
 				}
-				
+
 				$thread_link = $changeslist->skin->link(
 					$tmp_title,
 					$thread->subjectWithoutIncrement(),
 					array(), array(), array('known'));
-					
+
 				$talkpage_link = $changeslist->skin->link(
 					$thread->article()->getTitle()->getTalkPage(),
-					null, 
+					null,
 					array(), array(), array('known'));
-				
+
 				$s = wfMsg($message_name, $thread_link, $talkpage_link, $sig)
 					. "<blockquote class=\"lqt_rc_blockquote\">$quote</blockquote>";
 			}
@@ -360,23 +360,23 @@ class LqtView {
 			$sort_clause='ORDER BY thread.thread_created ASC';
 		}
 		$g->addQuery('fresh',
-		              array($article_clause,
+					  array($article_clause,
 							'thread.thread_parent is null',
-		                    '(thread.thread_modified >= ' . $startdate->text() .
-		 					'  OR (thread.thread_summary_page is NULL' .
+							'(thread.thread_modified >= ' . $startdate->text() .
+							'  OR (thread.thread_summary_page is NULL' .
 								 ' AND thread.thread_type='.Threads::TYPE_NORMAL.'))'),
-		              array($sort_clause));
+					  array($sort_clause));
 		$g->addQuery('archived',
-		             array($article_clause,
+					 array($article_clause,
 							'thread.thread_parent is null',
-		                   '(thread.thread_summary_page is not null' .
-			                  ' OR thread.thread_type='.Threads::TYPE_NORMAL.')',
-		                   'thread.thread_modified < ' . $startdate->text()),
-		             array($sort_clause));
+						   '(thread.thread_summary_page is not null' .
+							  ' OR thread.thread_type='.Threads::TYPE_NORMAL.')',
+						   'thread.thread_modified < ' . $startdate->text()),
+					 array($sort_clause));
 		$g->extendQuery('archived', 'recently-archived',
-		                array('( thread.thread_modified >=' . $recentstartdate->text() .
-				      '  OR  rev_timestamp >= ' . $recentstartdate->text() . ')',
-				      'summary_page.page_id = thread.thread_summary_page', 'summary_page.page_latest = rev_id'),
+						array('( thread.thread_modified >=' . $recentstartdate->text() .
+					  '  OR  rev_timestamp >= ' . $recentstartdate->text() . ')',
+					  'summary_page.page_id = thread.thread_summary_page', 'summary_page.page_latest = rev_id'),
 				array(),
 				array('page summary_page', 'revision'));
 		return $g;
@@ -385,8 +385,8 @@ class LqtView {
 	static protected $occupied_titles = array();
 
 	/*************************
-     * (1) linking to liquidthreads pages and
-     * (2) figuring out what page you're on and what you need to do.
+	 * (1) linking to liquidthreads pages and
+	 * (2) figuring out what page you're on and what you need to do.
 	*************************/
 
 	static function queryStringFromArray( $vars ) {
@@ -407,9 +407,11 @@ class LqtView {
 	}
 
 	static function permalinkUrl( $thread, $method = null, $operand = null ) {
-		$query = $method ? "lqt_method=$method" : "";
-		$query = $operand ? "$query&lqt_operand={$operand->id()}" : $query;
-		return $thread->root()->getTitle()->getFullUrl($query);
+		if($thread) {
+			$query = $method ? "lqt_method=$method" : "";
+			$query = $operand ? "$query&lqt_operand={$operand->id()}" : $query;
+			return $thread->root()->getTitle()->getFullUrl($query);
+		}
 	}
 
 	/* This is used for action=history so that the history tab works, which is
@@ -441,9 +443,9 @@ class LqtView {
 
 
 	/**
-     * Return a URL for the current page, including Title and query vars,
+	 * Return a URL for the current page, including Title and query vars,
 	 * with the given replacements made.
-     * @param $repls array( 'name'=>new_value, ... )
+	 * @param $repls array( 'name'=>new_value, ... )
 	*/
 	function queryReplace( $repls ) {
 		$vs = $this->request->getValues();
@@ -464,8 +466,8 @@ class LqtView {
 
 	/*************************************************************
 	* Editing methods (here be dragons)                          *
-    * Forget dragons: This section distorts the rest of the code *
-    * like a star bending spacetime around itself.               *
+	* Forget dragons: This section distorts the rest of the code *
+	* like a star bending spacetime around itself.               *
 	*************************************************************/
 
 	/**
@@ -676,8 +678,8 @@ HTML;
 		$user_can_edit = $thread->root()->getTitle()->quickUserCan( 'edit' );
 
 		$commands[] = array( 'label' => $user_can_edit ? wfMsg('edit') : wfMsg('viewsource'),
-		                     'href' => $this->talkpageUrl( $this->title, 'edit', $thread ),
-		                     'enabled' => true );
+							 'href' => $this->talkpageUrl( $this->title, 'edit', $thread ),
+							 'enabled' => true );
 
 		$commands[] = array( 'label' => wfMsg('history_short'),
 							 'href' =>  $this->permalinkUrlWithQuery($thread, 'action=history'),
@@ -706,24 +708,24 @@ HTML;
 		$commands = array();
 
 		$commands[] = array( 'label' => wfMsg('history_short'),
-		                     'href' => $this->permalinkUrl($thread, 'thread_history'),
-		                     'enabled' => true );
+							 'href' => $this->permalinkUrl($thread, 'thread_history'),
+							 'enabled' => true );
 
 		if( in_array('move', $this->user->getRights()) ) {
 			$move_href = SpecialPage::getTitleFor('MoveThread')->getFullURL()
 				. '/' . $thread->title()->getPrefixedURL();
 			$commands[] = array( 'label' => wfMsg('move'),
-			                     'href' => $move_href,
-			                     'enabled' => true );
+								 'href' => $move_href,
+								 'enabled' => true );
 		}
 		if( !$this->user->isAnon() && !$thread->title()->userIsWatching() ) {
 			$commands[] = array( 'label' => wfMsg('watch'),
-			                     'href' => $this->permalinkUrlWithQuery($thread, 'action=watch'),
-			                     'enabled' => true );
+								 'href' => $this->permalinkUrlWithQuery($thread, 'action=watch'),
+								 'enabled' => true );
 		} else if( !$this->user->isAnon() ) {
 			$commands[] = array( 'label' => wfMsg('unwatch'),
-                                 'href' => $this->permalinkUrlWithQuery($thread, 'action=unwatch'),
-			                     'enabled' => true );
+								 'href' => $this->permalinkUrlWithQuery($thread, 'action=unwatch'),
+								 'enabled' => true );
 		}
 
 		return $commands;
@@ -755,8 +757,8 @@ HTML;
 
 		// Should the parser cache be used?
 		$pcache = $wgEnableParserCache &&
-		          intval( $this->user->getOption( 'stubthreshold' ) ) == 0 &&
-		          $post->exists() &&
+				  intval( $this->user->getOption( 'stubthreshold' ) ) == 0 &&
+				  $post->exists() &&
 				  $oldid === null;
 		wfDebug( 'LqtView::showPostBody using parser cache: ' . ($pcache ? 'yes' : 'no' ) . "\n" );
 		if ( $this->user->getOption( 'stubthreshold' ) ) {
@@ -814,7 +816,7 @@ HTML
 		);
 
 		if( $thread->editedness() == Threads::EDITED_BY_AUTHOR ||
-		 		$thread->editedness() == Threads::EDITED_BY_OTHERS ) {
+				$thread->editedness() == Threads::EDITED_BY_OTHERS ) {
 			$editedness_url = $this->permalinkUrlWithQuery($thread, 'action=history');
 			$editedness_color_number = $thread->editedness() == Threads::EDITED_BY_AUTHOR ?
 				$color_number : ($color_number == self::number_of_user_colors ? 1 : $color_number + 1);
@@ -910,8 +912,8 @@ HTML
 			}
 
 			$html = $thread->subjectWithoutIncrement() .
-			        ' <span class="lqt_subject_increment">(' .
-			        $thread->increment() . ')</span>';
+					' <span class="lqt_subject_increment">(' .
+					$thread->increment() . ')</span>';
 			$this->output->addHTML( "<h{$this->headerLevel} class=\"lqt_header\">
 				<span class=\"mw-headline\">" . $html . "</span></h{$this->headerLevel}>$commands_html" );
 		}
@@ -922,7 +924,9 @@ HTML
 	}
 
 	static function anchorName($thread) {
-		return "lqt_thread_{$thread->id()}";
+		if($thread) {
+			return "lqt_thread_{$thread->id()}";
+		}
 	}
 
 	function showThread( $thread ) {
@@ -975,7 +979,7 @@ HTML
 		if( $thread->summary() ) {
 			$this->showSummary($thread);
 		} else if ( $timestamp->isBefore(Date::now()->nDaysAgo($this->archive_start_days))
-		            && !$thread->summary() && !$thread->hasSuperthread() && !$thread->isHistorical() ) {
+					&& !$thread->summary() && !$thread->hasSuperthread() && !$thread->isHistorical() ) {
 			$this->output->addHTML('<p class="lqt_summary_notice">'. wfMsg('lqt_summary_notice',
 				'<a href="'.$this->permalinkUrl($thread, 'summarize').'">'.wfMsg('lqt_summary_notice_link').'</a>',
 				$this->archive_start_days
