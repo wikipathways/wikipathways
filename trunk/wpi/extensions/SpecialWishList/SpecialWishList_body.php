@@ -323,7 +323,7 @@ HELP;
 		global $wgOut, $wgLang, $wgUser, $wgScriptPath;
 		$title = $wish->getTitle()->getText();
 		$user = $wish->getRequestUser();
-		$user = $wgUser->getSkin()->userLink( $user, $user->getName());
+		$user = $wgUser->getSkin()->userLink( $user->getId(), $user->getName());
 		$pathway = $wish->getResolvedPathway();
 		if($pathway->exists()) {
 			$rev = $pathway->getFirstRevision();
