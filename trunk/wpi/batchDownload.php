@@ -81,7 +81,8 @@ class BatchDownloader {
 			$tagParam = "&tag=$tag";
 			$taggedPageIds = CurationTag::getPagesForTag("$tag");
 			foreach ($taggedPageIds as $pageId) {
-				$countPerSpecies[Pathway::newFromTitle(Title::newFromId($pageId))->getSpecies()] += 1;
+				$species = Pathway::newFromTitle(Title::newFromId($pageId))->getSpecies();
+				$countPerSpecies[$species] = isset( $countPerSpecies[$species] ) ? $countPerSpecies[$species]  + 1 : 1;
 			}
 		}
 
@@ -89,6 +90,7 @@ class BatchDownloader {
 		if($excludeTags) {
 			$excludeParam = "&tag_excl=$excludeTags";
 		}
+		$html = "";
 		foreach(Pathway::getAvailableSpecies() as $species) {
 			$nrPathways =  isset( $countPerSpecies[$species] ) ? $countPerSpecies[$species] : 0;
 			$stats = "";
