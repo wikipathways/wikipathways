@@ -84,7 +84,7 @@ class BatchDownloader {
 			$excludeParam = "&tag_excl=$excludeTags";
 		}
 		foreach(Pathway::getAvailableSpecies() as $species) {
-			$nrPathways =  $countPerSpecies[$species];
+			$nrPathways =  isset( $countPerSpecies[$species] ) ? $countPerSpecies[$species] : 0;
 			if($displayStats) {
 				$stats = "\t\t($nrPathways)";
 			} else if(!$listPage && !$tag) {
