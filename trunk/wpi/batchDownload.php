@@ -28,10 +28,10 @@ if(realpath($_SERVER['SCRIPT_FILENAME']) == realpath(__FILE__)) {
 
 	if($species) {
 		try {
-		$batch = new BatchDownloader(
-			$species, $fileType, $listPage, $tag, split(';', $excludeTags), $displayStats
-		);
-		$batch->download();
+			$batch = new BatchDownloader(
+				$species, $fileType, $listPage, $tag, split(';', $excludeTags), $displayStats
+			);
+			$batch->download();
 		} catch(Exception $e) {
 			ob_clean();
 			header("Location: " . SITE_URL . "/index.php?title=Special:ShowError&error=" . urlencode($e->getMessage()));
@@ -70,29 +70,29 @@ class BatchDownloader {
 			$listParam = '&listPage=' . $listPage;
 			$listedPathways = Pathway::parsePathwayListPage($listPage);
 			foreach ($listedPathways as $pw) {
-							$countPerSpecies[$pw->getSpecies()] += 1;
-					}
+				$countPerSpecies[$pw->getSpecies()] += 1;
+			}
 		}
 		if($tag) {
 			$tagParam = "&tag=$tag";
 			$taggedPageIds = CurationTag::getPagesForTag("$tag");
-					foreach ($taggedPageIds as $pageId) {
-							$countPerSpecies[Pathway::newFromTitle(Title::newFromId($pageId))->getSpecies()] += 1;
-					}
+			foreach ($taggedPageIds as $pageId) {
+				$countPerSpecies[Pathway::newFromTitle(Title::newFromId($pageId))->getSpecies()] += 1;
+			}
 		}
 		if($excludeTags) {
 			$excludeParam = "&tag_excl=$excludeTags";
 		}
 		foreach(Pathway::getAvailableSpecies() as $species) {
 			$nrPathways =  $countPerSpecies[$species];
-					if($displayStats) {
-							$stats = "\t\t($nrPathways)";
-					} else if(!$listPage && !$tag) {
+			if($displayStats) {
+				$stats = "\t\t($nrPathways)";
+			} else if(!$listPage && !$tag) {
 				$nrPathways = 1;  // list all if not filtering and counting
 			}
 			if ($nrPathways > 0) {  // skip listing species with 0 pathways
 				$html .= tag('li',
-						tag('a',$species . $stats,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType$listParam$tagParam$excludeParam", 'target'=>'_new')));
+					tag('a',$species . $stats,array('href'=> WPI_URL . '/' . "batchDownload.php?species=$species&fileType=$fileType$listParam$tagParam$excludeParam", 'target'=>'_new')));
 			}
 		}
 		$html = tag('ul', $html);
@@ -108,7 +108,7 @@ class BatchDownloader {
 			$et = "_$str";
 		}
 		$fileName = "wikipathways_" . $this->species .
-					$list . $t . $et . "_{$this->fileType}.zip";
+			$list . $t . $et . "_{$this->fileType}.zip";
 		$fileName = str_replace(' ', '_', $fileName);
 		//Filter out illegal chars
 		$fileName = preg_replace( "/[\/\?\<\>\\\:\*\|\[\]]/", '-', $fileName);
@@ -188,7 +188,7 @@ class BatchDownloader {
 		mkdir($tmpDir);
 		foreach($pathways as $pw) {
 			$link = $tmpDir . "/" . $pw->getFilePrefix() . "_" . $pw->getIdentifier() . "_"
-					 . $pw->getActiveRevision() . "." . $this->fileType;
+				. $pw->getActiveRevision() . "." . $this->fileType;
 			$cache = $pw->getFileLocation($this->fileType);
 			link($cache, $link);
 			$tmpLinks[] = $link;
@@ -284,5 +284,3 @@ class BatchDownloader {
 		exit();
 	}
 }
-
-?>
