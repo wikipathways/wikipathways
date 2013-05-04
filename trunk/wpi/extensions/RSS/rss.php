@@ -125,9 +125,9 @@ function renderRss( $input ) {
 	}
 
 	$output = '';
+	$description = false;
 	if ( $rss && is_object( $rss ) ) {
 		if( $reverse ) $rss->items = array_reverse( $rss->items );
-		$description = false;
 		foreach ( $rss->items as $item ) {
 			if ( $item['description'] ) {
 				$description = true;
