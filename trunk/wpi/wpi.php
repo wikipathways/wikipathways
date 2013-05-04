@@ -208,6 +208,7 @@ function writeFile($filename, $data) {
 }
 
 function tag($name, $text, $attributes = array()) {
+	$attr = "";
 	foreach(array_keys($attributes) as $key) {
 		if($value = $attributes[$key])$attr .= $key . '="' . $value . '" ';
 	}
