@@ -65,7 +65,7 @@ class BatchDownloader {
 
 		$tag          = isset( $argv['tag'] ) ? $argv['tag'] : "";
 		$excludeTags  = isset( $argv['excludetags'] ) ? $argv['excludetags'] : "";
-		$displayStats = isset( $argv['stats'] ) ) ? $argv['stats'] : "";
+		$displayStats = isset( $argv['stats'] ) ? $argv['stats'] : "";
 
 		$listParam = "";
 		if($listPage) {
