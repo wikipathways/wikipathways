@@ -60,12 +60,14 @@ class BatchDownloader {
 	}
 
 	static function createDownloadLinks($input, $argv, &$parser) {
-		$fileType = $argv['filetype'];
-		$listPage = $argv['listpage'];
-		$tag = $argv['tag'];
-		$excludeTags = $argv['excludetags'];
-		$displayStats = $argv['stats'];
+		$fileType     = isset( $argv['filetype'] ) ? $argv['filetype'] : "";
+		$listPage     = isset( $argv['listpage'] ) ? $argv['listpage'] : "";
 
+		$tag          = isset( $argv['tag'] ) ? $argv['tag'] : "";
+		$excludeTags  = isset( $argv['excludetags'] ) ? $argv['excludetags'] : "";
+		$displayStats = isset( $argv['stats'] ) ) ? $argv['stats'] : "";
+
+		$listParam = "";
 		if($listPage) {
 			$listParam = '&listPage=' . $listPage;
 			$listedPathways = Pathway::parsePathwayListPage($listPage);
@@ -73,6 +75,8 @@ class BatchDownloader {
 				$countPerSpecies[$pw->getSpecies()] += 1;
 			}
 		}
+
+		$tagParam = "";
 		if($tag) {
 			$tagParam = "&tag=$tag";
 			$taggedPageIds = CurationTag::getPagesForTag("$tag");
@@ -80,11 +84,14 @@ class BatchDownloader {
 				$countPerSpecies[Pathway::newFromTitle(Title::newFromId($pageId))->getSpecies()] += 1;
 			}
 		}
+
+		$excludeParam = "";
 		if($excludeTags) {
 			$excludeParam = "&tag_excl=$excludeTags";
 		}
 		foreach(Pathway::getAvailableSpecies() as $species) {
 			$nrPathways =  isset( $countPerSpecies[$species] ) ? $countPerSpecies[$species] : 0;
+			$stats = "";
 			if($displayStats) {
 				$stats = "\t\t($nrPathways)";
 			} else if(!$listPage && !$tag) {
