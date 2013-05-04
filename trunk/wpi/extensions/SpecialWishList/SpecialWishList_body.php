@@ -356,12 +356,11 @@ HELP;
 		$votes = (int)$wish->countVotes();
 		$fullComment = str_replace('"', "'", $wish->getComments());
 		$comment = $this->truncateComment($wish, 75); //Cutoff comment at 20 chars
+		$voteButton = '<td class="table-blue-contentcell" style="border:0px">'
 		if($wish->userCan('vote')) {
-			$voteButton = '<td class="table-blue-contentcell" style="border:0px">' .
-				$this->createButton('plus.png', 'vote', 'Vote for this pathway', $id);
+			$voteButton .= $this->createButton('plus.png', 'vote', 'Vote for this pathway', $id);
 		} else if ($wish->userCan('unvote')) {
-			$voteButton = '<td class="table-blue-contentcell" style="border:0px">' .
-				$this->createButton('minus.png', 'unvote', 'Remove your vote', $id);
+			$voteButton .= $this->createButton('minus.png', 'unvote', 'Remove your vote', $id);
 		}
 		$wgOut->addHTML("<tr class='{$altrow}'><td class='table-blue-contentcell'><b><a href='$url'>$title</a></b><td class='table-blue-contentcell'>$user
 				<td class='table-blue-contentcell'>$date<td class='table-blue-contentcell' title=\"$fullComment\">");
