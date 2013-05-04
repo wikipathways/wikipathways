@@ -128,7 +128,7 @@ class SpecialWishList extends SpecialPage {
 		$wish = new Wish($id);
 		$title = $wish->getTitle()->getText();
 		$user = $wish->getRequestUser();
-		$user = $wgUser->getSkin()->userLink( $user, $user->getName());
+		$user = $wgUser->getSkin()->userLink( $user->getId(), $user->getName());
 		$date = self::getSortTimeDate($wish->getRequestDate());
 		$fullComment = str_replace('"', "'", $wish->getComments());
 		$comment = $this->truncateComment($wish, 75); //Cutoff comment at 20 chars
@@ -350,7 +350,7 @@ HELP;
 		$url = $wish->getTitle()->getFullURL();
 		$title = $wish->getTitle()->getText();
 		$user = $wish->getRequestUser();
-		$user = $wgUser->getSkin()->userLink( $user, $user->getName());
+		$user = $wgUser->getSkin()->userLink( $user->getId(), $user->getName());
 		$date = self::getSortTimeDate($wish->getRequestDate());
 		$watching = $wish->userIsWatching() ? "CHECKED" : "";
 		$votes = (int)$wish->countVotes();
