@@ -246,7 +246,7 @@ class Pathway {
 				if($pathway->isDeleted()) continue; //Skip deleted pathways
 				if($species && $pathway->getSpecies() != $species) continue; //Filter by organism
 				if(!$pathway->getTitleObject()->userCanRead()) continue; //delete this one post 1.19
-				if(!$pathway->getTitleObject()->userCan('read')) continue; //Skip hidden pathways
+				//if(!$pathway->getTitleObject()->userCan('read')) continue; //Skip hidden pathways
 				$allPathways[
 					$pathway->getIdentifier()] = $pathway;
 			} catch(Exception $e) {
