@@ -17,11 +17,11 @@ class SearchPathways extends SpecialPage
 		$this->setHeaders();
 		$this->this_url = SITE_URL . '/index.php';
 
-		$query = $_GET['query'];
-		$species = $_GET['species'];
-		$ids = $_GET['ids'];
-		$codes = $_GET['codes'];
-		$type = $_GET['type'];
+		$query   = isset( $_GET['query'] ) ?   $_GET['query']   : null;
+		$species = isset( $_GET['species'] ) ? $_GET['species'] : null;
+		$ids     = isset( $_GET['ids'] ) ?     $_GET['ids']     : null;
+		$codes   = isset( $_GET['codes'] ) ?   $_GET['codes']   : null;
+		$type    = isset( $_GET['type'] ) ?    $_GET['type']    : null;
 
 		// SET DEFAULTS
 		if (!$type || $type == '') $type = 'query';
