@@ -15,14 +15,14 @@ class Organism {
 
 	public static function getByLatinName($name) {
 		return isset( self::$byLatinName[$name] )
-			: self::$byLatinName[$name]
-			? null;
+			? self::$byLatinName[$name]
+			: null;
 	}
 
 	public static function getByCode($code) {
 		return isset( self::$byCode[$code] )
-			: self::$byCode[$code]
-			? null;
+			? self::$byCode[$code]
+			: null;
 	}
 
 	/**
