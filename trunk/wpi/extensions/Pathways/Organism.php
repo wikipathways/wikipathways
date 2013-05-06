@@ -14,14 +14,14 @@ class Organism {
 	public function getCode() { return $this->code; }
 
 	public static function getByLatinName($name) {
-		return isset( self::$byLatinName[$name] )
-			? self::$byLatinName[$name]
+		return isset( self::$byLatinName["$name"] )
+			? self::$byLatinName["$name"]
 			: null;
 	}
 
 	public static function getByCode($code) {
-		return isset( self::$byCode[$code] )
-			? self::$byCode[$code]
+		return isset( self::$byCode["$code"] )
+			? self::$byCode["$code"]
 			: null;
 	}
 
