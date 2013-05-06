@@ -82,7 +82,7 @@ class BatchDownloader {
 			$taggedPageIds = CurationTag::getPagesForTag("$tag");
 			foreach ($taggedPageIds as $pageId) {
 				$species = Pathway::newFromTitle(Title::newFromId($pageId))->getSpecies();
-				$countPerSpecies[$species] = isset( $countPerSpecies[$species] ) ? $countPerSpecies[$species]  + 1 : 1;
+				$countPerSpecies["$species"] = isset( $countPerSpecies["$species"] ) ? $countPerSpecies["$species"]  + 1 : 1;
 			}
 		}
 
