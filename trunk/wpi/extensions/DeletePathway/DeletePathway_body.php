@@ -9,7 +9,13 @@ class DeletePathway extends SpecialPage {
 		global $wgOut, $wgUser, $wgLang;
 		$this->setHeaders();
 
-		$id = $_REQUEST['id'];
+		$id = isset( $_REQUEST['id'] ) ? $_REQUEST['id'] : null;
+
+		if( $id === null ) {
+			$wgOut->addHTML("Must supply an id!");
+			return;
+		}
+
 		try {
 			$pathway = new Pathway($id);
 		} catch(Exception $e) {
@@ -17,9 +23,16 @@ class DeletePathway extends SpecialPage {
 			return;
 		}
 
-		$reason = $_REQUEST['reason'];
+		$reason = isset( $_REQUEST['reason'] ) ? $_REQUEST['reason'] : null;
 
-		if($_REQUEST['doit']) {
+		if( $reason === null ) {
+			$wgOut->addHTML("No reason given!");
+			return;
+		}
+
+		$doit = isset( $_REQUEST['doit'] ) ? $_REQUEST['doit'] : null;
+
+		if($doit) {
 			$pathway->delete($reason);
 			header("Location: {$pathway->getTitleObject()->getFullUrl()}");
 			exit;
