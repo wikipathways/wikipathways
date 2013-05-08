@@ -30,22 +30,25 @@ class QuestyCaptcha extends SimpleCaptcha {
 
 	function getCaptcha() {
 		global $wgCaptchaQuestions;
-				if( !isset( $wgCaptchaQuestions ) || count( $wgCaptchaQuestions ) === 0 ) {
-					$all = wfMsg( 'questycaptcha-qna' );
-					$match = array();
+		if( !isset( $wgCaptchaQuestions ) || count( $wgCaptchaQuestions ) === 0 ) {
+			$all = wfMsg( 'questycaptcha-qna' );
+			$match = array();
 
-					$count = 0;
-					foreach(split( "\n", $all ) as $l) {
-						if( strtolower( substr($l, 0, 2) ) == "q:" ) {
-							$wgCaptchaQuestions[$count]["question"] = trim( strtolower( substr( $l, 2 ) ) );
-						}
-
-						if( strtolower( substr($l, 0, 2) ) == "a:" ) {
-							$wgCaptchaQuestions[$count]["answer"] = trim( strtolower( substr( $l, 2 ) ) );
-						}
-
-					}
+			$count = 0;
+			foreach(split( "\n", $all ) as $l) {
+				if( strtolower( substr($l, 0, 2) ) == "q:" ) {
+					$wgCaptchaQuestions[$count]["question"] = trim( strtolower( substr( $l, 2 ) ) );
 				}
+
+				if( strtolower( substr($l, 0, 2) ) == "a:" ) {
+					$wgCaptchaQuestions[$count]["answer"] = trim( strtolower( substr( $l, 2 ) ) );
+				}
+				if( isset( $wgCaptchaQuestions[$count]["answer"] ) &&
+					isset( $wgCaptchaQuestions[$count]["question"] ) ) {
+					$count++;
+				}
+			}
+		}
 		return $wgCaptchaQuestions[mt_rand( 0, count( $wgCaptchaQuestions ) - 1 )]; // pick a question, any question
 	}
 
@@ -56,8 +59,8 @@ class QuestyCaptcha extends SimpleCaptcha {
 		}
 		$index = $this->storeCaptcha( $captcha );
 		return "<p><label for=\"wpCaptchaWord\">{$captcha['question']}</label> " .
-					'<input type="text" name="wpCaptchaWord" id="wpCaptchaWord" required="1">'.
-					'<input type="hidden" name="wpCaptchaId" id="wpCaptchaId" value="'.$index.'">';
+			'<input type="text" name="wpCaptchaWord" id="wpCaptchaWord" required="1">'.
+			'<input type="hidden" name="wpCaptchaId" id="wpCaptchaId" value="'.$index.'">';
 	}
 
 	function getMessage( $action ) {
