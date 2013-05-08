@@ -440,3 +440,21 @@ $wgJsMimeType = "text/javascript";
 
 //Lastly, include javascripts (that may have been added by other extensions)
 require_once('wpi/Javascript.php');
+
+# only people who have confirmed their email can edit
+# Disable for everyone.
+$wgGroupPermissions['*']['edit']              = false;
+# Disable for users, too: by default 'user' is allowed to edit, even if '*' is not.
+$wgGroupPermissions['user']['edit']           = false;
+# Make it so users with confirmed e-mail addresses are in the group.
+$wgAutopromote['confirmed'] = APCOND_EMAILCONFIRMED;
+# Hide group from user list.
+$wgImplicitGroups[] = 'confirmed';
+# Finally, set it to true for the desired group.
+$wgGroupPermissions['confirmed']['edit'] = true;
+
+$ceAllowConfirmedEmail = false;
+$wgCaptchaTriggers['edit'] = true;
+$wgCaptchaTriggers['create'] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'skipcaptcha'    ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'skipcaptcha'    ] = true;
