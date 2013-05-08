@@ -1,6 +1,21 @@
 <?php
 
 class LocalHooks {
+	/* http://developers.pathvisio.org/ticket/1559 */
+	static function stopDisplay( $output, $sk ) {
+		if( 'MediaWiki:Questycaptcha-qna' === $output->getPageTitle() ) {
+			global $wgUser, $wgTitle;
+			if( !$wgTitle->userCan( "edit" ) ) {
+				$output->clearHTML();
+				$wgUser->mBlock = new Block( '127.0.0.1', 'WikiSysop', 'WikiSysop', 'none', 'indefinite' );
+				$wgUser->mBlockedby = 0;
+				$output->blockedPage();
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/* http://www.pathvisio.org/ticket/1539 */
 	static public function externalLink ( &$url, &$text, &$link, &$attribs = null ) {
 		global $wgExternalLinkTarget;
@@ -46,3 +61,5 @@ class LocalHooks {
 }
 
 $wgHooks['LinkerMakeExternalLink'][] = 'LocalHooks::externalLink';
+$wgHooks['BeforePageDisplay'][] = 'LocalHooks::stopDisplay';
+

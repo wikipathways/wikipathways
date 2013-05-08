@@ -32,10 +32,13 @@ class QuestyCaptcha extends SimpleCaptcha {
 		global $wgCaptchaQuestions;
 		if( !isset( $wgCaptchaQuestions ) || count( $wgCaptchaQuestions ) === 0 ) {
 			$all = wfMsg( 'questycaptcha-qna' );
-			$match = array();
-
+			$qna = split( "\n=== Q&A ===\n", $all, 2 );
 			$count = 0;
-			foreach(split( "\n", $all ) as $l) {
+
+			if( !isset( $qna[1] ) ) {
+				die( "No Q&A Section!" );
+			}
+			foreach(split( "\n", $qna[1] ) as $l) {
 				if( strtolower( substr($l, 0, 2) ) == "q:" ) {
 					$wgCaptchaQuestions[$count]["question"] = trim( strtolower( substr( $l, 2 ) ) );
 				}
