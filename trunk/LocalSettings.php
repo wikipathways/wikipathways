@@ -441,7 +441,13 @@ $wgJsMimeType = "text/javascript";
 //Lastly, include javascripts (that may have been added by other extensions)
 require_once('wpi/Javascript.php');
 
-# only people who have confirmed their email can edit
+/* Users have to have a confirmed email address to edit.  This also
+ * requires a valid email at account creation time. */
+$wgEmailConfirmToEdit = true;
+
+/* This section allows you to set wgEmailConfirmToEdit to fals (so
+ * that an email isn't required to create an account) but still
+ * require a confirmed email before the user can edit. */
 # Disable for everyone.
 $wgGroupPermissions['*']['edit']              = false;
 # Disable for users, too: by default 'user' is allowed to edit, even if '*' is not.
@@ -454,7 +460,12 @@ $wgImplicitGroups[] = 'confirmed';
 $wgGroupPermissions['confirmed']['edit'] = true;
 
 $ceAllowConfirmedEmail = false;
-$wgCaptchaTriggers['edit'] = true;
-$wgCaptchaTriggers['create'] = true;
+
+/* Turn on CAPTCHA for editing and page creation by setting these to true */
+$wgCaptchaTriggers['edit'] = false;
+$wgCaptchaTriggers['create'] = false;
+
+/* In case you ever to turn on the CAPTCHA for editing, you will
+ * probably want to let privleged users skip them */
 $wgGroupPermissions[ 'sysop'      ][ 'skipcaptcha'    ] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'skipcaptcha'    ] = true;
