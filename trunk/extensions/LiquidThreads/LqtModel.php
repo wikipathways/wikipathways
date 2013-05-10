@@ -158,8 +158,8 @@ class ThreadHistoryIterator extends ArrayIterator {
 			array('hthread_id' => $this->thread->id()),
 			__METHOD__,
 			array('ORDER BY' => 'hthread_revision DESC',
-			      'LIMIT' =>  $this->limit,
-			      'OFFSET' => $this->offset));
+				  'LIMIT' =>  $this->limit,
+				  'OFFSET' => $this->offset));
 		while($l = $dbr->fetchObject($res)) {
 			$this->append( HistoricalThread::fromTextRepresentation($l->hthread_contents) );
 		}
@@ -308,7 +308,7 @@ class Thread {
 	}
 /*
 	function ancestors() {
- 		$id_clauses = array();
+		$id_clauses = array();
 		foreach( explode('.', $this->path) as $id ) {
 			$id_clauses[] = "thread_id = $id";
 		}
@@ -330,15 +330,15 @@ class Thread {
 			$this->superthread()->bumpRevisionsOnAncestors($change_type, $change_object, $change_reason, $timestamp);
 		$dbr =& wfGetDB( DB_MASTER );
 		$res = $dbr->update( 'thread',
-		     /* SET */ array('thread_revision' => $this->revisionNumber,
-		                     'thread_change_type'=>$this->changeType,
-		                     'thread_change_object'=>$this->changeObject,
+			 /* SET */ array('thread_revision' => $this->revisionNumber,
+							 'thread_change_type'=>$this->changeType,
+							 'thread_change_object'=>$this->changeObject,
 							 'thread_change_comment' => $this->changeComment,
 							 'thread_change_user' => $this->changeUser,
 							 'thread_change_user_text' => $this->changeUserText,
 							 'thread_modified' => $timestamp),
-		     /* WHERE */ array( 'thread_id' => $this->id ),
-		     __METHOD__);
+			 /* WHERE */ array( 'thread_id' => $this->id ),
+			 __METHOD__);
 	}
 
 	private static function setChangeOnDescendents($thread, $change_type, $change_object) {
@@ -347,11 +347,11 @@ class Thread {
 		$thread->setChangeObject($change_object);
 		$dbr =& wfGetDB( DB_MASTER );
 		$res = $dbr->update( 'thread',
-		     /* SET */ array('thread_revision' => $thread->revisionNumber,
-		                     'thread_change_type'=>$thread->changeType,
-		                     'thread_change_object'=>$thread->changeObject),
-		     /* WHERE */ array( 'thread_id' => $thread->id ),
-		     __METHOD__);
+			 /* SET */ array('thread_revision' => $thread->revisionNumber,
+							 'thread_change_type'=>$thread->changeType,
+							 'thread_change_object'=>$thread->changeObject),
+			 /* WHERE */ array( 'thread_id' => $thread->id ),
+			 __METHOD__);
 		foreach($thread->replies() as $r)
 			self::setChangeOnDescendents($r, $change_type, $change_object);
 		return $thread;
@@ -388,7 +388,7 @@ class Thread {
 
 		$dbr =& wfGetDB( DB_MASTER );
 		$res = $dbr->update( 'thread',
-		     /* SET */array( 'thread_root' => $this->rootId,
+			 /* SET */array( 'thread_root' => $this->rootId,
 					'thread_ancestor' => $this->ancestorId,
 					'thread_parent' => $this->parentId,
 					'thread_type' => $this->type,
@@ -396,7 +396,7 @@ class Thread {
 //					'thread_modified' => wfTimestampNow(),
 //					'thread_revision' => $this->revisionNumber,
 					'thread_article_namespace' => $this->articleNamespace,
-				    'thread_article_title' => $this->articleTitle,
+					'thread_article_title' => $this->articleTitle,
 					'thread_editedness' => $this->editedness,
 //					'thread_change_type' => $this->changeType,
 //					'thread_change_object' => $this->changeObject,
@@ -404,8 +404,8 @@ class Thread {
 //					'thread_change_user' => $this->changeUser,
 //					'thread_change_user_text' => $this->changeUserText,
 					),
-		     /* WHERE */ array( 'thread_id' => $this->id, ),
-		     __METHOD__);
+			 /* WHERE */ array( 'thread_id' => $this->id, ),
+			 __METHOD__);
 
 		if( $change_type == Threads::CHANGE_EDITED_ROOT ) {
 			NewMessages::writeMessageStateForUpdatedThread($this);
@@ -416,16 +416,16 @@ class Thread {
 	//		$revisionId );
 	}
 
-        function updateTalkPage() {
-                $talkTitle = $this->article()->getTitle()->getTalkPage();
-                $talkArticle = new Article($talkTitle, 0);
+		function updateTalkPage() {
+				$talkTitle = $this->article()->getTitle()->getTalkPage();
+				$talkArticle = new Article($talkTitle, 0);
 		$talkRevision = Revision::newFromId($talkArticle->getLatest());
-                if( $talkRevision ) $text = $talkRevision->getRawText();
-	    	$timestamp = wfTimestampNow();
-                $text .=  "\n<!-- LQT $timestamp -->";
-                $description = "Discussion edited";
-                $talkArticle->doEdit($text, $description);
-        }
+				if( $talkRevision ) $text = $talkRevision->getRawText();
+			$timestamp = wfTimestampNow();
+				$text .=  "\n<!-- LQT $timestamp -->";
+				$description = "Discussion edited";
+				$talkArticle->doEdit($text, $description);
+		}
 
 	function delete($reason) {
 		$this->type = Threads::TYPE_DELETED;
@@ -447,12 +447,12 @@ class Thread {
 
 		foreach($this->replies as $r) {
 			$res = $dbr->update( 'thread',
-			     /* SET */array(
+				 /* SET */array(
 						'thread_revision' => $r->revisionNumber() + 1,
 						'thread_article_namespace' => $new_articleNamespace,
-					    'thread_article_title' => $new_articleTitle),
-			     /* WHERE */ array( 'thread_id' => $r->id(), ),
-			     __METHOD__);
+						'thread_article_title' => $new_articleTitle),
+				 /* WHERE */ array( 'thread_id' => $r->id(), ),
+				 __METHOD__);
 		}
 
 		$this->articleNamespace = $new_articleNamespace;
@@ -472,7 +472,7 @@ class Thread {
 		$mwRedir = MagicWord::get( 'redirect' );
 		$redirectText = $mwRedir->getSynonym( 0 ) . ' [[' . $this->title()->getPrefixedText() . "]]\n";
 		$redirectArticle = new Article( LqtView::incrementedTitle( $this->subjectWithoutIncrement(),
-		                                                           NS_LQT_THREAD) ); ## TODO move to model.
+																   NS_LQT_THREAD) ); ## TODO move to model.
 		$newid = $redirectArticle->insertOn( $dbw );
 		$redirectRevision = new Revision( array(
 			'page'    => $newid,
@@ -497,7 +497,7 @@ class Thread {
 			__METHOD__ );
 
 		$thread = Threads::newThread( $redirectArticle, $this->double->article(), null,
-		 	Threads::TYPE_MOVED, $log);
+			Threads::TYPE_MOVED, $log);
 
 		# Purge old title from squid
 		# The new title, and links to the new title, are purged in Article::onArticleCreate()
@@ -607,7 +607,7 @@ class Thread {
 		else
 			return Threads::withId( $this->ancestorId );
 	}
-	
+
 	function isTopmostThread() {
 		return $this->ancestorId == $this->id;
 	}
@@ -643,7 +643,7 @@ class Thread {
 	function root() {
 		if ( !$this->rootId ) return null;
 		if ( !$this->root ) $this->root = new Post( Title::newFromID( $this->rootId ),
-		                                            $this->rootRevision() );
+													$this->rootRevision() );
 		return $this->root;
 	}
 
@@ -855,11 +855,11 @@ class Threads {
 	static $cache_by_root = array();
 	static $cache_by_id = array();
 
-    static function newThread( $root, $article, $superthread = null, $type = self::TYPE_NORMAL ) {
+	static function newThread( $root, $article, $superthread = null, $type = self::TYPE_NORMAL ) {
 		// SCHEMA changes must be reflected here.
 		// TODO: It's dumb that the commitRevision code isn't used here.
 
-        $dbr =& wfGetDB( DB_MASTER );
+		$dbr =& wfGetDB( DB_MASTER );
 
 		if ( !in_array($type, self::$VALID_TYPES) ) {
 			throw new MWException(__METHOD__ . ": invalid type $type.");
@@ -875,12 +875,12 @@ class Threads {
 
 		$timestamp = wfTimestampNow();
 
-        $res = $dbr->insert('thread',
-            array('thread_root' => $root->getID(),
-                  'thread_parent' => $superthread ? $superthread->id() : null,
+		$res = $dbr->insert('thread',
+			array('thread_root' => $root->getID(),
+				  'thread_parent' => $superthread ? $superthread->id() : null,
 				  'thread_article_namespace' => $article->getTitle()->getNamespace(),
 				  'thread_article_title' => $article->getTitle()->getDBkey(),
-                  'thread_modified' => $timestamp,
+				  'thread_modified' => $timestamp,
 				  'thread_created' => $timestamp,
 				  'thread_change_type' => $change_type,
 				  'thread_change_comment' => "", // TODO
@@ -888,7 +888,7 @@ class Threads {
 				  'thread_change_user_text' => $wgUser->getName(),
 				  'thread_type' => $type,
 				  'thread_editedness' => self::EDITED_NEVER),
-            __METHOD__);
+			__METHOD__);
 
 		$newid = $dbr->insertId();
 
@@ -900,13 +900,13 @@ class Threads {
 			$change_object_clause = 'thread_change_object = null';
 		}
 		$res = $dbr->update( 'thread',
-			     /* SET */   array( 'thread_ancestor' => $ancestor,
-			                         $change_object_clause ),
-			     /* WHERE */ array( 'thread_id' => $newid, ),
-			     __METHOD__);
+				 /* SET */   array( 'thread_ancestor' => $ancestor,
+									 $change_object_clause ),
+				 /* WHERE */ array( 'thread_id' => $newid, ),
+				 __METHOD__);
 
 		// TODO we could avoid a query here.
-        $newthread =  Threads::withId($newid);
+		$newthread =  Threads::withId($newid);
 		if($superthread) {
 			$superthread->addReply( $newthread );
 		}
@@ -914,11 +914,11 @@ class Threads {
 		self::createTalkpageIfNeeded($article);
 
 		$newthread->updateTalkPage();
-		
+
 		NewMessages::writeMessageStateForUpdatedThread($newthread);
 
 		return $newthread;
-     }
+	 }
 
 	/**
 	 * Create the talkpage if it doesn't exist so that links to it
@@ -1000,7 +1000,7 @@ SQL;
 			} else {
 				$thread->initWithReplies( array() );
 			}
-			
+
 			self::$cache_by_root[$thread->root()->getID()] = $thread;
 			self::$cache_by_id[$thread->id()] = $thread;
 		}
@@ -1021,7 +1021,7 @@ SQL;
 			return null;
 		}
 	}
-	
+
 	private static function arrayContainsThreadWithId( $a, $id ) {
 		// There's gotta be a nice way to express this in PHP. Anyone?
 		foreach($a as $t)
@@ -1121,11 +1121,15 @@ class QueryGroup {
 class NewMessages {
 
 	static function markThreadAsUnreadByUser($thread, $user) {
-		self::writeUserMessageState($thread, $user, null);
+		if( $thread !== null ) {
+			self::writeUserMessageState($thread, $user, null);
+		}
 	}
 
 	static function markThreadAsReadByUser($thread, $user) {
-		self::writeUserMessageState($thread, $user, wfTimestampNow());
+		if( $thread !== null ) {
+			self::writeUserMessageState($thread, $user, wfTimestampNow());
+		}
 	}
 
 	private static function writeUserMessageState($thread, $user, $timestamp) {
@@ -1142,14 +1146,14 @@ class NewMessages {
 
 		// use query() directly to pass in 'true' for don't-die-on-errors.
 		$dbr =& wfGetDB( DB_MASTER );
-        $success = $dbr->query("insert into {$wgDBprefix}user_message_state values ($user_id, $thread_id, $timestamp)",
-            __METHOD__, true);
+		$success = $dbr->query("insert into {$wgDBprefix}user_message_state values ($user_id, $thread_id, $timestamp)",
+			__METHOD__, true);
 
 		if( !$success ) {
 			// duplicate key; update.
 			$dbr->query("update {$wgDBprefix}user_message_state set ums_read_timestamp = $timestamp" .
 						" where ums_thread = $thread_id and ums_user = $user_id",
-	            		__METHOD__);
+						__METHOD__);
 		}
 	}
 
@@ -1201,7 +1205,7 @@ SQL;
 
 	static function watchedThreadsForUser($user) {
 		return Threads::where( array('ums_read_timestamp is null',
-		                             'ums_user' => $user->getID(),
+									 'ums_user' => $user->getID(),
 									 'ums_thread = thread.thread_id',
 								'NOT (' . Threads::articleClause(new Article($user->getUserPage())) . ')' ),
 							array(), array('user_message_state') );

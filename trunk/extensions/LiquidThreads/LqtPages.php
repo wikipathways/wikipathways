@@ -1161,9 +1161,15 @@ HTML
 	}
 
 	function showUndo($ids) {
+		$noUndo = false;
 		if( count($ids) == 1 ) {
 			$t = Threads::withId($ids[0]);
-			$msg = wfMsg( 'lqt-marked-read',$t->subject()  );
+			if( $t ) {
+				$msg = wfMsg( 'lqt-marked-read',$t->subject()  );
+			} else {
+				$msg = wfMsg( 'lqt-nothread' );
+				$noUndo = true;
+			}
 		} else {
 			$count = count($ids);
 			$msg =  wfMsg( 'lqt-count-marked-read',$count );
@@ -1171,7 +1177,8 @@ HTML
 		$operand = implode(',', $ids);
 		$lqt_email_undo = wfMsg ( 'lqt-email-undo' );
 		$lqt_info_undo = wfMsg ( 'lqt-email-info-undo' );
-		$this->output->addHTML(<<<HTML
+		if( !$noUndo ) {
+			$this->output->addHTML(<<<HTML
 <form method="POST" class="lqt_undo_mark_as_read">
 $msg
 <input type="hidden" name="lqt_method" value="mark_as_unread" />
@@ -1179,7 +1186,8 @@ $msg
 <input type="submit" value="{$lqt_email_undo}" name="lqt_read_button" title="{$lqt_info_undo}" />
 </form>
 HTML
-		);
+			);
+		}
 	}
 
 	function postDivClass($thread) {
