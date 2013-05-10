@@ -31,12 +31,12 @@ class QuestyCaptcha extends SimpleCaptcha {
 	function getCaptcha() {
 		global $wgCaptchaQuestions;
 		if( !isset( $wgCaptchaQuestions ) || count( $wgCaptchaQuestions ) === 0 ) {
-			$all = wfMsg( 'questycaptcha-qna' );
+			$all = $this->getMessage( 'q&a' );
 			$qna = split( "\n=== Q&A ===\n", $all, 2 );
 			$count = 0;
 
 			if( !isset( $qna[1] ) ) {
-				die( "No Q&A Section!" );
+				die( $this->getMessage( 'no-q&a' ) );
 			}
 			foreach(split( "\n", $qna[1] ) as $l) {
 				if( strtolower( substr($l, 0, 2) ) == "q:" ) {
@@ -48,8 +48,14 @@ class QuestyCaptcha extends SimpleCaptcha {
 				}
 				if( isset( $wgCaptchaQuestions[$count]["answer"] ) &&
 					isset( $wgCaptchaQuestions[$count]["question"] ) ) {
+					global $wgParser;
+					$wgCaptchaQuestions[$count]["question"] = $wgParser->recursiveTagParse
+						( $wgCaptchaQuestions[$count]["question"] );
 					$count++;
 				}
+			}
+			if( $count < 1 ) {
+				die( $this->getMessage( 'no-q&a-list' ) );
 			}
 		}
 		return $wgCaptchaQuestions[mt_rand( 0, count( $wgCaptchaQuestions ) - 1 )]; // pick a question, any question
@@ -58,7 +64,7 @@ class QuestyCaptcha extends SimpleCaptcha {
 	function getForm() {
 		$captcha = $this->getCaptcha();
 		if ( !$captcha ) {
-			die( "No questions found; set some in LocalSettings.php using the format from QuestyCaptcha.php." );
+			die( $this->getMessage( 'noquesty' ) );
 		}
 		$index = $this->storeCaptcha( $captcha );
 		return "<p><label for=\"wpCaptchaWord\">{$captcha['question']}</label> " .

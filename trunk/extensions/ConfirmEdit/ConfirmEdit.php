@@ -96,7 +96,7 @@ $wgCaptchaTriggers['badlogin']      = true;  // Special:Userlogin after failure
 
 /**
  * You may wish to apply special rules for captcha triggering on some namespaces.
- * $wgCaptchaTriggersOnNamespace[<namespace id>][<trigger>] forces an always on / 
+ * $wgCaptchaTriggersOnNamespace[<namespace id>][<trigger>] forces an always on /
  * always off configuration with that trigger for the given namespace.
  * Leave unset to use the global options ($wgCaptchaTriggers).
  *
@@ -149,7 +149,7 @@ $wgCaptchaBadLoginExpiration = 5 * 60;
 global $ceAllowConfirmedEmail;
 $ceAllowConfirmedEmail = false;
 
-/** 
+/**
  * Number of bad login attempts before triggering the captcha.  0 means the
  * captcha is presented on the first login.
  */
@@ -194,8 +194,8 @@ $wgHooks['AbortLogin'][] = 'ConfirmEditHooks::confirmUserLogin';
 # Register API hook
 $wgHooks['APIEditBeforeSave'][] = 'ConfirmEditHooks::confirmEditAPI';
 
-$wgAutoloadClasses['ConfirmEditHooks'] 
-	= $wgAutoloadClasses['SimpleCaptcha'] 
+$wgAutoloadClasses['ConfirmEditHooks']
+	= $wgAutoloadClasses['SimpleCaptcha']
 	= $wgAutoloadClasses['CaptchaSessionStore']
 	= $wgAutoloadClasses['CaptchaCacheStore']
 	= $wgAutoloadClasses['CaptchaSpecialPage']
@@ -217,5 +217,3 @@ function confirmEditSetup() {
 		$wgWhitelistRead[] = $help->getPrefixedText();
 	}
 }
-
-

@@ -19,6 +19,10 @@ To help protect against automated spam, please answer the question that appears 
 	'questycaptcha-create' => 'To create the page, please answer the question that appears below ([[Special:Captcha/help|more info]]):',
 	'questycaptcha-edit' => 'To edit this page, please answer the question that appears below ([[Special:Captcha/help|more info]]):',
 	'questycaptcha-sendemail' => 'To help protect against automated spamming, please answer the question that appears below ([[Special:Captcha/help|more info]]):',
+	'questycaptcha-qna' => "== How this works ==\n\nThe only questions used are those that come after <nowiki>=== Q&A ===</nowiki>\n\nThe form is:\n\n<pre>\nq: question\n\na: answer\n</pre>\n\nLines that don\'t begin with a \"q:\" or \"a:\" are ignored.\n\nQuestions and answers should always be listed in pairs.\n\nAnswers are not case sensitive.\n\n=== Q&A ===\n\n",
+	'questycaptcha-noquesty' => "No questions found; set some in LocalSettings.php using the format from QuestyCaptcha.php or visit [[MediaWiki:Questycaptcha-q&a]]",
+	'questycaptcha-no-q&a' => "No Q&A section of [[MediaWiki:Questycaptcha-q&a]]!",
+	'questycaptcha-no-q&a-list' => "No questions found in the Q&A section of [[MediaWiki:Questycaptcha-q&a]]!",
 	'questycaptchahelp-text' => 'Web sites that accept contributions from the public, like this wiki, are often abused by spammers who use automated tools to add their links to many sites.
 While these spam links can be removed, they are a significant nuisance.
 
