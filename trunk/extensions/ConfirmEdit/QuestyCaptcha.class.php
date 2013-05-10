@@ -40,11 +40,11 @@ class QuestyCaptcha extends SimpleCaptcha {
 			}
 			foreach(split( "\n", $qna[1] ) as $l) {
 				if( strtolower( substr($l, 0, 2) ) == "q:" ) {
-					$wgCaptchaQuestions[$count]["question"] = trim( strtolower( substr( $l, 2 ) ) );
+					$wgCaptchaQuestions[$count]["question"] = trim( substr( $l, 2 ) );
 				}
 
 				if( strtolower( substr($l, 0, 2) ) == "a:" ) {
-					$wgCaptchaQuestions[$count]["answer"] = trim( strtolower( substr( $l, 2 ) ) );
+					$wgCaptchaQuestions[$count]["answer"] = trim( substr( $l, 2 ) );
 				}
 				if( isset( $wgCaptchaQuestions[$count]["answer"] ) &&
 					isset( $wgCaptchaQuestions[$count]["question"] ) ) {
