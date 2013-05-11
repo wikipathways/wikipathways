@@ -23,15 +23,13 @@ To help protect against automated spam, please answer the question that appears 
 	'questycaptcha-noquesty' => "No questions found; set some in LocalSettings.php using the format from QuestyCaptcha.php or visit [[MediaWiki:Questycaptcha-q&a]]",
 	'questycaptcha-no-q&a' => "No Q&A section of [[MediaWiki:Questycaptcha-q&a]]!",
 	'questycaptcha-no-q&a-list' => "No questions found in the Q&A section of [[MediaWiki:Questycaptcha-q&a]]!",
-	'questycaptchahelp-text' => 'Web sites that accept contributions from the public, like this wiki, are often abused by spammers who use automated tools to add their links to many sites.
-While these spam links can be removed, they are a significant nuisance.
+	'questycaptchahelp-text' => 'Web sites that accept contributions from the public, like this wiki, are often abused by spammers who use automated tools to create accounts and add their links to editable pages.
 
-Sometimes, especially when adding new web links to a page, the wiki may ask you to answer a question.
-Since this is a task that is hard to automate, it will allow most real humans to make their contributions while stopping most spammers and other robotic attackers.
+So, we have prepared some basic pathway biology questions that any human contributor to WikiPathways should be able to answer. We hope you find these questions less annoying than the typical blurred text images. They are intended to be simplistic and not at all challenging in terms of the biology. Don\'t overthink them! But if you find yourself stuck on a particular question, then simply refresh the page to pick another question randomly (might need to repeat to pick a different question).
 
-Please contact the [[{{MediaWiki:Grouppage-sysop}}|site administrators]] for assistance if this is unexpectedly preventing you from making legitimate contributions.
+Please contact the [[:Contact_Us|site administrators]] for assistance if this is unexpectedly preventing you from making legitimate contributions. Note that you only need an account to create, edit, comment or follow content. You can freely browse and download content without an account.
 
-Click the "back" button in your browser to return to the page editor.',
+Click the "back" button in your browser to return to the question page.',
 );
 
 /** Message documentation (Message documentation)
