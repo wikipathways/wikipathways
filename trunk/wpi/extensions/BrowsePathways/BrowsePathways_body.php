@@ -9,63 +9,6 @@
  */
 require_once('wpi/wpi.php');
 
-/**
- * Entry point : initialise variables and call subfunctions.
- * @param $par String: becomes "FOO" when called like Special:BrowsePathways/FOO (default NULL)
- * @param $specialPage @see SpecialPage object.
- */
-function wfSpecialBrowsePathways( $par=NULL, $specialPage ) {
-	global $wgRequest, $wgOut, $wgContLang, $from;
-
-	# GET values
-
-	/** AP20070419
-	 * Parse species header from 'from' so that prev/next links can work
-	 */
-	$from = $wgRequest->getVal( 'from' );
-	$from_pathway = null;
-	if(preg_match('/\:/', $from)){
-		$from_pathway = $from;
-		$parts = explode(':', $from);
-		if(count($parts) < 1) {
-			throw new Exception("Invalid pathway article title: $from");
-		}
-		$from = array_shift($parts);
-	}
-
-
-	/** AP20070419
-	 *	$namespace = $wgRequest->getInt( 'namespace' );
-	 *
-	 *	Set $namespace to NS_PATHWAY
-	 */
-	$namespace = NS_PATHWAY;
-
-	$namespaces = $wgContLang->getNamespaces();
-
-	$indexPage = new BrowsePathways();
-
-	if( !in_array($namespace, array_keys($namespaces)) )
-		$namespace = 0;
-
-	echo $from, $namespace;
-
-	/** AP20070419
-	 *	$wgOut->setPagetitle( $namespace > 0 ?
-	 *		wfMsg( 'allinnamespace', str_replace( '_', ' ', $namespaces[$namespace] ) ) :
-	 *		wfMsg( 'allarticles' )
-	 *		);
-	 *
-	 *	Set Pagetitle to "Browse Pathways"
-	 */
-	// $wgOut->setPagetitle("Browse Pathways");
-
-	/** AP20070419
-	 *	Set default $indexPage to show Human
-	 */
-}
-
-
 class LegacyBrowsePathways extends LegacySpecialPage {
 	function __construct() {
 		parent::__construct( "BrowsePathwaysPage", "BrowsePathways" );
@@ -132,12 +75,6 @@ class BrowsePathways extends SpecialPage {
 		global $wgScript, $wgContLang, $wgOut, $wgRequest;
 		$t = SpecialPage::getTitleFor( $this->name );
 
-		/** AP20070419
-		 *	$namespaceselect = HTMLnamespaceselector($namespace, null);
-		 *
-		 *	$frombox = "<input type='text' size='20' name='from' id='nsfrom' value=\""
-		 *	            . htmlspecialchars ( $from ) . '"/>';
-		 */
 		/**
 		 * Species Selection
 		 */
