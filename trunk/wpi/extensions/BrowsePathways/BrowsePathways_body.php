@@ -24,8 +24,6 @@ class BrowsePathways extends SpecialPage {
 	protected $maxPerPage  = 960;
 	protected $topLevelMax = 50;
 	protected $name        = 'BrowsePathways';
-	protected $all         = 'All Species';
-	protected $none        = 'Uncategorized';
 
 	# Determines, which message describes the input field 'nsfrom' (->SpecialPrefixindex.php)
 	var $nsfromMsg='allpagesfrom';
@@ -34,11 +32,16 @@ class BrowsePathways extends SpecialPage {
 		SpecialPage::SpecialPage( $this->name );
 	}
 
+	static function initMsg( ) {
+		# Need this called in hook early on so messages load... maybe a bug in old MW?
+		wfLoadExtensionMessages( 'BrowsePathways' );
+	}
+
 	function execute( $par) {
 
 		global $wgOut;
 
-		$wgOut->setPagetitle("browsepathways");
+		$wgOut->setPagetitle( wfmsg( "browsepathways" ) );
 
 		$nsForm = $this->namespaceForm( );
 
@@ -69,8 +72,8 @@ class BrowsePathways extends SpecialPage {
 		 */
 		$arr = Pathway::getAvailableSpecies();
 		asort($arr);
-		$arr[] = $this->all;
-		$arr[] = $this->none;
+		$arr[] = wfMsg('browsepathways-all-species');
+		$arr[] = wfMsg('browsepathways-uncategorized-species');
 
 		$selected = $wgRequest->getVal("browse");
 		$speciesselect = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
@@ -91,7 +94,7 @@ class BrowsePathways extends SpecialPage {
 		$out .= "
 <table id='nsselect' class='allpages'>
 	<tr>
-		<td align='right'>Display pathways from species:</td>
+		<td align='right'>". wfMsg("browsepathways-selectspecies") ."</td>
 		<td align='left'>$speciesselect</td>$submitbutton</td>
 	</tr>
 </table>

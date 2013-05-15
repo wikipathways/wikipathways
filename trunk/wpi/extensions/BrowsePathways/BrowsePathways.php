@@ -13,3 +13,4 @@ $wgAutoloadClasses['LegacyBrowsePathways'] = dirname(__FILE__) . '/BrowsePathway
 $wgSpecialPages['BrowsePathwaysPage'] = 'LegacyBrowsePathways';
 $wgSpecialPages['BrowsePathways'] = 'BrowsePathways';
 $wgExtensionMessagesFiles['BrowsePathways'] = dirname( __FILE__ ) . '/BrowsePathways.i18n.php';
+$wgExtensionFunctions[] = 'BrowsePathways::initMsg';
