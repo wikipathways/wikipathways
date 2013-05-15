@@ -32,7 +32,6 @@ class BrowsePathways extends SpecialPage {
 
 	function __construct( $empty = null ) {
 		SpecialPage::SpecialPage( $this->name );
-		self::loadMessages();
 	}
 
 	function execute( $par) {
