@@ -17,6 +17,10 @@ class LegacyBrowsePathways extends LegacySpecialPage {
 
 class BrowsePathways extends SpecialPage {
 
+	protected $tags = array("Featured", "Analysis Collection", "Needs Work");
+	protected $adminTags = array("Under Construction", "Stub", "Tutorial", "Proposed for Deletion");
+	protected $allOtherTags = array("Missing Gene Refs", "Missing Description", "Lit Refs Needed", "Unconnected Lines");
+
 	protected $maxPerPage  = 960;
 	protected $topLevelMax = 50;
 	protected $name        = 'BrowsePathways';
