@@ -14,7 +14,7 @@ if(preg_match("/Body>(.*?)>/us", $HTTP_RAW_POST_DATA, $match)) {
 #	$operation = trim($match[1]);
 } else if(in_array("wsdl", array_keys($_REQUEST))) { //WSDL requests
 	$operation = "wsdl";
-} else if($_SERVER["PATH_INFO"]) {
+} else if( isset( $_SERVER["PATH_INFO"] )) {
 	$operation = "rest: " . $_SERVER["PATH_INFO"];
 }
 
