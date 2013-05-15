@@ -12,6 +12,4 @@ $wgAutoloadClasses['BrowsePathways'] = dirname(__FILE__) . '/BrowsePathways_body
 $wgAutoloadClasses['LegacyBrowsePathways'] = dirname(__FILE__) . '/BrowsePathways_body.php';
 $wgSpecialPages['BrowsePathwaysPage'] = 'LegacyBrowsePathways';
 $wgSpecialPages['BrowsePathways'] = 'BrowsePathways';
-$wgHooks['LoadAllMessages'][] = 'BrowsePathways::loadMessages';
-
-?>
+$wgExtensionMessagesFiles['BrowsePathways'] = dirname( __FILE__ ) . '/MyExtension.namespaces.php';

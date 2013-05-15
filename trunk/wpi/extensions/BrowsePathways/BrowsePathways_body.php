@@ -30,7 +30,6 @@ class BrowsePathways extends SpecialPage {
 	# Determines, which message describes the input field 'nsfrom' (->SpecialPrefixindex.php)
 	var $nsfromMsg='allpagesfrom';
 
-
 	function __construct( $empty = null ) {
 		SpecialPage::SpecialPage( $this->name );
 		self::loadMessages();
@@ -56,19 +55,6 @@ class BrowsePathways extends SpecialPage {
 			</DPL>");
 	}
 
-
-	static function loadMessages() {
-		static $messagesLoaded = false;
-		global $wgMessageCache;
-		if ( $messagesLoaded ) return true;
-		$messagesLoaded = true;
-
-		require( dirname( __FILE__ ) . '/BrowsePathways.i18n.php' );
-		foreach ( $allMessages as $lang => $langMessages ) {
-			$wgMessageCache->addMessages( $langMessages, $lang );
-		}
-		return true;
-	}
 
 	/**
 	 * HTML for the top form
