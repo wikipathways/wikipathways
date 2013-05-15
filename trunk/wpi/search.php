@@ -2,10 +2,12 @@
 require_once 'wpi.php';
 
 class IndexNotFoundException extends Exception {
-	public function __construct() {
-		parent::__construct(
-			'Unable to locate lucene index service. Please specify the base url for the index service as $indexServiceUrl in pass.php'
-		);
+	public function __construct( Exception $e ) {
+		if( $e ) {
+			parent::__construct( $e->getMessage() );
+		} else {
+			parent::__construct( 'Unable to locate lucene index service. Please specify the base url for the index service as $indexServiceUrl in pass.php' );
+		}
 	}
 }
 
@@ -19,7 +21,7 @@ class IndexClient {
 		try {
 			$r->send();
 		} catch(Exception $e) {
-			throw new IndexNotFoundException();
+			throw new IndexNotFoundException( $e );
 		}
 		if($r->getResponseCode() == 200) {
 			$xml = new SimpleXMLElement($r->getResponseBody());
@@ -57,37 +59,37 @@ class IndexClient {
 				'code' => 'L'
 			));
 		try {
-			   $r->send();
+			$r->send();
 		} catch (Exception $e) {
-						throw new IndexNotFoundException();
-				}
-		if ($r->getResponseCode() == 200) {
-						$xml = new SimpleXMLElement($r->getBody());
-						$results = array();
-						//Convert the response to SearchHit objects
-						foreach($xml->SearchResult as $resultNode) {
-								$score = $resultNode['Score'];
-								$fields = array();
-								foreach($resultNode->Field as $fieldNode) {
-										$fields[(string)$fieldNode['Name']][] = (string)$fieldNode['Value'];
-								}
-								//Remove duplicate values
-								foreach(array_keys($fields) as $fn) {
-										$fields[$fn] = array_unique($fields[$fn]);
-								}
-								$results[] = new SearchHit($score, $fields);
-						}
-						return $results;
-				} else {
-						$txt = $r->getResponseBody();
-						if(strpos($txt, '<?xml')) {
-								$xml = new SimpleXMLElement($r->getResponseBody());
-								throw new Exception($xml->message);
-						} else {
-								throw new Exception($r->getResponseBody());
-						}
-				}
+			throw new IndexNotFoundException( $e );
 		}
+		if ($r->getResponseCode() == 200) {
+			$xml = new SimpleXMLElement($r->getBody());
+			$results = array();
+			//Convert the response to SearchHit objects
+			foreach($xml->SearchResult as $resultNode) {
+				$score = $resultNode['Score'];
+				$fields = array();
+				foreach($resultNode->Field as $fieldNode) {
+					$fields[(string)$fieldNode['Name']][] = (string)$fieldNode['Value'];
+				}
+				//Remove duplicate values
+				foreach(array_keys($fields) as $fn) {
+					$fields[$fn] = array_unique($fields[$fn]);
+				}
+				$results[] = new SearchHit($score, $fields);
+			}
+			return $results;
+		} else {
+			$txt = $r->getResponseBody();
+			if(strpos($txt, '<?xml')) {
+				$xml = new SimpleXMLElement($r->getResponseBody());
+				throw new Exception($xml->message);
+			} else {
+				throw new Exception($r->getResponseBody());
+			}
+		}
+	}
 
 
 	/**
@@ -131,7 +133,7 @@ class IndexClient {
 		try {
 			$r->send();
 		} catch(Exception $e) {
-			throw new IndexNotFoundException();
+			throw new IndexNotFoundException( $e );
 		}
 		if($r->getResponseCode() == 200) {
 			$txt = $r->getResponseBody();
