@@ -38,17 +38,20 @@ class BrowsePathways extends SpecialPage {
 	}
 
 	function execute( $par) {
-
 		global $wgOut;
 
 		$wgOut->setPagetitle( wfmsg( "browsepathways" ) );
 
 		$nsForm = $this->namespaceForm( );
 
+		$arr[] = wfMsg('browsepathways-uncategorized-species');
+		$selection = $this->getSelection();
+
 		$wgOut->addHtml( $nsForm . '<hr />');
 
 		$wgOut->addWikiText(
 			"<DPL>
+				$selection
 				notnamespace=Image
 				namespace=Pathway
 				shownamespace=false
@@ -57,19 +60,37 @@ class BrowsePathways extends SpecialPage {
 			</DPL>");
 	}
 
+	function getSelection() {
+		global $wgRequest;
+		$pick = $wgRequest->getVal("browse", 'Homo sapiens');
 
-	/**
-	 * HTML for the top form
-	 * @param integer $namespace A namespace constant (default NS_PATHWAY).
-	 * @param string $from Article name we are starting listing at.
-	 */
-	function namespaceForm ( $namespace = NS_PATHWAY ) {
-		global $wgScript, $wgContLang, $wgOut, $wgRequest;
-		$t = SpecialPage::getTitleFor( $this->name );
+		$category = "category=";
+		if ($pick == wfMsg('browsepathways-all-species') ) {
+			$picked = '';
+			$arr = Pathway::getAvailableSpecies();
+			asort($arr);
+			foreach ($arr as $index) {
+				$picked .=  $index."|";
+			}
+			$picked[strlen($picked)-1] = ' ';
+			$selection = $category.$picked;
+		} else if ($pick == wfMsg('browsepathways-uncategorized-species')) {
+			$category = 'notcategory=';
+			$arr = Pathway::getAvailableSpecies();
+			asort($arr);
+			foreach ($arr as $index) {
+				$selection .= $category.$index."\n";
+			}
+		} else {
+			$picked = $pick;
+			$selection = $category.$picked;
+		}
+		return  $selection;
+	}
 
-		/**
-		 * Species Selection
-		 */
+
+	function getSpeciesSelectionList() {
+		global $wgRequest;
 		$arr = Pathway::getAvailableSpecies();
 		asort($arr);
 		$arr[] = wfMsg('browsepathways-all-species');
@@ -86,7 +107,27 @@ class BrowsePathways extends SpecialPage {
 			}
 		}
 		$speciesselect .= "</select>\n";
+		return $speciesselect;
+	}
 
+	function getTagSelectionList() {
+		global $wgRequest;
+	}
+
+	/**
+	 * HTML for the top form
+	 * @param integer $namespace A namespace constant (default NS_PATHWAY).
+	 * @param string $from Article name we are starting listing at.
+	 */
+	function namespaceForm ( $namespace = NS_PATHWAY ) {
+		global $wgScript, $wgContLang, $wgOut, $wgRequest;
+		$t = SpecialPage::getTitleFor( $this->name );
+
+		/**
+		 * Species Selection
+		 */
+		$speciesSelect = $this->getSpeciesSelect();
+		$tagSelect = $this->getTagSelect();
 		$submitbutton = '<noscript><input type="submit" value="Go" name="pick" /></noscript>';
 
 		$out = "<form method='get' action='{$wgScript}'>";
@@ -95,7 +136,9 @@ class BrowsePathways extends SpecialPage {
 <table id='nsselect' class='allpages'>
 	<tr>
 		<td align='right'>". wfMsg("browsepathways-selectspecies") ."</td>
-		<td align='left'>$speciesselect</td>$submitbutton</td>
+		<td align='left'>$speciesSelect</td>
+		<td align='left'>$tagSelect</td>
+		<td>$submitbutton</td>
 	</tr>
 </table>
 ";
