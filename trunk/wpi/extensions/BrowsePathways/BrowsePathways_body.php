@@ -42,10 +42,11 @@ class BrowsePathways extends SpecialPage {
 
 		$wgOut->setPagetitle( wfmsg( "browsepathways" ) );
 
-		$nsForm = $this->namespaceForm( );
+		$pick = $wgRequest->getVal("browse", 'Homo sapiens');
+		$nsForm = $this->pathwayForm( $pick );
 
 		$arr[] = wfMsg('browsepathways-uncategorized-species');
-		$selection = $this->getSelection();
+		$selection = $this->getSelection( $pick );
 
 		$wgOut->addHtml( $nsForm . '<hr />');
 
@@ -60,9 +61,8 @@ class BrowsePathways extends SpecialPage {
 			</DPL>");
 	}
 
-	function getSelection() {
+	function getSelection( $pick ) {
 		global $wgRequest;
-		$pick = $wgRequest->getVal("browse", 'Homo sapiens');
 
 		$category = "category=";
 		if ($pick == wfMsg('browsepathways-all-species') ) {
@@ -116,17 +116,16 @@ class BrowsePathways extends SpecialPage {
 
 	/**
 	 * HTML for the top form
-	 * @param integer $namespace A namespace constant (default NS_PATHWAY).
-	 * @param string $from Article name we are starting listing at.
+	 * @param string Species to show pathways for
 	 */
-	function namespaceForm ( $namespace = NS_PATHWAY ) {
+	function pathwayForm ( $species ) {
 		global $wgScript, $wgContLang, $wgOut, $wgRequest;
 		$t = SpecialPage::getTitleFor( $this->name );
 
 		/**
 		 * Species Selection
 		 */
-		$speciesSelect = $this->getSpeciesSelect();
+		$speciesSelect = $this->getSpeciesSelect( $species );
 		$tagSelect = $this->getTagSelect();
 		$submitbutton = '<noscript><input type="submit" value="Go" name="pick" /></noscript>';
 
