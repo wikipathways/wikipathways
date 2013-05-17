@@ -2107,8 +2107,7 @@ class ExtDynamicPageList2
 			if ($bReset[5]) { $bReset[1] = true; $bReset[5] = false; }
 			if ($bReset[6]) { $bReset[2] = true; $bReset[6] = false; }
 			if ($bReset[7]) { $bReset[3] = true; $bReset[7] = false; }
-		}
-		else {
+		} else {
 			if ($bReset[1]) self::$createdLinks['resetTemplates'] 	= true;
 			if ($bReset[2]) self::$createdLinks['resetCategories']	= true;
 			if ($bReset[3]) self::$createdLinks['resetImages'] 	= true;
@@ -2792,9 +2791,7 @@ class ExtDynamicPageList2
 			else							$sSqlWhere .= ' ) order by cl3.cl_to ASC';
 		}
 
-		//AP20080615: debug
-		//echo ".$sSqlSelectFrom . $sSqlWhere.";
-
+		wfDebug( "DPL debug -- Query=".$sSqlSelectFrom . $sSqlWhere."\n");
 		// ###### PROCESS SQL QUERY ######
 		if ($logger->iDebugLevel >=3) {
 			//DEBUG: output SQL query
