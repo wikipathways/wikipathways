@@ -38,7 +38,7 @@ class BrowsePathways extends SpecialPage {
 	}
 
 	function execute( $par) {
-		global $wgOut;
+		global $wgOut, $wgRequest;
 
 		$wgOut->setPagetitle( wfmsg( "browsepathways" ) );
 
@@ -89,14 +89,12 @@ class BrowsePathways extends SpecialPage {
 	}
 
 
-	function getSpeciesSelectionList() {
-		global $wgRequest;
+	function getSpeciesSelectionList( $selected ) {
 		$arr = Pathway::getAvailableSpecies();
 		asort($arr);
 		$arr[] = wfMsg('browsepathways-all-species');
 		$arr[] = wfMsg('browsepathways-uncategorized-species');
 
-		$selected = $wgRequest->getVal("browse");
 		$speciesselect = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
 		foreach ($arr as $index) {
 			if ($index == $selected) {
@@ -125,8 +123,8 @@ class BrowsePathways extends SpecialPage {
 		/**
 		 * Species Selection
 		 */
-		$speciesSelect = $this->getSpeciesSelect( $species );
-		$tagSelect = $this->getTagSelect();
+		$speciesSelect = $this->getSpeciesSelectionList( $species );
+		$tagSelect = $this->getTagSelectionList();
 		$submitbutton = '<noscript><input type="submit" value="Go" name="pick" /></noscript>';
 
 		$out = "<form method='get' action='{$wgScript}'>";
