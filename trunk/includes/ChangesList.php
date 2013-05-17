@@ -101,7 +101,7 @@ class ChangesList {
 	}
 
 	/**
- 	 * Returns text for the end of RC
+	 * Returns text for the end of RC
 	 * @return string
 	 */
 	public function endRecentChangesList() {
@@ -148,51 +148,39 @@ class ChangesList {
 
 	protected function insertDiffHist(&$s, &$rc, $unpatrolled) {
 		global $wgLang, $wgContLang;
-		# Diff link
+		# Diff link customizations for WPI
+		//AP20090116 - skip making native history link
 		if( !$this->userCan($rc,Revision::DELETED_TEXT) ) {
 			$diffLink = $this->message['diff'];
 		} else if( $rc->mAttribs['rc_type'] == RC_NEW || $rc->mAttribs['rc_type'] == RC_LOG ) {
 			$diffLink = $this->message['diff'];
-		} else {
-                        $rcidparam = $unpatrolled
-                              ? array( 'rcid' => $rc->mAttribs['rc_id'] )
-                              : array();
-	                $id = Title::makeTitle( $rc->mAttribs['namespace'], $rc->mAttribs['title'] );
+		} else if( isset( $rc->mAttribs['namespace'] ) || isset( $rc->mAttribs['title'] ) ) {
+			$rcidparam = $unpatrolled
+				? array( 'rcid' => $rc->mAttribs['rc_id'] )
+				: array();
+			$id = Title::makeTitle( $rc->mAttribs['namespace'], $rc->mAttribs['title'] );
 			$old = $rc->mAttribs['rc_last_oldid'];
 			$new = $rc->mAttribs['rc_this_oldid'];
 			$diffLink = "<a href='" . SITE_URL .
-                                "/index.php?title=Special:DiffAppletPage&old={$old}&new={$new}" .
-                                "&pwTitle={$rc->getTitle()}'>diff</a>";
-			//$diffLink = $this->skin->makeKnownLinkObj( $rc->getTitle(), $this->message['diff'],
-			//	wfArrayToCGI( array(
-			//		'curid' => $rc->mAttribs['rc_cur_id'],
-			//		'diff'  => $rc->mAttribs['rc_this_oldid'],
-			//		'oldid' => $rc->mAttribs['rc_last_oldid'] ),
-			//		$rcidparam ),
-			//	'', '', ' tabindex="'.$rc->counter.'"');
+				"/index.php?title=Special:DiffAppletPage&old={$old}&new={$new}" .
+				"&pwTitle={$rc->getTitle()}'>diff</a>";
+		} else {
+			return;
 		}
-		$s .= '('.$diffLink;
 
-		# History link
-		//AP20090116 - skip making native history link
-		//$s .= ') (';
-		//$s .= $this->skin->makeKnownLinkObj( $rc->getTitle(), $this->message['hist'],
-		//	wfArrayToCGI( array(
-		//		'curid' => $rc->mAttribs['rc_cur_id'],
-		//		'action' => 'history' ) ) );
-		$s .= ') . . ';
+		$s .= '('. $diffLink. ') . . ';
 	}
 
 	protected function insertArticleLink(&$s, &$rc, $unpatrolled, $watched) {
 		# Article link
 		# If it's a new article, there is no diff link, but if it hasn't been
 		# patrolled yet, we need to give users a way to do so
-		if ($rc->getTitle()->getNamespace() == NS_PATHWAY){ 
+		if ($rc->getTitle()->getNamespace() == NS_PATHWAY){
 			$pathway = Pathway::newFromTitle($rc->getTitle());
 			if(!$pathway->isReadable()) { //Keep private pathway names obscured
 				$title = $rc->getTitle();
 			} else {
-                		$title = Title::makeTitle( $rc->getTitle()->getNsText(), $pathway->getSpecies().":".$pathway->getName() );
+						$title = Title::makeTitle( $rc->getTitle()->getNsText(), $pathway->getSpecies().":".$pathway->getName() );
 			}
 		} else {
 			$title = '';
@@ -204,7 +192,7 @@ class ChangesList {
 			$articlelink = $this->skin->makeKnownLinkObj( $rc->getTitle(), $title, $params );
 			$articlelink = '<span class="history-deleted">'.$articlelink.'</span>';
 		} else {
-		    $articlelink = ' '. $this->skin->makeKnownLinkObj( $rc->getTitle(), $title, $params );
+			$articlelink = ' '. $this->skin->makeKnownLinkObj( $rc->getTitle(), $title, $params );
 		}
 		if( $watched )
 			$articlelink = "<strong class=\"mw-watched\">{$articlelink}</strong>";
@@ -432,7 +420,7 @@ class EnhancedChangesList extends ChangesList {
 
 		# Should patrol-related stuff be shown?
 		if( $wgUser->useRCPatrol() ) {
-		  	$rc->unpatrolled = !$rc_patrolled;
+			$rc->unpatrolled = !$rc_patrolled;
 		} else {
 			$rc->unpatrolled = false;
 		}
@@ -509,7 +497,7 @@ class EnhancedChangesList extends ChangesList {
 
 		# Make "last" link
 		if( !$showdifflinks ) {
-		    $lastLink = $this->message['last'];
+			$lastLink = $this->message['last'];
 		} else if( $rc_last_oldid == 0 || $rc_type == RC_LOG || $rc_type == RC_MOVE || $rc_type == RC_MOVE_OVER_REDIRECT ) {
 			$lastLink = $this->message['last'];
 		} else {
@@ -519,7 +507,7 @@ class EnhancedChangesList extends ChangesList {
 
 		# Make user links
 		if( $this->isDeleted($rc,Revision::DELETED_USER) ) {
-		   	$rc->userlink = ' <span class="history-deleted">' . wfMsgHtml('rev-deleted-user') . '</span>';
+			$rc->userlink = ' <span class="history-deleted">' . wfMsgHtml('rev-deleted-user') . '</span>';
 		} else {
 			$rc->userlink = $this->skin->userLink( $rc_user, $rc_user_text );
 			$rc->usertalklink = $this->skin->userToolLinks( $rc_user, $rc_user_text );
@@ -721,7 +709,7 @@ class EnhancedChangesList extends ChangesList {
 				$link = '<span class="history-deleted"><tt>'.$rcObj->timestamp.'</tt></span> ';
 			} else {
 				$rcIdEq = ($rcObj->unpatrolled && $rc_type == RC_NEW) ? '&rcid='.$rcObj->mAttribs['rc_id'] : '';
-				
+
 				$link = '<tt>'.$this->skin->makeKnownLinkObj( $rcObj->getTitle(), $rcObj->timestamp, $curIdEq.'&'.$o.$rcIdEq ).'</tt>';
 				if( $this->isDeleted($rcObj,Revision::DELETED_TEXT) )
 					$link = '<span class="history-deleted">'.$link.'</span> ';
@@ -874,7 +862,7 @@ class EnhancedChangesList extends ChangesList {
 			if( $this->isDeleted($rcObj,LogPage::DELETED_ACTION) ) {
 				$r .= ' <span class="history-deleted">' . wfMsgHtml('rev-deleted-event') . '</span>';
 			} else {
-				$r .= ' ' . LogPage::actionText( $rc_log_type, $rc_log_action, $rcObj->getTitle(), 
+				$r .= ' ' . LogPage::actionText( $rc_log_type, $rc_log_action, $rcObj->getTitle(),
 					$this->skin, LogPage::extractParams($rc_params), true, true );
 			}
 		}
@@ -917,7 +905,7 @@ class EnhancedChangesList extends ChangesList {
 	}
 
 	/**
- 	 * Returns text for the end of RC
+	 * Returns text for the end of RC
 	 * If enhanced RC is in use, returns pretty much all the text
 	 */
 	public function endRecentChangesList() {
