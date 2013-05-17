@@ -42,11 +42,12 @@ class BrowsePathways extends SpecialPage {
 
 		$wgOut->setPagetitle( wfmsg( "browsepathways" ) );
 
-		$pick = $wgRequest->getVal("browse", 'Homo sapiens');
-		$nsForm = $this->pathwayForm( $pick );
+		$species = $wgRequest->getVal("browse", 'Homo sapiens');
+		$tag = $wgRequest->getVal("tag", 'Curation:FeaturedPathway');
+		$nsForm = $this->pathwayForm( $species, $tag );
 
 		$arr[] = wfMsg('browsepathways-uncategorized-species');
-		$selection = $this->getSelection( $pick );
+		$selection = $this->getSelection( $species );
 
 		$wgOut->addHtml( $nsForm . '<hr />');
 
@@ -89,34 +90,49 @@ class BrowsePathways extends SpecialPage {
 	}
 
 
-	function getSpeciesSelectionList( $selected ) {
+	function getSpeciesSelectionList( $species ) {
 		$arr = Pathway::getAvailableSpecies();
 		asort($arr);
 		$arr[] = wfMsg('browsepathways-all-species');
 		$arr[] = wfMsg('browsepathways-uncategorized-species');
 
-		$speciesselect = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
+		$sel = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
 		foreach ($arr as $index) {
-			if ($index == $selected) {
-				$speciesselect .= "\t" . Xml::element("option",
-					array("value" => $index, "selected" => "selected"), $index) . "\n";
-			} else {
-				$speciesselect .= "\t" . Xml::element("option", array("value" => $index), $index) . "\n";
-			}
+			$sel .= $this->makeSelectionOption( $index, $species );
 		}
-		$speciesselect .= "</select>\n";
-		return $speciesselect;
+		$sel .= "</select>\n";
+		return $sel;
 	}
 
-	function getTagSelectionList() {
+	function getTagSelectionList( $selected ) {
 		global $wgRequest;
+
+		$sel = "<select onchange='this.form.submit()' name='tag' class='namespaceselector'>\n";
+		foreach( CurationTag::getTagNames() as $tag ) {
+			$display = CurationTag::getDisplayName( $tag );
+			$sel .= $this->makeSelectionOption( $tag, $selected, $display );
+		}
+		$sel .= "</select>\n";
+		return $sel;
+	}
+
+	private function makeSelectionOption( $item, $selected, $display = null ) {
+		$attr = array( "value" => $item );
+		if( null === $display ) {
+			$display = $item;
+		}
+		if ( $item == $selected ) {
+			$attr['selected'] = 1;
+		}
+
+		return "\t" . Xml::element( "option", $attr, $display ) . "\n";
 	}
 
 	/**
 	 * HTML for the top form
 	 * @param string Species to show pathways for
 	 */
-	function pathwayForm ( $species ) {
+	function pathwayForm ( $species, $tag ) {
 		global $wgScript, $wgContLang, $wgOut, $wgRequest;
 		$t = SpecialPage::getTitleFor( $this->name );
 
@@ -124,7 +140,7 @@ class BrowsePathways extends SpecialPage {
 		 * Species Selection
 		 */
 		$speciesSelect = $this->getSpeciesSelectionList( $species );
-		$tagSelect = $this->getTagSelectionList();
+		$tagSelect = $this->getTagSelectionList( $tag );
 		$submitbutton = '<noscript><input type="submit" value="Go" name="pick" /></noscript>';
 
 		$out = "<form method='get' action='{$wgScript}'>";
