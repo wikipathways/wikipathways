@@ -316,6 +316,7 @@ class ExtDynamicPageList2
 	 * For some options (e.g. 'namespace'), possible values are not yet defined but will be if necessary (for debugging)
 	 */
 	public static $options = array(
+		'tag'                  => null,
 		'addcategories'        => array('default' => 'false', 'true', 'no', 'yes', '0', '1', 'off', 'on'),
 		'addpagecounter'       => array('default' => 'false', 'true', 'no', 'yes', '0', '1', 'off', 'on'),
 		'addpagesize'          => array('default' => 'false', 'true', 'no', 'yes', '0', '1', 'off', 'on'),
@@ -1279,6 +1280,8 @@ class ExtDynamicPageList2
 		// parse the result recursively. This allows to build complex structures in the output
 		// which are only understood by the parser if seen as a whole
 
+		$aIncludeTag = array();
+
 		foreach($aParams as $iParam => $sParam) {
 			$aParam = explode('=', $sParam, 2);
 			if( count( $aParam ) < 2 ) {
@@ -1320,9 +1323,12 @@ class ExtDynamicPageList2
 						$output .= $logger->msgWrongParam('goal', $sArg);
 					break;
 
-					/**
-					 * FILTER PARAMETERS
-					 */
+				/**
+				 * FILTER PARAMETERS
+				 */
+				case 'tag':
+					$aIncludeTag[] = $sArg;
+					break;
 				case 'categoryregexp':
 					$sCategoryComparisonMode = ' REGEXP ';
 					$aIncludeCategories[] = array($sArg);

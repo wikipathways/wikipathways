@@ -47,25 +47,31 @@ class BrowsePathways extends SpecialPage {
 		$nsForm = $this->pathwayForm( $species, $tag );
 
 		$arr[] = wfMsg('browsepathways-uncategorized-species');
-		$selection = $this->getSelection( $species );
+		$selectedSpecies = $this->getSelection( $species );
+		$selectedTags    = $this->getSelectedTag( $tag );
 
 		$wgOut->addHtml( $nsForm . '<hr />');
-
-		$wgOut->addWikiText(
-			"<DPL>
-				$selection
+		$pageText = "<DPL>
+				$selectedTags
+				$selectedSpecies
 				notnamespace=Image
 				namespace=Pathway
 				shownamespace=false
 				mode=category
 				ordermethod=title
-			</DPL>");
+			</DPL>";
+		//var_dump($pageText);
+		$wgOut->addWikiText( $pageText );
 	}
 
-	function getSelection( $pick ) {
-		global $wgRequest;
+	function getSelectedTag( $tag ) {
+		return "tag=$tag";
+	}
 
+
+	function getSelection( $pick ) {
 		$category = "category=";
+		$selection = "";
 		if ($pick == wfMsg('browsepathways-all-species') ) {
 			$picked = '';
 			$arr = Pathway::getAvailableSpecies();
@@ -105,8 +111,6 @@ class BrowsePathways extends SpecialPage {
 	}
 
 	function getTagSelectionList( $selected ) {
-		global $wgRequest;
-
 		$sel = "<select onchange='this.form.submit()' name='tag' class='namespaceselector'>\n";
 		foreach( CurationTag::getTagNames() as $tag ) {
 			$display = CurationTag::getDisplayName( $tag );
@@ -133,7 +137,7 @@ class BrowsePathways extends SpecialPage {
 	 * @param string Species to show pathways for
 	 */
 	function pathwayForm ( $species, $tag ) {
-		global $wgScript, $wgContLang, $wgOut, $wgRequest;
+		global $wgScript, $wgContLang, $wgOut;
 		$t = SpecialPage::getTitleFor( $this->name );
 
 		/**
