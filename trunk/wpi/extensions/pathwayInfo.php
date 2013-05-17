@@ -75,6 +75,7 @@ class PathwayInfo extends PathwayData {
 
 		//Create collapse button
 		$nrShow = 5;
+		$button = "";
 		$nrNodes = count($nodes);
 		if(count($nodes) > $nrShow) {
 			$expand = "<b>View all...</b>";
