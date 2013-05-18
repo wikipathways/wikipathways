@@ -9,6 +9,47 @@
  */
 require_once('wpi/wpi.php');
 
+class PathwaysPager extends AlphabeticPager {
+	private $species;
+	private $tag;
+        private $ns = NS_PATHWAY;
+        private $nsName;
+
+	function __construct( $species, $tag ) {
+            global $wgCanonicalNamespaceNames;
+
+		$this->species = $species;
+		$this->tag = $tag;
+                if ( ! isset( $wgCanonicalNamespaceNames[ $this->ns ] ) ) {
+                    throw new MWException( "Invalid namespace {$this->ns}" );
+                }
+                $this->nsName = $wgCanonicalNamespaceNames[ $this->ns ];
+
+		parent::__construct();
+	}
+
+	function getQueryInfo() {
+		return array(
+			'tables' => 'page',
+			'fields' => 'page_title',
+			'conds' => array( 'page_is_redirect' => '0', 'page_namespace' => $this->ns ),
+			'join_conds' => array(
+				'tag' => array( 'INNER JOIN', 'page.page_id=tag.page_id and tag_name='.$this->mDb->addQuotes( $this->tag ) ),
+				'categorylinks' => array( 'LEFT JOIN', 'page_id=cl_from AND cl_to='.$this->mDb->addQuotes( $this->species )  ) )
+		);
+	}
+
+	function getIndexField() {
+		return 'page_title';
+	}
+
+	function formatRow( $row ) {
+		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
+		$s = '<li><a href="' . $title->getFullURL() . '">' . $this->nsName . ":". $title->getText() . '</a></li>';
+		return $s;
+	}
+}
+
 class LegacyBrowsePathways extends LegacySpecialPage {
 	function __construct() {
 		parent::__construct( "BrowsePathwaysPage", "BrowsePathways" );
@@ -37,37 +78,40 @@ class BrowsePathways extends SpecialPage {
 		wfLoadExtensionMessages( 'BrowsePathways' );
 	}
 
+	private $species;
+	private $tag;
+
 	function execute( $par) {
 		global $wgOut, $wgRequest;
 
 		$wgOut->setPagetitle( wfmsg( "browsepathways" ) );
 
-		$species = $wgRequest->getVal("browse", 'Homo sapiens');
-		$tag = $wgRequest->getVal("tag", 'Curation:FeaturedPathway');
-		$nsForm = $this->pathwayForm( $species, $tag );
-
-		$arr[] = wfMsg('browsepathways-uncategorized-species');
-		$selectedSpecies = $this->getSelection( $species );
-		$selectedTags    = $this->getSelectedTag( $tag );
+		$this->species = $wgRequest->getVal("browse", 'Homo sapiens');
+		$this->tag     = $wgRequest->getVal("tag", 'Curation:FeaturedPathway');
+		$nsForm = $this->pathwayForm( );
 
 		$wgOut->addHtml( $nsForm . '<hr />');
-		$pageText = "<DPL>
-				$selectedTags
-				$selectedSpecies
-				notnamespace=Image
-				namespace=Pathway
-				shownamespace=false
-				mode=category
-				ordermethod=title
-			</DPL>";
-		//var_dump($pageText);
-		$wgOut->addWikiText( $pageText );
+
+		$pager = new PathwaysPager( $this->species, $this->tag );
+		$wgOut->addHTML(
+			$pager->getNavigationBar() . "<ol>" .
+			$pager->getBody() ."</ol>" .
+			$pager->getNavigationBar()
+		);
+		return;
+
+		$arr[] = wfMsg('browsepathways-uncategorized-species');
+		$sql = $this->getSQL( );
+
+
+		foreach( $rows as $title ) {
+			$wgOut->addWikiText( "* [[$title]]\n" );
+		}
 	}
 
 	function getSelectedTag( $tag ) {
 		return "tag=$tag";
 	}
-
 
 	function getSelection( $pick ) {
 		$category = "category=";
@@ -96,7 +140,7 @@ class BrowsePathways extends SpecialPage {
 	}
 
 
-	function getSpeciesSelectionList( $species ) {
+	function getSpeciesSelectionList( ) {
 		$arr = Pathway::getAvailableSpecies();
 		asort($arr);
 		$arr[] = wfMsg('browsepathways-all-species');
@@ -104,17 +148,17 @@ class BrowsePathways extends SpecialPage {
 
 		$sel = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
 		foreach ($arr as $index) {
-			$sel .= $this->makeSelectionOption( $index, $species );
+			$sel .= $this->makeSelectionOption( $index, $this->species );
 		}
 		$sel .= "</select>\n";
 		return $sel;
 	}
 
-	function getTagSelectionList( $selected ) {
+	function getTagSelectionList( ) {
 		$sel = "<select onchange='this.form.submit()' name='tag' class='namespaceselector'>\n";
 		foreach( CurationTag::getTagNames() as $tag ) {
 			$display = CurationTag::getDisplayName( $tag );
-			$sel .= $this->makeSelectionOption( $tag, $selected, $display );
+			$sel .= $this->makeSelectionOption( $tag, $this->tag, $display );
 		}
 		$sel .= "</select>\n";
 		return $sel;
@@ -136,15 +180,15 @@ class BrowsePathways extends SpecialPage {
 	 * HTML for the top form
 	 * @param string Species to show pathways for
 	 */
-	function pathwayForm ( $species, $tag ) {
+	function pathwayForm ( ) {
 		global $wgScript, $wgContLang, $wgOut;
 		$t = SpecialPage::getTitleFor( $this->name );
 
 		/**
 		 * Species Selection
 		 */
-		$speciesSelect = $this->getSpeciesSelectionList( $species );
-		$tagSelect = $this->getTagSelectionList( $tag );
+		$speciesSelect = $this->getSpeciesSelectionList( );
+		$tagSelect = $this->getTagSelectionList( );
 		$submitbutton = '<noscript><input type="submit" value="Go" name="pick" /></noscript>';
 
 		$out = "<form method='get' action='{$wgScript}'>";
