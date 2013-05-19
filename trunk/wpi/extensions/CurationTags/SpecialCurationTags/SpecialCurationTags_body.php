@@ -130,9 +130,9 @@ class SpecialCurationTags extends SpecialPage {
 			$wgOut->addScriptFile( "../wikipathways/CurationTags.js"  );
 			$def = CurationTag::getTagDefinition();
 			// Don't you just love how php does things?
-			$useRev  = "" . array_shift( $def->xpath("Tag[@name='$tagName']/@useRevision") );
-			$newEdit = "" . array_shift( $def->xpath("Tag[@name='$tagName']/@newEditHighlight") );
-			$action  = "" . array_shift( $def->xpath("Tag[@name='$tagName']/@highlightAction") );
+			$useRev  = "" . array_shift( $def->xpath('Tag[@name="'.$tagName.'"]/@useRevision') );
+			$newEdit = "" . array_shift( $def->xpath('Tag[@name="'.$tagName.'"]/@newEditHighlight') );
+			$action  = "" . array_shift( $def->xpath('Tag[@name="'.$tagName.'"]/@highlightAction') );
 
 			$pages = CurationTag::getPagesForTag($tagName);
 			$table = "";
