@@ -12,40 +12,49 @@ require_once('wpi/wpi.php');
 class PathwaysPager extends AlphabeticPager {
 	private $species;
 	private $tag;
-        private $ns = NS_PATHWAY;
-        private $nsName;
+		private $ns = NS_PATHWAY;
+		private $nsName;
 
-	function __construct( $species, $tag ) {
-            global $wgCanonicalNamespaceNames;
+		function __construct( $species, $tag ) {
+			global $wgCanonicalNamespaceNames;
 
-		$this->species = $species;
-		$this->tag = $tag;
-                if ( ! isset( $wgCanonicalNamespaceNames[ $this->ns ] ) ) {
-                    throw new MWException( "Invalid namespace {$this->ns}" );
-                }
-                $this->nsName = $wgCanonicalNamespaceNames[ $this->ns ];
+			$this->species = $species;
+			$this->tag = $tag;
+			if ( ! isset( $wgCanonicalNamespaceNames[ $this->ns ] ) ) {
+				throw new MWException( "Invalid namespace {$this->ns}" );
+			}
+			$this->nsName = $wgCanonicalNamespaceNames[ $this->ns ];
 
-		parent::__construct();
-	}
+			parent::__construct();
+		}
 
-	function getQueryInfo() {
-		return array(
-			'tables' => 'page',
-			'fields' => 'page_title',
-			'conds' => array( 'page_is_redirect' => '0', 'page_namespace' => $this->ns ),
-			'join_conds' => array(
-				'tag' => array( 'INNER JOIN', 'page.page_id=tag.page_id and tag_name='.$this->mDb->addQuotes( $this->tag ) ),
-				'categorylinks' => array( 'LEFT JOIN', 'page_id=cl_from AND cl_to='.$this->mDb->addQuotes( $this->species )  ) )
-		);
-	}
+		function getQueryInfo() {
+			return array(
+				'tables' => array( 'page', 'tag as t0', 'tag as t1', 'categorylinks' ),
+				'fields' => array( 'page_title', 't1.tag_text' ),
+				'conds' => array(
+					'page_is_redirect' => '0',
+					'page_namespace' => $this->ns,
+					'cl_to' => $this->species,
+					't0.tag_name' => $this->tag,
+					't1.tag_name' => 'cache-name'
+				),
+				'join_conds' => array(
+					'tag as t0' => array( 'JOIN', 't0.page_id = page.page_id'),
+					'tag as t1' => array( 'JOIN', 't1.page_id = page.page_id'),
+					'categorylinks' => array( 'JOIN', 'page.page_id=cl_from' )
+				)
+			);
+		}
 
 	function getIndexField() {
-		return 'page_title';
+		return 'tag_text';
 	}
 
 	function formatRow( $row ) {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
-		$s = '<li><a href="' . $title->getFullURL() . '">' . $this->nsName . ":". $title->getText() . '</a></li>';
+				$pathway = Pathway::newFromTitle( $title );
+		$s = '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName() . '</a></li>';
 		return $s;
 	}
 }
@@ -86,7 +95,7 @@ class BrowsePathways extends SpecialPage {
 
 		$wgOut->setPagetitle( wfmsg( "browsepathways" ) );
 
-		$this->species = $wgRequest->getVal("browse", 'Homo sapiens');
+		$this->species = $wgRequest->getVal("browse", 'Homo_sapiens');
 		$this->tag     = $wgRequest->getVal("tag", 'Curation:FeaturedPathway');
 		$nsForm = $this->pathwayForm( );
 
@@ -148,7 +157,7 @@ class BrowsePathways extends SpecialPage {
 
 		$sel = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
 		foreach ($arr as $index) {
-			$sel .= $this->makeSelectionOption( $index, $this->species );
+					$sel .= $this->makeSelectionOption( Title::newFromText( $index )->getDBKey(), $this->species, $index );
 		}
 		$sel .= "</select>\n";
 		return $sel;
