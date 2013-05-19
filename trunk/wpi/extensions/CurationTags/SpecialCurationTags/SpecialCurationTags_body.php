@@ -23,8 +23,8 @@ class tableRow {
 // Primative
 class tableRowFactory {
 	static public function produce( $type, $data ) {
-		if($type == "red") {
-			return new redRow( $data );
+		if($type == "underConstruction") {
+			return new underConstructionRow( $data );
 		}
 		elseif($type == "delete") {
 			return new deleteRow( $data );
