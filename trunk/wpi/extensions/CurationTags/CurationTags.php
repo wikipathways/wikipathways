@@ -131,7 +131,7 @@ class CurationTag {
 	 * Returns true if you the revision should be used.
 	 */
 	public static function useRevision( $tagname ) {
-		return self::getTagAttr( $tagname, "useRevision" ) !== null
+		return self::getTagAttr( $tagname, "useRevision" ) !== null;
 	}
 
 	public static function newEditHighlight( $tagname ) {
