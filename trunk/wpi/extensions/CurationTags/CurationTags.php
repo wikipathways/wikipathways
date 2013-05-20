@@ -144,7 +144,39 @@ class CurationTag {
 	}
 
 	public static function bureaucratOnly( $tagname ) {
-		return self::getTagAttr( $tagname, "bureaucrat" );
+		$r = self::getTagDefinition()->xpath('Tag[@bureacrat]');
+		if( count( $r ) === 0 ) {
+			throw new MWException( "No bureacrat tags specified!  Please set [[CurationTagsDefinition]] with at least bureacrat-only tag." );
+		}
+		$top = array();
+		foreach( $r as $tag ) {
+			$top[] = (string)$tag['name'];
+		}
+		return $top;
+	}
+
+	public static function defaultTag( ) {
+		$r = self::getTagDefinition()->xpath('Tag[@default]');
+		if( count( $r ) === 0 ) {
+			throw new MWException( "No default tags specified!  Please set [[CurationTagsDefinition]] with one default." );
+		}
+		if( count( $r ) > 1 ) {
+			throw new MWException( "Multiple default tags specified!  Please set [[CurationTagsDefinition]] with one default." );
+		}
+		return (string)$r[0]['name'];
+	}
+
+	public static function topTags( ) {
+		$r = self::getTagDefinition()->xpath('Tag[@topTag]');
+		if( count( $r ) === 0 ) {
+			throw new MWException( "No top tags specified!  Please set [[CurationTagsDefinition]] with at least one top tag." );
+		}
+		$top = array();
+		foreach( $r as $tag ) {
+			$top[] = (string)$tag['name'];
+		}
+
+		return $top;
 	}
 
 	/**
@@ -175,10 +207,19 @@ class CurationTag {
 	public static function getTagDefinition() {
 		if(!self::$tagDefinition) {
 			$ref = Revision::newFromTitle( Title::newFromText( self::$TAG_LIST_PAGE ) );
-			if($ref) {
+			if(!$ref) {
+				throw new Exception("No content for [[".self::$TAG_LIST_PAGE."]].  It must be a valid XML document.");
+			}
+
+			try {
+				libxml_use_internal_errors(true);
 				self::$tagDefinition = new SimpleXMLElement($ref->getText());
-			} else {
-				self::$tagDefinition = new SimpleXMLElement('<?xml version="1.0"?><TagDefinitions></TagDefinitions>');
+			} catch (Exception $e) {
+				$err = "Error parsing [[".self::$TAG_LIST_PAGE."]].  It must be a valid XML document.\n";
+				foreach(libxml_get_errors() as $error) {
+					$err .= "\n\t" . $error->message;
+				}
+				throw new MWException ( $err );
 			}
 		}
 		return self::$tagDefinition;

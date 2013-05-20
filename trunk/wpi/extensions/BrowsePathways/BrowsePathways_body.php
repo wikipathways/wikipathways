@@ -67,16 +67,12 @@ class LegacyBrowsePathways extends LegacySpecialPage {
 
 class BrowsePathways extends SpecialPage {
 
-	protected $tags = array("Featured", "Analysis Collection", "Needs Work");
-	protected $adminTags = array("Under Construction", "Stub", "Tutorial", "Proposed for Deletion");
-	protected $allOtherTags = array("Missing Gene Refs", "Missing Description", "Lit Refs Needed", "Unconnected Lines");
-
 	protected $maxPerPage  = 960;
 	protected $topLevelMax = 50;
 	protected $name        = 'BrowsePathways';
 
 	# Determines, which message describes the input field 'nsfrom' (->SpecialPrefixindex.php)
-	var $nsfromMsg='allpagesfrom';
+	var $nsfromMsg='browsepathwaysfrom';
 
 	function __construct( $empty = null ) {
 		SpecialPage::SpecialPage( $this->name );
@@ -96,7 +92,7 @@ class BrowsePathways extends SpecialPage {
 		$wgOut->setPagetitle( wfmsg( "browsepathways" ) );
 
 		$this->species = $wgRequest->getVal("browse", 'Homo_sapiens');
-		$this->tag     = $wgRequest->getVal("tag", 'Curation:FeaturedPathway');
+		$this->tag     = $wgRequest->getVal("tag", CurationTag::defaultTag());
 		$nsForm = $this->pathwayForm( );
 
 		$wgOut->addHtml( $nsForm . '<hr />');
