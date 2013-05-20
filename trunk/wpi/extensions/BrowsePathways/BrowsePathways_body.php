@@ -18,34 +18,40 @@ class PathwaysPager extends AlphabeticPager {
 	function __construct( $species, $tag ) {
 		global $wgCanonicalNamespaceNames;
 
-		$this->species = $species;
-		$this->tag = $tag;
 		if ( ! isset( $wgCanonicalNamespaceNames[ $this->ns ] ) ) {
 			throw new MWException( "Invalid namespace {$this->ns}" );
 		}
 		$this->nsName = $wgCanonicalNamespaceNames[ $this->ns ];
+		$this->species = $species;
+		if( strstr( $tag, "|" ) === false ) {
+			$this->tag = $tag;
+		} else {
+			$this->tag = explode( "|", $tag );
+		}
+
 
 		parent::__construct();
 	}
 
 	function getQueryInfo() {
 		return array(
+			'options' => array( 'DISTINCT' ),
 			'tables' => array( 'page', 'tag as t0', 'tag as t1', 'categorylinks' ),
-				'fields' => array( 'page_title', 't1.tag_text' ),
-				'conds' => array(
-					'page_is_redirect' => '0',
-					'page_namespace' => $this->ns,
-					'cl_to' => $this->species,
-					't0.tag_name' => $this->tag,
-					't1.tag_name' => 'cache-name'
-				),
-				'join_conds' => array(
-					'tag as t0' => array( 'JOIN', 't0.page_id = page.page_id'),
-					'tag as t1' => array( 'JOIN', 't1.page_id = page.page_id'),
-					'categorylinks' => array( 'JOIN', 'page.page_id=cl_from' )
-				)
-			);
-		}
+			'fields' => array( 't1.tag_text', 'page_title' ),
+			'conds' => array(
+				'page_is_redirect' => '0',
+				'page_namespace' => $this->ns,
+				'cl_to' => $this->species,
+				't0.tag_name' => $this->tag,
+				't1.tag_name' => 'cache-name'
+			),
+			'join_conds' => array(
+				'tag as t0' => array( 'JOIN', 't0.page_id = page.page_id'),
+				'tag as t1' => array( 'JOIN', 't1.page_id = page.page_id'),
+				'categorylinks' => array( 'JOIN', 'page.page_id=cl_from' )
+			)
+		);
+	}
 
 	function getIndexField() {
 		return 't1.tag_text';
