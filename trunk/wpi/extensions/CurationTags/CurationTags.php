@@ -110,7 +110,8 @@ class CurationTag {
 	private static function getTagAttr( $tag, $attr ) {
 		$r = self::getTagDefinition()->xpath('Tag[@name="' . $tag . '"]/@'
 			. $attr );
-		return $r ? (string)$r[0][$attr] : null;
+		$v = $r ? (string)$r[0][$attr] : null;
+		return $v !== null && $v !== "" ? $v : null;
 	}
 
 	/**
@@ -140,6 +141,10 @@ class CurationTag {
 
 	public static function highlightAction( $tagname ) {
 		return self::getTagAttr( $tagname, "highlightAction" );
+	}
+
+	public static function bureaucratOnly( $tagname ) {
+		return self::getTagAttr( $tagname, "bureaucrat" );
 	}
 
 	/**
