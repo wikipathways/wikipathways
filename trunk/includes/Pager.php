@@ -160,20 +160,33 @@ abstract class IndexPager implements Pager {
 	 * the navigation bar, put it into $this
 	 */
 	function extractResultInfo( $offset, $limit, ResultWrapper $res ) {
+		# Following integrates changes from later version
+
+		# commit c2db3369164e9656899548d230d87bcaf2832121
+		# Author: Max Semenik <maxsem@users.mediawiki.org>
+		# Date:   Sun Aug 15 07:03:59 2010 +0000
+
+		# commit 1a45345aa89480d0624a8b56f85b56ddadc5e212
+		# Author: Ryan Kaldari <kaldari@users.mediawiki.org>
+		# Date:   Sat Aug 14 01:57:05 2010 +0000
+
 		$numRows = $res->numRows();
 		if ( $numRows ) {
+			# Remove any table prefix from index field
+			$parts = explode( '.', $this->mIndexField );
+			$indexColumn = end( $parts );
+
 			$row = $res->fetchRow();
-			$firstIndex = $row[$this->mIndexField];
+			$firstIndex = $row[$indexColumn];;
 
 			# Discard the extra result row if there is one
 			if ( $numRows > $this->mLimit && $numRows > 1 ) {
 				$res->seek( $numRows - 1 );
 				$this->mPastTheEndRow = $res->fetchObject();
-				$indexField = $this->mIndexField;
-				$this->mPastTheEndIndex = $this->mPastTheEndRow->$indexField;
+				$this->mPastTheEndIndex = $this->mPastTheEndRow->$indexColumn;
 				$res->seek( $numRows - 2 );
 				$row = $res->fetchRow();
-				$lastIndex = $row[$this->mIndexField];
+				$lastIndex = $row[$indexColumn];
 			} else {
 				$this->mPastTheEndRow = null;
 				# Setting indexes to an empty string means that they will be
@@ -183,7 +196,7 @@ abstract class IndexPager implements Pager {
 				$this->mPastTheEndIndex = '';
 				$res->seek( $numRows - 1 );
 				$row = $res->fetchRow();
-				$lastIndex = $row[$this->mIndexField];
+				$lastIndex = $row[$indexColumn];
 			}
 		} else {
 			$firstIndex = '';

@@ -12,25 +12,25 @@ require_once('wpi/wpi.php');
 class PathwaysPager extends AlphabeticPager {
 	private $species;
 	private $tag;
-		private $ns = NS_PATHWAY;
-		private $nsName;
+	private $ns = NS_PATHWAY;
+	private $nsName;
 
-		function __construct( $species, $tag ) {
-			global $wgCanonicalNamespaceNames;
+	function __construct( $species, $tag ) {
+		global $wgCanonicalNamespaceNames;
 
-			$this->species = $species;
-			$this->tag = $tag;
-			if ( ! isset( $wgCanonicalNamespaceNames[ $this->ns ] ) ) {
-				throw new MWException( "Invalid namespace {$this->ns}" );
-			}
-			$this->nsName = $wgCanonicalNamespaceNames[ $this->ns ];
-
-			parent::__construct();
+		$this->species = $species;
+		$this->tag = $tag;
+		if ( ! isset( $wgCanonicalNamespaceNames[ $this->ns ] ) ) {
+			throw new MWException( "Invalid namespace {$this->ns}" );
 		}
+		$this->nsName = $wgCanonicalNamespaceNames[ $this->ns ];
 
-		function getQueryInfo() {
-			return array(
-				'tables' => array( 'page', 'tag as t0', 'tag as t1', 'categorylinks' ),
+		parent::__construct();
+	}
+
+	function getQueryInfo() {
+		return array(
+			'tables' => array( 'page', 'tag as t0', 'tag as t1', 'categorylinks' ),
 				'fields' => array( 'page_title', 't1.tag_text' ),
 				'conds' => array(
 					'page_is_redirect' => '0',
@@ -48,7 +48,7 @@ class PathwaysPager extends AlphabeticPager {
 		}
 
 	function getIndexField() {
-		return 'tag_text';
+		return 't1.tag_text';
 	}
 
 	function formatRow( $row ) {
