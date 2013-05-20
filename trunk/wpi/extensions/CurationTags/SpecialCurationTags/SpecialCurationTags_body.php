@@ -156,6 +156,7 @@ class SpecialCurationTags extends SpecialPage {
 						$data[] = "<i style='display: none'>{$tag->getTimeMod()}</i>".
 							$wgLang->timeanddate( $tag->getTimeMod(), true );
 
+						$ts = Revision::newFromId( $p->getLatestRevision() )->getTimestamp();
 						if($useRev) {
 							if( $p->getLatestRevision() == $tag->getPageRevision() ) {
 								$data[] = "<font color='green'>yes</font>";
@@ -171,7 +172,6 @@ class SpecialCurationTags extends SpecialPage {
 							$data[] = "<i style='display:none'>$ts</i>".
 								$wgLang->timeAndDate( $ts );
 						}
-						$ts = Revision::newFromId( $p->getLatestRevision() )->getTimestamp();
 
 						$row = tableRowFactory::produce( $action, $data );
 						$row->action( $tag, $ts, $newEdit );
