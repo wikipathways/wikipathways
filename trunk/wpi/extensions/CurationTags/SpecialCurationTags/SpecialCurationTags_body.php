@@ -168,10 +168,10 @@ class SpecialCurationTags extends SpecialPage {
 
 						if($newEdit) {
 							// Last Edited date
-							$ts = Revision::newFromId( $p->getLatestRevision() )->getTimestamp();
 							$data[] = "<i style='display:none'>$ts</i>".
 								$wgLang->timeAndDate( $ts );
 						}
+						$ts = Revision::newFromId( $p->getLatestRevision() )->getTimestamp();
 
 						$row = tableRowFactory::produce( $action, $data );
 						$row->action( $tag, $ts, $newEdit );
