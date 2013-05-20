@@ -131,8 +131,8 @@ class SpecialCurationTags extends SpecialPage {
 			$def = CurationTag::getTagDefinition();
 			// Don't you just love how php does things?
 			$useRev  = CurationTag::useRevision( $tagName );
-			$newEdit = CurationTag::newEditHighlight( $tagName )
-			$action  = CurationTag::highlightAction( $tagName )
+			$newEdit = CurationTag::newEditHighlight( $tagName );
+			$action  = CurationTag::highlightAction( $tagName );
 
 			$pages = CurationTag::getPagesForTag($tagName);
 			$table = "";
