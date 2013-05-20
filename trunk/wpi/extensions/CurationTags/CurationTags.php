@@ -126,6 +126,33 @@ class CurationTag {
 	}
 
 	/**
+	 * Get the description for the given tag name
+	 */
+	public static function getDescription($tagname) {
+		return self::getTagAttr( $tagname, "description" );
+	}
+
+	private static function getTagAttr( $tag, $attr ) {
+		$r = self::getTagDefinition()->xpath('Tag[@name="' . $tagname . '"]/@' . $attr );
+		return $r ? (string)$r[0][$attr] : null;
+	}
+
+	/**
+	 * Returns true if you the revision should be used.
+	 */
+	public static function useRevision( $tagname ) {
+		return self::getTagAttr( $tagname, "useRevision" ) !== null
+	}
+
+	public static function newEditHighlight( $tagname ) {
+		return self::getTagAttr( $tagname, "newEditHighlight" );
+	}
+
+	public static function highlightAction( $tagname ) {
+		return self::getTagAttr( $tagname, "highlightAction" );
+	}
+
+	/**
 	 * Get the names of all available curation tags.
 	 */
 	public static function getTagNames() {
