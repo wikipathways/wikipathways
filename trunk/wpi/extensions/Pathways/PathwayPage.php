@@ -41,7 +41,8 @@ ERROR;
 function addPreloaderScript($out) {
 	global $wgTitle, $wgUser, $wgScriptPath;
 
-	if($wgTitle->getNamespace() == NS_PATHWAY && $wgUser->isLoggedIn()) {
+	if($wgTitle->getNamespace() == NS_PATHWAY && $wgUser->isLoggedIn() &&
+		strstr( $out->getHTML(), "pwImage" ) !== false ) {
 		$base = $wgScriptPath . "/wpi/applet/";
 		$class = "org.wikipathways.applet.Preloader.class";
 
