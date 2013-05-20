@@ -107,22 +107,17 @@ class CurationTag {
 	public static $TAG_PREFIX = "Curation:";
 	private static $tagDefinition;
 
+	private static function getTagAttr( $tag, $attr ) {
+		$r = self::getTagDefinition()->xpath('Tag[@name="' . $tagname . '"]/@'
+			. $attr );
+		return $r ? (string)$r[0][$attr] : null;
+	}
+
 	/**
 	 * Get the display name for the given tag name
 	 */
 	public static function getDisplayName($tagname) {
-		$xpath = 'Tag[@name="' . $tagname . '"]/@displayName';
-		$dn = self::getTagDefinition()->xpath($xpath);
-		return $dn ? (string)$dn[0]['displayName'] : $tagname;
-	}
-
-	/**
-	 * Get the description for the given tag name
-	 */
-	public static function getDescription($tagname) {
-		$xpath = 'Tag[@name="' . $tagname . '"]/@description';
-		$dn = self::getTagDefinition()->xpath($xpath);
-		return $dn ? (string)$dn[0]['description'] : '';
+		return self::getTagAttr( $tagname, "displayName" );
 	}
 
 	/**
@@ -130,11 +125,6 @@ class CurationTag {
 	 */
 	public static function getDescription($tagname) {
 		return self::getTagAttr( $tagname, "description" );
-	}
-
-	private static function getTagAttr( $tag, $attr ) {
-		$r = self::getTagDefinition()->xpath('Tag[@name="' . $tagname . '"]/@' . $attr );
-		return $r ? (string)$r[0][$attr] : null;
 	}
 
 	/**
