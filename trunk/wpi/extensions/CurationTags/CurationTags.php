@@ -144,15 +144,7 @@ class CurationTag {
 	}
 
 	public static function bureaucratOnly( $tagname ) {
-		$r = self::getTagDefinition()->xpath('Tag[@bureacrat]');
-		if( count( $r ) === 0 ) {
-			throw new MWException( "No bureacrat tags specified!  Please set [[CurationTagsDefinition]] with at least bureacrat-only tag." );
-		}
-		$top = array();
-		foreach( $r as $tag ) {
-			$top[] = (string)$tag['name'];
-		}
-		return $top;
+		return self::getTagAttr( $tagname, 'bureaucrat');
 	}
 
 	public static function defaultTag( ) {
@@ -166,14 +158,25 @@ class CurationTag {
 		return (string)$r[0]['name'];
 	}
 
+	/**
+	 * Return a list of top tags
+	 */
 	public static function topTags( ) {
+		$r = self::topTagsWithLabels();
+		return array_values( $r );
+	}
+
+	/**
+	 * Return a list of top tags indexed by label.
+	 */
+	public static function topTagsWithLabels( ) {
 		$r = self::getTagDefinition()->xpath('Tag[@topTag]');
 		if( count( $r ) === 0 ) {
 			throw new MWException( "No top tags specified!  Please set [[CurationTagsDefinition]] with at least one top tag." );
 		}
 		$top = array();
 		foreach( $r as $tag ) {
-			$top[] = (string)$tag['name'];
+			$top[(string)$tag['displayName']] = (string)$tag['name'];
 		}
 
 		return $top;
@@ -188,6 +191,37 @@ class CurationTag {
 		$names = array();
 		foreach($dn as $e) $names[] = $e['name'];
 		return $names;
+	}
+
+	/**
+	 * Returns a list of tags that the user can select.
+	 */
+	public static function getUserVisibleTagNames() {
+		global $wgUser;
+		$groups = array_flip( $wgUser->getGroups() );
+		$isBureaucrat = isset( $groups['bureaucrat'] );
+		$visible = self::topTagsWithLabels();
+		$top = array_flip( $visible ); /* Quick way to check if this is an already-visible top-tag */
+		$rest = array(); # holds all the tags, not just the visible ones
+
+		foreach ( self::getTagNames() as $tag ) {
+			$tag = (string)$tag; /* SimpleXMLElements means lots of problems */
+			if( self::bureaucratOnly( $tag ) ) {
+				if( isset( $top[$tag] ) ) {
+					throw new MWException( "Bureaucrat-only tags cannot be top tags! Choose one or the other for '$tag'" );
+				}
+				if( $isBureaucrat ) {
+					$label = self::getDisplayName( $tag );
+					$visible[$label] = $tag;
+					$rest[] = $tag; /* Also add it to the list of all tags */
+				}
+			} else {
+				$rest[] = $tag;
+			}
+		}
+		$visible['All Tags'] = $rest;
+
+		return $visible;
 	}
 
 	/**

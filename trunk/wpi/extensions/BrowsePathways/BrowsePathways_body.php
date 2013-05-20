@@ -161,8 +161,10 @@ class BrowsePathways extends SpecialPage {
 
 	function getTagSelectionList( ) {
 		$sel = "<select onchange='this.form.submit()' name='tag' class='namespaceselector'>\n";
-		foreach( CurationTag::getTagNames() as $tag ) {
-			$display = CurationTag::getDisplayName( $tag );
+		foreach( CurationTag::getUserVisibleTagNames() as $display => $tag ) {
+			if( is_array( $tag ) ) {
+				$tag = implode( "|", $tag );
+			}
 			$sel .= $this->makeSelectionOption( $tag, $this->tag, $display );
 		}
 		$sel .= "</select>\n";
