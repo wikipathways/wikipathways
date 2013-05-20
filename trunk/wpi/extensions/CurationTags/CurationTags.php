@@ -108,7 +108,7 @@ class CurationTag {
 	private static $tagDefinition;
 
 	private static function getTagAttr( $tag, $attr ) {
-		$r = self::getTagDefinition()->xpath('Tag[@name="' . $tagname . '"]/@'
+		$r = self::getTagDefinition()->xpath('Tag[@name="' . $tag . '"]/@'
 			. $attr );
 		return $r ? (string)$r[0][$attr] : null;
 	}
