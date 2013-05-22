@@ -61,6 +61,10 @@ class PathwaysPager extends AlphabeticPager {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
 				$pathway = Pathway::newFromTitle( $title );
 		$s = '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName() . '</a></li>';
+		foreach( CurationTag::getCurationImagesForTitle( $title ) as $tag => $icon ) {
+			$img = wfLocalFile( $icon );
+			$s .= Xml::element('img', array( 'src' => $img->getURL(), "title" => $tag ));
+		}
 		return $s;
 	}
 }
@@ -110,14 +114,6 @@ class BrowsePathways extends SpecialPage {
 			$pager->getNavigationBar()
 		);
 		return;
-
-		$arr[] = wfMsg('browsepathways-uncategorized-species');
-		$sql = $this->getSQL( );
-
-
-		foreach( $rows as $title ) {
-			$wgOut->addWikiText( "* [[$title]]\n" );
-		}
 	}
 
 	function getSelectedTag( $tag ) {

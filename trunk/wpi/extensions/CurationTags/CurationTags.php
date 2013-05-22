@@ -128,6 +128,7 @@ class CurationTag {
 	 * Get the icon for the tag.
 	 */
 	public static function getIcon( $tagname ) {
+		$a = self::getTagAttr( $tagname, "icon" );
 		return self::getTagAttr( $tagname, "icon" );
 	}
 
@@ -308,6 +309,19 @@ class CurationTag {
 			}
 		}
 		return $curTags;
+	}
+
+	public static function getCurationImagesForTitle( $title ) {
+		$pageId = $title->getArticleId();
+		$tags = self::getCurationTags( $pageId );
+
+		$icon = array();
+		foreach( $tags as $tag ) {
+			if( $i =  self::getIcon( $tag->getName() ) ) {
+				$icon[self::getDisplayName( $tag->getName() )] = $i;
+			}
+		}
+		return $icon;
 	}
 
 	public static function getCurationTagsByName($tagname) {
