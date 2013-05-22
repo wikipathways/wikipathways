@@ -344,7 +344,6 @@ require_once('wpi/extensions/MostEditedPathwaysPage/MostEditedPathwaysPage.php')
 require_once('wpi/extensions/NewPathwaysPage/NewPathwaysPage.php');
 require_once('wpi/extensions/CreatePathwayPage/CreatePathwayPage.php');
 require_once('wpi/extensions/pathwayHistory.php');
-require_once('wpi/extensions/DynamicPageList2.php');
 require_once('wpi/extensions/LabeledSectionTransclusion/compat.php');
 require_once('wpi/extensions/LabeledSectionTransclusion/lst.php');
 require_once('wpi/extensions/LabeledSectionTransclusion/lsth.php');
