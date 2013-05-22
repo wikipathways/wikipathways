@@ -3,6 +3,7 @@
 require_once(WPI_SCRIPT_PATH . "/MetaTag.php");
 require_once("CurationTagsMailer.php");
 
+$wgExtensionMessagesFiles['CurationTags'] = dirname( __FILE__ ) . '/CurationTags.i18n.php';
 $wfCurationTagsPath = WPI_URL . "/extensions/CurationTags";
 
 //Register AJAX functions
@@ -20,6 +21,7 @@ function wfCurationTags() {
 	global $wgParser;
 	$wgParser->setHook( "curationTags", "displayCurationTags" );
 
+	wfLoadExtensionMessages( 'CurationTags' );
 	global $wgMessageCache;
 	$wgMessageCache->addMessages(
 	array(
@@ -97,7 +99,8 @@ function curationTagChanged($tag) {
  * API for reading/writing Curation tags
  **/
 class CurationTag {
-	private static $TAG_LIST_PAGE = "CurationTagsDefinition";
+	private static $TAG_LIST = "Curationtags-definition.xml";
+	private static $TAG_LIST_PAGE = "MediaWiki:Curationtags-definition.xml";
 
 	/**
 	 * Tags with this prefix will be recognized
@@ -119,6 +122,13 @@ class CurationTag {
 	 */
 	public static function getDisplayName($tagname) {
 		return self::getTagAttr( $tagname, "displayName" );
+	}
+
+	/**
+	 * Get the icon for the tag.
+	 */
+	public static function getIcon( $tagname ) {
+		return self::getTagAttr( $tagname, "icon" );
 	}
 
 	/**
@@ -150,10 +160,10 @@ class CurationTag {
 	public static function defaultTag( ) {
 		$r = self::getTagDefinition()->xpath('Tag[@default]');
 		if( count( $r ) === 0 ) {
-			throw new MWException( "No default tags specified!  Please set [[CurationTagsDefinition]] with one default." );
+			throw new MWException( "curationtags-no-tags" );
 		}
 		if( count( $r ) > 1 ) {
-			throw new MWException( "Multiple default tags specified!  Please set [[CurationTagsDefinition]] with one default." );
+			throw new MWException( "curationtags-multiple-tags" );
 		}
 		return (string)$r[0]['name'];
 	}
@@ -240,14 +250,14 @@ class CurationTag {
 	 **/
 	public static function getTagDefinition() {
 		if(!self::$tagDefinition) {
-			$ref = Revision::newFromTitle( Title::newFromText( self::$TAG_LIST_PAGE ) );
+			$ref = wfMsg( self::$TAG_LIST );
 			if(!$ref) {
 				throw new Exception("No content for [[".self::$TAG_LIST_PAGE."]].  It must be a valid XML document.");
 			}
 
 			try {
 				libxml_use_internal_errors(true);
-				self::$tagDefinition = new SimpleXMLElement($ref->getText());
+				self::$tagDefinition = new SimpleXMLElement( $ref );
 			} catch (Exception $e) {
 				$err = "Error parsing [[".self::$TAG_LIST_PAGE."]].  It must be a valid XML document.\n";
 				foreach(libxml_get_errors() as $error) {
