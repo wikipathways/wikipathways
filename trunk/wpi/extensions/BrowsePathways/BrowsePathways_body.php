@@ -10,10 +10,10 @@
 require_once('wpi/wpi.php');
 
 class PathwaysPager extends AlphabeticPager {
-	private $species;
-	private $tag;
-	private $ns = NS_PATHWAY;
-	private $nsName;
+	protected $species;
+	protected $tag;
+	protected $ns = NS_PATHWAY;
+	protected $nsName;
 
 	function __construct( $species, $tag ) {
 		global $wgCanonicalNamespaceNames;
@@ -93,8 +93,8 @@ class BrowsePathways extends SpecialPage {
 		wfLoadExtensionMessages( 'BrowsePathways' );
 	}
 
-	private $species;
-	private $tag;
+	protected $species;
+	protected $tag;
 
 	function execute( $par) {
 		global $wgOut, $wgRequest;
@@ -147,7 +147,7 @@ class BrowsePathways extends SpecialPage {
 	}
 
 
-	function getSpeciesSelectionList( ) {
+	protected function getSpeciesSelectionList( ) {
 		$arr = Pathway::getAvailableSpecies();
 		asort($arr);
 		$arr[] = wfMsg('browsepathways-all-species');
@@ -161,7 +161,7 @@ class BrowsePathways extends SpecialPage {
 		return $sel;
 	}
 
-	function getTagSelectionList( ) {
+	protected function getTagSelectionList( ) {
 		$sel = "<select onchange='this.form.submit()' name='tag' class='namespaceselector'>\n";
 		foreach( CurationTag::getUserVisibleTagNames() as $display => $tag ) {
 			if( is_array( $tag ) ) {
@@ -173,7 +173,7 @@ class BrowsePathways extends SpecialPage {
 		return $sel;
 	}
 
-	private function makeSelectionOption( $item, $selected, $display = null ) {
+	protected function makeSelectionOption( $item, $selected, $display = null ) {
 		$attr = array( "value" => $item );
 		if( null === $display ) {
 			$display = $item;
