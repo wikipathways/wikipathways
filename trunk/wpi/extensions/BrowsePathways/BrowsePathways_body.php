@@ -58,14 +58,18 @@ class PathwaysPager extends AlphabeticPager {
 	}
 
 	function formatRow( $row ) {
+		global $wgRequest;
+
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
 				$pathway = Pathway::newFromTitle( $title );
 		$s = '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName() . '</a>';
 		$tags = CurationTag::getCurationImagesForTitle( $title );
 		ksort( $tags );
-		foreach( $tags as $tag => $icon ) {
-			$img = wfLocalFile( $icon );
-			$s .= Xml::element('img', array( 'src' => $img->getURL(), "title" => $tag ));
+		foreach( $tags as $label => $attr ) {
+			$img = wfLocalFile( $attr['img'] );
+			$imgLink = Xml::element('img', array( 'src' => $img->getURL(), "title" => $label ));
+			$href = $wgRequest->appendQueryArray( array( "tag" => $attr['tag'] ) );
+			$s .= Xml::element('a', array( 'href' => $href ), null ) . $imgLink . "</a>";
 		}
 		return $s.'</li>';
 	}

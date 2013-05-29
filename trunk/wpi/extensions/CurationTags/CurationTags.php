@@ -318,7 +318,11 @@ class CurationTag {
 		$icon = array();
 		foreach( $tags as $tag ) {
 			if( $i =  self::getIcon( $tag->getName() ) ) {
-				$icon[self::getDisplayName( $tag->getName() )] = $i;
+				$icon[self::getDisplayName( $tag->getName() )] =
+					array(
+						"img" => $i,
+						"tag" => $tag->getName()
+					);
 			}
 		}
 		return $icon;
