@@ -60,12 +60,14 @@ class PathwaysPager extends AlphabeticPager {
 	function formatRow( $row ) {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
 				$pathway = Pathway::newFromTitle( $title );
-		$s = '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName() . '</a></li>';
-		foreach( CurationTag::getCurationImagesForTitle( $title ) as $tag => $icon ) {
+		$s = '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName() . '</a>';
+		$tags = CurationTag::getCurationImagesForTitle( $title );
+		ksort( $tags );
+		foreach( $tags as $tag => $icon ) {
 			$img = wfLocalFile( $icon );
 			$s .= Xml::element('img', array( 'src' => $img->getURL(), "title" => $tag ));
 		}
-		return $s;
+		return $s.'</li>';
 	}
 }
 
