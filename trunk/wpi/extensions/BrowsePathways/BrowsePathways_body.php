@@ -180,7 +180,7 @@ class ThumbPathwaysPager extends BasePathwaysPager {
 
 class SinglePathwaysPager extends BasePathwaysPager {
 	function __construct( $species, $tag  ) {
-		parent::__construct();
+		parent::__construct( $species, $tag );
 
 		$this->mLimitsShown = array( 5 );
 		$this->mDefaultLimit = 5;
