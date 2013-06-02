@@ -9,14 +9,13 @@
  */
 require_once('wpi/wpi.php');
 
-class PathwaysPager extends AlphabeticPager {
+abstract class BasePathwaysPager extends AlphabeticPager {
 	protected $species;
 	protected $tag;
-	protected $size;
 	protected $ns = NS_PATHWAY;
 	protected $nsName;
 
-	function __construct( $species, $tag, $size ) {
+	function __construct( $species, $tag  ) {
 		global $wgCanonicalNamespaceNames;
 
 		if ( ! isset( $wgCanonicalNamespaceNames[ $this->ns ] ) ) {
@@ -24,7 +23,6 @@ class PathwaysPager extends AlphabeticPager {
 		}
 		$this->nsName = $wgCanonicalNamespaceNames[ $this->ns ];
 		$this->species = $species;
-		$this->size = $size;
 		if( strstr( $tag, "|" ) === false ) {
 			$this->tag = $tag;
 		} else {
@@ -70,69 +68,68 @@ class PathwaysPager extends AlphabeticPager {
 		$alt = "";
 		$class = "browsePathways";
 		$id = $pathway->getTitleObject();
+		$textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
+		$oboxwidth = $boxwidth + 2;
+		$s = "<div id=\"{$id}\" class=\"{$class}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">".
+			'<a href="'.$href.'" class="internal" title="'.$alt.'">';
 
-		$pathway->updateCache(FILETYPE_IMG);
 		$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
 		$img->loadFromFile();
 
-		$imgURL = $img->getURL();
-
-		$thumbUrl = '';
-		$error = '';
-
-		$width = $height = 0;
-		if ( $img->exists() ) {
-			$width  = $img->getWidth();
-			$height = $img->getHeight();
-		}
-		if ( 0 == $width || 0 == $height ) {
-			$width = $height = 180;
-		}
-
-		if ( $boxheight === false ) $boxheight = -1;
-		$thumb = $img->getThumbnail( $boxwidth, $boxheight );
-		if ( $thumb ) {
-			$thumbUrl = $thumb->getUrl();
-			$boxwidth = $thumb->width;
-			$boxheight = $thumb->height;
-		} else {
-			$error = $img->getLastError();
-		}
-		$oboxwidth = $boxwidth + 2;
-
-		$more = htmlspecialchars( wfMsg( 'thumbnail-more' ) );
-		$magnifyalign = $wgContLang->isRTL() ? 'left' : 'right';
-		$textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
-
-		$s = "<div id=\"{$id}\" class=\"{$class}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">";
-		if( $thumbUrl == '' ) {
-			// Couldn't generate thumbnail? Scale the image client-side.
-			$thumbUrl = $img->getViewURL();
-			if( $boxheight == -1 ) {
-				// Approximate...
-				$boxheight = intval( $height * $boxwidth / $width );
-			}
-		}
-		if ( $error ) {
-			$s .= htmlspecialchars( $error );
-		} elseif( !$img->exists() ) {
+		if ( !$img->exists() ) {
 			$s .= "Image does not exist";
 		} else {
-			$s .= '<a href="'.$href.'" class="internal" title="'.$alt.'">'.
-				'<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
-				'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
-				'longdesc="'.$href.'" class="thumbimage" /></a>';
+			$pathway->updateCache(FILETYPE_IMG);
+			$imgURL = $img->getURL();
+
+			$thumbUrl = '';
+			$error = '';
+
+			$width = $height = 0;
+			if ( $img->exists() ) {
+				$width  = $img->getWidth();
+				$height = $img->getHeight();
+			}
+			if ( 0 == $width || 0 == $height ) {
+				$width = $height = 180;
+			}
+
+			if ( $boxheight === false ) $boxheight = -1;
+			$thumb = $img->getThumbnail( $boxwidth, $boxheight );
+			if ( $thumb ) {
+				$thumbUrl = $thumb->getUrl();
+				$boxwidth = $thumb->width;
+				$boxheight = $thumb->height;
+			} else {
+				$error = $img->getLastError();
+			}
+
+			$more = htmlspecialchars( wfMsg( 'thumbnail-more' ) );
+			$magnifyalign = $wgContLang->isRTL() ? 'left' : 'right';
+
+			if( $thumbUrl == '' ) {
+				// Couldn't generate thumbnail? Scale the image client-side.
+				$thumbUrl = $img->getViewURL();
+				if( $boxheight == -1 ) {
+					// Approximate...
+					$boxheight = intval( $height * $boxwidth / $width );
+				}
+			}
+			if ( $error ) {
+				$s .= htmlspecialchars( $error );
+			} else {
+				$s .= '<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
+					'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
+					'longdesc="'.$href.'" class="thumbimage" />';
+			}
 		}
-		$s .= '  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
+		$s .= '</a>  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
 		return str_replace("\n", ' ', $s);
 	}
 
-	function formatRow( $row ) {
-		global $wgRequest, $wgOut, $wgParser, $wgTitle;
+	function formatTags( $title ) {
+		global $wgRequest;
 
-		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
-		$pathway = Pathway::newFromTitle( $title );
-		$endRow = "";
 		$tags = CurationTag::getCurationImagesForTitle( $title );
 		ksort( $tags );
 		$tagLabel = "";
@@ -142,16 +139,51 @@ class PathwaysPager extends AlphabeticPager {
 			$href = $wgRequest->appendQueryArray( array( "tag" => $attr['tag'] ) );
 			$tagLabel .= Xml::element('a', array( 'href' => $href ), null ) . $imgLink . "</a>";
 		}
-
-		if( $this->size == "thumbs" ) {
-			$s = $this->getThumb( $pathway, $tagLabel );
-		} else {
-			$s = '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName() . '</a>';
-			$endRow = "$tagLabel</li>";
-		}
-		return $s . $endRow;
+		return $tagLabel;
 	}
 }
+
+class PathwaysPagerFactory {
+	static function get( $type, $species, $tag ) {
+		switch( $type ) {
+			case 'list':
+				return new ListPathwaysPager( $species, $tag );
+				break;
+			case 'single':
+				return new SinglePathwaysPager( $species, $tag );
+				break;
+			default:
+				return new ThumbPathwaysPager( $species, $tag );
+		}
+	}
+}
+
+class ListPathwaysPager extends BasePathwaysPager {
+	function formatRow( $row ) {
+		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
+		$pathway = Pathway::newFromTitle( $title );
+
+		return '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName() . '</a>' .
+			$this->formatTags( $title ) . "</li>";
+	}
+}
+
+class ThumbPathwaysPager extends BasePathwaysPager {
+	function formatRow( $row ) {
+		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
+		$pathway = Pathway::newFromTitle( $title );
+
+		return $this->getThumb( $pathway, $this->formatTags( $title ) );
+	}
+}
+
+class SinglePathwaysPager extends BasePathwaysPager {
+
+	function formatRow( $row ) {
+		throw new MWException( "Not Implemented!" );
+	}
+}
+
 
 class LegacyBrowsePathways extends LegacySpecialPage {
 	function __construct() {
@@ -181,7 +213,6 @@ class BrowsePathways extends SpecialPage {
 
 	protected $species;
 	protected $tag;
-	protected $size;
 
 	function execute( $par) {
 		global $wgOut, $wgRequest;
@@ -202,7 +233,7 @@ class BrowsePathways extends SpecialPage {
 			$endList = "</div><br clear='both'>";
 		}
 
-		$pager = new PathwaysPager( $this->species, $this->tag, $this->size );
+		$pager = PathwaysPagerFactory::get( $this->size, $this->species, $this->tag );
 		$wgOut->addHTML(
 			$pager->getNavigationBar() . $beginList .
 			$pager->getBody() .$endList .
