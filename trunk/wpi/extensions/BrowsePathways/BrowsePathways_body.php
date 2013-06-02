@@ -99,24 +99,34 @@ class ListPathwaysPager extends BasePathwaysPager {
 }
 
 class ThumbPathwaysPager extends BasePathwaysPager {
+	/* From getDownloadURL in PathwayPage */
+	function getGPMLlink( $pathway ) {
+		if($pathway->getActiveRevision()) {
+			$oldid = "&oldid={$pathway->getActiveRevision()}";
+		}
+		return XML::Element("a",
+			array("href" => WPI_SCRIPT_URL . "?action=downloadFile&type=gpml&pwTitle=".
+				$pathway->getTitleObject()->getFullText() . $oldid), " (gpml) ");
+	}
+
 	function getThumb( $pathway, $icons ) {
 		global $wgStylePath, $wgContLang;
 
 		$label = $pathway->name() . "<br/>(" . $pathway->species() . ")<br/>" . $icons;
 		$boxwidth = 180;
-		$boxheight=-1
+		$boxheight=-1;
 		$framed=false;
 		$href = $pathway->getFullURL();
-		$alt = "";
 		$class = "browsePathways";
 		$id = $pathway->getTitleObject();
 		$textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
 		$oboxwidth = $boxwidth + 2;
 		$s = "<div id=\"{$id}\" class=\"{$class}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">".
-			'<a href="'.$href.'" class="internal" title="'.$alt.'">';
+			'<a href="'.$href.'" class="internal">';
 
 		$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
 		$img->loadFromFile();
+		$link = "";
 
 		if ( !$img->exists() ) {
 			$s .= "Image does not exist";
@@ -150,12 +160,13 @@ class ThumbPathwaysPager extends BasePathwaysPager {
 			if ( $error ) {
 				$s .= htmlspecialchars( $error );
 			} else {
-				$s .= '<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
+				$s .= '<img src="'.$thumbUrl.'" '.
 					'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
 					'longdesc="'.$href.'" class="thumbimage" />';
+				$link = $this->getGPMLlink( $pathway );
 			}
 		}
-		$s .= '</a>  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
+		$s .= '</a>'.$link.'<div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
 		return str_replace("\n", ' ', $s);
 	}
 
