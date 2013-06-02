@@ -179,8 +179,18 @@ class ThumbPathwaysPager extends BasePathwaysPager {
 }
 
 class SinglePathwaysPager extends BasePathwaysPager {
+	function __construct( $species, $tag  ) {
+		parent::__construct();
+
+		$this->mLimitsShown = array( 5 );
+		$this->mDefaultLimit = 5;
+	}
+
 	function formatRow( $row ) {
-		throw new MWException( "Not Implemented!" );
+		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
+		$pathway = Pathway::newFromTitle( $title );
+
+		return $this->getSingle( $pathway, $this->formatTags( $title ) );
 	}
 }
 
