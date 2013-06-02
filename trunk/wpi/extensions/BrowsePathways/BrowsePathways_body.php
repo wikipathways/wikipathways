@@ -57,76 +57,6 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		return 't1.tag_text';
 	}
 
-	function getThumb( $pathway, $icons ) {
-		global $wgStylePath, $wgContLang;
-
-		$label = $pathway->name() . "<br/>(" . $pathway->species() . ")<br/>" . $icons;
-		$boxwidth = 180;
-		$boxheight=false;
-		$framed=false;
-		$href = $pathway->getFullURL();
-		$alt = "";
-		$class = "browsePathways";
-		$id = $pathway->getTitleObject();
-		$textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
-		$oboxwidth = $boxwidth + 2;
-		$s = "<div id=\"{$id}\" class=\"{$class}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">".
-			'<a href="'.$href.'" class="internal" title="'.$alt.'">';
-
-		$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
-		$img->loadFromFile();
-
-		if ( !$img->exists() ) {
-			$s .= "Image does not exist";
-		} else {
-			$pathway->updateCache(FILETYPE_IMG);
-			$imgURL = $img->getURL();
-
-			$thumbUrl = '';
-			$error = '';
-
-			$width = $height = 0;
-			if ( $img->exists() ) {
-				$width  = $img->getWidth();
-				$height = $img->getHeight();
-			}
-			if ( 0 == $width || 0 == $height ) {
-				$width = $height = 180;
-			}
-
-			if ( $boxheight === false ) $boxheight = -1;
-			$thumb = $img->getThumbnail( $boxwidth, $boxheight );
-			if ( $thumb ) {
-				$thumbUrl = $thumb->getUrl();
-				$boxwidth = $thumb->width;
-				$boxheight = $thumb->height;
-			} else {
-				$error = $img->getLastError();
-			}
-
-			$more = htmlspecialchars( wfMsg( 'thumbnail-more' ) );
-			$magnifyalign = $wgContLang->isRTL() ? 'left' : 'right';
-
-			if( $thumbUrl == '' ) {
-				// Couldn't generate thumbnail? Scale the image client-side.
-				$thumbUrl = $img->getViewURL();
-				if( $boxheight == -1 ) {
-					// Approximate...
-					$boxheight = intval( $height * $boxwidth / $width );
-				}
-			}
-			if ( $error ) {
-				$s .= htmlspecialchars( $error );
-			} else {
-				$s .= '<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
-					'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
-					'longdesc="'.$href.'" class="thumbimage" />';
-			}
-		}
-		$s .= '</a>  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
-		return str_replace("\n", ' ', $s);
-	}
-
 	function formatTags( $title ) {
 		global $wgRequest;
 
@@ -169,6 +99,66 @@ class ListPathwaysPager extends BasePathwaysPager {
 }
 
 class ThumbPathwaysPager extends BasePathwaysPager {
+	function getThumb( $pathway, $icons ) {
+		global $wgStylePath, $wgContLang;
+
+		$label = $pathway->name() . "<br/>(" . $pathway->species() . ")<br/>" . $icons;
+		$boxwidth = 180;
+		$boxheight=-1
+		$framed=false;
+		$href = $pathway->getFullURL();
+		$alt = "";
+		$class = "browsePathways";
+		$id = $pathway->getTitleObject();
+		$textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
+		$oboxwidth = $boxwidth + 2;
+		$s = "<div id=\"{$id}\" class=\"{$class}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">".
+			'<a href="'.$href.'" class="internal" title="'.$alt.'">';
+
+		$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
+		$img->loadFromFile();
+
+		if ( !$img->exists() ) {
+			$s .= "Image does not exist";
+		} else {
+			$pathway->updateCache(FILETYPE_IMG);
+			$imgURL = $img->getURL();
+
+			$thumbUrl = '';
+			$error = '';
+
+			$width  = $img->getWidth();
+			$height = $img->getHeight();
+
+			$thumb = $img->getThumbnail( $boxwidth, $boxheight );
+			if ( $thumb ) {
+				$thumbUrl = $thumb->getUrl();
+				$boxwidth = $thumb->width;
+				$boxheight = $thumb->height;
+			} else {
+				$error = $img->getLastError();
+			}
+
+			if( $thumbUrl == '' ) {
+				// Couldn't generate thumbnail? Scale the image client-side.
+				$thumbUrl = $img->getViewURL();
+				if( $boxheight == -1 ) {
+					// Approximate...
+					$boxheight = intval( $height * $boxwidth / $width );
+				}
+			}
+			if ( $error ) {
+				$s .= htmlspecialchars( $error );
+			} else {
+				$s .= '<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
+					'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
+					'longdesc="'.$href.'" class="thumbimage" />';
+			}
+		}
+		$s .= '</a>  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
+		return str_replace("\n", ' ', $s);
+	}
+
 	function formatRow( $row ) {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
 		$pathway = Pathway::newFromTitle( $title );
@@ -178,7 +168,6 @@ class ThumbPathwaysPager extends BasePathwaysPager {
 }
 
 class SinglePathwaysPager extends BasePathwaysPager {
-
 	function formatRow( $row ) {
 		throw new MWException( "Not Implemented!" );
 	}
