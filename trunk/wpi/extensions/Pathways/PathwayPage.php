@@ -8,7 +8,7 @@ function renderPathwayPage(&$parser, &$text, &$strip_state) {
 
 	$title = $parser->getTitle();
 	$oldId = $wgRequest->getVal( "oldid" );
-	if(	$title->getNamespace() == NS_PATHWAY &&
+	if( $title && $title->getNamespace() == NS_PATHWAY &&
 		preg_match("/^\s*\<\?xml/", $text)) {
 		$parser->disableCache();
 
