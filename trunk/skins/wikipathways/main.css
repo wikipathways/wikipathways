@@ -1588,3 +1588,8 @@ span.searchmatch {
    padding-left: 1em;
    padding-right: 1em;
 }
+
+.browsePathways {
+   float: left;
+   margin: 1em;
+}

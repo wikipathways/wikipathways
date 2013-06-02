@@ -12,10 +12,11 @@ require_once('wpi/wpi.php');
 class PathwaysPager extends AlphabeticPager {
 	protected $species;
 	protected $tag;
+	protected $size;
 	protected $ns = NS_PATHWAY;
 	protected $nsName;
 
-	function __construct( $species, $tag ) {
+	function __construct( $species, $tag, $size ) {
 		global $wgCanonicalNamespaceNames;
 
 		if ( ! isset( $wgCanonicalNamespaceNames[ $this->ns ] ) ) {
@@ -23,6 +24,7 @@ class PathwaysPager extends AlphabeticPager {
 		}
 		$this->nsName = $wgCanonicalNamespaceNames[ $this->ns ];
 		$this->species = $species;
+		$this->size = $size;
 		if( strstr( $tag, "|" ) === false ) {
 			$this->tag = $tag;
 		} else {
@@ -57,21 +59,97 @@ class PathwaysPager extends AlphabeticPager {
 		return 't1.tag_text';
 	}
 
+	function getThumb( $pathway, $icons ) {
+		global $wgStylePath, $wgContLang;
+
+		$label = $pathway->name() . "<br/>(" . $pathway->species() . ")<br/>" . $icons;
+		$boxwidth = 180;
+		$boxheight=false;
+		$framed=false;
+		$href = $pathway->getFullURL();
+		$alt = "";
+		$class = "browsePathways";
+		$id = $pathway->getTitleObject();
+
+		$pathway->updateCache(FILETYPE_IMG);
+		$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
+		$img->loadFromFile();
+
+		$imgURL = $img->getURL();
+
+		$thumbUrl = '';
+		$error = '';
+
+		$width = $height = 0;
+		if ( $img->exists() ) {
+			$width  = $img->getWidth();
+			$height = $img->getHeight();
+		}
+		if ( 0 == $width || 0 == $height ) {
+			$width = $height = 180;
+		}
+
+		if ( $boxheight === false ) $boxheight = -1;
+		$thumb = $img->getThumbnail( $boxwidth, $boxheight );
+		if ( $thumb ) {
+			$thumbUrl = $thumb->getUrl();
+			$boxwidth = $thumb->width;
+			$boxheight = $thumb->height;
+		} else {
+			$error = $img->getLastError();
+		}
+		$oboxwidth = $boxwidth + 2;
+
+		$more = htmlspecialchars( wfMsg( 'thumbnail-more' ) );
+		$magnifyalign = $wgContLang->isRTL() ? 'left' : 'right';
+		$textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
+
+		$s = "<div id=\"{$id}\" class=\"{$class}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">";
+		if( $thumbUrl == '' ) {
+			// Couldn't generate thumbnail? Scale the image client-side.
+			$thumbUrl = $img->getViewURL();
+			if( $boxheight == -1 ) {
+				// Approximate...
+				$boxheight = intval( $height * $boxwidth / $width );
+			}
+		}
+		if ( $error ) {
+			$s .= htmlspecialchars( $error );
+		} elseif( !$img->exists() ) {
+			$s .= "Image does not exist";
+		} else {
+			$s .= '<a href="'.$href.'" class="internal" title="'.$alt.'">'.
+				'<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
+				'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
+				'longdesc="'.$href.'" class="thumbimage" /></a>';
+		}
+		$s .= '  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
+		return str_replace("\n", ' ', $s);
+	}
+
 	function formatRow( $row ) {
-		global $wgRequest;
+		global $wgRequest, $wgOut, $wgParser, $wgTitle;
 
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
-				$pathway = Pathway::newFromTitle( $title );
-		$s = '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName() . '</a>';
+		$pathway = Pathway::newFromTitle( $title );
+		$endRow = "";
 		$tags = CurationTag::getCurationImagesForTitle( $title );
 		ksort( $tags );
+		$tagLabel = "";
 		foreach( $tags as $label => $attr ) {
 			$img = wfLocalFile( $attr['img'] );
 			$imgLink = Xml::element('img', array( 'src' => $img->getURL(), "title" => $label ));
 			$href = $wgRequest->appendQueryArray( array( "tag" => $attr['tag'] ) );
-			$s .= Xml::element('a', array( 'href' => $href ), null ) . $imgLink . "</a>";
+			$tagLabel .= Xml::element('a', array( 'href' => $href ), null ) . $imgLink . "</a>";
 		}
-		return $s.'</li>';
+
+		if( $this->size == "thumbs" ) {
+			$s = $this->getThumb( $pathway, $tagLabel );
+		} else {
+			$s = '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName() . '</a>';
+			$endRow = "$tagLabel</li>";
+		}
+		return $s . $endRow;
 	}
 }
 
@@ -86,6 +164,8 @@ class BrowsePathways extends SpecialPage {
 	protected $maxPerPage  = 960;
 	protected $topLevelMax = 50;
 	protected $name        = 'BrowsePathways';
+	static private $defaultSize = "thumbs";
+	static private $sizes       = array( "list", "thumbs", "single" );
 
 	# Determines, which message describes the input field 'nsfrom' (->SpecialPrefixindex.php)
 	var $nsfromMsg='browsepathwaysfrom';
@@ -101,22 +181,31 @@ class BrowsePathways extends SpecialPage {
 
 	protected $species;
 	protected $tag;
+	protected $size;
 
 	function execute( $par) {
 		global $wgOut, $wgRequest;
 
 		$wgOut->setPagetitle( wfmsg( "browsepathways" ) );
 
-		$this->species = $wgRequest->getVal("browse", 'Homo_sapiens');
-		$this->tag     = $wgRequest->getVal("tag", CurationTag::defaultTag());
+		$this->species = $wgRequest->getVal( "browse", 'Homo_sapiens' );
+		$this->tag     = $wgRequest->getVal( "tag", CurationTag::defaultTag() );
+		$this->size    = $wgRequest->getVal( "size", self::$defaultSize );
 		$nsForm = $this->pathwayForm( );
 
 		$wgOut->addHtml( $nsForm . '<hr />');
 
-		$pager = new PathwaysPager( $this->species, $this->tag );
+		$beginList = "<ol>";
+		$endList = "</ol>";
+		if( $this->size == "thumbs" ) {
+			$beginList = "<div class='browsePathwaysBlock'>";
+			$endList = "</div><br clear='both'>";
+		}
+
+		$pager = new PathwaysPager( $this->species, $this->tag, $this->size );
 		$wgOut->addHTML(
-			$pager->getNavigationBar() . "<ol>" .
-			$pager->getBody() ."</ol>" .
+			$pager->getNavigationBar() . $beginList .
+			$pager->getBody() .$endList .
 			$pager->getNavigationBar()
 		);
 		return;
@@ -152,7 +241,6 @@ class BrowsePathways extends SpecialPage {
 		return  $selection;
 	}
 
-
 	protected function getSpeciesSelectionList( ) {
 		$arr = Pathway::getAvailableSpecies();
 		asort($arr);
@@ -161,7 +249,7 @@ class BrowsePathways extends SpecialPage {
 
 		$sel = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
 		foreach ($arr as $index) {
-					$sel .= $this->makeSelectionOption( Title::newFromText( $index )->getDBKey(), $this->species, $index );
+			$sel .= $this->makeSelectionOption( Title::newFromText( $index )->getDBKey(), $this->species, $index );
 		}
 		$sel .= "</select>\n";
 		return $sel;
@@ -169,11 +257,20 @@ class BrowsePathways extends SpecialPage {
 
 	protected function getTagSelectionList( ) {
 		$sel = "<select onchange='this.form.submit()' name='tag' class='namespaceselector'>\n";
-		foreach( CurationTag::getUserVisibleTagNames() as $display => $tag ) {
+								foreach( CurationTag::getUserVisibleTagNames() as $display => $tag ) {
 			if( is_array( $tag ) ) {
 				$tag = implode( "|", $tag );
 			}
 			$sel .= $this->makeSelectionOption( $tag, $this->tag, $display );
+		}
+		$sel .= "</select>\n";
+		return $sel;
+	}
+
+	protected function getSizeSelectionList( ) {
+		$sel = "\n<select onchange='this.form.submit()' name='size' class='namespaceselector'>\n";
+		foreach ( self::$sizes as $s ) {
+			$sel .= $this->makeSelectionOption( $s, $this->size );
 		}
 		$sel .= "</select>\n";
 		return $sel;
@@ -203,7 +300,8 @@ class BrowsePathways extends SpecialPage {
 		 * Species Selection
 		 */
 		$speciesSelect = $this->getSpeciesSelectionList( );
-		$tagSelect = $this->getTagSelectionList( );
+		$tagSelect     = $this->getTagSelectionList( );
+		$sizeSelect    = $this->getSizeSelectionList( );
 		$submitbutton = '<noscript><input type="submit" value="Go" name="pick" /></noscript>';
 
 		$out = "<form method='get' action='{$wgScript}'>";
@@ -214,6 +312,7 @@ class BrowsePathways extends SpecialPage {
 		<td align='right'>". wfMsg("browsepathways-selectspecies") ."</td>
 		<td align='left'>$speciesSelect</td>
 		<td align='left'>$tagSelect</td>
+		<td align='left'>$sizeSelect</td>
 		<td>$submitbutton</td>
 	</tr>
 </table>

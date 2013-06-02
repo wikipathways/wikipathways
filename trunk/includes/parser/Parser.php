@@ -1006,14 +1006,14 @@ class Parser
 		wfProfileIn( __METHOD__ );
 		$text = preg_replace_callback(
 			'!(?:                           # Start cases
-			    <a.*?</a> |                 # Skip link text
-			    <.*?> |                     # Skip stuff inside HTML elements
-			    (?:RFC|PMID)\s+([0-9]+) |   # RFC or PMID, capture number as m[1]
-			    ISBN\s+(\b                  # ISBN, capture number as m[2]
-                                     (?: 97[89] [\ \-]? )?   # optional 13-digit ISBN prefix
-                                     (?: [0-9]  [\ \-]? ){9} # 9 digits with opt. delimiters
-                                     [0-9Xx]                 # check digit
-                                   \b)
+				<a.*?</a> |                 # Skip link text
+				<.*?> |                     # Skip stuff inside HTML elements
+				(?:RFC|PMID)\s+([0-9]+) |   # RFC or PMID, capture number as m[1]
+				ISBN\s+(\b                  # ISBN, capture number as m[2]
+									 (?: 97[89] [\ \-]? )?   # optional 13-digit ISBN prefix
+									 (?: [0-9]  [\ \-]? ){9} # 9 digits with opt. delimiters
+									 [0-9Xx]                 # check digit
+								   \b)
 			)!x', array( &$this, 'magicLinkCallback' ), $text );
 		wfProfileOut( __METHOD__ );
 		return $text;
@@ -1259,7 +1259,7 @@ class Parser
 	/**
 	 * Replace external links
 	 *
- 	 * Note: this is all very hackish and the order of execution matters a lot.
+	 * Note: this is all very hackish and the order of execution matters a lot.
 	 * Make sure to run maintenance/parserTests.php if you change this code.
 	 *
 	 * @private
@@ -1471,7 +1471,7 @@ class Parser
 		$imagesexception = !empty($imagesfrom);
 		$text = false;
 		if ( $this->mOptions->getAllowExternalImages()
-		     || ( $imagesexception && strpos( $url, $imagesfrom ) === 0 ) ) {
+			 || ( $imagesexception && strpos( $url, $imagesfrom ) === 0 ) ) {
 			if ( preg_match( self::EXT_IMAGE_REGEX, $url ) ) {
 				# Image found
 				$text = $sk->makeExternalImage( $url );
@@ -2651,7 +2651,7 @@ class Parser
 	 *  self::OT_HTML: all templates and extension tags
 	 *
 	 * @param string $tex The text to transform
-	 * @param PPFrame $frame Object describing the arguments passed to the template. 
+	 * @param PPFrame $frame Object describing the arguments passed to the template.
 	 *        Arguments may also be provided as an associative array, as was the usual case before MW1.12.
 	 *        Providing arguments this way may be useful for extensions wishing to perform variable replacement explicitly.
 	 * @param bool $argsOnly Only do argument (triple-brace) expansion, not double-brace expansion
@@ -2718,7 +2718,7 @@ class Parser
 	function limitationWarn( $limitationType, $current=null, $max=null) {
 		$msgName = $limitationType . '-warning';
 		//does no harm if $current and $max are present but are unnecessary for the message
-		$warning = wfMsg( $msgName, $current, $max); 
+		$warning = wfMsg( $msgName, $current, $max);
 		$this->mOutput->addWarning( $warning );
 		$cat = Title::makeTitleSafe( NS_CATEGORY, wfMsgForContent( $limitationType . '-category' ) );
 		if ( $cat ) {
@@ -2861,7 +2861,7 @@ class Parser
 					$found = true;
 					$noparse = true;
 					$preprocessFlags = 0;
-					
+
 					if ( is_array( $result ) ) {
 						if ( isset( $result[0] ) ) {
 							$text = $result[0];
@@ -3201,9 +3201,9 @@ class Parser
 		$text = $frame->getArgument( $argName );
 		if (  $text === false && $parts->getLength() > 0
 		  && (
-		    $this->ot['html']
-		    || $this->ot['pre']
-		    || ( $this->ot['wiki'] && $frame->isTemplate() )
+			$this->ot['html']
+			|| $this->ot['pre']
+			|| ( $this->ot['wiki'] && $frame->isTemplate() )
 		  )
 		) {
 			# No match in frame, use the supplied default
@@ -3555,11 +3555,11 @@ class Parser
 			# turns into
 			#     link text with suffix
 			$safeHeadline = preg_replace( '/<!--LINK ([0-9]*)-->/e',
-							    "\$this->mLinkHolders['texts'][\$1]",
-							    $safeHeadline );
+								"\$this->mLinkHolders['texts'][\$1]",
+								$safeHeadline );
 			$safeHeadline = preg_replace( '/<!--IWLINK ([0-9]*)-->/e',
-							    "\$this->mInterwikiLinkHolders['texts'][\$1]",
-							    $safeHeadline );
+								"\$this->mInterwikiLinkHolders['texts'][\$1]",
+								$safeHeadline );
 
 			# Strip out HTML (other than plain <sup> and <sub>: bug 8393)
 			$tocline = preg_replace(
@@ -3969,23 +3969,23 @@ class Parser
 	 * @param integer $flags a combination of the following flags:
 	 *     SFH_NO_HASH   No leading hash, i.e. {{plural:...}} instead of {{#if:...}}
 	 *
-	 *     SFH_OBJECT_ARGS   Pass the template arguments as PPNode objects instead of text. This 
+	 *     SFH_OBJECT_ARGS   Pass the template arguments as PPNode objects instead of text. This
 	 *     allows for conditional expansion of the parse tree, allowing you to eliminate dead
-	 *     branches and thus speed up parsing. It is also possible to analyse the parse tree of 
+	 *     branches and thus speed up parsing. It is also possible to analyse the parse tree of
 	 *     the arguments, and to control the way they are expanded.
 	 *
 	 *     The $frame parameter is a PPFrame. This can be used to produce expanded text from the
 	 *     arguments, for instance:
 	 *         $text = isset( $args[0] ) ? $frame->expand( $args[0] ) : '';
 	 *
-	 *     For technical reasons, $args[0] is pre-expanded and will be a string. This may change in 
+	 *     For technical reasons, $args[0] is pre-expanded and will be a string. This may change in
 	 *     future versions. Please call $frame->expand() on it anyway so that your code keeps
 	 *     working if/when this is changed.
 	 *
 	 *     If you want whitespace to be trimmed from $args, you need to do it yourself, post-
 	 *     expansion.
 	 *
-	 *     Please read the documentation in includes/parser/Preprocessor.php for more information 
+	 *     Please read the documentation in includes/parser/Preprocessor.php for more information
 	 *     about the methods available in PPFrame and PPNode.
 	 *
 	 * @return The old callback function for this name, if any
@@ -4395,7 +4395,7 @@ class Parser
 			if ( count( $matches ) == 0 ) {
 				continue;
 			}
-			
+
 			if ( strpos( $matches[0], '%' ) !== false )
 				$matches[1] = urldecode( $matches[1] );
 			$tp = Title::newFromText( $matches[1] );
@@ -4694,11 +4694,11 @@ class Parser
 			// Section zero doesn't nest, level=big
 			$targetLevel = 1000;
 		} else {
-            while ( $node ) {
-                if ( $node->getName() == 'h' ) {
-                    $bits = $node->splitHeading();
+			while ( $node ) {
+				if ( $node->getName() == 'h' ) {
+					$bits = $node->splitHeading();
 					if ( $bits['i'] == $sectionIndex ) {
-        				$targetLevel = $bits['level'];
+						$targetLevel = $bits['level'];
 						break;
 					}
 				}
