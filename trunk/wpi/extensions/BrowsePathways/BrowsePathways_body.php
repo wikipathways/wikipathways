@@ -239,9 +239,9 @@ class BrowsePathways extends SpecialPage {
 	protected $maxPerPage  = 960;
 	protected $topLevelMax = 50;
 	protected $name        = 'BrowsePathways';
-	static private $defaultSize = "thumbs";
+	static private $defaultView = "thumbs";
 	//	static private $sizes       = array( "list", "thumbs", "single" );
-	static private $sizes       = array( "list", "thumbs" );
+	static private $views  = array( "list", "thumbs" );
 
 	# Determines, which message describes the input field 'nsfrom' (->SpecialPrefixindex.php)
 	var $nsfromMsg='browsepathwaysfrom';
@@ -265,12 +265,12 @@ class BrowsePathways extends SpecialPage {
 
 		$this->species = $wgRequest->getVal( "browse", 'Homo_sapiens' );
 		$this->tag     = $wgRequest->getVal( "tag", CurationTag::defaultTag() );
-		$this->size    = $wgRequest->getVal( "size", self::$defaultSize );
+		$this->view    = $wgRequest->getVal( "view", self::$defaultView );
 		$nsForm = $this->pathwayForm( );
 
 		$wgOut->addHtml( $nsForm . '<hr />');
 
-		$pager = PathwaysPagerFactory::get( $this->size, $this->species, $this->tag );
+		$pager = PathwaysPagerFactory::get( $this->view, $this->species, $this->tag );
 		$wgOut->addHTML(
 			$pager->getNavigationBar() .
 			$pager->getBody() .
@@ -325,7 +325,7 @@ class BrowsePathways extends SpecialPage {
 
 	protected function getTagSelectionList( ) {
 		$sel = "<select onchange='this.form.submit()' name='tag' class='namespaceselector'>\n";
-								foreach( CurationTag::getUserVisibleTagNames() as $display => $tag ) {
+		foreach( CurationTag::getUserVisibleTagNames() as $display => $tag ) {
 			if( is_array( $tag ) ) {
 				$tag = implode( "|", $tag );
 			}
@@ -335,10 +335,10 @@ class BrowsePathways extends SpecialPage {
 		return $sel;
 	}
 
-	protected function getSizeSelectionList( ) {
-		$sel = "\n<select onchange='this.form.submit()' name='size' class='namespaceselector'>\n";
-		foreach ( self::$sizes as $s ) {
-			$sel .= $this->makeSelectionOption( $s, $this->size );
+	protected function getViewSelectionList( ) {
+		$sel = "\n<select onchange='this.form.submit()' name='view' class='namespaceselector'>\n";
+		foreach ( self::$views as $s ) {
+			$sel .= $this->makeSelectionOption( $s, $this->view, wfMsg("browsepathways-view-".$s) );
 		}
 		$sel .= "</select>\n";
 		return $sel;
@@ -369,7 +369,7 @@ class BrowsePathways extends SpecialPage {
 		 */
 		$speciesSelect = $this->getSpeciesSelectionList( );
 		$tagSelect     = $this->getTagSelectionList( );
-		$sizeSelect    = $this->getSizeSelectionList( );
+		$viewSelect    = $this->getViewSelectionList( );
 		$submitbutton = '<noscript><input type="submit" value="Go" name="pick" /></noscript>';
 
 		$out = "<form method='get' action='{$wgScript}'>";
@@ -382,7 +382,7 @@ class BrowsePathways extends SpecialPage {
 		<td align='right'>". wfMsg("browsepathways-select-collection") ."</td>
 		<td align='left'>$tagSelect</td>
 		<td align='right'>". wfMsg("browsepathways-select-view") ."</td>
-		<td align='left'>$sizeSelect</td>
+		<td align='left'>$viewSelect</td>
 		<td>$submitbutton</td>
 	</tr>
 </table>
