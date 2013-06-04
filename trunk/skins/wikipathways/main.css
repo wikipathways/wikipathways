@@ -1593,3 +1593,8 @@ span.searchmatch {
    float: left;
    padding: 1em;
 }
+
+img.tag-icon {
+   width: 17.6px;
+   height: auto;
+}

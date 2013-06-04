@@ -111,8 +111,7 @@ class CurationTag {
 	private static $tagDefinition;
 
 	private static function getTagAttr( $tag, $attr ) {
-		$r = self::getTagDefinition()->xpath('Tag[@name="' . $tag . '"]/@'
-			. $attr );
+		$r = self::getTagDefinition()->xpath('Tag[@name="' . $tag . '"]/@' . $attr );
 		$v = $r ? (string)$r[0][$attr] : null;
 		return $v !== null && $v !== "" ? $v : null;
 	}
@@ -128,7 +127,7 @@ class CurationTag {
 	 * Get the drop-down name for the given tag name
 	 */
 	public static function getDropDown($tagname) {
-		return self::getTagAttr( $tagname, "dropDown|displayName" );
+		return self::getTagAttr( $tagname, "dropDown" );
 	}
 
 	/**
@@ -230,6 +229,9 @@ class CurationTag {
 				}
 				if( $isBureaucrat ) {
 					$label = self::getDropDown( $tag );
+					if( empty( $label ) ) {
+						$label = self::getDisplayName( $tag );
+					}
 					$visible[$label] = $tag;
 					$rest[] = $tag; /* Also add it to the list of all tags */
 				}
@@ -238,7 +240,6 @@ class CurationTag {
 			}
 		}
 		$visible['All Tags'] = $rest;
-
 		return $visible;
 	}
 
@@ -262,7 +263,6 @@ class CurationTag {
 			if(!$ref) {
 				throw new Exception("No content for [[".self::$TAG_LIST_PAGE."]].  It must be a valid XML document.");
 			}
-
 			try {
 				libxml_use_internal_errors(true);
 				self::$tagDefinition = new SimpleXMLElement( $ref );

@@ -119,7 +119,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 				$s .= '<img src="'.$thumbUrl.'" '.
 					'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
 					'longdesc="'.$href.'" class="thumbimage" />';
-					$link = $this->getGPMLlink( $pathway );
+				/* $link = $this->getGPMLlink( $pathway ); */
 			}
 		}
 		$s .= '</a>';
@@ -139,7 +139,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		$tagLabel = "";
 		foreach( $tags as $label => $attr ) {
 			$img = wfLocalFile( $attr['img'] );
-			$imgLink = Xml::element('img', array( 'src' => $img->getURL(), "title" => $label ));
+			$imgLink = Xml::element('img', array( 'class' => 'tag-icon', 'src' => $img->getURL(), "title" => $label ));
 			$href = $wgRequest->appendQueryArray( array( "tag" => $attr['tag'] ) );
 			$tagLabel .= Xml::element('a', array( 'href' => $href ), null ) . $imgLink . "</a>";
 		}
