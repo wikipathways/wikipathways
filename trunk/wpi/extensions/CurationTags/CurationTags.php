@@ -125,6 +125,13 @@ class CurationTag {
 	}
 
 	/**
+	 * Get the drop-down name for the given tag name
+	 */
+	public static function getDropDown($tagname) {
+		return self::getTagAttr( $tagname, "dropDown|displayName" );
+	}
+
+	/**
 	 * Get the icon for the tag.
 	 */
 	public static function getIcon( $tagname ) {
@@ -222,7 +229,7 @@ class CurationTag {
 					throw new MWException( "Bureaucrat-only tags cannot be top tags! Choose one or the other for '$tag'" );
 				}
 				if( $isBureaucrat ) {
-					$label = self::getDisplayName( $tag );
+					$label = self::getDropDown( $tag );
 					$visible[$label] = $tag;
 					$rest[] = $tag; /* Also add it to the list of all tags */
 				}
