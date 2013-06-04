@@ -240,7 +240,8 @@ class BrowsePathways extends SpecialPage {
 	protected $topLevelMax = 50;
 	protected $name        = 'BrowsePathways';
 	static private $defaultSize = "thumbs";
-	static private $sizes       = array( "list", "thumbs", "single" );
+	//	static private $sizes       = array( "list", "thumbs", "single" );
+	static private $sizes       = array( "list", "thumbs" );
 
 	# Determines, which message describes the input field 'nsfrom' (->SpecialPrefixindex.php)
 	var $nsfromMsg='browsepathwaysfrom';
@@ -376,9 +377,11 @@ class BrowsePathways extends SpecialPage {
 		$out .= "
 <table id='nsselect' class='allpages'>
 	<tr>
-		<td align='right'>". wfMsg("browsepathways-selectspecies") ."</td>
+		<td align='right'>". wfMsg("browsepathways-select-species") ."</td>
 		<td align='left'>$speciesSelect</td>
+		<td align='right'>". wfMsg("browsepathways-select-collection") ."</td>
 		<td align='left'>$tagSelect</td>
+		<td align='right'>". wfMsg("browsepathways-select-sview") ."</td>
 		<td align='left'>$sizeSelect</td>
 		<td>$submitbutton</td>
 	</tr>
