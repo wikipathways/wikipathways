@@ -57,49 +57,6 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		return 't1.tag_text';
 	}
 
-	function formatTags( $title ) {
-		global $wgRequest;
-
-		$tags = CurationTag::getCurationImagesForTitle( $title );
-		ksort( $tags );
-		$tagLabel = "";
-		foreach( $tags as $label => $attr ) {
-			$img = wfLocalFile( $attr['img'] );
-			$imgLink = Xml::element('img', array( 'src' => $img->getURL(), "title" => $label ));
-			$href = $wgRequest->appendQueryArray( array( "tag" => $attr['tag'] ) );
-			$tagLabel .= Xml::element('a', array( 'href' => $href ), null ) . $imgLink . "</a>";
-		}
-		return $tagLabel;
-	}
-}
-
-class PathwaysPagerFactory {
-	static function get( $type, $species, $tag ) {
-		switch( $type ) {
-			case 'list':
-				return new ListPathwaysPager( $species, $tag );
-				break;
-			case 'single':
-				return new SinglePathwaysPager( $species, $tag );
-				break;
-			default:
-				return new ThumbPathwaysPager( $species, $tag );
-		}
-	}
-}
-
-class ListPathwaysPager extends BasePathwaysPager {
-	function formatRow( $row ) {
-		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
-		$pathway = Pathway::newFromTitle( $title );
-
-		return '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName() . '</a>' .
-			$this->formatTags( $title ) . "</li>";
-	}
-}
-
-class ThumbPathwaysPager extends BasePathwaysPager {
-	/* From getDownloadURL in PathwayPage */
 	function getGPMLlink( $pathway ) {
 		if($pathway->getActiveRevision()) {
 			$oldid = "&oldid={$pathway->getActiveRevision()}";
@@ -109,11 +66,10 @@ class ThumbPathwaysPager extends BasePathwaysPager {
 				$pathway->getTitleObject()->getFullText() . $oldid), " (gpml) ");
 	}
 
-	function getThumb( $pathway, $icons ) {
+	function getThumb( $pathway, $icons, $boxwidth = 180, $withText = true ) {
 		global $wgStylePath, $wgContLang;
 
 		$label = $pathway->name() . "<br/>(" . $pathway->species() . ")<br/>" . $icons;
-		$boxwidth = 180;
 		$boxheight=-1;
 		$framed=false;
 		$href = $pathway->getFullURL();
@@ -163,13 +119,76 @@ class ThumbPathwaysPager extends BasePathwaysPager {
 				$s .= '<img src="'.$thumbUrl.'" '.
 					'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
 					'longdesc="'.$href.'" class="thumbimage" />';
-				$link = $this->getGPMLlink( $pathway );
+					$link = $this->getGPMLlink( $pathway );
 			}
 		}
-		$s .= '</a>'.$link.'<div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
+		$s .= '</a>';
+		if( $withText ) {
+			$s .= $link.'<div class="thumbcaption"'.$textalign.'>'.$label."</div>";
+		}
+		$s .= "</div></div>";
+
 		return str_replace("\n", ' ', $s);
 	}
 
+	function formatTags( $title ) {
+		global $wgRequest;
+
+		$tags = CurationTag::getCurationImagesForTitle( $title );
+		ksort( $tags );
+		$tagLabel = "";
+		foreach( $tags as $label => $attr ) {
+			$img = wfLocalFile( $attr['img'] );
+			$imgLink = Xml::element('img', array( 'src' => $img->getURL(), "title" => $label ));
+			$href = $wgRequest->appendQueryArray( array( "tag" => $attr['tag'] ) );
+			$tagLabel .= Xml::element('a', array( 'href' => $href ), null ) . $imgLink . "</a>";
+		}
+		return $tagLabel;
+	}
+}
+
+class PathwaysPagerFactory {
+	static function get( $type, $species, $tag ) {
+		switch( $type ) {
+			case 'list':
+				return new ListPathwaysPager( $species, $tag );
+				break;
+			case 'single':
+				return new SinglePathwaysPager( $species, $tag );
+				break;
+			default:
+				return new ThumbPathwaysPager( $species, $tag );
+		}
+	}
+}
+
+class ListPathwaysPager extends BasePathwaysPager {
+	function getStartBody() {
+		return "<ul>";
+	}
+
+	function getEndBody() {
+		return "</ul>";
+	}
+
+	function formatRow( $row ) {
+		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
+		$pathway = Pathway::newFromTitle( $title );
+
+		return '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName() . '</a>' .
+			$this->formatTags( $title ) . "</li>";
+	}
+}
+
+class ThumbPathwaysPager extends BasePathwaysPager {
+	function getStartBody() {
+		return "<br clear='both'>";
+	}
+
+	function getEndBody() {
+		return "<br clear='both'>";
+	}
+	/* From getDownloadURL in PathwayPage */
 	function formatRow( $row ) {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
 		$pathway = Pathway::newFromTitle( $title );
@@ -184,13 +203,27 @@ class SinglePathwaysPager extends BasePathwaysPager {
 
 		$this->mLimitsShown = array( 5 );
 		$this->mDefaultLimit = 5;
+		$this->mLimit = 5;
+	}
+
+	function getStartBody() {
+		return "<div id='singleMode'>";
+	}
+
+	function getEndBody() {
+		return "</div><div id='singleModeSlider' style='clear: both'></div>";
+	}
+
+
+	function getNavigationBar() {
+		/* Nothing */
 	}
 
 	function formatRow( $row ) {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
 		$pathway = Pathway::newFromTitle( $title );
 
-		return $this->getSingle( $pathway, $this->formatTags( $title ) );
+		return $this->getThumb( $pathway, $this->formatTags( $title ), 100, false );
 	}
 }
 
@@ -236,17 +269,10 @@ class BrowsePathways extends SpecialPage {
 
 		$wgOut->addHtml( $nsForm . '<hr />');
 
-		$beginList = "<ol>";
-		$endList = "</ol>";
-		if( $this->size == "thumbs" ) {
-			$beginList = "<div class='browsePathwaysBlock'>";
-			$endList = "</div><br clear='both'>";
-		}
-
 		$pager = PathwaysPagerFactory::get( $this->size, $this->species, $this->tag );
 		$wgOut->addHTML(
-			$pager->getNavigationBar() . $beginList .
-			$pager->getBody() .$endList .
+			$pager->getNavigationBar() .
+			$pager->getBody() .
 			$pager->getNavigationBar()
 		);
 		return;
