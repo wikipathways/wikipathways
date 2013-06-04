@@ -381,7 +381,7 @@ class BrowsePathways extends SpecialPage {
 		<td align='left'>$speciesSelect</td>
 		<td align='right'>". wfMsg("browsepathways-select-collection") ."</td>
 		<td align='left'>$tagSelect</td>
-		<td align='right'>". wfMsg("browsepathways-select-sview") ."</td>
+		<td align='right'>". wfMsg("browsepathways-select-view") ."</td>
 		<td align='left'>$sizeSelect</td>
 		<td>$submitbutton</td>
 	</tr>
