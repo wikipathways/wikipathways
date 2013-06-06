@@ -21,26 +21,26 @@ table.recentChangesBox {
         margin-right:1em;
 }
 .tag.redBg {
-	border-left: 10px solid #b22222; /* Red */
-	background-color: #fee;  /* Pink */
+	border-left: 10px solid #b55; /* #b22222; */ /* Red */
+	background-color: #fff5f5;  /* Pink */
 	padding: 0.25em 0.5em;         /* 0.5em left/right */
 }
 
 .tag.yellowBg {
-	border-left: 10px solid #ffff00;
-	background-color: #ffffff;
+	border-left: 10px solid #db5; /* #ffff00; */
+	background-color: #fff9f3; /* #ffffff; */
 	padding: 0.25em 0.5em;
 }  
 
 .tag.greenBg {
-	border-left: 10px solid #00cc00;
+	border-left: 10px solid #7b7; /* #00cc00; */
 	background-color: #f5fff5;
 	padding: 0.25em 0.5em;
 }
 
 .tag.blueBg {
-	border-left: 10px solid #3300cc;
-	background-color: #f5faff;
+	border-left: 10px solid #88c; /* #3300cc; */
+	background-color: #f3f8ff;
 	padding: 0.25em 0.5em;
 }
 
