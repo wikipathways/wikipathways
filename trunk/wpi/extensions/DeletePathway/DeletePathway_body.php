@@ -1,8 +1,8 @@
 <?php
 class DeletePathway extends SpecialPage {
-	function DeletePathway() {
-		SpecialPage::SpecialPage("DeletePathway");
-		self::loadMessages();
+	function __construct( $empty = null ) {
+		parent::__construct("DeletePathway");
+		wfLoadExtensionMessages( 'DeletePathways' );
 	}
 
 	function execute($par) {
@@ -60,18 +60,5 @@ class DeletePathway extends SpecialPage {
 HTML;
 			$wgOut->addHTML($form);
 		}
-	}
-
-	static function loadMessages() {
-		static $messagesLoaded = false;
-		global $wgMessageCache;
-		if ( $messagesLoaded ) return true;
-		$messagesLoaded = true;
-
-		require( dirname( __FILE__ ) . '/DeletePathway.i18n.php' );
-		foreach ( $allMessages as $lang => $langMessages ) {
-			$wgMessageCache->addMessages( $langMessages, $lang );
-		}
-		return true;
 	}
 }
