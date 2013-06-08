@@ -43,7 +43,12 @@ class MetaTag {
 	}
 
 	public function __toString() {
-		return $this->getText();
+		$t = $this->getText();
+		if( is_string( $t ) ) {
+			return $t;
+		} else {
+			return "";
+		}
 	}
 
 	/**
