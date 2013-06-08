@@ -66,24 +66,18 @@ function checkSoleAuthor($title, $user, $action, $result) {
 $wgHooks['SkinTemplateContentActions'][] = 'deleteTab';
 
 function deleteTab(&$content_actions) {
-	global $wgTitle, $pathway;
-	try {
-		if($wgTitle->getNamespace() == NS_PATHWAY) {
-			$pathway = Pathway::newFromTitle($wgTitle);
-		}
-	} catch(Exception $e) {
-		//Don't crash on invalid pathway
+	global $wgTitle;
+	$pathway = null;
+
+	if($wgTitle->getNamespace() == NS_PATHWAY) {
+		$pathway = Pathway::newFromTitle($wgTitle);
 	}
+
 	//Modify delete tab to use custom deletion for pathways
 	if($pathway && $wgTitle->userCan('delete')) {
 		if($pathway->isDeleted()) {
 			//Remove delete tab if already deleted
 			unset($content_actions['delete']);
-		} else {
-			//Use default delete action, but link to special deletion page
-			$content_actions['delete']['text'] = 'delete';
-			$content_actions['delete']['href'] =
-				SITE_URL . '/index.php?title=Special:DeletePathway&id=' . $pathway->getIdentifier();
 		}
 	}
 	return true;
