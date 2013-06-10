@@ -427,6 +427,26 @@ class Pathway {
 	}
 
 	/**
+	 * Get the species for this pathway.
+	 * This method will not load the GPML, but use the
+	 * metadata cache for performance.
+	 */
+	public function getSpeciesAbbr() {
+		if($this->exists()) { //Only use cache if this pathway exists
+			$species = $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_ORGANISM);
+			$m = array();
+			preg_match( "/(\S)\S*\s*(\S)/", $species, $m );
+			if( count($m) === 3 ) {
+				return $m[1] . $m[2];
+			} else {
+				return "";
+			}
+		} else {
+			return "";
+		}
+	}
+
+	/**
 	 * Get the unique xrefs in this pathway.
 	 * This method will not load the GPML, but use the
 	 * metadata cache for performance.

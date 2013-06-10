@@ -175,7 +175,7 @@ class PathwaysPagerFactory {
 
 class ListPathwaysPager extends BasePathwaysPager {
 	function getStartBody() {
-		return "<ul>";
+		return "<ul id='browseBody'>";
 	}
 
 	function getEndBody() {
@@ -185,9 +185,13 @@ class ListPathwaysPager extends BasePathwaysPager {
 	function formatRow( $row ) {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
 		$pathway = Pathway::newFromTitle( $title );
+		$row = '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName();
 
-		return '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName() . '</a>' .
-			$this->formatTags( $title ) . "</li>";
+		if( !$this->species ) {
+			$row .= " (". $pathway->getSpeciesAbbr() . ")";
+		}
+
+		return  "$row</a>" . $this->formatTags( $title ) . "</li>";
 	}
 }
 
