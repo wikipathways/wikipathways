@@ -34,23 +34,28 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 	}
 
 	function getQueryInfo() {
-		return array(
+		$q = array(
 			'options' => array( 'DISTINCT' ),
-			'tables' => array( 'page', 'tag as t0', 'tag as t1', 'categorylinks' ),
+			'tables' => array( 'page', 'tag as t0', 'tag as t1' ),
 			'fields' => array( 't1.tag_text', 'page_title' ),
 			'conds' => array(
 				'page_is_redirect' => '0',
 				'page_namespace' => $this->ns,
-				'cl_to' => $this->species,
 				't0.tag_name' => $this->tag,
 				't1.tag_name' => 'cache-name'
 			),
 			'join_conds' => array(
 				'tag as t0' => array( 'JOIN', 't0.page_id = page.page_id'),
 				'tag as t1' => array( 'JOIN', 't1.page_id = page.page_id'),
-				'categorylinks' => array( 'JOIN', 'page.page_id=cl_from' )
 			)
 		);
+		if( $this->species ) {
+			$q['tables'][] = 'categorylinks';
+			$q['join_conds']['categorylinks'] = array( 'JOIN', 'page.page_id=cl_from' );
+			$q['conds']['cl_to'] = $this->species;
+		}
+
+		return $q;
 	}
 
 	function getIndexField() {
@@ -69,7 +74,12 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 	function getThumb( $pathway, $icons, $boxwidth = 180, $withText = true ) {
 		global $wgStylePath, $wgContLang;
 
-		$label = $pathway->name() . "<br/>(" . $pathway->species() . ")<br/>" . $icons;
+		$label = $pathway->name() . "<br/>";
+		if( !$this->species ) {
+			$label .= "(" . $pathway->species() . ")<br/>";
+		}
+		$label .= $icons;
+
 		$boxheight=-1;
 		$framed=false;
 		$href = $pathway->getFullURL();
@@ -119,7 +129,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 				$s .= '<img src="'.$thumbUrl.'" '.
 					'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
 					'longdesc="'.$href.'" class="thumbimage" />';
-				/* $link = $this->getGPMLlink( $pathway ); */
+				/* No link to download $link = $this->getGPMLlink( $pathway ); */
 			}
 		}
 		$s .= '</a>';
@@ -279,45 +289,20 @@ class BrowsePathways extends SpecialPage {
 		return;
 	}
 
-	function getSelectedTag( $tag ) {
-		return "tag=$tag";
-	}
-
-	function getSelection( $pick ) {
-		$category = "category=";
-		$selection = "";
-		if ($pick == wfMsg('browsepathways-all-species') ) {
-			$picked = '';
-			$arr = Pathway::getAvailableSpecies();
-			asort($arr);
-			foreach ($arr as $index) {
-				$picked .=  $index."|";
-			}
-			$picked[strlen($picked)-1] = ' ';
-			$selection = $category.$picked;
-		} else if ($pick == wfMsg('browsepathways-uncategorized-species')) {
-			$category = 'notcategory=';
-			$arr = Pathway::getAvailableSpecies();
-			asort($arr);
-			foreach ($arr as $index) {
-				$selection .= $category.$index."\n";
-			}
-		} else {
-			$picked = $pick;
-			$selection = $category.$picked;
-		}
-		return  $selection;
-	}
-
 	protected function getSpeciesSelectionList( ) {
 		$arr = Pathway::getAvailableSpecies();
 		asort($arr);
-		$arr[] = wfMsg('browsepathways-all-species');
-		$arr[] = wfMsg('browsepathways-uncategorized-species');
+		$all = wfMsg('browsepathways-all-species');
+		$arr[] = $all;
+		/* $arr[] = wfMsg('browsepathways-uncategorized-species'); Don't look for uncategorized species */
 
 		$sel = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
-		foreach ($arr as $index) {
-			$sel .= $this->makeSelectionOption( Title::newFromText( $index )->getDBKey(), $this->species, $index );
+		foreach ($arr as $label) {
+			$value = Title::newFromText( $label )->getDBKey();
+			if( $label === $all ) {
+				$value = "";
+			}
+			$sel .= $this->makeSelectionOption( $value, $this->species, $label );
 		}
 		$sel .= "</select>\n";
 		return $sel;
