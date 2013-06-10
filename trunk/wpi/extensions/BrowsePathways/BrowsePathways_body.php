@@ -153,7 +153,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 			$href = $wgRequest->appendQueryArray( array( "tag" => $attr['tag'] ) );
 			$tagLabel .= Xml::element('a', array( 'href' => $href ), null ) . $imgLink . "</a>";
 		}
-		$tagLabel .= "</div>"
+		$tagLabel .= "</div>";
 		return $tagLabel;
 	}
 }
