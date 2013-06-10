@@ -74,9 +74,9 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 	function getThumb( $pathway, $icons, $boxwidth = 180, $withText = true ) {
 		global $wgStylePath, $wgContLang;
 
-		$label = $pathway->name() . "<br/>";
+		$label = $pathway->name();
 		if( !$this->species ) {
-			$label .= "(" . $pathway->species() . ")<br/>";
+			$label .= "<br/>(" . $pathway->species() . ")";
 		}
 		$label .= $icons;
 
