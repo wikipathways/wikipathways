@@ -63,22 +63,22 @@ function checkSoleAuthor($title, $user, $action, $result) {
 /**
  * Removes deletion tab if needed
  */
-$wgHooks['SkinTemplateContentActions'][] = 'deleteTab';
+/* $wgHooks['SkinTemplateContentActions'][] = 'deleteTab'; */
 
-function deleteTab(&$content_actions) {
-	global $wgTitle;
-	$pathway = null;
+/* function deleteTab(&$content_actions) { */
+/* 	global $wgTitle; */
+/* 	$pathway = null; */
 
-	if($wgTitle->getNamespace() == NS_PATHWAY) {
-		$pathway = Pathway::newFromTitle($wgTitle);
-	}
+/* 	if($wgTitle->getNamespace() == NS_PATHWAY) { */
+/* 		$pathway = Pathway::newFromTitle($wgTitle); */
+/* 	} */
 
-	//Modify delete tab to use custom deletion for pathways
-	if($pathway && $wgTitle->userCan('delete')) {
-		if($pathway->isDeleted()) {
-			//Remove delete tab if already deleted
-			unset($content_actions['delete']);
-		}
-	}
-	return true;
-}
+/* 	//Modify delete tab to use custom deletion for pathways */
+/* 	if($pathway && $wgTitle->userCan('delete')) { */
+/* 		if($pathway->isDeleted()) { */
+/* 			//Remove delete tab if already deleted */
+/* 			unset($content_actions['delete']); */
+/* 		} */
+/* 	} */
+/* 	return true; */
+/* } */
