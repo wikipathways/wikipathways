@@ -10,5 +10,4 @@ EOT;
 
 $wgAutoloadClasses['DeletePathway'] = dirname(__FILE__) . '/DeletePathway_body.php';
 $wgSpecialPages['DeletePathway'] = 'DeletePathway';
-$wgHooks['LoadAllMessages'][] = 'DeletePathway::loadMessages';
-$wgExtensionMessagesFiles['DeletePathways'] = dirname( __FILE__ ) . '/DeletePathways.i18n.php';
+$wgExtensionMessagesFiles['DeletePathways'] = dirname( __FILE__ ) . '/DeletePathway.i18n.php';
