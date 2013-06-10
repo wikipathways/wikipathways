@@ -108,7 +108,9 @@ class MetaDataCache {
 			$prev = Revision::newFromId(
 				$this->pathway->getTitleObject()->getLatestRevID()
 			);
-			$this->revtime = $prev->getTimestamp();
+			if( $prev ) {
+				$this->revtime = $prev->getTimestamp();
+			}
 		}
 
 		$tmod = $tag->getTimeMod();
