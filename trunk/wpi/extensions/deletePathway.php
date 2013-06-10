@@ -5,7 +5,7 @@ require_once('wpi/wpi.php');
  * Disables deletion for pathway pages.
  * TODO: Disable this hook for running script to transfer to stable ids
  */
-$wgHooks['ArticleDelete'][] = 'checkForPathway';
+/* $wgHooks['ArticleDelete'][] = 'checkForPathway';
 
 function checkForPathway(&$article, &$user, &$reason, $error = '') {
 	if($article && !$error && $article->getTitle()->getNamespace() == NS_PATHWAY) {
