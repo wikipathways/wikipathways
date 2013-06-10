@@ -146,13 +146,14 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 
 		$tags = CurationTag::getCurationImagesForTitle( $title );
 		ksort( $tags );
-		$tagLabel = "";
+		$tagLabel = "<div class='tag-icons'>";
 		foreach( $tags as $label => $attr ) {
 			$img = wfLocalFile( $attr['img'] );
-			$imgLink = Xml::element('img', array( 'class' => 'tag-icon', 'src' => $img->getURL(), "title" => $label ));
+			$imgLink = Xml::element('img', array( 'src' => $img->getURL(), "title" => $label ));
 			$href = $wgRequest->appendQueryArray( array( "tag" => $attr['tag'] ) );
 			$tagLabel .= Xml::element('a', array( 'href' => $href ), null ) . $imgLink . "</a>";
 		}
+		$tagLabel .= "</div>"
 		return $tagLabel;
 	}
 }
