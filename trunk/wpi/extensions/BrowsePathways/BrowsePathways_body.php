@@ -24,12 +24,12 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		}
 		$this->nsName = $wgCanonicalNamespaceNames[ $this->ns ];
 		$this->species = $species;
-		if( strstr( $tag, "|" ) === false ) {
+		if( $tag !== "---" ) {
 			$this->tag = $tag;
 		} else {
-			$this->tag = explode( "|", $tag );
+			$label = CurationTag::getUserVisibleTagNames();
+			$this->tag = $label[ wfMsg('browsepathways-all-tags') ];
 		}
-
 
 		parent::__construct();
 	}
@@ -355,7 +355,7 @@ class BrowsePathways extends SpecialPage {
 		$sel = "<select onchange='this.form.submit()' name='tag' class='namespaceselector'>\n";
 		foreach( CurationTag::getUserVisibleTagNames() as $display => $tag ) {
 			if( is_array( $tag ) ) {
-				$tag = implode( "|", $tag );
+				$tag = "---";
 			}
 			$sel .= $this->makeSelectionOption( $tag, $this->tag, $display );
 		}
