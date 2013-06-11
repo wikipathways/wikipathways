@@ -50,7 +50,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 				'tag as t1' => array( 'JOIN', 't1.page_id = page.page_id'),
 			)
 		);
-		if( $this->species ) {
+		if( $this->species !== '---' ) {
 			$q['tables'][] = 'categorylinks';
 			$q['join_conds']['categorylinks'] = array( 'JOIN', 'page.page_id=cl_from' );
 			$q['conds']['cl_to'] = $this->species;
@@ -84,7 +84,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		global $wgStylePath, $wgContLang;
 
 		$label = $pathway->name() . '<br>';
-		if( !$this->species ) {
+		if( $this->species === '---' ) {
 			$label .= "(" . $pathway->species() . ")<br>";
 		}
 		$label .= $icons;
@@ -224,9 +224,9 @@ class ListPathwaysPager extends BasePathwaysPager {
 	function formatRow( $row ) {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
 		$pathway = Pathway::newFromTitle( $title );
-		$row = '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName();
+		$row = '<li class="infinite-item"><a href="' . $title->getFullURL() . '">' . $pathway->getName();
 
-		if( !$this->species ) {
+		if( $this->species === '---' ) {
 			$row .= " (". $pathway->getSpeciesAbbr() . ")";
 		}
 
@@ -343,7 +343,7 @@ class BrowsePathways extends SpecialPage {
 		foreach ($arr as $label) {
 			$value = Title::newFromText( $label )->getDBKey();
 			if( $label === $all ) {
-				$value = "";
+				$value = "---";
 			}
 			$sel .= $this->makeSelectionOption( $value, $this->species, $label );
 		}
