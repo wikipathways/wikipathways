@@ -54,7 +54,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		$this->skin = $skin = $this->data['skin'];
 		$action = $wgRequest->getText( 'action' );
 
-		$thisStylePath = $this->text('stylepath') .'/'. $this->text('stylename');
+		$thisStylePath = htmlspecialchars( $this->data['stylepath'] ) .'/'. htmlspecialchars( $this->data['stylename'] );
 
 		// Suppress warnings to prevent notices about missing indexes in $this->data
 		wfSuppressWarnings();
