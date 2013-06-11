@@ -122,9 +122,6 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		<script src="<?php echo $thisStylePath ?>/jquery-1.8.3.min.js"></script>
 		<script src="<?php echo $thisStylePath ?>/waypoints.min.js"></script>
 		<script src="<?php echo $thisStylePath ?>/waypoints-infinite.min.js"></script>
-		<script>
-			$('#browseListBody').waypoint('infinite');
-		</script>
 		<link rel="stylesheet" type="text/css" <?php if(empty($this->data['printable']) ) { ?>media="print"<?php } ?> href="<?php $this->text('printcss') ?>?<?php echo $GLOBALS['wgStyleVersion'] ?>" />
 		<?php if( in_array( 'IE50', $skin->cssfiles ) ) { ?><!--[if lt IE 5.5000]><style type="text/css">@import "<?php echo $thisStylePath ?>/IE50Fixes.css?<?php echo $GLOBALS['wgStyleVersion'] ?>";</style><![endif]-->
 		<?php } if( in_array( 'IE55', $skin->cssfiles ) ) { ?><!--[if IE 5.5000]><style type="text/css">@import "<?php echo $thisStylePath ?>/IE55Fixes.css?<?php echo $GLOBALS['wgStyleVersion'] ?>";</style><![endif]-->
@@ -310,6 +307,9 @@ class WikiPathwaysTemplate extends QuickTemplate {
 
 -->
 <?php endif; ?>
+<script>
+	$('#browseListBody').waypoint('infinite');
+</script>
 </body></html>
 <?php
 	wfRestoreWarnings();
