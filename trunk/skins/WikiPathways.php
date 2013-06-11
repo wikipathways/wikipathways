@@ -121,6 +121,7 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		<style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "<?php echo $thisStylePath ?>/wikipathways-custom.css?<?php echo $GLOBALS['wgStyleVersion'] ?>"; /*]]>*/</style>
 		<script src="<?php echo $thisStylePath ?>/jquery-1.8.3.min.js"></script>
 		<script src="<?php echo $thisStylePath ?>/waypoints.min.js"></script>
+		<script src="<?php echo $thisStylePath ?>/waypoints-infinite.min.js"></script>
 		<script>
 			$('#browseListBody').waypoint('infinite');
 		</script>
