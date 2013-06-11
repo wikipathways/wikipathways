@@ -1,3 +1,4 @@
+
 <?php
 /**
  * @package MediaWiki
@@ -60,6 +61,14 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 
 	function getIndexField() {
 		return 't1.tag_text';
+	}
+
+	function getTopNavigationBar() {
+		return parent::getNavigationBar();
+	}
+
+	function getBottomNavigationBar() {
+		return parent::getNavigationBar();
 	}
 
 	function getGPMLlink( $pathway ) {
@@ -174,13 +183,43 @@ class PathwaysPagerFactory {
 }
 
 class ListPathwaysPager extends BasePathwaysPager {
+	function __construct( $species, $tag ) {
+		parent::__construct( $species, $tag );
+
+		$this->mLimitsShown = array( 75 );
+		$this->mDefaultLimit = 75;
+		$this->mLimit = 75;
+	}
+
 	function getStartBody() {
-		return "<ul id='browseBody'>";
+		return "<ul id='browseListBody'>";
 	}
 
 	function getEndBody() {
 		return "</ul>";
 	}
+
+	function getTopNavigationBar() {
+		return "";
+	}
+
+	function getBottomNavigationBar() {
+		global $wgLang;
+
+		/* Using http://imakewebthings.com/jquery-waypoints/shortcuts/infinite-scroll/ */
+		$link = "<span class='infinite-more-link'/>";
+		$queries = $this->getPagingQueries();
+		$opts = array( 'parsemag', 'escapenoentities' );
+
+		if( isset( $queries['next'] ) && $queries['next'] ) {
+			$link = $this->getSkin()->makeKnownLinkObj( $this->getTitle(),
+				wfMsgExt( 'nextn', $opts, $wgLang->formatNum( $this->mLimit ) ),
+				wfArrayToCGI( $queries['next'], $this->getDefaultQuery() ), '', '',
+				"class='infinite-more-link'" );
+		}
+		return $link;
+	}
+
 
 	function formatRow( $row ) {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
@@ -252,7 +291,6 @@ class LegacyBrowsePathways extends LegacySpecialPage {
 class BrowsePathways extends SpecialPage {
 
 	protected $maxPerPage  = 960;
-	protected $topLevelMax = 50;
 	protected $name        = 'BrowsePathways';
 	static private $defaultView = "thumbs";
 	//	static private $sizes       = array( "list", "thumbs", "single" );
@@ -287,9 +325,9 @@ class BrowsePathways extends SpecialPage {
 
 		$pager = PathwaysPagerFactory::get( $this->view, $this->species, $this->tag );
 		$wgOut->addHTML(
-			$pager->getNavigationBar() .
+			$pager->getTopNavigationBar() .
 			$pager->getBody() .
-			$pager->getNavigationBar()
+			$pager->getBottomNavigationBar()
 		);
 		return;
 	}
