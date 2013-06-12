@@ -237,10 +237,11 @@ class ListPathwaysPager extends BasePathwaysPager {
 			$this->columnIndex++;
 		} else {
 			$this->columnItemCount++;
+			$row = "";
 		}
 
 		if( $this->columnItemCount === 0 ) {
-			$row = '<li class="infinite-item"><ul>';
+			$row .= '<li class="infinite-item"><ul>';
 		}
 
 		$row .= '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName();
