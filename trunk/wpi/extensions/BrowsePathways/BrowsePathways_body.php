@@ -1,4 +1,3 @@
-
 <?php
 /**
  * @package MediaWiki
@@ -183,12 +182,19 @@ class PathwaysPagerFactory {
 }
 
 class ListPathwaysPager extends BasePathwaysPager {
+	protected $columnItemCount;
+	protected $columnIndex;
+	const columnSize = 75;
+
 	function __construct( $species, $tag ) {
 		parent::__construct( $species, $tag );
 
-		$this->mLimitsShown = array( 75 );
-		$this->mDefaultLimit = 75;
-		$this->mLimit = 75;
+		# We know we have 75, so we'll put 25 in each column
+		$this->mLimitsShown = array( self::columnSize );
+		$this->mDefaultLimit = self::columnSize;
+		$this->mLimit = self::columnSize;
+		$this->columnItemCount = 0;
+		$this->columnIndex = 0;
 	}
 
 	function getStartBody() {
@@ -224,7 +230,20 @@ class ListPathwaysPager extends BasePathwaysPager {
 	function formatRow( $row ) {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
 		$pathway = Pathway::newFromTitle( $title );
-		$row = '<li class="infinite-item"><a href="' . $title->getFullURL() . '">' . $pathway->getName();
+
+		if( $this->columnItemCount === self::columnSize ) {
+			$row = '</ul></li>';
+			$this->columnItemCount = 0;
+			$this->columnIndex++;
+		} else {
+			$this->columnItemCount++;
+		}
+
+		if( $this->columnItemCount === 0 ) {
+			$row = '<li class="infinite-item"><ul>';
+		}
+
+		$row .= '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName();
 
 		if( $this->species === '---' ) {
 			$row .= " (". $pathway->getSpeciesAbbr() . ")";
