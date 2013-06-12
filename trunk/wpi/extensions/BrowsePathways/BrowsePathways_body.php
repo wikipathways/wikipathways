@@ -185,14 +185,15 @@ class ListPathwaysPager extends BasePathwaysPager {
 	protected $columnItemCount;
 	protected $columnIndex;
 	const columnSize = 25;
+	const columnCount = 3;
 
 	function __construct( $species, $tag ) {
 		parent::__construct( $species, $tag );
 
 		# We know we have 75, so we'll put 25 in each column
-		$this->mLimitsShown = array( self::columnSize );
-		$this->mDefaultLimit = self::columnSize;
-		$this->mLimit = self::columnSize;
+		$this->mLimitsShown = array( self::columnSize * self::columnCount );
+		$this->mDefaultLimit = self::columnSize * self::columnCount;
+		$this->mLimit = self::columnSize * self::columnCount;
 		$this->columnItemCount = 0;
 		$this->columnIndex = 0;
 	}
@@ -213,7 +214,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 		global $wgLang;
 
 		/* Using http://imakewebthings.com/jquery-waypoints/shortcuts/infinite-scroll/ */
-		$link = "<span class='infinite-more-link'/>";
+		$link = "";
 		$queries = $this->getPagingQueries();
 		$opts = array( 'parsemag', 'escapenoentities' );
 
@@ -236,13 +237,13 @@ class ListPathwaysPager extends BasePathwaysPager {
 			$this->columnItemCount = 0;
 			$this->columnIndex++;
 		} else {
-			$this->columnItemCount++;
 			$row = "";
 		}
 
 		if( $this->columnItemCount === 0 ) {
 			$row .= '<li class="infinite-item"><ul>';
 		}
+		$this->columnItemCount++;
 
 		$row .= '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName();
 
