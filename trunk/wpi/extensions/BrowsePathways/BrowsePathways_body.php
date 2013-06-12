@@ -184,7 +184,7 @@ class PathwaysPagerFactory {
 class ListPathwaysPager extends BasePathwaysPager {
 	protected $columnItemCount;
 	protected $columnIndex;
-	const columnSize = 75;
+	const columnSize = 25;
 
 	function __construct( $species, $tag ) {
 		parent::__construct( $species, $tag );
