@@ -8,6 +8,12 @@ EOT;
 		exit( 1 );
 }
 
+$wgAutoloadClasses['BasePathwaysPager'] = dirname(__FILE__) . '/Pager.php';
+$wgAutoloadClasses['PathwaysPagerFactory'] = dirname(__FILE__) . '/Pager.php';
+$wgAutoloadClasses['ListPathwaysPager'] = dirname(__FILE__) . '/Pager.php';
+$wgAutoloadClasses['SinglePathwaysPager'] = dirname(__FILE__) . '/Pager.php';
+$wgAutoloadClasses['ThumbPathwaysPager'] = dirname(__FILE__) . '/Pager.php';
+
 $wgAutoloadClasses['BrowsePathways'] = dirname(__FILE__) . '/BrowsePathways_body.php';
 $wgAutoloadClasses['LegacyBrowsePathways'] = dirname(__FILE__) . '/BrowsePathways_body.php';
 $wgSpecialPages['BrowsePathwaysPage'] = 'LegacyBrowsePathways';
