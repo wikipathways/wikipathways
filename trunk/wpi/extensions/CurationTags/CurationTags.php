@@ -4,6 +4,7 @@ require_once(WPI_SCRIPT_PATH . "/MetaTag.php");
 require_once("CurationTagsMailer.php");
 
 $wgExtensionMessagesFiles['CurationTags'] = dirname( __FILE__ ) . '/CurationTags.i18n.php';
+wfLoadExtensionMessages( 'CurationTags' );
 $wfCurationTagsPath = WPI_URL . "/extensions/CurationTags";
 
 //Register AJAX functions
@@ -254,8 +255,6 @@ class CurationTag {
 
 	/**
 	 * Get the SimpleXML representation of the tag definition
-	 * X		$dn = self::getTagDefinition()->xpath($xpath);
-		return $dn ? (string)$dn[0]['displayName'] : $tagname;ML.
 	 **/
 	public static function getTagDefinition() {
 		if(!self::$tagDefinition) {
