@@ -4,7 +4,6 @@ require_once(WPI_SCRIPT_PATH . "/MetaTag.php");
 require_once("CurationTagsMailer.php");
 
 $wgExtensionMessagesFiles['CurationTags'] = dirname( __FILE__ ) . '/CurationTags.i18n.php';
-wfLoadExtensionMessages( 'CurationTags' );
 $wfCurationTagsPath = WPI_URL . "/extensions/CurationTags";
 
 //Register AJAX functions
