@@ -196,5 +196,5 @@ To add a tag, add a <Tag> element in the xml code below. The element may contain
 </TagDefinitions>
 EOF
 	,
-	"browsepathways-all-tags" => "All tags"
+	"browsepathways-all-tags" => "All pathways"
 );
