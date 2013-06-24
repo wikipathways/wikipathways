@@ -1,5 +1,8 @@
 <?php
-require_once('../../OntologyCache.php');
+$dir = getcwd();
+chdir(dirname(realpath(__FILE__)) . "/../../");
+require_once('OntologyCache.php');
+chdir($dir);
 
 class OntologyFunctions
 {

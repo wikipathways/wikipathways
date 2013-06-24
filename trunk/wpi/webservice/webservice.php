@@ -2,6 +2,7 @@
 chdir(dirname(realpath(__FILE__)) . "/../");
 require_once('wpi.php');
 require_once('search.php');
+require_once('extensions/otag/OntologyFunctions.php');
 chdir($dir);
 
 ## Log the request ##
@@ -55,6 +56,7 @@ $operations = array(
 	"findInteractions",
 	"getXrefList",
 	"findPathwaysByLiterature",
+	"saveOntologyTag",
 	"getOntologyTermsByPathway",
 	"getOntologyTermsByOntology",
 	"getPathwaysByOntologyTerm",
@@ -82,6 +84,7 @@ $opParams = array(
 	"findInteractions" => "MIXED",
 	"getXrefList" => "MIXED",
 	"findPathwaysByLiterature" => "MIXED",
+	"saveOntologyTag" => "MIXED",
 	"getOntologyTermsByPathway" => "MIXED",
 	"getOntologyTermsByOntology" => "MIXED",
 	"getPathwaysByOntologyTerm" => "MIXED",
@@ -737,6 +740,30 @@ function authenticate($username, $token, $write = false) {
 			"Contact the site administrator to request write permissions.");
 		}
 	}
+}
+
+/**
+ * Apply a ontology tag to a pahtway. 
+ * @param string $pwId The pathway identifier
+ * @param string $term The ontology term to apply
+ * @param string $termId The identifier of the term in the ontology
+ * @param object WSAuth $auth The authentication info
+ * @return boolean $success
+ */
+function saveOntologyTag($pwId, $term, $termId, $auth) {
+	if($auth) {
+		authenticate($auth['user'], $auth['key'], true);
+	}
+	try {
+		$pathway = new Pathway($pwId);
+		if($pathway->exists()) {
+			OntologyFunctions::addOntologyTag($termId, $term, $pwId);
+      }
+	} catch(Exception $e) {
+		wfDebug("ERROR: $e");
+		throw new WSFault("Receiver", $e);
+	}
+	return array("success" => true);
 }
 
 /**
