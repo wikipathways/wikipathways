@@ -13,10 +13,9 @@
  * @ingroup Maintenance
  */
 
-$oldCwd = getcwd();
-require_once( 'commandLine.inc' );
+if( !isset($IP) ) $IP = dirname( dirname( dirname( __FILE__ ) ) );
+require_once( "$IP/maintenance/commandLine.inc" );
 require_once( "$IP/wpi/extensions/BrowsePathways/BrowsePathways_body.php");
-chdir( $oldCwd );
 
 # Setup complete, now start
 
@@ -64,10 +63,14 @@ class CliPathwaysPager extends BasePathwaysPager {
 		exit;
 	}
 
-	function nextOffset( $res ) {
-		$offset = $res->fetchObject();
-		return $offset->tag_text;
+	function getKey( $res ) {
+		return $res->page_title;
 	}
+
+	function getValue( $res ) {
+		return $res->tag_text;
+	}
+
 }
 
 
@@ -100,13 +103,13 @@ class PagerIterator implements Iterator {
 
 	function current() {
 		if( $this->current )
-			return $this->current->tag_text;
+			return $this->pager->getValue( $this->current );
 		return null;
 	}
 
 	function key() {
 		if( $this->current )
-			return $this->current->page_title;
+			return $this->pager->getKey( $this->current );
 		return null;
 	}
 
@@ -134,7 +137,7 @@ class PagerIterator implements Iterator {
 			$res = $this->pager->mResult;
 			if( $res->numRows() > $this->pager->mLimit ) {
 				$res->seek( $res->numRows() - 1 );
-				$this->nextQueryOffset = $this->pager->nextOffset( $res );
+				$this->nextQueryOffset = $this->pager->getValue( $res->fetchObject() );
 			} else {
 				$this->nextQueryOffset = false;
 			}
