@@ -269,6 +269,12 @@ span.subpages {
 	display: block;
 }
 
+/* From http://www.mikepadgett.com/technology/technical/alternative-to-the-pie-clearfix-hack/ */
+#bodyContent {
+   height: 1%;
+   overflow: hidden;
+}
+
 /* Some space under the headers in the content area */
 #bodyContent h1, #bodyContent h2 {
 	margin-bottom: .6em;
