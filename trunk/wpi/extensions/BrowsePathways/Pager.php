@@ -3,6 +3,7 @@
 abstract class BasePathwaysPager extends AlphabeticPager {
 	protected $species;
 	protected $tag;
+	protected $sortOrder;
 	protected $ns = NS_PATHWAY;
 	protected $nsName;
 
@@ -27,7 +28,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		return $wgRequest->getVal( 'order' );
 	}
 
-	public function __construct($species, $tag) {
+	public function __construct($species, $tag, $sortOrder) {
 		global $wgCanonicalNamespaceNames;
 
 		if ( ! isset( $wgCanonicalNamespaceNames[ $this->ns ] ) ) {
@@ -35,6 +36,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		}
 		$this->nsName = $wgCanonicalNamespaceNames[ $this->ns ];
 		$this->species = $species;
+		$this->sortOrder = $sortOrder;
 		if( $tag !== "---" ) {
 			$this->tag = $tag;
 		} else {
@@ -108,6 +110,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 
 	function getIndexField() {
 		return 't1.tag_text';
+		# This should look at $this->sortOrder for the field to sort on.
 	}
 
 	function getTopNavigationBar() {
