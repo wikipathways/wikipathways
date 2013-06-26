@@ -19,10 +19,10 @@ To help protect against automated spam, please answer the question that appears 
 	'questycaptcha-create' => 'To create the page, please answer the question that appears below ([[Special:Captcha/help|more info]]):',
 	'questycaptcha-edit' => 'To edit this page, please answer the question that appears below ([[Special:Captcha/help|more info]]):',
 	'questycaptcha-sendemail' => 'To help protect against automated spamming, please answer the question that appears below ([[Special:Captcha/help|more info]]):',
-	'questycaptcha-qna' => "== How this works ==\n\nThe only questions used are those that come after <nowiki>=== Q&A ===</nowiki>\n\nThe form is:\n\n<pre>\nq: question\n\na: answer\n</pre>\n\nLines that don\'t begin with a \"q:\" or \"a:\" are ignored.\n\nQuestions and answers should always be listed in pairs.\n\nAnswers are not case sensitive.\n\n=== Q&A ===\n\n",
+	'questycaptcha-qna' => "== How this works ==\n\nThe only questions used are those that come after <nowiki>=== Q&A ===</nowiki>\n\nThe form is:\n\n<pre>\nq: question\n\na: answer\n</pre>\n\nLines that don't begin with a \"q:\" or \"a:\" are ignored.\n\nQuestions and answers should always be listed in pairs.\n\nAnswers are not case sensitive.\n\n=== Q&A ===\n----\nq: '''''What does ATP typically convert to when consumed in a reaction?'''''\n\na: ADP\n----\nq: '''''Do kinases typically phosphorylate or cleave other proteins?'''''\n\na: phosphorylate\n----\nq: [[Image:FH_reaction.png]]\n\na: FH\n----",
 	'questycaptcha-noquesty' => "No questions found; set some in LocalSettings.php using the format from QuestyCaptcha.php or visit [[MediaWiki:Questycaptcha-q&a]]",
-	'questycaptcha-no-q&a' => "No Q&A section of [[MediaWiki:Questycaptcha-q&a]]!",
-	'questycaptcha-no-q&a-list' => "No questions found in the Q&A section of [[MediaWiki:Questycaptcha-q&a]]!",
+	'questycaptcha-no-qna' => "No Q&A section of [[MediaWiki:Questycaptcha-q&a]]!",
+	'questycaptcha-no-qna-list' => "No questions found in the Q&A section of [[MediaWiki:Questycaptcha-q&a]]!",
 	'questycaptchahelp-text' => 'Web sites that accept contributions from the public, like this wiki, are often abused by spammers who use automated tools to create accounts and add their links to editable pages.
 
 So, we have prepared some basic pathway biology questions that any human contributor to WikiPathways should be able to answer. We hope you find these questions less annoying than the typical blurred text images. They are intended to be simplistic and not at all challenging in terms of the biology. Don\'t overthink them! But if you find yourself stuck on a particular question, then simply refresh the page to pick another question randomly (might need to repeat to pick a different question).
