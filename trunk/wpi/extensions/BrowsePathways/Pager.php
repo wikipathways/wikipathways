@@ -218,16 +218,16 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 }
 
 class PathwaysPagerFactory {
-	static function get( $type, $species, $tag ) {
+	static function get( $type, $species, $tag, $sortOrder ) {
 		switch( $type ) {
 			case 'list':
-				return new ListPathwaysPager( $species, $tag );
+				return new ListPathwaysPager( $species, $tag, $sortOrder );
 				break;
 			case 'single':
-				return new SinglePathwaysPager( $species, $tag );
+				return new SinglePathwaysPager( $species, $tag, $sortOrder );
 				break;
 			default:
-				return new ThumbPathwaysPager( $species, $tag );
+				return new ThumbPathwaysPager( $species, $tag, $sortOrder );
 		}
 	}
 }
@@ -235,18 +235,26 @@ class PathwaysPagerFactory {
 class ListPathwaysPager extends BasePathwaysPager {
 	protected $columnItemCount;
 	protected $columnIndex;
-	const columnSize = 100;
+	protected $columnSize = 100;
 	const columnCount = 3;
 
-	function __construct( $species, $tag ) {
-		parent::__construct( $species, $tag );
+	function __construct( $species, $tag, $sortOrder ) {
+		parent::__construct( $species, $tag, $sortOrder );
 
-		# We know we have 75, so we'll put 25 in each column
-		$this->mLimitsShown = array( self::columnSize * self::columnCount );
-		$this->mDefaultLimit = self::columnSize * self::columnCount;
-		$this->mLimit = self::columnSize * self::columnCount;
+		# We know we have 300, so we'll put 100 in each column
+		$this->mLimitsShown = array( $this->columnSize * self::columnCount );
+		$this->mDefaultLimit = $this->columnSize * self::columnCount;
+		$this->mLimit = $this->columnSize * self::columnCount;
 		$this->columnItemCount = 0;
 		$this->columnIndex = 0;
+	}
+
+	function preprocessResults( $result ) {
+		$rows = $result->db->numRows( $result );
+
+		if( $rows < $this->mLimit ) {
+			$this->columnSize = floor( $rows / self::columnCount );
+		}
 	}
 
 	function getStartBody() {
@@ -283,7 +291,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
 		$pathway = Pathway::newFromTitle( $title );
 
-		if( $this->columnItemCount === self::columnSize ) {
+		if( $this->columnItemCount === $this->columnSize ) {
 			$row = '</ul></li>';
 			$this->columnItemCount = 0;
 			$this->columnIndex++;
@@ -324,8 +332,8 @@ class ThumbPathwaysPager extends BasePathwaysPager {
 }
 
 class SinglePathwaysPager extends BasePathwaysPager {
-	function __construct( $species, $tag  ) {
-		parent::__construct( $species, $tag );
+	function __construct( $species, $tag, $sortOrder ) {
+		parent::__construct( $species, $tag, $sortOrder );
 
 		$this->mLimitsShown = array( 5 );
 		$this->mDefaultLimit = 5;

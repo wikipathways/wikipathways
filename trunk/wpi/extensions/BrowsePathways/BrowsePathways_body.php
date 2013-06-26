@@ -62,7 +62,7 @@ class BrowsePathways extends SpecialPage {
 
 		$sel = "\n<select onchange='this.form.submit()' name='sort' class='namespaceselector'>\n";
 		foreach( $arr as $key => $label ) {
-			$sel .= $this->makeSelectionOption( $value, $this->sortOrder, $label );
+			$sel .= $this->makeSelectionOption( $key, $this->sortOrder, $label );
 		}
 		$sel .= "</select>\n";
 		return $sel;
