@@ -585,12 +585,12 @@ function SocialRewardingReferences($wArticle, $wUser, $wText, $wSummary, $wIsMin
 								));
 						}
 
-						return 1;
+						return true;
 				} else {
-						return 0;
+						return false;
 				}
 	} else { //revision is not an object (typically a non-pathway article)
-		return 0;
+		return false;
 	}
 }
 
