@@ -17,6 +17,7 @@ class BrowsePathways extends SpecialPage {
 	static private $defaultView = "thumbs";
 	//	static private $sizes       = array( "list", "thumbs", "single" );
 	static private $views  = array( "list", "thumbs" );
+	static private $sortOptions = array( 'A-Z', 'creation date', 'last edit date', 'most viewed' );
 
 	# Determines, which message describes the input field 'nsfrom' (->SpecialPrefixindex.php)
 	var $nsfromMsg='browsepathwaysfrom';
@@ -32,26 +33,39 @@ class BrowsePathways extends SpecialPage {
 
 	protected $species;
 	protected $tag;
+	protected $sortOrder;
 
 	function execute( $par) {
 		global $wgOut, $wgRequest;
 
 		$wgOut->setPagetitle( wfmsg( "browsepathways" ) );
 
-		$this->species = $wgRequest->getVal( "browse", 'Homo_sapiens' );
-		$this->tag     = $wgRequest->getVal( "tag", CurationTag::defaultTag() );
-		$this->view    = $wgRequest->getVal( "view", self::$defaultView );
+		$this->species   = $wgRequest->getVal( "browse", 'Homo_sapiens' );
+		$this->tag       = $wgRequest->getVal( "tag", CurationTag::defaultTag() );
+		$this->view      = $wgRequest->getVal( "view", self::$defaultView );
+		$this->sortOrder = $wgRequest->getVal( "sort", 0 );
 		$nsForm = $this->pathwayForm( );
 
 		$wgOut->addHtml( $nsForm . '<hr />');
 
-		$pager = PathwaysPagerFactory::get( $this->view, $this->species, $this->tag );
+		$pager = PathwaysPagerFactory::get( $this->view, $this->species, $this->tag, $this->sortOrder );
 		$wgOut->addHTML(
 			$pager->getTopNavigationBar() .
 			$pager->getBody() .
 			$pager->getBottomNavigationBar()
 		);
 		return;
+	}
+
+	protected function getSortingOptionsList( ) {
+		$arr = self::$sortOptions;
+
+		$sel = "\n<select onchange='this.form.submit()' name='sort' class='namespaceselector'>\n";
+		foreach( $arr as $key => $label ) {
+			$sel .= $this->makeSelectionOption( $value, $this->sortOrder, $label );
+		}
+		$sel .= "</select>\n";
+		return $sel;
 	}
 
 	protected function getSpeciesSelectionList( ) {
@@ -120,6 +134,7 @@ class BrowsePathways extends SpecialPage {
 		$speciesSelect = $this->getSpeciesSelectionList( );
 		$tagSelect     = $this->getTagSelectionList( );
 		$viewSelect    = $this->getViewSelectionList( );
+		$sortSelect    = $this->getSortingOptionsList( );
 		$submitbutton = '<noscript><input type="submit" value="Go" name="pick" /></noscript>';
 
 		$out = "<form method='get' action='{$wgScript}'>";
@@ -137,6 +152,8 @@ class BrowsePathways extends SpecialPage {
 	</tr>
 </table>
 ";
+		/* <td align='right'>". wfMsg("browsepathways-select-sort") ."</td> */
+		/* <td align='left'>$sortSelect</td> */
 
 		$out .= '</form>';
 		return $out;
