@@ -232,7 +232,7 @@ class PathwaysPagerFactory {
 class ListPathwaysPager extends BasePathwaysPager {
 	protected $columnItemCount;
 	protected $columnIndex;
-	const columnSize = 25;
+	const columnSize = 100;
 	const columnCount = 3;
 
 	function __construct( $species, $tag ) {
