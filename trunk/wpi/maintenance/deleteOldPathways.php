@@ -129,7 +129,7 @@ class PagerIterator implements Iterator {
 				}
 			} else {
 				$class = $this->pagerClass;
-				$this->pager = $class::initPager();
+				$this->pager = eval("return $class::initPager();");
 			}
 			$this->offset = 0;
 			$this->pager->doQuery();
