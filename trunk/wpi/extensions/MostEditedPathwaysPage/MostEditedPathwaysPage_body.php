@@ -23,7 +23,7 @@ class MostEditedPathwaysPage extends SpecialPage
 		return true;
 	}
 
-	static static function loadMessages() {
+	static function loadMessages() {
 		static $messagesLoaded = false;
 		global $wgMessageCache;
 		if ( $messagesLoaded ) return true;
