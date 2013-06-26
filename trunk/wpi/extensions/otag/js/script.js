@@ -11,7 +11,7 @@ var title = wgPageName;
 var ontologies = YAHOO.lang.JSON.parse(ontologiesJSON);
 var oTagsCount = new Array();
 
-for(i=0;i<ontologies.length;i++)
+for(var i=0;i<ontologies.length;i++)
 {
     document.getElementById('ontologyTags').innerHTML += "<div id='" + ontologies[i][0] + "'><b>" + ontologies[i][0] + "</b> : </div>";
     oTagsCount[ontologies[i][0]] = 0;
@@ -20,18 +20,18 @@ fetchTags();
 
 if(otagloggedIn == 1)
 {
-    createDOM = function() {
+    var createDOM = function() {
 
-        for(i=0;i<ontologies.length;i++)
+        for(var i=0;i<ontologies.length;i++)
         {
-            Treediv = document.createElement("span");
+            var Treediv = document.createElement("span");
             Treediv.id = "ontologyTree" + (i + 1);
             Treediv.className = "ontologyTree";
             treeRoot.appendChild(Treediv);
         }
     } ();
 
-    ontologytree = function() {
+    var ontologytree = function() {
         function buildTree() {
             var tree = new Array();
             for (var no=0; no<3; no++) {
@@ -47,11 +47,7 @@ if(otagloggedIn == 1)
                 }
                 tree[no].subscribe("labelClick", function(node) {
                     displayTag(node.label,node.c_id,"true");
-                    tree[0].destroy();
-                    tree[1].destroy();
-                    tree[2].destroy();
-                    tree = null;
-                    YAHOO.util.Event.onDOMReady(ontologytree.init, ontologytree,true);YAHOO.util.Event.onDOMReady(ontologytree.init, ontologytree,true);
+                    YAHOO.util.Event.onDOMReady(ontologytree.init, ontologytree,true);
                 });
                 tree[no].draw();
             }
@@ -61,7 +57,7 @@ if(otagloggedIn == 1)
             init: function() {
                 buildTree();
             }
-        }
+        };
     } ();
 
 function loadNodeData(node, fnLoadComplete)  {
@@ -109,7 +105,7 @@ function loadNodeData(node, fnLoadComplete)  {
     YAHOO.util.Connect.asyncRequest('POST', sUrl, callback);
 }
 
-    ontologySearch = function () {
+var ontologySearch = function () {
 
         var oDS = new YAHOO.util.XHRDataSource( opath + "/otags.php");
         // Set the responseType
@@ -173,7 +169,8 @@ function loadNodeData(node, fnLoadComplete)  {
 
 function getOntologyName(tag_id)
 {
-    for(i=0;i<ontologies.length;i++)
+    var ontology_name;
+    for(var i=0;i<ontologies.length;i++)
     {
         if(tag_id.substring(0,2) == ontologies[i][1].substring(0,2))
         {
@@ -186,8 +183,10 @@ function getOntologyName(tag_id)
 
 function getOntologyId(type,tag_id)
 {
+    var ontology_id;
+
     if(type == "version")
-        for(i=0;i<ontologies.length;i++)
+        for(var i=0;i<ontologies.length;i++)
         {
             if(tag_id.substring(0,2) == ontologies[i][1].substring(0,2))
             {
@@ -338,15 +337,15 @@ function displayTag(concept, conceptId, newTag)
 
     if(opentag_id != conceptId)
     {
-        ontology_version_id = getOntologyId("version",conceptId);
+        var ontology_version_id = getOntologyId("version",conceptId);
         var output = " ";
 
-		output += "<div class='otag'><b>Term</b> : " + concept + "<br/><b>ID</b> : " + conceptId + "<br/>";
+	output += "<div class='otag'><b>Term</b> : " + concept + "<br/><b>ID</b> : " + conceptId + "<br/>";
 
-		 //Info link
-         var url = "http://bioportal.bioontology.org/visualize/" + ontology_version_id + "/" + conceptId;
+	//Info link
+        var url = "http://bioportal.bioontology.org/visualize/" + ontology_version_id + "/" + conceptId;
 
-        output += "<a href='" + url + "'  title='More info at BioPortal' target='_blank'><img src='" + stylepath + "/common/images/info_large.png'></a>&nbsp;"
+        output += "<a href='" + url + "'  title='More info at BioPortal' target='_blank'><img src='" + stylepath + "/common/images/info_large.png'></a>&nbsp;";
 
         //Other pathways search link
         var term = conceptId.replace(/:/g, '');
@@ -425,7 +424,7 @@ function toggleOntologyControls()
 
 function toggleOntologyDisplay()
 {
-    for(i=0;i<ontologies.length;i++)
+    for(var i=0;i<ontologies.length;i++)
     {
         var ontologyName = ontologies[i][0];
 
