@@ -1593,3 +1593,6 @@ span.searchmatch {
    float: left;
    padding: 1em;
 }
+.infinite-more-link {
+   float: right;
+}
