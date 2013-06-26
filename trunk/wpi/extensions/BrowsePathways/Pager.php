@@ -253,7 +253,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 		$rows = $result->db->numRows( $result );
 
 		if( $rows < $this->mLimit ) {
-			$this->columnSize = floor( $rows / self::columnCount );
+			$this->columnSize = (int)( $rows / self::columnCount );
 		}
 	}
 
