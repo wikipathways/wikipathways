@@ -112,9 +112,17 @@ function wfRunHooks($event, $args = array()) {
 		is_callable( $callback );
 
 		/* Call the hook. */
+/* Following is very useful for debugging hooks */
+/* error_reporting( -1 ); */
+/* ini_set( 'display_errors', 1 ); */
 		wfProfileIn( $func );
 		$retval = call_user_func_array( $callback, $hook_args );
 		wfProfileOut( $func );
+/* if($retval !== true && $retval !== false) { */
+/* 	var_dump($callback); */
+/* 	var_dump($hook_args); */
+/* 	var_dump($retval);exit; */
+/* } */
 
 		/* String return is an error; false return means stop processing. */
 
