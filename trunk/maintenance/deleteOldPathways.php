@@ -21,6 +21,25 @@ chdir( $oldCwd );
 # Setup complete, now start
 
 class CliPathwaysPager extends BasePathwaysPager {
+
+	function nextPager( $offset ) {
+		self::$myOffset = $offset;
+		self::$myLimit = 50;
+		self::$myBackwards = false;
+		self::$myOrder = null;
+
+		return new self( '---', '---' );
+	}
+
+	static function initPager() {
+		self::$myOffset = null;
+		self::$myLimit = 50;
+		self::$myBackwards = false;
+		self::$myOrder = null;
+
+		return new self( '---', '---' );
+	}
+
 	// set these directly for now.
 	static $myOffset;
 	static $myLimit;
@@ -44,16 +63,28 @@ class CliPathwaysPager extends BasePathwaysPager {
 		echo "\n\nYou shouldn't see this!\n";
 		exit;
 	}
+
+	function nextOffset( $res ) {
+		$offset = $res->fetchObject();
+		return $offset->tag_text;
+	}
 }
 
 
 class PagerIterator implements Iterator {
 	protected $pager;
+	protected $pagerClass;
 	protected $offset;
 	protected $rowsInQuery;
 	protected $nextQueryOffset;
 	protected $current;
 
+	function __construct( $pagerClass ) {
+		if( !class_exists( $pagerClass ) ) {
+			throw new Exception( "Given pager class ($pagerClass) doesn't exist!" );
+		}
+		$this->pagerClass = $pagerClass;
+	}
 
 	function rewind() {
 		$this->nextQueryOffset = null;
@@ -88,22 +119,22 @@ class PagerIterator implements Iterator {
 		} elseif( $this->nextQueryOffset !== false &&
 			$this->offset >= $this->rowsInQuery ) {
 
-			if( $this->nextQueryOffset !== null )
-				CliPathwaysPager::$myOffset = $this->nextQueryOffset;
-			CliPathwaysPager::$myLimit = 50;
-			CliPathwaysPager::$myBackwards = false;
-			CliPathwaysPager::$myOrder = null;
-
-			$this->pager = new CLIPathwaysPager( '---', 'Curation:ProposedDeletion' );
+			if( $this->pager ) {
+				$this->pager = $this->pager->nextPager($this->nextQueryOffset );
+				if( !$this->pager ) {
+					return $this->pager;
+				}
+			} else {
+				$class = $this->pagerClass;
+				$this->pager = $class::initPager();
+			}
 			$this->offset = 0;
 			$this->pager->doQuery();
 
 			$res = $this->pager->mResult;
 			if( $res->numRows() > $this->pager->mLimit ) {
 				$res->seek( $res->numRows() - 1 );
-				$this->nextQueryOffset = $res->fetchObject();
-				$this->nextQueryOffset = $this->nextQueryOffset->tag_text;
-				# $res->seek( 0 ); don't seek back to beginning here, we'll do that below.
+				$this->nextQueryOffset = $this->pager->nextOffset( $res );
 			} else {
 				$this->nextQueryOffset = false;
 			}
@@ -112,6 +143,7 @@ class PagerIterator implements Iterator {
 		} else {
 			$this->offset++;
 		}
+
 		$this->pager->mResult->seek( $this->offset );
 		$this->current = $this->pager->mResult->fetchObject();
 	}
@@ -126,10 +158,9 @@ function needsDeletion( $pathway ) {
 }
 
 function main()  {
-	$pager = new PagerIterator( );
+	$pager = new PagerIterator( 'CliPathwaysPager' );
 
 	foreach( $pager as $k => $v ) {
-#	foreach( array("WP686") as $k ) {
 		echo "$k\n";
 		if( $title = needsDeletion( $k ) ){
 			echo "Deleting $k\n";
