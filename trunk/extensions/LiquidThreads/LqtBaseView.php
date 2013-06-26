@@ -226,7 +226,7 @@ class LqtDispatch {
 			}
 			else {
 				$sig = "";
-				$changeslist->insertUserRelatedLinks(&$sig, &$rc);
+				$changeslist->insertUserRelatedLinks($sig, $rc);
 
 				// This should be stored in RC.
 				$quote = Revision::newFromId($rc->mAttribs['rc_this_oldid'])->getText();
