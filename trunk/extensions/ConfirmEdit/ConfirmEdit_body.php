@@ -19,7 +19,7 @@ class ConfirmEditHooks {
 		return self::getInstance()->confirmEdit( $editPage, $newtext, $section );
 	}
 
-	static function confirmEditMerged( &$editPage, $newtext ) {
+	static function confirmEditMerged( $editPage, $newtext ) {
 		return self::getInstance()->confirmEditMerged( $editPage, $newtext );
 	}
 
@@ -493,7 +493,7 @@ class SimpleCaptcha {
 	 * @param EditPage $editPage
 	 * @param string $newtext
 	 */
-	function confirmEditMerged( &$editPage, $newtext ) {
+	function confirmEditMerged( $editPage, $newtext ) {
 		return $this->confirmEdit( $editPage, $newtext, false, true );
 	}
 

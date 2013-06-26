@@ -18,7 +18,7 @@ function wfCheckGpml(&$article, &$user, &$text, &$summary, $minor, $watch, $sect
 	return true;
 }
 
-function wfUpdateAfterSave(&$article, &$user, &$text, &$summary, $minor, $watch, $sectionanchor, &$flags) {
+function wfUpdateAfterSave(&$article, &$user, $text, $summary, $minor, $watch, $sectionanchor, &$flags) {
 	if($article->getTitle()->getNamespace() == NS_PATHWAY) {
 		$pw = Pathway::newFromTitle($article->getTitle());
 	}
