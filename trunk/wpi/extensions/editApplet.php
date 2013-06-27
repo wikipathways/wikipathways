@@ -187,19 +187,24 @@ class EditApplet {
 		self::$archive_string = "";
 		self::$version_string = "";
 		foreach($cache_archive as $jar) {
-			$mod = filemtime("$jardir/$jar");
-			if($ver = $cache_version[$jar]) {
-				if($ver['mod'] < $mod) {
-					$realversion = increase_version($ver['ver']);
+			$jarfile = "$jardir/$jar";
+			if( is_readable( $jarfile ) ) {
+				$mod = filemtime( $jarfile );
+				if($ver = $cache_version[$jar]) {
+					if($ver['mod'] < $mod) {
+						$realversion = increase_version($ver['ver']);
+					} else {
+						$realversion = $ver['ver'];
+					}
 				} else {
-					$realversion = $ver['ver'];
+					$realversion = '0.0.0.0';
 				}
+				$cache_version[$jar] = array('ver'=>$realversion, 'mod'=>$mod);
+				self::$archive_string .= $jar . ', ';
+				self::$version_string .= $realversion . ', ';
 			} else {
-				$realversion = '0.0.0.0';
+				throw new Exception( "Jar file isn't readable: $jarfile" );
 			}
-			$cache_version[$jar] = array('ver'=>$realversion, 'mod'=>$mod);
-			self::$archive_string .= $jar . ', ';
-			self::$version_string .= $realversion . ', ';
 		}
 		self::$version_string = substr(self::$version_string, 0, -2);
 		self::$archive_string = substr(self::$archive_string, 0, -2);
