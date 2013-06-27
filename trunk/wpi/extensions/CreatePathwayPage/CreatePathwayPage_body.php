@@ -11,22 +11,29 @@ class CreatePathwayPage extends SpecialPage {
 	}
 
 	function execute( $par ) {
-		global $wgRequest, $wgOut, $wpiScriptURL, $wgUser;
+		global $wgRequest, $wgOut, $wpiScriptURL, $wgUser, $wgParser;
 		$this->setHeaders();
 		$this->this_url = SITE_URL . '/index.php';
-		$this->create_priv_msg = wfMsg('create_private') ;
+
+		$wgParser->clearState();
+		$wgParser->mStripState = new StripState;
+		$wgParser->mOptions = new ParserOptions;
+		$wgParser->mTitle = Title::newFromText( wfMsg( 'createpathwaypage' ) );
+
+		$this->create_priv_msg = $wgParser->recursiveTagParse( wfMsg('create_private') );
+		$wgParser->replaceLinkHolders( $this->create_priv_msg );
 
 		if(wfReadOnly()) {
 			$wgOut->readOnlyPage( "" );
 		}
 
 		if( !$wgUser->isAllowed( 'createpathway' ) ) {
-                    if( !$wgUser->isLoggedIn() ) { /* Two different messages so we can keep the old error */
-			$wgOut->showPermissionsErrorPage( array( 'wpi-createpage-not-logged-in' ) );
-                    } else {
-			$wgOut->showPermissionsErrorPage( array( 'wpi-createpage-permission' ) );
-                    }
-                    return;
+			if( !$wgUser->isLoggedIn() ) { /* Two different messages so we can keep the old error */
+				$wgOut->showPermissionsErrorPage( array( array( 'wpi-createpage-not-logged-in' ) ) );
+			} else {
+				$wgOut->showPermissionsErrorPage( array( array( 'wpi-createpage-permission' ) ) );
+			}
+			return;
 		}
 
 		$pwName = $wgRequest->getVal('pwName');
@@ -178,7 +185,8 @@ class CreatePathwayPage extends SpecialPage {
 				if($override) {
 					$html_editor .= "<input type='hidden' name='override' value='1'>";
 				}
-				if($private) $private = 'CHECKED';
+
+				if($private) $private = 'CHECKED'; //private is array? array to string conversion notice
 				$html_editor .= "<tr><td colspan='2'><input type='checkbox' name='private' value='1' $private> $this->create_priv_msg
 				<input type='hidden' name='create' value='1'>
 				<input type='hidden' name='title' value='Special:CreatePathwayPage'>
