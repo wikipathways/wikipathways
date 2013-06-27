@@ -163,10 +163,18 @@ class EditApplet {
 		//Read cache jars and update version
 		$jardir = WPI_SCRIPT_PATH . '/applet';
 		if(!file_exists("$jardir/cache_version")) {
-			touch("$jardir/cache_version");
+			if( touch("$jardir/cache_version") === false ) {
+				throw new Exception( "The path $jardir isn't writable!" );
+			}
 		}
-		$cache_archive = explode(' ', file_get_contents("$jardir/cache_archive"));
-		$version_file = explode("\n", file_get_contents("$jardir/cache_version"));
+
+		$cache_archive = file_get_contents("$jardir/cache_archive");
+		$version_file = file_get_contents("$jardir/cache_version");
+		if( $version_file === false || $cache_archive === false ) {
+			throw new Exception( "cache_archive or cache_version in $jardir wasn't readable." );
+		}
+		$cache_archive = explode( ' ', $cache_archive );
+		$version_file = explode( "\n", $version_file );
 		$cache_version = array();
 		if($version_file) {
 			foreach($version_file as $ver) {
