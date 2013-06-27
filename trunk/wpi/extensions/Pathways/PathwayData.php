@@ -245,6 +245,9 @@ class Xref {
 
 	public static function fromText($txt) {
 		$data = explode(':', $txt);
+		if( count( $data ) !== 2 ) {
+			throw new Exception( "Tried to create an Xref from incomplete text: '$txt'" );
+		}
 		return new Xref($data[0], $data[1]);
 	}
 

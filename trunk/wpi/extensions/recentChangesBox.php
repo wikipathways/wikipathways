@@ -20,7 +20,7 @@ class RecentChangesBox {
 		$wgParser->setHook( "recentChanges", "RecentChangesBox::create" );
 	}
 
-	public static function create($input, $argv, &$parser) {
+	public static function create($input, $argv, $parser) {
 		$parser->disableCache();
 
 		$ns = $argv['namespace'];
