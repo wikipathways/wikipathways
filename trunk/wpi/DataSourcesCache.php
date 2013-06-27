@@ -24,9 +24,13 @@ class DataSourcesCache {
 		if($txt) { //Only update if file could be downloaded
 			$f = WPI_CACHE_PATH . "/" . self::$file;
 			$fh = fopen($f, 'w');
-			fwrite($fh, $txt);
-			fclose($fh);
-			chmod($f, 0666);
+			if( $fh !== false ) {
+				fwrite($fh, $txt);
+				fclose($fh);
+				chmod($f, 0666);
+			} else {
+				throw new Exception( "Could't open $f for writing!" );
+			}
 			self::$content = $txt;
 		}
 	}
