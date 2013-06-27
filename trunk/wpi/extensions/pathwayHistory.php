@@ -11,7 +11,7 @@ function wfPathwayHistory() {
 	$wgParser->setHook( "pathwayHistory", "history" );
 }
 
-function history( $input, $argv, &$parser ) {
+function history( $input, $argv, $parser ) {
 	$parser->disableCache();
 	try {
 		$pathway = Pathway::newFromTitle($parser->mTitle);

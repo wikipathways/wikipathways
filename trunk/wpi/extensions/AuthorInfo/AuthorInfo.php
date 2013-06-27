@@ -10,7 +10,7 @@ function wfAuthorInfo() {
 	$wgParser->setHook( "AuthorInfo", "renderAuthorInfo" );
 }
 
-function renderAuthorInfo($input, $argv, &$parser) {
+function renderAuthorInfo($input, $argv, $parser) {
 	global $wfAuthorInfoPath;
 	$parser->disableCache();
 

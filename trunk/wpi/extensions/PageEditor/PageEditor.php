@@ -12,7 +12,7 @@ function wfPageEditor() {
 	$wgParser->setHook( "pageEditor", "displayPageEditor" );
 }
 
-function displayPageEditor($input, $argv, &$parser) {
+function displayPageEditor($input, $argv, $parser) {
 	global $wgOut, $wfPageEditorPath, $wgUser;
 
 	//Check user rights

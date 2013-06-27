@@ -50,7 +50,7 @@ Feedback and further assistance:
 );
 }
 
-function displayCurationTags($input, $argv, &$parser) {
+function displayCurationTags($input, $argv, $parser) {
 	global $wgOut, $wfCurationTagsPath, $wgJsMimeType;
 
 	//Add CSS

@@ -24,7 +24,7 @@ function oheader(&$parser, &$text) {
 	return true;
 }
 
-function ofunction( $input, $argv, &$parser ) {
+function ofunction( $input, $argv, $parser ) {
 	global $wgTitle, $wgOut,  $opath, $wgOntologiesJSON, $wgStylePath, $wgJsMimeType;
 	$oldStylePath = $wgStylePath;
 	$wgStylePath = $opath . "/css/";
