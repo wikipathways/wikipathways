@@ -7,6 +7,18 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 	protected $ns = NS_PATHWAY;
 	protected $nsName;
 
+	public function hasRecentEdit( $title ) {
+		global $wgPathwayRecentSinceDays;
+		$article = new Article( $title );
+
+		$ts = wfTimeStamp( TS_UNIX, $article->getTimestamp() );
+		$prev = date_create( "now" );
+		$prev->modify( "-$wgPathwayRecentSinceDays days" );
+		$date = date_create( "@$ts" ); /* @ indicates we have a unix timestmp */
+		echo "<!-- " . var_export( array( $title, $date, $prev, $date > $prev), true ) . " -->";
+		return $date > $prev;
+	}
+
 	public function getOffset( ) {
 		global $wgRequest;
 		return $wgRequest->getText( 'offset' );
@@ -304,13 +316,20 @@ class ListPathwaysPager extends BasePathwaysPager {
 		}
 		$this->columnItemCount++;
 
-		$row .= '<li><a href="' . $title->getFullURL() . '">' . $pathway->getName();
+		$endRow = "</li>";
+		$row .= "<li>";
+		if( $this->hasRecentEdit( $title ) ) {
+			$row .= "<b>";
+			$endRow = "</b></li>";
+		}
+
+		$row .= '<a href="' . $title->getFullURL() . '">' . $pathway->getName();
 
 		if( $this->species === '---' ) {
 			$row .= " (". $pathway->getSpeciesAbbr() . ")";
 		}
 
-		return  "$row</a>" . $this->formatTags( $title ) . "</li>";
+		return  "$row</a>" . $this->formatTags( $title ) . $endRow;
 	}
 }
 
@@ -327,7 +346,14 @@ class ThumbPathwaysPager extends BasePathwaysPager {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
 		$pathway = Pathway::newFromTitle( $title );
 
-		return $this->getThumb( $pathway, $this->formatTags( $title ) );
+		$endRow = "";
+		$row = "";
+		if( $this->hasRecentEdit( $title ) ) {
+			$row = "<b>";
+			$endRow = "</b>";
+		}
+
+		return $row.$this->getThumb( $pathway, $this->formatTags( $title ) ).$endRow;
 	}
 }
 

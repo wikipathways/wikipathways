@@ -468,3 +468,9 @@ $wgCaptchaTriggers['create'] = false;
  * probably want to let privleged users skip them */
 $wgGroupPermissions[ 'sysop'      ][ 'skipcaptcha'    ] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'skipcaptcha'    ] = true;
+
+// If a pathway has been editted within this number of days, it will
+// be highlighted on the browse page
+$wgPathwayRecentSinceDays = 30;
+
+$wgDebugLogFile= "$IP/wpi/tmp/wikipathwaysdebug.txt";
