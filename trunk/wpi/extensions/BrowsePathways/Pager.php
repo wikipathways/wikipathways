@@ -15,7 +15,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		$prev = date_create( "now" );
 		$prev->modify( "-$wgPathwayRecentSinceDays days" );
 		$date = date_create( "@$ts" ); /* @ indicates we have a unix timestmp */
-		echo "<!-- " . var_export( array( $title, $date, $prev, $date > $prev), true ) . " -->";
+
 		return $date > $prev;
 	}
 
@@ -112,9 +112,10 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 			)
 		);
 		if( $this->species !== '---' ) {
-			$q['tables'][] = 'categorylinks';
-			$q['join_conds']['categorylinks'] = array( 'JOIN', 'page.page_id=cl_from' );
-			$q['conds']['cl_to'] = $this->species;
+			$species = preg_replace( "/_/", " ", $this->species );
+			$q['tables'][] = 'tag as t2';
+			$q['join_conds']['tag as t2'] = array( 'JOIN', 't2.page_id = page.page_id' );
+			$q['conds']['t2.tag_text'] = $species;
 		}
 
 		return $q;

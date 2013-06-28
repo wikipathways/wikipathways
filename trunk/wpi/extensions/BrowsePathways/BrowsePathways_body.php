@@ -77,7 +77,8 @@ class BrowsePathways extends SpecialPage {
 
 		$sel = "\n<select onchange='this.form.submit()' name='browse' class='namespaceselector'>\n";
 		foreach ($arr as $label) {
-			$value = Title::newFromText( $label )->getDBKey();
+#			$value = Title::newFromText( $label )->getDBKey();
+			$value = $label;
 			if( $label === $all ) {
 				$value = "---";
 			}
