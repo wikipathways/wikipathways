@@ -62,7 +62,7 @@ function createApplet( &$parser, $idClick = 'direct', $idReplace = 'pwThumb', $n
 	try {
 		if($new) { //Pathway title contains species:name
 			$editApplet = new EditApplet(null, $main, $idReplace, $idClick, $width, $height, $noresize, $param);
-			$title = split(':', $pwTitle);
+			$title = explode(':', $pwTitle);
 			$editApplet->setPathwaySpecies(array_pop($title));
 			$editApplet->setPathwayName(array_pop($title));
 		} else {
