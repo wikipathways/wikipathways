@@ -3,7 +3,8 @@
 class LocalHooks {
 	/* http://developers.pathvisio.org/ticket/1559 */
 	static function stopDisplay( $output, $sk ) {
-		if( 'MediaWiki:Questycaptcha-qna' === $output->getPageTitle() ) {
+		if( strtolower( 'MediaWiki:Questycaptcha-qna' ) === strtolower( $output->getPageTitle() ) ||
+			strtolower( 'MediaWiki:Questycaptcha-q&a' ) === strtolower( $output->getPageTitle() ) ) {
 			global $wgUser, $wgTitle;
 			if( !$wgTitle->userCan( "edit" ) ) {
 				$output->clearHTML();
