@@ -420,7 +420,7 @@ class Pathway {
 	 */
 	public function getSpecies() {
 		if($this->exists()) { //Only use cache if this pathway exists
-			return $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_ORGANISM);
+			return $this->getMetaDataCache()->getValue(MetaDataCache::$FIELD_ORGANISM)->getText();
 		} else {
 			return "";
 		}
