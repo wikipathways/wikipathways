@@ -72,7 +72,11 @@ class BatchDownloader {
 			$listParam = '&listPage=' . $listPage;
 			$listedPathways = Pathway::parsePathwayListPage($listPage);
 			foreach ($listedPathways as $pw) {
-				$countPerSpecies[$pw->getSpecies()] += 1;
+				if( isset( $countPerSpecies[$pw->getSpecies()] ) ) {
+					$countPerSpecies[$pw->getSpecies()] += 1;
+				} else {
+					$countPerSpecies[$pw->getSpecies()] = 1;
+				}
 			}
 		}
 
