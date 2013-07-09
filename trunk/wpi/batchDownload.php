@@ -198,7 +198,14 @@ class BatchDownloader {
 		$files = "";
 		$tmpLinks = array();
 		$tmpDir = WPI_TMP_PATH . "/" . wfTimestamp(TS_UNIX);
-		mkdir($tmpDir);
+		if( !file_exists( $tmpDir ) ) {
+			if( !mkdir($tmpDir) ) {
+				$e = error_get_last();
+				throw new Exception( "Couldn't create directory. ". $e['message'] . " for $tmpDir." );
+			}
+		} elseif( !is_dir( $tmpDir ) ) {
+			throw new Exception( "$tmpDir exists but isn't a directory" );
+		}
 		foreach($pathways as $pw) {
 			$link = $tmpDir . "/" . $pw->getFilePrefix() . "_" . $pw->getIdentifier() . "_"
 				. $pw->getActiveRevision() . "." . $this->fileType;
@@ -211,8 +218,14 @@ class BatchDownloader {
 		$output = wfShellExec($cmd, $status);
 
 		//Remove the tmp files
-		foreach($tmpLinks as $l) unlink($l);
-		rmdir($tmpDir);
+		foreach($tmpLinks as $l) {
+			if( file_exists( $tmpDir ) ) {
+				unlink($l);
+			}
+		}
+		if( file_exists( $tmpDir ) && is_dir( $tmpDir ) ) {
+			rmdir($tmpDir);
+		}
 
 		if($status != 0) {
 			throw new Exception("'''Unable process download:''' $output");
