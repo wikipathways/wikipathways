@@ -28,7 +28,7 @@ try {
 		}
 		$pwTitle = $_GET['pwTitle'];
 		if( !isset( $_GET['oldId'] ) && $action !== "downloadFile" && $action !== "delete" ) {
-			throw new Exception("No pwTitle given!");
+			throw new Exception("No oldId given!");
 		}
 		$oldId = $_GET['oldid'];
 
