@@ -275,7 +275,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 	}
 
 	function getEndBody() {
-		return "</ul>";
+		return "</ul> <!-- getEndBody -->";
 	}
 
 	function getNavigationBar() {
