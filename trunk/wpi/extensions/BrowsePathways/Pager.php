@@ -309,7 +309,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 		$pathway = Pathway::newFromTitle( $title );
 
 		if( $this->columnItemCount === $this->columnSize ) {
-			$row = '</ul></li>';
+			$row = '</ul></li> <!-- end of column -->';
 			$this->columnItemCount = 0;
 			$this->columnIndex++;
 		} else {
@@ -317,7 +317,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 		}
 
 		if( $this->columnItemCount === 0 ) {
-			$row .= '<li class="infinite-item"><ul>';
+			$row .= '<li class="infinite-item"><ul> <-- start of column -->';
 		}
 		$this->columnItemCount++;
 
