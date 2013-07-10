@@ -266,8 +266,15 @@ class CurationTag {
 				self::$tagDefinition = new SimpleXMLElement( $ref );
 			} catch (Exception $e) {
 				$err = "Error parsing [[".self::$TAG_LIST_PAGE."]].  It must be a valid XML document.\n";
+				$line = explode( "\n", trim( $ref ) );
 				foreach(libxml_get_errors() as $error) {
-					$err .= "\n\t" . $error->message;
+					if( strstr( $error->message, "Start tag expected" ) ) {
+						$err .= "\n    " . $error->message . "\nPage content:\n    " .
+							implode( "\n    ", $line );
+					} else {
+						$err .= "\n    " . $error->message . "\nStart of page:\n  " .
+							substr( trim( $line[0] ), 0, 100 );
+					}
 				}
 				throw new MWException ( $err );
 			}
