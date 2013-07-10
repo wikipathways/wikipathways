@@ -285,7 +285,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 	function getBottomNavigationBar() {
 		global $wgLang;
 
-		$link = "";
+		$link = "<div style='width: 100%'/>";
 		$queries = $this->getPagingQueries();
 		$opts = array( 'parsemag', 'escapenoentities' );
 
@@ -293,16 +293,17 @@ class ListPathwaysPager extends BasePathwaysPager {
 			$link .= $this->getSkin()->makeKnownLinkObj( $this->getTitle(),
 				wfMsgExt( 'prevn', $opts, $wgLang->formatNum( $this->mLimit ) ),
 				wfArrayToCGI( $queries['prev'], $this->getDefaultQuery() ), '', '',
-				"class='prev-link'" );
+				"style='float: left;'" );
 		}
 
 		if( isset( $queries['next'] ) && $queries['next'] ) {
 			$link .= $this->getSkin()->makeKnownLinkObj( $this->getTitle(),
 				wfMsgExt( 'nextn', $opts, $wgLang->formatNum( $this->mLimit ) ),
 				wfArrayToCGI( $queries['next'], $this->getDefaultQuery() ), '', '',
-				"class='next-link'" );
+				"style='float: right;'" );
 		}
 
+		$link .= "</div>";
 		return $link;
 	}
 
