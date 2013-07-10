@@ -281,7 +281,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 	function getNavigationBar() {
 		global $wgLang;
 
-		$link = "<div style='width: 100%'/>";
+		$link = "<div style='width: 100%; clear: both;'/>";
 		$queries = $this->getPagingQueries();
 		$opts = array( 'parsemag', 'escapenoentities' );
 
