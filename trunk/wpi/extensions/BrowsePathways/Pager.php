@@ -290,14 +290,14 @@ class ListPathwaysPager extends BasePathwaysPager {
 		$opts = array( 'parsemag', 'escapenoentities' );
 
 		if( isset( $queries['prev'] ) && $queries['prev'] ) {
-			$link = $this->getSkin()->makeKnownLinkObj( $this->getTitle(),
+			$link .= $this->getSkin()->makeKnownLinkObj( $this->getTitle(),
 				wfMsgExt( 'prevn', $opts, $wgLang->formatNum( $this->mLimit ) ),
 				wfArrayToCGI( $queries['prev'], $this->getDefaultQuery() ), '', '',
 				"class='prev-link'" );
 		}
 
 		if( isset( $queries['next'] ) && $queries['next'] ) {
-			$link = $this->getSkin()->makeKnownLinkObj( $this->getTitle(),
+			$link .= $this->getSkin()->makeKnownLinkObj( $this->getTitle(),
 				wfMsgExt( 'nextn', $opts, $wgLang->formatNum( $this->mLimit ) ),
 				wfArrayToCGI( $queries['next'], $this->getDefaultQuery() ), '', '',
 				"class='next-link'" );
