@@ -519,10 +519,10 @@ class ThreadPermalinkView extends LqtView {
 		parent::__construct($output, $article, $title, $user, $request);
 
 		$t = Threads::withRoot( $this->article );
-		$r = $this->request->getVal('lqt_oldid', null); if( $r ) {
+		$r = $this->request->getVal('lqt_oldid', null);
+		if( $r && $t ) {
 			$t = $t->atRevision($r);
-		if( !$t ) { $this->noSuchRevision(); return; }
-
+			if( !$t ) { $this->noSuchRevision(); return; }
 		}
 		$this->thread = $t;
 		if( ! $t ) {
