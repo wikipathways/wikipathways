@@ -275,7 +275,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 	}
 
 	function getEndBody() {
-		return "</ul></li> <!-- end of column --></ul> <!-- getEndBody -->";
+		return "</ul></li> <!-- end of column -->s/ul> <!-- getEndBody -->";
 	}
 
 	function getNavigationBar() {
@@ -317,7 +317,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 		}
 
 		if( $this->columnItemCount === 0 ) {
-			$row .= '<li class="infinite-item"><ul> <-- start of column -->';
+			$row .= '<li class="infinite-item"><ul> <!-- start of column -->';
 		}
 		$this->columnItemCount++;
 
