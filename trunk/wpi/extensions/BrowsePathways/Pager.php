@@ -127,11 +127,11 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 	}
 
 	function getTopNavigationBar() {
-		return parent::getNavigationBar();
+		return $this->getNavigationBar();
 	}
 
 	function getBottomNavigationBar() {
-		return parent::getNavigationBar();
+		return $this->getNavigationBar();
 	}
 
 	function getGPMLlink( $pathway ) {
@@ -278,11 +278,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 		return "</ul>";
 	}
 
-	function getTopNavigationBar() {
-		return "";
-	}
-
-	function getBottomNavigationBar() {
+	function getNavigationBar() {
 		global $wgLang;
 
 		$link = "<div style='width: 100%'/>";
