@@ -48,7 +48,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		}
 		$this->nsName = $wgCanonicalNamespaceNames[ $this->ns ];
 		$this->species = $species;
-		$this->sortOrder = $sortOrder
+		$this->sortOrder = $sortOrder;
 		if( $tag !== "---" ) {
 			$this->tag = $tag;
 		} else {
