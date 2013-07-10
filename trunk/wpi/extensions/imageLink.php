@@ -52,20 +52,31 @@ function makeImageLinkObj( $img, $label = '', $namespace = '', $pagetitle = '', 
 
 	switch($namespace){
 		case 'special':
-			$href = Title::newFromText($pagetitle, NS_SPECIAL)->getFullUrl();
+			$title = Title::newFromText($pagetitle, NS_SPECIAL);
+			if( $title ) {
+				$href = $title->getFullUrl();
+			}
 			break;
 		case 'pathway':
-			$href = Title::newFromText($pagetitle, NS_PATHWAY)->getFullUrl();
+			$title = Title::newFromText($pagetitle, NS_PATHWAY);
+			if( $title ) {
+				$href = $title->getFullUrl();
+			}
 			break;
 		case 'help':
-			$href = Title::newFromText($pagetitle, NS_HELP)->getFullUrl();
+			$title = Title::newFromText($pagetitle, NS_HELP);
+			if( $title ) {
+				$href = $title->getFullUrl();
+			}
 			break;
 		case 'external':
 			$href = $pagetitle;
 			break;
 		default:
-			$href = Title::newFromText($pagetitle, NS_MAIN)->getFullUrl();
-			break;
+			$title = Title::newFromText($pagetitle, NS_MAIN);
+			if( $title ) {
+				$href = $title->getFullUrl();
+			}
 	}
 
 	$thumbUrl = '';
@@ -118,6 +129,8 @@ function makeImageLinkObj( $img, $label = '', $namespace = '', $pagetitle = '', 
 		$s .= htmlspecialchars( $error );
 	} elseif( !$img->exists() ) {
 		$s .= "Image does not exist";
+	} elseif( $href === "" ) {
+		$s .= "Title error";
 	} else {
 		$s .= '<a href="'.$href.'" class="internal" title="'.$alt.'">'.
 			'<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
