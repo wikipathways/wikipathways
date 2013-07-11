@@ -281,7 +281,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 	function getNavigationBar() {
 		global $wgLang;
 
-		$link = "<div style='width: 100%; clear: both;'/>";
+		$link = "<div style='width: 100%;'>";
 		$queries = $this->getPagingQueries();
 		$opts = array( 'parsemag', 'escapenoentities' );
 
@@ -303,6 +303,17 @@ class ListPathwaysPager extends BasePathwaysPager {
 		return $link;
 	}
 
+	function getTopNavigationBar() {
+		$bar = $this->getNavigationBar();
+
+		return "$bar<hr style='height: 1em; width: 100%'>";
+	}
+
+	function getBottomNavigationBar() {
+		$bar = $this->getNavigationBar();
+
+		return "<hr style='height: 1em; width: 100%'>$bar";
+	}
 
 	function formatRow( $row ) {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
