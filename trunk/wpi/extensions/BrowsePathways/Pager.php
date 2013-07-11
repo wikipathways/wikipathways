@@ -305,13 +305,13 @@ class ListPathwaysPager extends BasePathwaysPager {
 	function getTopNavigationBar() {
 		$bar = $this->getNavigationBar();
 
-		return "<div class='listTopNavBar;'>$bar</div>";
+		return "<div class='listNavBar top'>$bar</div>";
 	}
 
 	function getBottomNavigationBar() {
 		$bar = $this->getNavigationBar();
 
-		return "<div class='listBottomNavBar'>$bar</div>";
+		return "<div class='listNavBar bottom'>$bar</div>";
 	}
 
 	function formatRow( $row ) {
