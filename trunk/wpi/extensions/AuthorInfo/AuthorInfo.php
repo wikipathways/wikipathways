@@ -87,7 +87,7 @@ class AuthorInfoList {
 		while($row = $dbr->fetchObject( $res )) {
 			$user = User::newFromId($row->rev_user);
 			if($user->isAnon()) continue; //Skip anonymous users
-			if(!$user->isBot() || $this->showBots) {
+			if(!$user->isAllowed( 'bot' ) || $this->showBots) {
 				$this->authors[] = new AuthorInfo($user, $this->title);
 			}
 		}
