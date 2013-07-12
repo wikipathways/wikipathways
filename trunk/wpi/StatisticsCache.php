@@ -240,10 +240,13 @@ class StatisticsCache
 		// write all data in $data back to the file again
 		$filename = WPI_CACHE_PATH . '/PathwayCounts.data';
 		$file = fopen($filename, 'w+');
-		foreach ($data as $key => $c)
-			{
-				fwrite ($file, "$key\t$c\n");
-			}
+		if( $file === false ) {
+			wfDebug( "Couldn't open pathway cache file for writing: $filename\n" );
+			throw new MWException( "Couldn't open pathway cache file for writing" );
+		}
+		foreach ($data as $key => $c) {
+			fwrite ($file, "$key\t$c\n");
+		}
 		fclose ($file);
 		chmod($filename, 0666);
 	}
