@@ -65,5 +65,3 @@ EOD;
 function getSpecies() {
 	return Pathway::getAvailableSpecies();
 }
-
-?>
