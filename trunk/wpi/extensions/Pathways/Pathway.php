@@ -1099,7 +1099,9 @@ class Pathway {
 		$gpmlFile = realpath($this->getFileLocation(FILETYPE_GPML));
 		$conFile = $this->getFileLocation($fileType, false);
 		$dir = dirname($conFile);
-		if ( !is_dir( $dir ) ) wfMkdirParents( $dir );
+		if ( !is_dir( $dir ) && !wfMkdirParents( $dir ) ) {
+			throw new MWException( "Couldn't make directory: $dir" );
+		}
 		self::convert($gpmlFile, $conFile);
 		return $conFile;
 	}
