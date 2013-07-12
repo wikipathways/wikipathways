@@ -219,17 +219,17 @@ class StatisticsCache
 		$data = array();
 
 		$filename = WPI_CACHE_PATH . '/UniqueGeneCounts.data';
-		$file = fopen($filename, 'r');
-		if ($file)
-			{
-				while (!feof($file))
-					{
-						if($line = trim(fgets($file))) {
-							$explodedLine = explode("\t", $line);
-							$data[$explodedLine[0]] = $explodedLine[1];
-						}
-					}
+		$file = @fopen($filename, 'r');
+		if ($file) {
+			while (!feof($file)) {
+				if($line = trim(fgets($file))) {
+					$explodedLine = explode("\t", $line);
+					$data[$explodedLine[0]] = $explodedLine[1];
+				}
 			}
+		} else {
+			wfDebug("UniqueGeneCounts.data isn't in " . WPI_CACHE_PATH);
+		}
 		return $data;
 	}
 
@@ -239,10 +239,11 @@ class StatisticsCache
 
 		// write all data in $data back to the file again
 		$filename = WPI_CACHE_PATH . '/PathwayCounts.data';
-		$file = fopen($filename, 'w+');
+
+		$file = @fopen($filename, 'w+');
 		if( $file === false ) {
 			wfDebug( "Couldn't open pathway cache file for writing: $filename\n" );
-			throw new MWException( "Couldn't open pathway cache file for writing" );
+			throw new MWException( "Couldn't open PathwayCounts file for writing" );
 		}
 		foreach ($data as $key => $c) {
 			fwrite ($file, "$key\t$c\n");
