@@ -55,6 +55,7 @@ function getPathwayOfTheDay( &$parser, $date, $listpage = 'FeaturedPathways', $i
 		wfDebug("END GETTING PATHWAY OF THE DAY for date: $date\n");
 	} catch(Exception $e) {
 		$out = "Unable to get pathway of the day: {$e->getMessage()}";
+		wfDebug("Couldn't make pathway of the day: {$e->getMessage()}");
 	}
 	$out = $parser->recursiveTagParse( $out );
 	return array( $out, 'isHTML' => true, 'noparse' => true, 'nowiki' => true );

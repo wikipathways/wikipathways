@@ -203,7 +203,10 @@ function toGlobalLink($localLink) {
 function writeFile($filename, $data) {
 	$dir = dirname($filename);
 	if(!file_exists($dir)) {
-		mkdir(dirname($filename), 0777, true); //Make sure the directory exists
+		wfDebug( "Making $dir for $filename.\n" );
+		if( !wfMkdirParents( $dir ) ) {
+			throw new Exception( "Couldn't make directory for pathway!" );
+		}
 	}
 	$handle = fopen($filename, 'w');
 	if(!$handle) {
