@@ -7,18 +7,18 @@ $wgExtensionFunctions[] = 'wfImageSize';
 $wgHooks['LanguageGetMagic'][]  = 'wfImageSize_Magic';
 
 function wfImageSize() {
-        global $wgParser;
-        # Set a function hook associating the "example" magic word with our function
-        $wgParser->setFunctionHook( 'maxImageSize', 'getSize' );
+	global $wgParser;
+	# Set a function hook associating the "example" magic word with our function
+	$wgParser->setFunctionHook( 'maxImageSize', 'getSize' );
 }
 
 function wfImageSize_Magic( &$magicWords, $langCode ) {
-        # Add the magic word
-        # The first array element is case sensitive, in this case it is not case sensitive
-        # All remaining elements are synonyms for our parser function
-        $magicWords['maxImageSize'] = array( 0, 'maxImageSize' );
-        # unless we return true, other parser functions extensions won't get loaded.
-        return true;
+	# Add the magic word
+	# The first array element is case sensitive, in this case it is not case sensitive
+	# All remaining elements are synonyms for our parser function
+	$magicWords['maxImageSize'] = array( 0, 'maxImageSize' );
+	# unless we return true, other parser functions extensions won't get loaded.
+	return true;
 }
 
 function getSize( &$parser, $image, $maxWidth ) {
@@ -32,4 +32,4 @@ function getSize( &$parser, $image, $maxWidth ) {
 		return "Error: $e";
 	}
 }
-?>
+
