@@ -253,7 +253,7 @@ class StubManager {
 		$initHooked = true;
 
 		global $wgExtensionFunctions;
-		$wgExtensionFunctions[] = array( __CLASS__, 'setup' );
+		$wgExtensionFunctions[] = array( new self, 'setup' );
 	}
 	public static function setup() {
 		self::setupMessages();
