@@ -7,6 +7,8 @@ class LegacySpecialPage extends SpecialPage {
 	function __construct( $oldName, $newName ) {
 		parent::__construct( $oldName );
 		$this->legacyDestination = Title::newFromText( $newName, NS_SPECIAL );
+		$this->mListed = false;
+
 	}
 
 	function execute( $par ) {
