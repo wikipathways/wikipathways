@@ -1,5 +1,5 @@
 <?php
-$allMessages = array(
+$messages = array(
 	'en' => array(
 		'curationtags'      => 'Curation tags',
 		'curation-tag-show' => 'Curation tag: $1',

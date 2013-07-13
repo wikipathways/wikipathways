@@ -114,7 +114,6 @@ class LegacySpecialCurationTags extends LegacySpecialPage {
 class SpecialCurationTags extends SpecialPage {
 	function __construct() {
 		parent::__construct("CurationTags");
-		self::loadMessages();
 	}
 
 	private $tagNames;
@@ -218,16 +217,4 @@ class SpecialCurationTags extends SpecialPage {
 		$wgOut->addHTML("</tbody></table>");
 	}
 
-	static function loadMessages() {
-		static $messagesLoaded = false;
-		global $wgMessageCache;
-		if ( $messagesLoaded ) return true;
-		$messagesLoaded = true;
-
-		require( dirname( __FILE__ ) . '/SpecialCurationTags.i18n.php' );
-		foreach ( $allMessages as $lang => $langMessages ) {
-			$wgMessageCache->addMessages( $langMessages, $lang );
-		}
-		return true;
-	}
 }

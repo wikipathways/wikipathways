@@ -10,8 +10,7 @@ EOT;
 
 $wgAutoloadClasses['SpecialCurationTags'] = dirname(__FILE__) . '/SpecialCurationTags_body.php';
 $wgAutoloadClasses['LegacySpecialCurationTags'] = dirname(__FILE__) . '/SpecialCurationTags_body.php';
-$wgSpecialPages['CurationTags'] = 'SpecialCurationTags';
 $wgSpecialPages['SpecialCurationTags'] = 'LegacySpecialCurationTags';
 $wgSpecialPages['CurationTags'] = 'SpecialCurationTags';
-$wgHooks['LoadAllMessages'][] = 'SpecialCurationTags::loadMessages';
+$wgExtensionMessagesFiles['CurationTags'] = dirname( __FILE__ ) . '/SpecialCurationTags.i18n.php';
 
