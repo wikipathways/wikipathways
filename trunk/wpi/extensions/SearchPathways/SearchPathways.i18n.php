@@ -1,8 +1,6 @@
 <?php
-global $wgUser;
-$allMessages = array(
-        'en' => array( 
-                'searchpathways' => 'Find pathways',
-        )
+$messages = array(
+	'en' => array(
+		'searchpathways' => 'Find pathways',
+	)
 );
-?>

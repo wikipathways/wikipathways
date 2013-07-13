@@ -1,7 +1,6 @@
 <?php
 
 require_once("wpi/wpi.php");
-require_once("PathwayOfTheDay.php");
 
 $wgCustomVariables = array(	'PATHWAYNAME','PATHWAYSPECIES',
 							'PATHWAYIMAGEPAGE', 'PATHWAYGPMLPAGE',

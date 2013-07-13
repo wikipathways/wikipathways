@@ -1,14 +1,16 @@
 <?php
-require_once("wpi/wpi.php");
-require_once("wpi/search.php");
-
 class SearchPathways extends SpecialPage
 {
 	private $this_url;
 
-	function SearchPathways() {
-		SpecialPage::SpecialPage("SearchPathways");
-		self::loadMessages();
+	function __construct( $empty = null ) {
+		parent::__construct("SearchPathways");
+		self::initMsg();
+	}
+
+	static function initMsg( ) {
+		# Need this called in hook early on so messages load... maybe a bug in old MW?
+		wfLoadExtensionMessages( 'SearchPathways' );
 	}
 
 	function execute( $par ) {
@@ -16,6 +18,7 @@ class SearchPathways extends SpecialPage
 
 		$this->setHeaders();
 		$this->this_url = SITE_URL . '/index.php';
+		$wgOut->setPagetitle( wfMsg( "searchpathways" ) );
 
 		$query   = isset( $_GET['query'] ) ?   $_GET['query']   : null;
 		$species = isset( $_GET['species'] ) ? $_GET['species'] : null;
@@ -190,19 +193,5 @@ class SearchPathways extends SpecialPage
 		}
 		$s .= '  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
 		return str_replace("\n", ' ', $s);
-	}
-
-
-	static function loadMessages() {
-		static $messagesLoaded = false;
-		global $wgMessageCache;
-		if ( $messagesLoaded ) return true;
-		$messagesLoaded = true;
-
-		require( dirname( __FILE__ ) . '/SearchPathways.i18n.php' );
-		foreach ( $allMessages as $lang => $langMessages ) {
-			$wgMessageCache->addMessages( $langMessages, $lang );
-		}
-		return true;
 	}
 }

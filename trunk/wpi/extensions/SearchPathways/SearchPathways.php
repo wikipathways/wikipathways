@@ -1,18 +1,9 @@
 <?php
-# Not a valid entry point, skip unless MEDIAWIKI is defined
-if (!defined('MEDIAWIKI')) {
-        echo <<<EOT
-To install SearchPathways, put the following line in LocalSettings.php:
-require_once( "$IP/extensions/SearchPathways/SearchPathways.php" );
-EOT;
-        exit( 1 );
-}
 
 $wgAutoloadClasses['SearchPathways'] = dirname(__FILE__) . '/SearchPathways_body.php';
+$wgAutoloadClasses['SearchPathwaysAjax'] = dirname(__FILE__) . '/SearchPathwaysAjax.php';
 $wgSpecialPages['SearchPathways'] = 'SearchPathways';
-$wgHooks['LoadAllMessages'][] = 'SearchPathways::loadMessages';
-
+$wgExtensionMessagesFiles['SearchPathways'] = dirname( __FILE__ ) . '/SearchPathways.i18n.php';
 $wfSearchPagePath = WPI_URL . "/extensions/SearchPathways";
-
-require_once("SearchPathwaysAjax.php");
-?>
+$wgAjaxExportList[] = "SearchPathwaysAjax::doSearch";
+$wgAjaxExportList[] = "SearchPathwaysAjax::getResults";
