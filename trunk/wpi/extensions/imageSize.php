@@ -23,7 +23,7 @@ function wfImageSize_Magic( &$magicWords, $langCode ) {
 
 function getSize( &$parser, $image, $maxWidth ) {
 	try {
-		$img = new Image(Title::newFromText($image));
+		$img = new LocalFile(Title::newFromText($image), RepoGroup::singleton()->getLocalRepo());
 		$img->loadFromFile();
 		$w = $img->getWidth();
 		if($w > $maxWidth) $w = $maxWidth;
@@ -32,4 +32,3 @@ function getSize( &$parser, $image, $maxWidth ) {
 		return "Error: $e";
 	}
 }
-

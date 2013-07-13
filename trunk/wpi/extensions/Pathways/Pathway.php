@@ -573,7 +573,7 @@ class Pathway {
 		if($updateCache) {
 			$this->updateCache($fileType);
 		}
-		return "http://" . $_SERVER['HTTP_HOST'] . Image::imageURL($this->getFileName($fileType));
+		return "http://" . $_SERVER['HTTP_HOST'] . wfLocalFile($this->getFileName($fileType))->getUrl();
 	}
 
 	/**
