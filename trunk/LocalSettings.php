@@ -41,6 +41,8 @@ $wgSitename         = "WikiPathways";
 ## defaults for all runtime URL paths are based off of this.
 $wgScriptPath       = '';
 
+$wgThumbnailScriptPath = "$wgScriptPath/thumb.php";
+
 ## For more information on customizing the URLs please see:
 ## http://www.mediawiki.org/wiki/Manual:Short_URL
 
@@ -472,5 +474,3 @@ $wgGroupPermissions[ 'bureaucrat' ][ 'skipcaptcha'    ] = true;
 // If a pathway has been editted within this number of days, it will
 // be highlighted on the browse page
 $wgPathwayRecentSinceDays = 30;
-
-$wgDebugLogFile= "$IP/wpi/tmp/wikipathwaysdebug.txt";
