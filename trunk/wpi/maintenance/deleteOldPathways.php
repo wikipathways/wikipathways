@@ -14,6 +14,9 @@ if( !isset($IP) ) $IP = dirname( dirname( dirname( __FILE__ ) ) );
 require_once( "$IP/maintenance/commandLine.inc" );
 require_once( "$IP/wpi/extensions/BrowsePathways/BrowsePathways_body.php");
 
+$wgAutoloadClasses['PagerIterator']    = "$IP/wpi/extensions/Pager/PagerIterator.php";
+$wgAutoloadClasses['CliPathwaysPager'] = "$IP/wpi/extensions/Pager/CliPathwaysPager.php";
+
 # Setup complete, now start
 
 function needsDeletion( $pathway ) {

@@ -56,6 +56,3 @@ require_once( "$IP/wpi/extensions/XrefPanel.php" );
 require_once( "$IP/wpi/statistics/StatisticsHook.php" );
 require_once( "$IP/wpi/extensions/PageEditor/PageEditor.php" );
 require_once( "$IP/wpi/extensions/ContributionScores/ContributionScores.php" );
-
-$wgAutoloadClasses['PagerIterator'] = "$IP/wpi/extensions/Pager/PagerIterator.php";
-$wgAutoloadClasses['CliPathwaysPager'] = "$IP/wpi/extensions/Pager/CliPathwaysPager.php";
