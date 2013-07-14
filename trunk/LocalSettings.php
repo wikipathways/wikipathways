@@ -325,7 +325,13 @@ $wgHooks['AbortNewAccount'][] = 'abortOnBadDomain';
 
 ##Debug
 $wgDebugLogFile = WPI_SCRIPT_PATH . '/tmp/wikipathwaysdebug.txt';
-//$wgProfiling = true; //Set to true for debugging info
+/* $wgProfiling = true; //Set to true for debugging info */
+
+// Uncommenting the following will give you a separate debug log file
+// for each request.
+/* if ( !defined( "STDIN" ) ) { */
+/* 	$wgDebugLogFile .= "-" . $_SERVER['REQUEST_METHOD'] . "-" . urlencode( $_SERVER['REQUEST_URI'] ); */
+/* } */
 
 ##New Autoloads
 $wgAutoloadClasses['LegacySpecialPage'] = dirname(__FILE__) . '/wpi/LegacySpecialPage.php';
@@ -419,3 +425,4 @@ $wgGroupPermissions[ 'bureaucrat' ][ 'skipcaptcha'    ] = true;
 // If a pathway has been editted within this number of days, it will
 // be highlighted on the browse page
 $wgPathwayRecentSinceDays = 30;
+
