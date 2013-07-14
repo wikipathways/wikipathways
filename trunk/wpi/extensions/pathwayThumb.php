@@ -97,10 +97,7 @@ function createEditCaption($pathway) {
 function makeThumbLinkObj( $pathway, $label = '', $href = '', $alt, $align = 'right', $id = 'thumb', $boxwidth = 180, $boxheight=false, $framed=false ) {
 	global $wgStylePath, $wgContLang;
 
-	$pathway->updateCache(FILETYPE_IMG);
-	$img = new LocalFile($pathway->getFileTitle(FILETYPE_IMG), RepoGroup::singleton()->getLocalRepo());
-	$img->loadFromFile();
-
+	$img = $pathway->getImage();
 	$imgURL = $img->getURL();
 
 	$thumbUrl = '';

@@ -1037,6 +1037,19 @@ class Pathway {
 		}
 	}
 
+	public function getImage() {
+		$repo = RepoGroup::singleton()->getLocalRepo();
+		$img = new LocalFile($this->getFileTitle(FILETYPE_IMG), $repo);
+		$img->loadFromFile();
+
+		if ( !$img->exists() ) { /* Avoid calling this unless we need to */
+			$pathway->updateCache(FILETYPE_IMG);
+			$img->loadFromFile();
+		}
+
+		return $img;
+	}
+
 	/**
 	 * Clear all cached files
 	 * \param fileType The file type to remove the cache for (one of FILETYPE_* constants)

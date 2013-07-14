@@ -414,10 +414,7 @@ function makeThumbNail( $pathway, $label = '', $href = '', $alt,
 	$framed=false ) {
 	global $wgStylePath, $wgContLang;
 
-	$pathway->updateCache(FILETYPE_IMG);
-	$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
-
-	$img->loadFromFile();
+	$img = $pathway->getImage();
 	$imgURL = $img->getURL();
 
 	$thumbUrl = '';

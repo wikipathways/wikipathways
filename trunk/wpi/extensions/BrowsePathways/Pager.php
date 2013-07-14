@@ -162,15 +162,8 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		$s = "<div id=\"{$id}\" class=\"{$class}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">".
 			'<a href="'.$href.'" class="internal">';
 
-		$repo = RepoGroup::singleton()->getLocalRepo();
-		$img = new LocalFile($pathway->getFileTitle(FILETYPE_IMG), $repo);
-		$img->loadFromFile();
 		$link = "";
-
-		if ( !$img->exists() ) { /* Avoid calling this unless we need to */
-			$pathway->updateCache(FILETYPE_IMG);
-			$img->loadFromFile();
-		}
+		$img = $pathway->getImage();
 
 		if ( !$img->exists() ) {
 			$s .= "Image does not exist";
