@@ -1043,7 +1043,7 @@ class Pathway {
 		$img->loadFromFile();
 
 		if ( !$img->exists() ) { /* Avoid calling this unless we need to */
-			$pathway->updateCache(FILETYPE_IMG);
+			$this->updateCache(FILETYPE_IMG);
 			$img->loadFromFile();
 		}
 

@@ -5,6 +5,7 @@ $messages['en'] = array(
 	'browsepathways-select-collection' => 'Collection:',
 	'browsepathways-select-view' => 'View:',
 	'browsepathways-all-species' => 'All Species',
+	'browsepathways-all-tags' => 'All Tags',
 	'browsepathways-uncategorized-species' => 'Uncategorized',
 
 	'browsepathways-view-list' => 'List Mode',
