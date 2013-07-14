@@ -45,7 +45,6 @@ function renderImageLink( &$parser, $img, $width = 200, $align = '', $caption = 
 function makeImageLinkObj( $img, $label = '', $namespace = '', $pagetitle = '', $alt, $align = 'right', $id = 'thumb', $boxwidth = 180, $boxheight=false, $framed=false ) {
 	global $wgStylePath, $wgContLang;
 
-	$pathway->updateCache(FILETYPE_IMG);
 	$img = new LocalFile(Title::makeTitleSafe( NS_IMAGE, $img ), RepoGroup::singleton()->getLocalRepo());
 	$imgURL = $img->getURL();
 
