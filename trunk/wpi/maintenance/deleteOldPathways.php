@@ -1,13 +1,10 @@
 <?php
 
 /**
- * Deletes a batch of pages
- * Usage: php deleteBatch.php [-u <user>] [-r <reason>] [-i <interval>] <listfile>
- * where
- * 	<listfile> is a file where each line contains the title of a page to be deleted.
- *	<user> is the username
- *	<reason> is the delete reason
- *	<interval> is the number of seconds to sleep for after each delete
+ * Transition script for M34 -- Deletes pathway pages using wiki
+ * deletion that are marked in the wiki as deleted.
+ *
+ * Usage: php deleteOldPathways.php
  *
  * @file
  * @ingroup Maintenance
