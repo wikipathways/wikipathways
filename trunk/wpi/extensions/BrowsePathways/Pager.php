@@ -169,6 +169,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 
 		if ( !$img->exists() ) { /* Avoid calling this unless we need to */
 			$pathway->updateCache(FILETYPE_IMG);
+			$img->loadFromFile();
 		}
 
 		if ( !$img->exists() ) {
