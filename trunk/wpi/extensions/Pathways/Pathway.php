@@ -1097,6 +1097,7 @@ class Pathway {
 	private function saveConvertedCache($fileType) {
 		# Convert gpml to fileType
 		$gpmlFile = realpath($this->getFileLocation(FILETYPE_GPML));
+		wfDebug( "Saving $gpmlFile to $fileType" );
 		$conFile = $this->getFileLocation($fileType, false);
 		$dir = dirname($conFile);
 		if ( !is_dir( $dir ) && !wfMkdirParents( $dir ) ) {
@@ -1138,6 +1139,7 @@ class Pathway {
 		if($gpml) { //Only write cache if there is GPML
 			$file = $this->getFileLocation(FILETYPE_GPML, false);
 			writeFile($file, $gpml);
+			wfDebug( "GPML CACHE SAVED: $file" );
 		}
 	}
 
