@@ -123,14 +123,6 @@ To add a tag, add a <Tag> element in the xml code below. The element may contain
  icon="MissingDescription.png"
 />
 
-<Tag
- name="Curation:GenMAPP_Approved"
- displayName="GenMAPP Approved"
- useRevision="true"
- description="Pathways with this tag will be included in the GenMAPP pathway archive. This tag applies to the revision you are viewing when adding or editing the tag."
- shortName="GenMAPP"
-/>
-
 <Tag 
   name="Curation:Stub"
   displayName="Stub"
