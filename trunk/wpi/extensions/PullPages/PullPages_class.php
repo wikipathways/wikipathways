@@ -11,18 +11,28 @@ class PullPages extends SpecialPage {
 	function __construct( $empty = null ) {
 		global $wgOut, $wgRequest, $wgUser;
 
-		if( !$wgUser->isAllowed( 'pullpages' ) ) {
-			$wgOut->permissionRequired( 'pullpages' );
-			return;
-		}
-		parent::__construct();
+		parent::__construct('PullPages', 'pullpage');
 
 		if( $wgRequest->wasPosted() ) {
-			$this->puller = new PagePuller( $wgRequest->get("sourceWiki"), $wgRequest->get("sourcePage") );
+			$this->puller = new PagePuller( $wgRequest->getVal("sourceWiki"),
+				$wgRequest->getVal("sourcePage") );
 		}
 	}
 
+	static function initMsg( ) {
+		# Need this called in hook early on so messages load... maybe
+		# a bug in old MW?
+		wfLoadExtensionMessages( 'PullPages' );
+	}
+
 	function execute( $par ) {
+		global $wgUser;
+
+        if (  !$this->userCanExecute( $wgUser )  ) {
+			$this->displayRestrictionError();
+			return;
+        }
+
 		if( $this->puller ) {
 			$this->showForm();
 			$this->startProgress();
@@ -36,19 +46,19 @@ class PullPages extends SpecialPage {
 	}
 
 	function showForm() {
-		global $wgOut, $wgScript;
-		$wgOut->addWikiMsg( 'pullpage-form-start' );
+		global $wgOut, $wgRequest;
+		$wgOut->addWikiMsg( 'pullpage-intro' );
 
 		$wgOut->addHtml(
 			Xml::openElement( 'form', array(
 				'method' => 'post',
-				'action' => $wgScript ) ) .
+				'action' => $wgRequest->getRequestURL() ) ) .
 			'<fieldset>' .
 			Xml::inputLabel( wfMsg( 'pullpage-source-wiki' ),
-				'sourceWiki', 'sourceWiki', 40 ) .
+				'sourceWiki', 'sourceWiki', 40 ) . '<br>' .
 			Xml::inputLabel( wfMsg( 'pullpage-source-page' ),
 				'sourcePage', 'sourcePage', 20, $this->defaultPullPage ) .
-			Xml::submitButton( wfMsg( 'pullpage-pull-submit' ) ) .
+			Xml::submitButton( wfMsg( 'pullpage-submit' ) ) .
 			'</fieldset>' .
 			'</form>' );
 	}
@@ -56,7 +66,7 @@ class PullPages extends SpecialPage {
 	function startProgress() {
 		global $wgOut;
 
-		$wgOut->addWikiText( "pullpage-progress-start" );
+		$wgOut->addWikiText( wfMsg( "pullpage-progress-start" ) );
 	}
 
 	function showProgress( $pageName ) {
@@ -65,10 +75,9 @@ class PullPages extends SpecialPage {
 		$wgOut->addHTML( wfMsg( "pullpage-progress-page", $pageName ) );
 	}
 
-	function finishProgress( $pageName ) {
+	function finishProgress( ) {
 		global $wgOut;
 
-		$wgOut->addHTML( wfMsg( "pullpage-progress-end", $pageName ) );
+		$wgOut->addHTML( wfMsg( "pullpage-progress-end" ) );
 	}
-
 }
