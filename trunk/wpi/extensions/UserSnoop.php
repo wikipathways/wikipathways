@@ -108,6 +108,7 @@ define ('USER_SNOOP', 0);
 
 #add our special page to the list
 $wgSpecialPages['UserSnoop'] = 'UserSnoop';
+$wgSpecialPageGroups['UserSnoop'] = "users";
 $wgHooks['LoadAllMessages'][] = 'UserSnoop::loadAllMessages';
 $wgHooks['LanguageGetSpecialPageAliases'][] = 'UserSnoop::loadLocalizedName';
 $wgExtensionCredits['specialpage'][] = array(
