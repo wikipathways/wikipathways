@@ -5,7 +5,6 @@ require_once( "$IP/wpi/extensions/siteStats.php" );
 require_once( "$IP/wpi/extensions/pathwayInfo.php" );
 require_once( "$IP/wpi/extensions/imageSize.php" );
 require_once( "$IP/wpi/extensions/magicWords.php" );
-require_once( "$IP/wpi/extensions/DeletePathway/DeletePathway.php" );
 require_once( "$IP/wpi/extensions/PopularPathwaysPage2/PopularPathwaysPage.php" );
 require_once( "$IP/wpi/extensions/MostEditedPathwaysPage/MostEditedPathwaysPage.php" );
 require_once( "$IP/wpi/extensions/NewPathwaysPage/NewPathwaysPage.php" );
