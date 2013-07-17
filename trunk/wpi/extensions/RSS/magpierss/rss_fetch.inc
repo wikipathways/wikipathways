@@ -99,7 +99,7 @@ function fetch_rss ($url) {
 		// fetch file, and parse it
 		$resp = _fetch_remote_file( $url );
 		if ( is_success( $resp->status ) ) {
-			return _response_to_rss( $resp, $url );
+			return _response_to_rss( $resp );
 		}
 		else {
 			error("Failed to fetch $url and cache is off");
@@ -172,7 +172,7 @@ function fetch_rss ($url) {
 				return $rss;
 			}
 			elseif ( is_success( $resp->status ) ) {
-				$rss = _response_to_rss( $resp, $url );
+				$rss = _response_to_rss( $resp );
 				if ( $rss ) {
 					if (MAGPIE_DEBUG > 1) {
 						debug("Fetch successful");
@@ -285,7 +285,7 @@ function _fetch_remote_file ($url, $headers = "" ) {
 	Input:      an HTTP response object (see Snoopy)
 	Output:     parsed RSS object (see rss_parse)
 \*=======================================================================*/
-function _response_to_rss ($resp, $url) {
+function _response_to_rss ($resp) {
 	$rss = new MagpieRSS( $resp->results, MAGPIE_OUTPUT_ENCODING, MAGPIE_INPUT_ENCODING, MAGPIE_DETECT_ENCODING );
 
 	// if RSS parsed successfully
@@ -317,13 +317,7 @@ function _response_to_rss ($resp, $url) {
 		$errormsg = "Failed to parse RSS file.";
 
 		if ($rss) {
-			$d = "$IP/wpi/tmp/rss-failure";
-			$f = "";
-			if( is_dir( $d ) && is_writable( $d ) ) {
-				$f = tmpname( $d, "xxx" );
-				file_put_contents( $f, $resp->results );
-			}
-			$errormsg .= " (" . $rss->ERROR . ") $url $f";
+			$errormsg .= " (" . $rss->ERROR . ")";
 		}
 		error($errormsg);
 
