@@ -6,17 +6,12 @@
 
 class PullPages extends SpecialPage {
 	public $puller;
-	public $defaultPullPage = "MediaWiki:PullPageList";
+	public $pullPage = "MediaWiki:PullPageList";
 
 	function __construct( $empty = null ) {
 		global $wgOut, $wgRequest, $wgUser;
 
 		parent::__construct('PullPages', 'pullpage');
-
-		if( $wgRequest->wasPosted() ) {
-			$this->puller = new PagePuller( $wgRequest->getVal("sourceWiki"),
-				$wgRequest->getVal("sourcePage") );
-		}
 	}
 
 	static function initMsg( ) {
@@ -25,27 +20,55 @@ class PullPages extends SpecialPage {
 		wfLoadExtensionMessages( 'PullPages' );
 	}
 
-	function execute( $par ) {
-		global $wgUser;
+	public function execute( $par ) {
+		global $wgUser, $wgRequest, $wgOut;
 
-        if (  !$this->userCanExecute( $wgUser )  ) {
+		$wgOut->setPagetitle( wfMsg( 'pullpages' ) );
+
+		if (  !$this->userCanExecute( $wgUser )  ) {
 			$this->displayRestrictionError();
 			return;
-        }
+		}
 
-		if( $this->puller ) {
-			$this->showForm();
-			$this->startProgress();
-			foreach( $this->puller->getPageList() as $page ) {
-				$this->puller->getPage( $page, array( $this, "showProgress" ) );
-			}
-			$this->finishProgress();
-		} else {
-			$this->showForm();
+		$this->showForm();
+		if( $wgRequest->wasPosted() ) {
+			$this->processPullRequest();
 		}
 	}
 
-	function showForm() {
+	public function processPullRequest() {
+		global $wgRequest;
+
+		if( $wgRequest->getVal("sourceWiki", "") != "" &&
+			$wgRequest->getVal("sourcePage", "") != "" ) {
+
+			$this->puller = new PagePuller( $wgRequest->getVal("sourceWiki"),
+				$wgRequest->getVal("sourcePage") );
+			$this->puller->setUser( $wgRequest->getVal("sourceUser"), $wgRequest->getVal("sourcePass") );
+			$this->puller->useImgAuth( $wgRequest->getVal("useImgAuth") );
+
+			$this->pullPage = $wgRequest->getVal("sourcePage");
+		} else {
+			$wgOut->addWikiText( wfMsg('pullpage-no-wiki') );
+		}
+
+		if( $this->puller ) {
+			$this->startProgress();
+			$ret = $this->puller->getPageList();
+			if( is_array( $ret ) ) {
+				foreach( $ret as $page ) {
+					$this->puller->getPage( $page,
+						array( $this, "showProgress" ) );
+				}
+			} else {
+				global $wgOut;
+				$wgOut->addWikiMsg( 'pullpage-no-pages', $ret );
+			}
+			$this->finishProgress();
+		}
+	}
+
+	public function showForm() {
 		global $wgOut, $wgRequest;
 		$wgOut->addWikiMsg( 'pullpage-intro' );
 
@@ -55,29 +78,45 @@ class PullPages extends SpecialPage {
 				'action' => $wgRequest->getRequestURL() ) ) .
 			'<fieldset>' .
 			Xml::inputLabel( wfMsg( 'pullpage-source-wiki' ),
-				'sourceWiki', 'sourceWiki', 40 ) . '<br>' .
+				'sourceWiki', 'sourceWiki', 40,
+				$wgRequest->getVal( "sourceWiki" ) ) . '<br>' .
 			Xml::inputLabel( wfMsg( 'pullpage-source-page' ),
-				'sourcePage', 'sourcePage', 20, $this->defaultPullPage ) .
+				'sourcePage', 'sourcePage', 20, $this->pullPage ) . '<br>' .
+			Xml::inputLabel( wfMsg( 'pullpage-source-user' ),
+				'sourceUser', 'sourceUser', 20,
+				$wgRequest->getVal( "sourceUser" ) ) . '<br>' .
+			Xml::inputLabel( wfMsg( 'pullpage-source-pass' ),
+				'sourcePass', 'sourcePass', 20, "",
+				array('type' => 'password') ) . '<br>' .
+			Xml::checkLabel( wfMsg( 'pullpage-use-imgauth' ),
+				'useImgAuth', 'useImgAuth',
+				$wgRequest->getVal( "useImgAuth" ) ) . '<br>' .
 			Xml::submitButton( wfMsg( 'pullpage-submit' ) ) .
 			'</fieldset>' .
 			'</form>' );
 	}
 
-	function startProgress() {
+	public function startProgress() {
 		global $wgOut;
 
 		$wgOut->addWikiText( wfMsg( "pullpage-progress-start" ) );
 	}
 
-	function showProgress( $pageName ) {
+	public function showProgress( $pageName, $status ) {
 		global $wgOut;
 
-		$wgOut->addHTML( wfMsg( "pullpage-progress-page", $pageName ) );
+		if( $status->isGood() ) {
+			$wgOut->addWikiText( wfMsg( "pullpage-progress-page-good",
+					$pageName ) );
+		} else {
+			$wgOut->addWikiText( wfMsg( "pullpage-progress-page-error",
+					$pageName, $status->getWikiText() ) );
+		}
 	}
 
-	function finishProgress( ) {
+	public function finishProgress( ) {
 		global $wgOut;
 
-		$wgOut->addHTML( wfMsg( "pullpage-progress-end" ) );
+		$wgOut->addWikiText( wfMsg( "pullpage-progress-end", $this->pullPage ) );
 	}
 }
