@@ -11,7 +11,9 @@ $messages['en'] = array(
 	'pullpage-progress-start' => "Starting to pull Pages...",
 	'pullpage-progress-page-good'  => "Pulling $1... <span style='color: green'>ok</span><br>",
 	'pullpage-progress-page-error'  => "Pulling $1... <span style='color: red'>$2</span><br>",
-	'pullpage-progress-end'   => "Finished pulling pages. [[$1|See the pagelist on this wiki]].",
+	'pullpage-progress-end'   => "Finished pulling pages (current memory: $2M, max mem: $3M: ).
+
+[[$1|See the pagelist on this wiki]].",
 	'pullpage-no-pages'       => "Couldn't get a list of pages to pull: $1",
 	'pullpage-no-wiki'        => "You must provide a wiki url and a page on that wiki that will provide the page list.",
 	'pullpage-login-failed'   => "The login failed.",

@@ -117,6 +117,8 @@ class PullPages extends SpecialPage {
 	public function finishProgress( ) {
 		global $wgOut;
 
-		$wgOut->addWikiText( wfMsg( "pullpage-progress-end", $this->pullPage ) );
+		$wgOut->addWikiText( wfMsg( "pullpage-progress-end", $this->pullPage,
+				sprintf( "%0.2f", memory_get_usage() / 1024 / 1024 ),
+				sprintf( "%0.2f", memory_get_peak_usage() / 1024 / 1024 ) ) );
 	}
 }
