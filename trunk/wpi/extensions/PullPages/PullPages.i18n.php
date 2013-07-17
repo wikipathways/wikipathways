@@ -1,11 +1,11 @@
 <?php
 $messages['en'] = array(
 	'pullpages' => 'Pull Pages',
-	'pullpage-intro' => 'Please specify the wiki you want to pull pages from.',
+	'pullpage-intro' => "Please specify the wiki you want to pull pages from.  If a username and password isn't given, then the pull will be done anonymously and imgauth will not be able to be used.",
 	'pullpage-source-wiki' => "Base URL of source wiki.  (e.g. http://example.com/index.php):",
 	'pullpage-source-page' => "Page to use on the source wiki to find a list of pages to pull:",
-	'pullpage-source-user' => "Username on foreign wiki",
-	'pullpage-source-pass' => "Password on foreign wiki",
+	'pullpage-source-user' => "Username on source wiki",
+	'pullpage-source-pass' => "Password on source wiki",
 	'pullpage-use-imgauth' => "Pull images using img_auth.php",
 	'pullpage-submit' => 'Submit',
 	'pullpage-progress-start' => "Starting to pull Pages...",
