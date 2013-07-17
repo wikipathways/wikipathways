@@ -22,6 +22,8 @@ class PullPages extends SpecialPage {
 
 	public function execute( $par ) {
 		global $wgUser, $wgRequest, $wgOut;
+		ini_set('memory_limit', '512M'); /* Need a lot of memory for
+										  * this to run */
 
 		$wgOut->setPagetitle( wfMsg( 'pullpages' ) );
 
