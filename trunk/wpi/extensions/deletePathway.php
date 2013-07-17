@@ -2,22 +2,6 @@
 require_once('wpi/wpi.php');
 
 /**
- * Disables deletion for pathway pages.
- * TODO: Disable this hook for running script to transfer to stable ids
- */
-/* $wgHooks['ArticleDelete'][] = 'checkForPathway';
-
-function checkForPathway(&$article, &$user, &$reason, $error = '') {
-	if($article && !$error && $article->getTitle()->getNamespace() == NS_PATHWAY) {
-		//Prevent pathway page deletion, mark deleted instead of removing the page
-		$pathway = Pathway::newFromTitle($article->getTitle());
-		$pathway->delete($reason);
-		return false;
-	}
-	return true;
-}
-
-/**
  * Special user permissions once a pathway is deleted.
  * TODO: Disable this hook for running script to transfer to stable ids
  */
@@ -60,25 +44,3 @@ function checkSoleAuthor($title, $user, $action, $result) {
 	return true;
 }
 
-/**
- * Removes deletion tab if needed
- */
-/* $wgHooks['SkinTemplateContentActions'][] = 'deleteTab'; */
-
-/* function deleteTab(&$content_actions) { */
-/* 	global $wgTitle; */
-/* 	$pathway = null; */
-
-/* 	if($wgTitle->getNamespace() == NS_PATHWAY) { */
-/* 		$pathway = Pathway::newFromTitle($wgTitle); */
-/* 	} */
-
-/* 	//Modify delete tab to use custom deletion for pathways */
-/* 	if($pathway && $wgTitle->userCan('delete')) { */
-/* 		if($pathway->isDeleted()) { */
-/* 			//Remove delete tab if already deleted */
-/* 			unset($content_actions['delete']); */
-/* 		} */
-/* 	} */
-/* 	return true; */
-/* } */
