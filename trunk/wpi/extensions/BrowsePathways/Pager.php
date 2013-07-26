@@ -348,11 +348,11 @@ class ListPathwaysPager extends BasePathwaysPager {
 
 class ThumbPathwaysPager extends BasePathwaysPager {
 	function getStartBody() {
-		return "<br clear='both'>";
+		return "<div class='infinite-container'>";
 	}
 
 	function getEndBody() {
-		return "<br clear='both'>";
+		return "</div>";
 	}
 	/* From getDownloadURL in PathwayPage */
 	function formatRow( $row ) {

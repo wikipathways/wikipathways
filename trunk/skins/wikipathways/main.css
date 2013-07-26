@@ -1599,6 +1599,9 @@ span.searchmatch {
    float: left;
    padding: 1em;
 }
+.infinite-container {
+   overflow:hidden;
+}
 .infinite-more-link {
    float: right;
 }

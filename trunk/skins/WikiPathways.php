@@ -120,8 +120,8 @@ class WikiPathwaysTemplate extends QuickTemplate {
 		<!-- TK: Import custom style -->
 		<style type="text/css" media="screen,projection">/*<![CDATA[*/ @import "<?php echo $thisStylePath ?>/wikipathways-custom.css?<?php echo $GLOBALS['wgStyleVersion'] ?>"; /*]]>*/</style>
 		<script src="<?php echo $thisStylePath ?>/jquery-1.8.3.min.js"></script>
-<?php		/* <script src="<?php echo $thisStylePath ?>/waypoints.min.js"></script> */
-			/* <script src="<?php echo $thisStylePath ?>/waypoints-infinite.min.js"></script> */ ?>
+		<script src="<?php echo $thisStylePath ?>/waypoints.min.js"></script>
+		<script src="<?php echo $thisStylePath ?>/waypoints-infinite.min.js"></script>
 		<link rel="stylesheet" type="text/css" <?php if(empty($this->data['printable']) ) { ?>media="print"<?php } ?> href="<?php $this->text('printcss') ?>?<?php echo $GLOBALS['wgStyleVersion'] ?>" />
 		<?php if( in_array( 'IE50', $skin->cssfiles ) ) { ?><!--[if lt IE 5.5000]><style type="text/css">@import "<?php echo $thisStylePath ?>/IE50Fixes.css?<?php echo $GLOBALS['wgStyleVersion'] ?>";</style><![endif]-->
 		<?php } if( in_array( 'IE55', $skin->cssfiles ) ) { ?><!--[if IE 5.5000]><style type="text/css">@import "<?php echo $thisStylePath ?>/IE55Fixes.css?<?php echo $GLOBALS['wgStyleVersion'] ?>";</style><![endif]-->
