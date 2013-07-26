@@ -305,11 +305,10 @@ class WikiPathwaysTemplate extends QuickTemplate {
 <!-- Debug output:
 <?php $this->text( 'debug' ); ?>
 
--->
-<?php endif;
-/* <script> */
-/* 	$('#browseListBody').waypoint('infinite'); */
-/* </script> */ ?>
+--><?php endif; ?>
+<script>
+	$('.infinite-container').waypoint('infinite');
+</script>
 </body></html>
 <?php
 	wfRestoreWarnings();

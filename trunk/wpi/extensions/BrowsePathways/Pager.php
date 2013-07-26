@@ -155,7 +155,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		$boxheight=-1;
 		$framed=false;
 		$href = $pathway->getFullURL();
-		$class = "browsePathways";
+		$class = "browsePathways infinite-item";
 		$id = $pathway->getTitleObject();
 		$textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
 		$oboxwidth = $boxwidth + 2;
@@ -325,7 +325,7 @@ class ListPathwaysPager extends BasePathwaysPager {
 		}
 
 		if( $this->columnItemCount === 0 ) {
-			$row .= '<li class="infinite-item"><ul> <!-- start of column -->';
+			$row .= '<li><ul> <!-- start of column -->';
 		}
 		$this->columnItemCount++;
 
@@ -354,6 +354,34 @@ class ThumbPathwaysPager extends BasePathwaysPager {
 	function getEndBody() {
 		return "</div>";
 	}
+
+	function getNavigationBar() {
+		global $wgLang;
+
+		/* Link to nowhere by default */
+		$link = "<a class='infinite-more-link' href='data:'></a>";
+
+		$queries = $this->getPagingQueries();
+		$opts = array( 'parsemag', 'escapenoentities' );
+
+		if( isset( $queries['next'] ) && $queries['next'] ) {
+			$link = $this->getSkin()->makeKnownLinkObj( $this->getTitle(),
+				wfMsgExt( 'nextn', $opts, $wgLang->formatNum( $this->mLimit ) ),
+				wfArrayToCGI( $queries['next'], $this->getDefaultQuery() ), '', '',
+				"class='infinite-more-link'" );
+		}
+
+		return $link;;
+	}
+
+	function getTopNavigationBar() {
+		return "";
+	}
+
+	function getBottomNavigationBar() {
+		return $this->getNavigationBar();
+	}
+
 	/* From getDownloadURL in PathwayPage */
 	function formatRow( $row ) {
 		$title = Title::newFromDBkey( $this->nsName .":". $row->page_title );
