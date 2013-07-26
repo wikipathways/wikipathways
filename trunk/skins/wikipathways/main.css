@@ -89,7 +89,7 @@ a.stub {
 	color: #772233;
 }
 a.new {
-	color: #ba0000; //#555566
+	color: #ba0000;
 }
 
 #p-personal a.new {
@@ -97,11 +97,11 @@ a.new {
 }
 
 a.new:visited {
-	color: #ba0000; //#a55858;
+	color: #ba0000;
 }
 
 #p-personal a.new:visited {
-        color: #ba0000; //#a55858;
+        color: #ba0000;
 }
 
 img {
@@ -461,8 +461,6 @@ div.floatleft p { font-style: italic; }
 div.thumb {
 	margin-bottom: .5em;
 	border: none;
-	//border-style: solid;
-	//border-color: white;
 	width: auto;
 }
 div.thumbinner {
@@ -548,7 +546,7 @@ table.rimage {
 ** this is css3, the validator doesn't like it when validating as css2
 */
 #bodyContent a.new {
-	color: #ba0000; //#555566; //#001E80;
+	color: #ba0000;
 }
 #bodyContent a.external,
 #bodyContent a[href ^="gopher://"] {
