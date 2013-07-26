@@ -347,6 +347,13 @@ class ListPathwaysPager extends BasePathwaysPager {
 }
 
 class ThumbPathwaysPager extends BasePathwaysPager {
+
+	function __construct( $species, $tag, $sortOrder ) {
+		parent::__construct( $species, $tag, $sortOrder );
+
+		$this->mLimit = 10;
+	}
+
 	function getStartBody() {
 		return "<div class='infinite-container'>";
 	}
