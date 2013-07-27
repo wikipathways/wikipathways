@@ -7,6 +7,20 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 	protected $ns = NS_PATHWAY;
 	protected $nsName;
 
+	public function imgToData( $thumb ) {
+		$data = "";
+		/* FIXME: magic nums for file size and width */
+		$suffix = $thumb->thumbName( array( "width" => 180 ) );
+		$thumbnail = $thumb->getThumbPath( $suffix );
+
+		if( $thumb->isLocal() && file_exists( $thumbnail )
+			&& filesize( $thumbnail ) < 20480 ) { /* 20k is probably too much */
+			$c = file_get_contents( $thumbnail );
+			return "data:" . $thumb->getMimeType() . ";base64," . base64_encode( $c );
+		}
+		return $thumb->getThumbUrl( $suffix );
+	}
+
 	public function hasRecentEdit( $title ) {
 		global $wgPathwayRecentSinceDays;
 		$article = new Article( $title );
@@ -178,7 +192,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 
 			$thumb = $img->getThumbnail( $boxwidth, $boxheight );
 			if ( $thumb ) {
-				$thumbUrl = $thumb->getUrl();
+				$thumbUrl = $this->imgToData($img);
 				$boxwidth = $thumb->width;
 				$boxheight = $thumb->height;
 			} else {
