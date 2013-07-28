@@ -1603,3 +1603,14 @@ span.searchmatch {
 .infinite-more-link {
    float: right;
 }
+
+.infinite-loading {
+   opacity: 0.2;
+   filter: alpha(opacity=10); /* msie */
+   background-color: #aaa;
+   z-index: 1;
+}
+
+.infinite-loading img {
+   z-index: 4;
+}
