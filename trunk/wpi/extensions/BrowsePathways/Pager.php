@@ -16,7 +16,8 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		if( $thumb->isLocal() && file_exists( $thumbnail )
 			&& filesize( $thumbnail ) < 20480 ) { /* 20k is probably too much */
 			$c = file_get_contents( $thumbnail );
-			return "data:" . $thumb->getMimeType() . ";base64," . base64_encode( $c );
+			list( $thumbExt, $thumbMime ) = $thumb->handler->getThumbType( $thumb->getExtension(), $thumb->getMimeType() );
+			return "data:" . $thumbMime . ";base64," . base64_encode( $c );
 		}
 		return $thumb->getThumbUrl( $suffix );
 	}
@@ -173,9 +174,9 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 	function getThumb( $pathway, $icons, $boxwidth = 180, $withText = true ) {
 		global $wgStylePath, $wgContLang;
 
-		$label = $pathway->name() . '<br>';
+		$label = $pathway->name() . '<br/>';
 		if( $this->species === '---' ) {
-			$label .= "(" . $pathway->species() . ")<br>";
+			$label .= "(" . $pathway->species() . ")<br/>";
 		}
 		$label .= $icons;
 
