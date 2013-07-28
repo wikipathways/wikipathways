@@ -7,7 +7,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 	protected $ns = NS_PATHWAY;
 	protected $nsName;
 
-	public function imgToData( $thumb ) {
+	public function thumbToData( $thumb ) {
 		$data = "";
 		/* FIXME: magic nums for file size and width */
 		$suffix = $thumb->thumbName( array( "width" => 180 ) );
@@ -17,6 +17,19 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 			&& filesize( $thumbnail ) < 20480 ) { /* 20k is probably too much */
 			$c = file_get_contents( $thumbnail );
 			return "data:" . $thumb->getMimeType() . ";base64," . base64_encode( $c );
+		}
+		return $thumb->getThumbUrl( $suffix );
+	}
+
+	public function imgToData( $img ) {
+		$data = "";
+		/* FIXME: magic nums for file size */
+		$path = $img->getPath( );
+
+		if( $img->isLocal() && file_exists( $path )
+			&& filesize( $path ) < 20480 ) { /* 20k is probably too much */
+			$c = file_get_contents( $path );
+			return "data:" . $img->getMimeType() . ";base64," . base64_encode( $c );
 		}
 		return $thumb->getThumbUrl( $suffix );
 	}
@@ -192,7 +205,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 
 			$thumb = $img->getThumbnail( $boxwidth, $boxheight );
 			if ( $thumb ) {
-				$thumbUrl = $this->imgToData($img);
+				$thumbUrl = $this->thumbToData($img);
 				$boxwidth = $thumb->width;
 				$boxheight = $thumb->height;
 			} else {
@@ -233,7 +246,7 @@ abstract class BasePathwaysPager extends AlphabeticPager {
 		$tagLabel = "<span class='tag-icons'>";
 		foreach( $tags as $label => $attr ) {
 			$img = wfLocalFile( $attr['img'] );
-			$imgLink = Xml::element('img', array( 'src' => $img->getURL(), "title" => $label ));
+			$imgLink = Xml::element('img', array( 'src' => $this->imgToData( $img ), "title" => $label ));
 			$href = $wgRequest->appendQueryArray( array( "tag" => $attr['tag'] ) );
 			$tagLabel .= Xml::element('a', array( 'href' => $href ), null ) . $imgLink . "</a>";
 		}
