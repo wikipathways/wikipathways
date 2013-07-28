@@ -1606,11 +1606,8 @@ span.searchmatch {
 
 .infinite-loading {
    opacity: 0.2;
-   filter: alpha(opacity=10); /* msie */
+   filter: alpha(opacity=20); /* msie */
    background-color: #aaa;
    z-index: 1;
 }
 
-.infinite-loading img {
-   z-index: 4;
-}
