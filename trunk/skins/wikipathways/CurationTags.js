@@ -489,6 +489,10 @@ CurationTags.parseTagXml = function(tagElm) {
 		newElm.id =  CurationTags.makeId("tagDiv_" + tagName);
 		newElm.className = "tagcontainer";
 
+            if( tagRevision && tagRevision < wgCurRevisionId ) {
+                newElm.className += " transparent";
+            }
+
 		//TODO: Only showing buttons on mouseover on tag works great under FF
 		//but I can't get it to work under IE7
 		//Fix is to make buttons semi-transparent by default,
