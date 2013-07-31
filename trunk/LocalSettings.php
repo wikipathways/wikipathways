@@ -422,7 +422,12 @@ $wgCaptchaTriggers['create'] = false;
 $wgGroupPermissions[ 'sysop'      ][ 'skipcaptcha'    ] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'skipcaptcha'    ] = true;
 
+$wgGroupPermissions[ 'curator'    ][ 'skipcaptcha'    ] = true;
+
+$wgGroupPermissions[ 'curator'    ][ 'curationtag'    ] = true;
+$wgGroupPermissions[ 'sysop'      ][ 'curationtag'    ] = true;
+$wgGroupPermissions[ 'bureaucrat' ][ 'curationtag'    ] = true;
+
 // If a pathway has been editted within this number of days, it will
 // be highlighted on the browse page
 $wgPathwayRecentSinceDays = 30;
-
