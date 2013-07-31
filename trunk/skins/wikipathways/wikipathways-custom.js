@@ -69,3 +69,17 @@ $(document).on('DOMNodeInserted', '.infinite-item',
                function(e) {
                    itemOnRow($(e.target));
                });
+
+var doit;
+$(window).resize(
+    function() {
+        clearTimeout(doit);
+        doit = setTimeout(
+            function() {
+                $(".infinite-container").children(".infinite-item").each(
+                    function(i, el) {
+                        console.log(i + " " + el);
+                        itemOnRow($(el));
+                    });
+            }, 100);
+    });
