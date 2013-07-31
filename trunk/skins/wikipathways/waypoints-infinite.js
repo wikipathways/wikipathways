@@ -42,7 +42,6 @@
                                                 $container.addClass(options.loadingClass);
                                                 // put "Loading ..." in the text of the href
                                                 $(options.more).html(function() {
-                                                                         console.log(this.text);
                                                                          return "Loading " + this.text + "...";
                                                                      } );
                                                 return $.get(href, function(data) {
