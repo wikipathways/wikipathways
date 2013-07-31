@@ -1604,10 +1604,3 @@ span.searchmatch {
    float: right;
 }
 
-.infinite-loading {
-   opacity: 0.2;
-   filter: alpha(opacity=20); /* msie */
-   background-color: #aaa;
-   z-index: 1;
-}
-
