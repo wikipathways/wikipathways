@@ -123,12 +123,15 @@ require_once("$IP/includes/SpecialPage.php");
 #our special page class
 class UserSnoop extends SpecialPage
 {
+	protected $uid;
+
 	#constructor
 	function __construct() {
 		#add message to message cache
 		global $wgMessageCache;
 		self::loadAllMessages();
 
+		$this->uid = null;
 		#create new special page with the 'usersnoop' permission required
 		SpecialPage::SpecialPage('UserSnoop', 'usersnoop');
 	}
