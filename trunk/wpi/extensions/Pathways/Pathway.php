@@ -854,6 +854,10 @@ class Pathway {
 			return "Error: no valid XML provided\n$gpml";
 		}
 
+		if( !method_exists( $xml->firstChild, "getAttribute" ) ) {
+			return "Not valid GPML!";
+		}
+
 		$ns = $xml->firstChild->getAttribute('xmlns');
 		$schema = self::$gpmlSchemas[$ns];
 		if(!$schema) {
