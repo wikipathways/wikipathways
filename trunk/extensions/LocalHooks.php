@@ -59,8 +59,37 @@ class LocalHooks {
 
 		return false;
 	}
+
+
+	static public function updateTags( &$article, &$user, $text, $summary, $minoredit, $watchthis, $sectionanchor, &$flags,
+		$revision, &$status = null, $baseRevId = null ) {
+		$title = $article->getTitle();
+		if( $title->getNamespace() !== NS_PATHWAY ) {
+			return true;
+		}
+
+		if( !$title->userCan( "autocurate" ) ) {
+			wfDebug( __METHOD__ . ": User can't autocurate\n" );
+			return true;
+		}
+
+		wfDebug( __METHOD__ . ": Autocurating tags for {$title->getText()}\n" );
+		$db = wfGetDB( DB_MASTER );
+		$tags = MetaTag::getTagsForPage( $title->getArticleID() );
+		foreach( $tags as $tag ) {
+			$oldRev = $tag->getPageRevision();
+			if ( $oldRev ) {
+				wfDebug( __METHOD__ . ": Setting {$tag->getName()} to {$revision->getId()}\n" );
+				$tag->setPageRevision( $revision->getId() );
+				$tag->save();
+			} else {
+				wfDebug( __METHOD__ . ": No revision information for {$tag->getName()}\n" );
+			}
+		}
+		return true;
+	}
 }
 
 $wgHooks['LinkerMakeExternalLink'][] = 'LocalHooks::externalLink';
 $wgHooks['BeforePageDisplay'][] = 'LocalHooks::stopDisplay';
-
+$wgHooks['ArticleSaveComplete'][] = 'LocalHooks::updateTags';

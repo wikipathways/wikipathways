@@ -424,9 +424,7 @@ $wgGroupPermissions[ 'bureaucrat' ][ 'skipcaptcha'    ] = true;
 
 $wgGroupPermissions[ 'curator'    ][ 'skipcaptcha'    ] = true;
 
-$wgGroupPermissions[ 'curator'    ][ 'curationtag'    ] = true;
-$wgGroupPermissions[ 'sysop'      ][ 'curationtag'    ] = true;
-$wgGroupPermissions[ 'bureaucrat' ][ 'curationtag'    ] = true;
+$wgGroupPermissions[ 'curator'    ][ 'autocurate'     ] = true;
 
 // If a pathway has been editted within this number of days, it will
 // be highlighted on the browse page
