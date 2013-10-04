@@ -125,6 +125,8 @@ class SearchPathways extends SpecialPage
 
 		try {
 			$pathway->getImage();
+			$img = new Image($pathway->getFileTitle(FILETYPE_IMG));
+			$img->loadFromFile();
 			$imgURL = $img->getURL();
 		} catch (Exception $e) {
 			$blank = "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width:200px;\">";
