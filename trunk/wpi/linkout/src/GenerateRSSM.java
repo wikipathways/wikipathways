@@ -39,20 +39,20 @@ import org.jdom.output.XMLOutputter;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.pathvisio.biopax.reflect.BiopaxElement;
-import org.pathvisio.biopax.reflect.PublicationXref;
-import org.pathvisio.model.ConverterException;
-import org.pathvisio.model.ObjectType;
-import org.pathvisio.model.Pathway;
-import org.pathvisio.model.PathwayElement;
-import org.pathvisio.model.PathwayElement.Comment;
-import org.pathvisio.preferences.PreferenceManager;
-import org.pathvisio.view.VPathway;
-import org.pathvisio.wikipathways.WikiPathways;
-import org.pathvisio.wikipathways.WikiPathwaysCache;
-import org.pathvisio.wikipathways.WikiPathwaysClient;
+import org.pathvisio.core.biopax.BiopaxNode;
+import org.pathvisio.core.biopax.PublicationXref;
+import org.pathvisio.core.model.ConverterException;
+import org.pathvisio.core.model.ObjectType;
+import org.pathvisio.core.model.Pathway;
+import org.pathvisio.core.model.PathwayElement;
+import org.pathvisio.core.model.PathwayElement.Comment;
+import org.pathvisio.core.preferences.PreferenceManager;
+import org.pathvisio.core.view.VPathway;
 import org.pathvisio.wikipathways.webservice.WSCurationTag;
 import org.pathvisio.wikipathways.webservice.WSPathwayInfo;
+import org.wikipathways.applet.WikiPathways;
+import org.wikipathways.client.WikiPathwaysCache;
+import org.wikipathways.client.WikiPathwaysClient;
 
 public class GenerateRSSM {
 private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName());
@@ -61,7 +61,7 @@ private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName
 	private GdbProvider idmp;
 	
 	private DataSource GENE_DS = BioDataSource.ENTREZ_GENE;
-	private DataSource MET_DS = BioDataSource.PUBCHEM;
+	private DataSource MET_DS = BioDataSource.PUBCHEM_COMPOUND;
 	
 	private int imgSize = 400;
 	
@@ -231,7 +231,7 @@ private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName
 	
 	private void addCitations(Element biosystem, Pathway p) {
 		Set<PublicationXref> refs = new HashSet<PublicationXref>();
-		for(BiopaxElement bpe : p.getBiopaxElementManager().getElements()) {
+		for(BiopaxNode bpe : p.getBiopax().getElements()) {
 			if(bpe instanceof PublicationXref) {
 				refs.add((PublicationXref)bpe);
 			}
@@ -344,7 +344,7 @@ private static final Logger log = Logger.getLogger(GenerateLinkOut.class.getName
 				Xref x = pwe.getXref();
 				if(x == null || x.getId() == null || "".equals(x.getId()) || x.getId().matches("^\\s+$")|| x.getDataSource() == null) continue;
 				if(
-						(BioDataSource.PUBCHEM.equals(x.getDataSource()) || BioDataSource.ENTREZ_GENE.equals(x.getDataSource())) 
+						(BioDataSource.PUBCHEM_COMPOUND.equals(x.getDataSource()) || BioDataSource.ENTREZ_GENE.equals(x.getDataSource())) 
 						&& !x.getId().matches("^[1-9]{1}[0-9]*$")) continue; //Also check for sanity of Entrez identifiers
 				for(IDMapper idm : idms) for(Xref xx : idm.mapID(x, ds)) xrefs.put(xx, pwe);
 				if(ds.equals(x.getDataSource())) xrefs.put(x, pwe);

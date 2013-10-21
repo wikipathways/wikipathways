@@ -4,10 +4,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,12 +25,12 @@ import org.jdom.output.XMLOutputter;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.pathvisio.model.ConverterException;
-import org.pathvisio.model.Pathway;
-import org.pathvisio.wikipathways.WikiPathwaysCache;
-import org.pathvisio.wikipathways.WikiPathwaysClient;
+import org.pathvisio.core.model.ConverterException;
+import org.pathvisio.core.model.Pathway;
 import org.pathvisio.wikipathways.webservice.WSCurationTag;
 import org.pathvisio.wikipathways.webservice.WSPathwayInfo;
+import org.wikipathways.client.WikiPathwaysCache;
+import org.wikipathways.client.WikiPathwaysClient;
 
 
 public class GenerateLinkOut {
@@ -186,7 +184,7 @@ public class GenerateLinkOut {
 			linkout.setUrlBase(pargs.baseUrl);
 			EntrezSource[] sources = new EntrezSource[] {
 					new EntrezSource(BioDataSource.ENTREZ_GENE, "Gene", false),
-					new EntrezSource(BioDataSource.PUBCHEM, "PCCompound", true),
+					new EntrezSource(BioDataSource.PUBCHEM_COMPOUND, "PCCompound", true),
 			};
 			for(EntrezSource s : sources) {
 				Document doc = linkout.createLinkOuts(cache.getFiles(), s.ds, s.name, s.addSpecies);
