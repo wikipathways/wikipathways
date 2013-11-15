@@ -75,7 +75,7 @@ if ( isset( $_REQUEST['rev'] ) ) {
 	$rev = $_REQUEST['rev'];
 }
 
-if ( $id == null )
+if ( $id == null ) {
 	throw new MWException( "No ID given!" );
 }
 
