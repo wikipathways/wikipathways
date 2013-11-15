@@ -66,8 +66,18 @@ foreach($jsSrc as $js) {
 	echo '<script type="text/javascript" src="' . $js . '"></script>' . "\n";
 }
 
-$id = $_REQUEST['id'];
-$rev = $_REQUEST['rev'];
+$id = null;
+$rev = null;
+if ( isset( $_REQUEST['id'] ) ) {
+	$id = $_REQUEST['id'];
+}
+if ( isset( $_REQUEST['rev'] ) ) {
+	$rev = $_REQUEST['rev'];
+}
+
+if ( $id == null )
+	throw new MWException( "No ID given!" );
+}
 
 $pathway = Pathway::newFromTitle($id);
 if($rev) {
@@ -77,6 +87,10 @@ if($rev) {
 $svg = $pathway->getFileURL(FILETYPE_IMG);
 $gpml = $pathway->getFileURL(FILETYPE_GPML);
 
+/**
+ * Maybe use getJsSnippets() from Xref panel?  '$search' and '$bridge'
+ * were just before the end tag here.
+ */
 echo <<<SCRIPT
 <script type="text/javascript">
 	PathwayViewer_basePath = '$wfPathwayViewerPath/';
@@ -88,8 +102,6 @@ echo <<<SCRIPT
 		width: '100%',
 		height: '100%'
 	}));
-	$search
-	$bridge
 </script>
 SCRIPT;
 ?>
