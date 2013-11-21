@@ -40,7 +40,8 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 		}
 		$gpml = $pathway->getFileURL(FILETYPE_GPML);
 
-		$script = "<script type=\"{$wgJsMimeType}\">window.onload = function() {pathvisiojs.load({target: '#pwImage', data: \"$gpml\", hiddenElements: ['find','wikipathways-link']});} </script>
+		$script = "<script type=\"{$wgJsMimeType}\">window.onload = function() {var img = $('#pwImage');if (img.get(0).nodeName.toLowerCase()!= 'img') {img = $('#pwImage img');}if (img.parent().is('a')){var oldParent=img.parent();var newParent=oldParent.parent();oldParent.after(img);oldParent.remove();}var container = $('<div />').attr('id', 'pwImage_container').css({width: '100%', height: '500px'});var parent = img.parent();img.after(container);img.remove();var layout=$('<div/>').attr('id', 'pwImage_layout').css({width:'100%',height:'100%'});var viewer=$('<div/>').addClass('ui-layout-center').css({border:'1px solid #BBBBBB','background-color':'#FFFFFF'});layout.append(viewer);container.append(layout);var pvjs=$('<div/>').attr('id','pwImage_pvjs');viewer.append(pvjs);pathvisiojs.load({target: '#pwImage_pvjs', data: \"$gpml\",hiddenElements: ['find','wikipathways-link']});}</script>";
+		$script = $script . "
 			<link rel=\"stylesheet\" href=\"http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css\" media=\"screen\" type=\"text/css\" />
 			<link rel=\"stylesheet\" href=\"http://wikipathways.github.io/pathvisiojs/src/css/pathvisio-js.css\" media=\"screen\" type=\"text/css\" />
   			<link rel=\"stylesheet\" href=\"http://wikipathways.github.io/pathvisiojs/src/css/annotation.css\" media=\"screen\" type=\"text/css\" />
