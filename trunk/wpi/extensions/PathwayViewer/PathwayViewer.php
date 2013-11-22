@@ -67,6 +67,7 @@ class PathwayViewer {
                         "$wgScriptPath/wpi/lib/js/async.js",
                         "$wgScriptPath/wpi/lib/js/d3.min.js", 
                         "$wgScriptPath/wpi/lib/js/jquery.min.js", 
+			"$wgScriptPath/wpi/lib/js/jquery-ui.min.js",
                         "$wgScriptPath/wpi/lib/js/typeahead.min.js", 
                         "$wgScriptPath/wpi/lib/js/openseadragon.min.js", 
                         "$wgScriptPath/wpi/lib/js/modernizr.js",   
