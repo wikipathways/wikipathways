@@ -30,8 +30,7 @@ function renderAuthorInfo($input, $argv, $parser) {
 	$wgStylePath = $wfAuthorInfoPath;
 	$wgOut->addStyle("AuthorInfo.css");
 	$wgStylePath = $oldStylePath;
-
-	$html = "<script type=\"text/javascript\" src=\"$wfAuthorInfoPath/AuthorInfo.js\"></script>\n";
+	$html = "<div style=\"height: 0px;\"><script type=\"text/javascript\" src=\"$wfAuthorInfoPath/AuthorInfo.js\"></script></div>\n";
 	$id = $parser->getTitle()->getArticleId();
 	$html .= "<div id='authorInfoContainer'></div><script type=\"text/javascript\">" .
 		"AuthorInfo.init('authorInfoContainer', '$id', '$limit', '$bots');</script>";

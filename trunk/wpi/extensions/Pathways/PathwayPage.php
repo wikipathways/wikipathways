@@ -87,7 +87,7 @@ return $text;
 
 	function titleEditor() {
 		$title = $this->pathway->getName();
-		return "<pageEditor id='pageTitle' type='title'>$title</pageEditor>\n";
+		return "<pageEditor id='pageTitle' type='title'>$title</pageEditor>";
 	}
 
 	function privateWarning() {

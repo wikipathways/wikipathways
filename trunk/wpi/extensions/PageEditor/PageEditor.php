@@ -44,7 +44,7 @@ function displayPageEditor($input, $argv, $parser) {
 
 	$wgOut->addScript("<script type=\"{$wgJsMimeType}\" src=\"{$wfPageEditorPath}/PageEditor.js\"></script>\n");
 
-	$script = "<script type='{$wgJsMimeType}'>var p = new PageEditor('$targetId', '$type', $content, '$pwId', $userCanEdit);</script>";
+	$script = "<div style=\"height: 0px;\"><script type='{$wgJsMimeType}'>var p = new PageEditor('$targetId', '$type', $content, '$pwId', $userCanEdit);</script></div>";
 
 	return $script;
 }
