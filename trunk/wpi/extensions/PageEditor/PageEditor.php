@@ -17,7 +17,7 @@ function displayPageEditor($input, $argv, $parser) {
 
 	//Check user rights
 	if( !$wgUser->isLoggedIn() || wfReadOnly()) {
-		return ""; //Don't return any applet code
+		return "<div style=\"height: 0px;\"></div>"; //Don't return any applet code
 	}
 
 	//Add CSS
