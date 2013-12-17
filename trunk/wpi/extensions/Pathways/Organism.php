@@ -59,8 +59,9 @@ class Organism {
 	public static function registerDefaultOrganisms() {
 		self::register('Anopheles gambiae', 'Ag');
 		self::register('Arabidopsis thaliana', 'At');
-		self::register('Bos taurus', 'Bt');
 		self::register('Bacillus subtilis', 'Bs');
+		self::register('Beta vulgaris', 'Bv');
+                self::register('Bos taurus', 'Bt');
 		self::register('Caenorhabditis elegans', 'Ce');
 		self::register('Canis familiaris', 'Cf');
 		self::register('Clostridium thermocellum', 'Ct');
@@ -72,6 +73,7 @@ class Organism {
 		self::register('Glycine max', 'Gm');
 		self::register('Gibberella zeae', 'Gz');
 		self::register('Homo sapiens', 'Hs');
+		self::register('Hordeum vulgare', 'Hv');
 		self::register('Mus musculus', 'Mm');
 		self::register('Mycobacterium tuberculosis', 'Mx');
 		self::register('Oryza sativa', 'Oj');
