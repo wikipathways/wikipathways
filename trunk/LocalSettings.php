@@ -83,7 +83,7 @@ require_once('pass.php');
 require_once('wpi/globals.php');
 
 # Default javascript locations
-if( !isset( $jsJQuery ) ) $jsJQuery = "$wgScriptPath/wpi/js/jquery/jquery-1.5.1.js";
+if( !isset( $jsJQuery ) ) $jsJQuery = "$wgScriptPath/skins/wikipathways/jquery-1.8.3.min.js"; //js/jquery/jquery-1.5.1.js";
 if( !isset( $jsJQueryUI ) ) $jsJQueryUI = "$wgScriptPath/wpi/js/jquery-ui/jquery-ui-1.8.10.custom.min.js";
 if( !isset( $cssJQueryUI ) ) $cssJQueryUI = "$wgScriptPath/wpi/js/jquery-ui/jquery-ui-1.8.10.custom.css";
 if( !isset( $jsSvgWeb ) ) $jsSvgWeb = "$wgScriptPath/wpi/js/svgweb/svg-uncompressed.js\" data-path=\"$wgScriptPath/wpi/js/svgweb";
