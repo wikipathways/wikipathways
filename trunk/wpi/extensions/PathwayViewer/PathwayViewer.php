@@ -69,7 +69,7 @@ class PathwayViewer {
                         "$wgScriptPath/wpi/lib/js/es5-shim.js",
                         "$wgScriptPath/wpi/lib/js/xccessors-standard.js",
                         "$wgScriptPath/wpi/lib/js/Promise.js",
-                        "$wgScriptPath/wpi/lib/js/jquery.min.js", 
+                //        "$wgScriptPath/wpi/lib/js/jquery.min.js", //NOTE: careful, this can cause conflicts and break xrefinfo and edit functions
                         "$wgScriptPath/wpi/lib/js/typeahead.min.js", 
                         "$wgScriptPath/wpi/lib/js/modernizr.js",   
                         "$wgScriptPath/wpi/lib/js/strcase.min.js",

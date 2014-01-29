@@ -1,6 +1,6 @@
 
 if (typeof(XrefPanel_dataSourcesUrl) == "undefined") 
-    var XrefPanel_dataSourcesUrl = '../../cache/datasources.txt';
+    var XrefPanel_dataSourcesUrl = '../../cache/datasources.txt';//TODO change to BD webservice call, once available
 if (typeof(XrefPanel_bridgeUrl) == "undefined") 
     var XrefPanel_bridgeUrl = ''; //Disable bridgedb webservice queries if url is not specified
 if (typeof(XrefPanel_searchUrl) == "undefined") 

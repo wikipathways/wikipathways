@@ -54,18 +54,19 @@ html, body {
                         <link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/pathway-diagram.css\" media=\"screen\" type=\"text/css\" />
                         \n";
 //Initialize javascript
-echo '<script type="text/javascript" src="' . $jsJQuery . '"></script>' . "\n";
+//echo '<script type="text/javascript" src="' . $jsJQuery . '"></script>' . "\n";
 
-//$jsSnippets = XrefPanel::getJsSnippets();
-//foreach($jsSnippets as $js) {
-//	echo "<script type=\"text/javascript\">$js</script>\n";
-//}
+//Needed for xrefinfo buttons in External References section
+$jsSnippets = XrefPanel::getJsSnippets();
+foreach($jsSnippets as $js) {
+	echo "<script type=\"text/javascript\">$js</script>\n";
+}
 
 $imgPath = "$wgServer/$wgScriptPath/skins/common/images/";
 echo "<script type=\"text/javascript\">XrefPanel_imgPath = '$imgPath';</script>";
 
 $jsSrc = PathwayViewer::getJsDependencies();
-//$jsSrc = array_merge($jsSrc, XrefPanel::getJsDependencies());
+$jsSrc = array_merge($jsSrc, XrefPanel::getJsDependencies());
 foreach($jsSrc as $js) {
 	echo '<script type="text/javascript" src="' . $js . '"></script>' . "\n";
 }
