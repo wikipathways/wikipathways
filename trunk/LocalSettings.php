@@ -324,14 +324,14 @@ $wgGroupPermissions[ 'webservice' ][ 'webservice_write'      ] = true;
 $wgHooks['AbortNewAccount'][] = 'abortOnBadDomain';
 
 ##Debug
-$wgDebugLogFile = WPI_SCRIPT_PATH . '/tmp/wikipathwaysdebug.txt';
-/* $wgProfiling = true; //Set to true for debugging info */
+#$wgDebugLogFile = WPI_SCRIPT_PATH . '/tmp/wikipathwaysdebug.txt';
+#/* $wgProfiling = true; //Set to true for debugging info */
 
 // Uncommenting the following will give you a separate debug log file
 // for each request.
-/* if ( !defined( "STDIN" ) ) { */
-/* 	$wgDebugLogFile .= "-" . $_SERVER['REQUEST_METHOD'] . "-" . urlencode( $_SERVER['REQUEST_URI'] ); */
-/* } */
+#if ( !defined( "STDIN" ) ) {
+#	$wgDebugLogFile .= "-" . $_SERVER['REQUEST_METHOD'] . "-" . urlencode( $_SERVER['REQUEST_URI'] );
+#}
 
 ##New Autoloads
 $wgAutoloadClasses['LegacySpecialPage'] = dirname(__FILE__) . '/wpi/LegacySpecialPage.php';

@@ -38,15 +38,16 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 		if($revision) {
 			$pathway->setActiveRevision($revision);
 		}
-		$gpml = $pathway->getFileURL(FILETYPE_GPML);
+		$png = $pathway->getFileURL(FILETYPE_PNG);
+                $gpml = $pathway->getFileURL(FILETYPE_GPML);
 
-		$script = "<script type=\"{$wgJsMimeType}\">window.onload = function() {pathvisiojs.load({target: '#pwImage_pvjs', data: \"$gpml\",hiddenElements: ['find','wikipathways-link']});}</script>";
+                $script = "<script type=\"{$wgJsMimeType}\">window.onload = function() {pathvisiojs.load({container: '#pwImage_pvjs', sourceData: [{uri:\"$gpml\", fileType:\"gpml\"},{uri:\"$png\", fileType:\"png\"}],fitToContainer:'true',hiddenElements: ['find','wikipathways-link']});}</script>";
 		$script = $script . "
 			<link rel=\"stylesheet\" href=\"http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css\" media=\"screen\" type=\"text/css\" />
-			<link rel=\"stylesheet\" href=\"http://wikipathways.github.io/pathvisiojs/src/css/pathvisio-js.css\" media=\"screen\" type=\"text/css\" />
-  			<link rel=\"stylesheet\" href=\"http://wikipathways.github.io/pathvisiojs/src/css/annotation.css\" media=\"screen\" type=\"text/css\" />
-  			<link rel=\"stylesheet\" href=\"http://wikipathways.github.io/pathvisiojs/src/css/pan-zoom.css\" media=\"screen\" type=\"text/css\" />
-  			<link rel=\"stylesheet\" href=\"http://wikipathways.github.io/pathvisiojs/src/css/pathway-template.css\" media=\"screen\" type=\"text/css\" />\n";
+			<link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/pathvisiojs.css\" media=\"screen\" type=\"text/css\" />
+  			<link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/annotation.css\" media=\"screen\" type=\"text/css\" />
+  			<link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/pathway-diagram.css\" media=\"screen\" type=\"text/css\" />
+			\n";
 		return array($script, 'isHTML'=>1, 'noparse'=>1);
 	} catch(Exception $e) {
 		return "invalid pathway title: $e";
@@ -63,17 +64,19 @@ class PathwayViewer {
 			"$wgScriptPath/wpi/js/jquery/plugins/jquery.mousewheel.js",
                         "$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.3.0.js",
                         "$wgScriptPath/wpi/lib/js/rgb-color.min.js",    
-                        "$wgScriptPath/wpi/lib/js/case-converter.min.js", 
                         "$wgScriptPath/wpi/lib/js/async.js",
                         "$wgScriptPath/wpi/lib/js/d3.min.js", 
+                        "$wgScriptPath/wpi/lib/js/es5-shim.js",
+                        "$wgScriptPath/wpi/lib/js/xccessors-standard.js",
+                        "$wgScriptPath/wpi/lib/js/Promise.js",
                         "$wgScriptPath/wpi/lib/js/jquery.min.js", 
-			"$wgScriptPath/wpi/lib/js/jquery-ui.min.js",
                         "$wgScriptPath/wpi/lib/js/typeahead.min.js", 
-                        "$wgScriptPath/wpi/lib/js/openseadragon.min.js", 
                         "$wgScriptPath/wpi/lib/js/modernizr.js",   
-                        "$wgScriptPath/wpi/lib/js/screenfull.min.js", 
-                        "$wgScriptPath/wpi/lib/js/svg-pan.js",  
-                        "$wgScriptPath/wpi/lib/js/pathfinding-browser.min.js",  
+                        "$wgScriptPath/wpi/lib/js/strcase.min.js",
+                        "$wgScriptPath/wpi/lib/js/uuid.js",
+                        "$wgScriptPath/wpi/lib/js/jsonld.js",
+                        "$wgScriptPath/wpi/lib/js/load-image.min.js",                                                                             
+                        "$wgScriptPath/wpi/lib/js/svg-pan-zoom.js",   
                         "$wgScriptPath/wpi/lib/js/pathvisio.min.js"            
                 );  
 

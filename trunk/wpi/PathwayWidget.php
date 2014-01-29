@@ -30,7 +30,7 @@ font-size:12px;
 	left: -10px;
 	position:relative;
 	z-index:2;
-	opacity: 0.8;
+	opacity: 0.5;
 }
 html, body {
 	width:100%;
@@ -47,69 +47,48 @@ html, body {
 </style>
 <meta name="svg.render.forceflash" content="true">
 <?php
-	  echo '<link rel="stylesheet" href="' . $cssJQueryUI . '" type="text/css" />' . "\n";
-
+//	  echo '<link rel="stylesheet" href="' . $cssJQueryUI . '" type="text/css" />' . "\n";
+          echo "<link rel=\"stylesheet\" href=\"http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css\" media=\"screen\" type=\"text/css\" />
+                        <link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/pathvisiojs.css\" media=\"screen\" type=\"text/css\" />
+                        <link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/annotation.css\" media=\"screen\" type=\"text/css\" />
+                        <link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/pathway-diagram.css\" media=\"screen\" type=\"text/css\" />
+                        \n";
 //Initialize javascript
 echo '<script type="text/javascript" src="' . $jsJQuery . '"></script>' . "\n";
 
-$jsSnippets = XrefPanel::getJsSnippets();
-foreach($jsSnippets as $js) {
-	echo "<script type=\"text/javascript\">$js</script>\n";
-}
+//$jsSnippets = XrefPanel::getJsSnippets();
+//foreach($jsSnippets as $js) {
+//	echo "<script type=\"text/javascript\">$js</script>\n";
+//}
 
 $imgPath = "$wgServer/$wgScriptPath/skins/common/images/";
 echo "<script type=\"text/javascript\">XrefPanel_imgPath = '$imgPath';</script>";
 
 $jsSrc = PathwayViewer::getJsDependencies();
-$jsSrc = array_merge($jsSrc, XrefPanel::getJsDependencies());
+//$jsSrc = array_merge($jsSrc, XrefPanel::getJsDependencies());
 foreach($jsSrc as $js) {
 	echo '<script type="text/javascript" src="' . $js . '"></script>' . "\n";
 }
-
-$id = null;
-$rev = null;
-if ( isset( $_REQUEST['id'] ) ) {
-	$id = $_REQUEST['id'];
-}
-if ( isset( $_REQUEST['rev'] ) ) {
-	$rev = $_REQUEST['rev'];
-}
-
-if ( $id == null ) {
-	throw new MWException( "No ID given!" );
-}
-
+$id = $_REQUEST['id'];
+$rev = $_REQUEST['rev'];
+                                                                                                                                                  
 $pathway = Pathway::newFromTitle($id);
-if($rev) {
-	$pathway->setActiveRevision($rev);
-}
-
-$svg = $pathway->getFileURL(FILETYPE_IMG);
-$gpml = $pathway->getFileURL(FILETYPE_GPML);
-
-/**
- * Maybe use getJsSnippets() from Xref panel?  '$search' and '$bridge'
- * were just before the end tag here.
- */
-echo <<<SCRIPT
-<script type="text/javascript">
-	PathwayViewer_basePath = '$wfPathwayViewerPath/';
-	PathwayViewer_viewers.push(new PathwayViewer({
-		imageId: "pathwayImage",
-		svgUrl: "$svg",
-		gpmlUrl: "$gpml",
-		start: true,
-		width: '100%',
-		height: '100%'
-	}));
-</script>
-SCRIPT;
-?>
+if($rev) {                                                                                                                                        
+        $pathway->setActiveRevision($rev);                                                                                                        
+}                                                                                                                                                 
+                                                                                                                                                  
+$svg = $pathway->getFileURL(FILETYPE_IMG);                                                                                                        
+$png = $pathway->getFileURL(FILETYPE_PNG);                                                                                                        
+$gpml = $pathway->getFileURL(FILETYPE_GPML);                                                                                                      
+                                                                                                                                                  
+echo "<script type=\"text/javascript\">window.onload = function() {pathvisiojs.load({container: '#pathwayImage',fitToContainer:'true', sourceData: [{uri:\"$gpml\",fileType:\"gpml\"},{uri:\"$png\", fileType:\"png\"}]});}</script>";
+                                                                                                                                                  
+?> 
 <title>WikiPathways Pathway Viewer</title>
 </head>
 <body>
 <div id="pathwayImage"><img src="" /></div>
-<div style="position:absolute;height:0px;overflow:visible;bottom:0;right:0;">
+<div style="position:absolute;height:0px;overflow:visible;bottom:0;left:15px;">
 	<div id="logolink">
 		<?php
 			echo "<a id='wplink' target='top' href='{$pathway->getFullUrl()}'>View at ";
