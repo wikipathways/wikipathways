@@ -558,7 +558,7 @@ svgPanZoom = function(){
 
     var g = getViewport(svg);
 
-    var p = getRelativeMousePoint(evt);
+    var p = getEventPoint(evt);
 
     p = p.matrixTransform(g.getCTM().inverse());
 

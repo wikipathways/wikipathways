@@ -63,21 +63,24 @@ class PathwayViewer {
 			"$wgScriptPath/wpi/extensions/PathwayViewer/pathwayviewer.js",
 			"$wgScriptPath/wpi/js/jquery/plugins/jquery.mousewheel.js",
                         "$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.3.0.js",
-                        "$wgScriptPath/wpi/lib/js/rgb-color.min.js",    
+			// pvjs libs
+                        "$wgScriptPath/wpi/lib/js/aight.min.js",
+			"$wgScriptPath/wpi/lib/js/aight.d3.min.js",
                         "$wgScriptPath/wpi/lib/js/async.js",
+                        "$wgScriptPath/wpi/lib/js/load-image.min.js",
                         "$wgScriptPath/wpi/lib/js/d3.min.js", 
-                        "$wgScriptPath/wpi/lib/js/es5-shim.js",
-                        "$wgScriptPath/wpi/lib/js/xccessors-standard.js",
-                        "$wgScriptPath/wpi/lib/js/Promise.js",
+                        "$wgScriptPath/wpi/lib/js/es5-sham.min.js",
                 //        "$wgScriptPath/wpi/lib/js/jquery.min.js", //NOTE: careful, this can cause conflicts and break xrefinfo and edit functions
-                        "$wgScriptPath/wpi/lib/js/typeahead.min.js", 
-                        "$wgScriptPath/wpi/lib/js/modernizr.js",   
-                        "$wgScriptPath/wpi/lib/js/strcase.min.js",
-                        "$wgScriptPath/wpi/lib/js/uuid.js",
                         "$wgScriptPath/wpi/lib/js/jsonld.js",
-                        "$wgScriptPath/wpi/lib/js/load-image.min.js",                                                                             
+                        "$wgScriptPath/wpi/lib/js/Promise.js",
+                        "$wgScriptPath/wpi/lib/js/modernizr.js",   
+                        "$wgScriptPath/wpi/lib/js/uuid.js",
+                        "$wgScriptPath/wpi/lib/js/rgb-color.min.js",
+                        "$wgScriptPath/wpi/lib/js/strcase.min.js",
                         "$wgScriptPath/wpi/lib/js/svg-pan-zoom.js",   
-                        "$wgScriptPath/wpi/lib/js/pathvisio.min.js"            
+                        "$wgScriptPath/wpi/lib/js/typeahead.min.js",
+                        // pvjs
+                        "$wgScriptPath/wpi/lib/js/pathvisio.min.js",
                 );  
 
 		//Do not load svgweb when using HTML5 version of svg viewer (IE9)
