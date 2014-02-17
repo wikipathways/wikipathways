@@ -13,6 +13,7 @@ You can include a pathway viewer in another website using an iframe:
  */
 	require_once('wpi.php');
 	require_once('extensions/PathwayViewer/PathwayViewer.php');
+	header("X-XSS-Protection: 0");
 ?>
 <!DOCTYPE HTML>
 <html>
@@ -54,7 +55,7 @@ html, body {
                         <link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/pathway-diagram.css\" media=\"screen\" type=\"text/css\" />
                         \n";
 //Initialize javascript
-//echo '<script type="text/javascript" src="' . $jsJQuery . '"></script>' . "\n";
+echo '<script type="text/javascript" src="' . $jsJQuery . '"></script>' . "\n";
 
 //Needed for xrefinfo buttons in External References section
 $jsSnippets = XrefPanel::getJsSnippets();
@@ -72,6 +73,48 @@ foreach($jsSrc as $js) {
 }
 $id = $_REQUEST['id'];
 $rev = $_REQUEST['rev'];
+$label = $_REQUEST['label'];
+$xref = $_REQUEST['xref'];   
+$colors = $_REQUEST['colors'];   
+
+$highlights = " ";
+if ((!is_null($label) || !is_null($xref)) && !is_null($colors)){
+$highlights = ", highlights: [";
+$selectors = array();
+if (!is_null($label)){
+  if (is_array($label)){
+    foreach ($label as $l) {
+	array_push($selectors, "{\"selector\":\".label-".strtolower($l)."\",");
+    }
+  } else {
+    array_push($selectors, "{\"selector\":\".label-".strtolower($label)."\",");
+  }
+}
+if (!is_null($xref)){
+  if (is_array($xref)){
+    foreach ($xref as $x) {
+	$xParts = explode(",", $x);
+        array_push($selectors, "{\"selector\":\".xref-".strtolower($xParts[0])."-".strtolower($xParts[1])."\",");
+    }
+  } else {
+    $xrefParts = explode(",", $xref);
+    array_push($selectors, "{\"selector\":\".xref-".strtolower($xrefParts[0])."-".strtolower($xrefParts[1])."\",");
+  }
+}
+
+$colorArray = explode(",",$colors);
+$firstColor = $colorArray[0];
+if (count($selectors) != count($colorArray)){ //if color list doesn't match selector list, then just use first color
+  for($i=0; $i <count($selectors); $i++){
+	$colorArray[$i] = $firstColor;
+  }
+}
+
+for($i=0; $i <count($selectors); $i++){
+  $highlights .= $selectors[$i]."\"style\":{\"fill\":\"".$colorArray[$i]."\",\"stroke\":\"".$colorArray[$i]."\"}},";
+}
+$highlights .= "]";
+}//if highlight params received
                                                                                                                                                   
 $pathway = Pathway::newFromTitle($id);
 if($rev) {                                                                                                                                        
@@ -82,7 +125,7 @@ $svg = $pathway->getFileURL(FILETYPE_IMG);
 $png = $pathway->getFileURL(FILETYPE_PNG);                                                                                                        
 $gpml = $pathway->getFileURL(FILETYPE_GPML);                                                                                                      
                                                                                                                                                   
-echo "<script type=\"text/javascript\">window.onload = function() {pathvisiojs.load({container: '#pathwayImage',fitToContainer:'true', sourceData: [{uri:\"$gpml\",fileType:\"gpml\"},{uri:\"$png\", fileType:\"png\"}]});}</script>";
+echo "<script type=\"text/javascript\">window.onload = function() {pathvisiojs.load({container: '#pathwayImage',fitToContainer:'true', sourceData: [{uri:\"$gpml\",fileType:\"gpml\"},{uri:\"$png\", fileType:\"png\"}] $highlights });}</script>";
                                                                                                                                                   
 ?> 
 <title>WikiPathways Pathway Viewer</title>
