@@ -84,21 +84,21 @@ $selectors = array();
 if (!is_null($label)){
   if (is_array($label)){
     foreach ($label as $l) {
-	array_push($selectors, "{\"selector\":\".label-".strtolower($l)."\",");
+	array_push($selectors, "{\"label\":\"$l\",");
     }
   } else {
-    array_push($selectors, "{\"selector\":\".label-".strtolower($label)."\",");
+    array_push($selectors, "{\"label\":\"$label\",");
   }
 }
 if (!is_null($xref)){
   if (is_array($xref)){
     foreach ($xref as $x) {
 	$xParts = explode(",", $x);
-        array_push($selectors, "{\"selector\":\".xref-".strtolower($xParts[0])."-".strtolower($xParts[1])."\",");
+        array_push($selectors, "{\"xref\":\"".$xParts[0]."-".$xParts[1]."\",");
     }
   } else {
     $xrefParts = explode(",", $xref);
-    array_push($selectors, "{\"selector\":\".xref-".strtolower($xrefParts[0])."-".strtolower($xrefParts[1])."\",");
+    array_push($selectors, "{\"xref\":\"".$xrefParts[0]."-".$xrefParts[1]."\",");
   }
 }
 
