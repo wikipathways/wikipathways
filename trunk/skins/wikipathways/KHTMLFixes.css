@@ -1,4 +1,5 @@
 /* KHTML fix stylesheet */
 /* work around the horizontal scrollbars */
-#column-content { margin-left: 0; }
-
+/*
+ * #column-content { margin-left: 0; }
+*/
