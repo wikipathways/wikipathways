@@ -49,10 +49,8 @@ html, body {
 <meta name="svg.render.forceflash" content="true">
 <?php
 //	  echo '<link rel="stylesheet" href="' . $cssJQueryUI . '" type="text/css" />' . "\n";
-          echo "<link rel=\"stylesheet\" href=\"http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css\" media=\"screen\" type=\"text/css\" />
-                        <link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/pathvisiojs.css\" media=\"screen\" type=\"text/css\" />
-                        <link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/annotation.css\" media=\"screen\" type=\"text/css\" />
-                        <link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/pathway-diagram.css\" media=\"screen\" type=\"text/css\" />
+          echo "<link rel=\"stylesheet\" href=\"http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css\" media=\"screen\" type=\"text/css\">
+	  <link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/pathvisiojs/css/pathvisiojs.css\" media=\"screen\" type=\"text/css\" />
                         \n";
 //Initialize javascript
 echo '<script type="text/javascript" src="' . $jsJQuery . '"></script>' . "\n";
@@ -125,13 +123,20 @@ $svg = $pathway->getFileURL(FILETYPE_IMG);
 $png = $pathway->getFileURL(FILETYPE_PNG);                                                                                                        
 $gpml = $pathway->getFileURL(FILETYPE_GPML);                                                                                                      
                                                                                                                                                   
-echo "<script type=\"text/javascript\">window.onload = function() {pathvisiojs.load({container: '#pathwayImage',fitToContainer:'true', sourceData: [{uri:\"$gpml\",fileType:\"gpml\"},{uri:\"$png\", fileType:\"png\"}] $highlights });}</script>";
-                                                                                                                                                  
-?> 
+	if(!preg_match('/(?i)msie [6-9]/',$_SERVER['HTTP_USER_AGENT'])) {
+		echo "<script type=\"text/javascript\">window.onload = function() {var pathvisiojsInstance = Object.create(pathvisiojs); pathvisiojsInstance.load({container: '#pathwayImage',fitToContainer:'true', sourceData: [{uri:\"$gpml\",fileType:\"gpml\"},{uri:\"$png\", fileType:\"png\"}] $highlights });}</script>";
+	}
+?>
 <title>WikiPathways Pathway Viewer</title>
 </head>
 <body>
-<div id="pathwayImage"><img src="" /></div>
+<div id="pathwayImage">
+	<?php
+		if(preg_match('/(?i)msie [6-9]/',$_SERVER['HTTP_USER_AGENT'])) {
+			echo "<img src=\"$png\" alt='View SVG' width='600' height='420' class='thumbimage>";
+		}
+	?>
+</div>
 <div style="position:absolute;height:0px;overflow:visible;bottom:0;left:15px;">
 	<div id="logolink">
 		<?php

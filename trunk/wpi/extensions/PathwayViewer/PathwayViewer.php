@@ -41,12 +41,16 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 		$png = $pathway->getFileURL(FILETYPE_PNG);
                 $gpml = $pathway->getFileURL(FILETYPE_GPML);
 
-                $script = "<script type=\"{$wgJsMimeType}\">window.onload = function() {pathvisiojs.load({container: '#pwImage_pvjs', sourceData: [{uri:\"$gpml\", fileType:\"gpml\"},{uri:\"$png\", fileType:\"png\"}],fitToContainer:'true',hiddenElements: ['find','wikipathways-link']});}</script>";
-		$script = $script . "
-			<link rel=\"stylesheet\" href=\"http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css\" media=\"screen\" type=\"text/css\" />
-			<link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/pathvisiojs.css\" media=\"screen\" type=\"text/css\" />
-  			<link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/annotation.css\" media=\"screen\" type=\"text/css\" />
-  			<link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/css/pathway-diagram.css\" media=\"screen\" type=\"text/css\" />
+		// Option #1: do browser detection with PHP
+		if(!preg_match('/(?i)msie [6-9]/',$_SERVER['HTTP_USER_AGENT'])) {
+		    // if IE>8
+			$script = "<script type=\"{$wgJsMimeType}\">window.addEventListener('load', function() {var pathvisiojsInstance = Object.create(pathvisiojs); pathvisiojsInstance.load({container: '#pwImage_pvjs', sourceData: [{uri:\"$gpml\", fileType:\"gpml\"},{uri:\"$png\", fileType:\"png\"}],fitToContainer:'true'});}, false);</script>";
+		}
+
+		// Option #2: do browser detection with JS
+                //$script = "<script type=\"{$wgJsMimeType}\">window.addEventListener('load', function() { var isIE = function() { var myNav = navigator.userAgent.toLowerCase(); return (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1], 10) : false; }; if (Modernizr.inlinesvg && (!pathvisiojs.utilities.isIE() || pathvisiojs.utilities.isIE() > 9)) { var pathvisiojsInstance = Object.create(pathvisiojs); pathvisiojsInstance.load({ container: '#pwImage_pvjs', sourceData: [{ uri: \"$gpml\", fileType: 'gpml' }, { uri: \"$png\", fileType: 'png' }], fitToContainer: 'true' }); } }, false);</script>";
+		$script = $script . "<link rel=\"stylesheet\" href=\"http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css\" media=\"screen\" type=\"text/css\">
+			<link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/pathvisiojs/css/pathvisiojs.css\" media=\"screen\" type=\"text/css\" />
 			\n";
 		return array($script, 'isHTML'=>1, 'noparse'=>1);
 	} catch(Exception $e) {
@@ -59,29 +63,33 @@ class PathwayViewer {
 	static function getJsDependencies() {
 		global $wgScriptPath; 
 
-                $scripts = array(   
-			"$wgScriptPath/wpi/extensions/PathwayViewer/pathwayviewer.js",
-			"$wgScriptPath/wpi/js/jquery/plugins/jquery.mousewheel.js",
-                        "$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.3.0.js",
-			// pvjs libs
-                        "$wgScriptPath/wpi/lib/js/aight.min.js",
-			"$wgScriptPath/wpi/lib/js/aight.d3.min.js",
-                        "$wgScriptPath/wpi/lib/js/async.js",
-                        "$wgScriptPath/wpi/lib/js/load-image.min.js",
-                        "$wgScriptPath/wpi/lib/js/d3.min.js", 
-                        "$wgScriptPath/wpi/lib/js/es5-sham.min.js",
-                //        "$wgScriptPath/wpi/lib/js/jquery.min.js", //NOTE: careful, this can cause conflicts and break xrefinfo and edit functions
-                        "$wgScriptPath/wpi/lib/js/jsonld.js",
-                        "$wgScriptPath/wpi/lib/js/Promise.js",
-                        "$wgScriptPath/wpi/lib/js/modernizr.js",   
-                        "$wgScriptPath/wpi/lib/js/uuid.js",
-                        "$wgScriptPath/wpi/lib/js/rgb-color.min.js",
-                        "$wgScriptPath/wpi/lib/js/strcase.min.js",
-                        "$wgScriptPath/wpi/lib/js/svg-pan-zoom.js",   
-                        "$wgScriptPath/wpi/lib/js/typeahead.min.js",
-                        // pvjs
-                        "$wgScriptPath/wpi/lib/js/pathvisio.min.js",
-                );  
+		if(preg_match('/(?i)msie [6-9]/',$_SERVER['HTTP_USER_AGENT'])) {
+		    // if IE<=8
+			$scripts = array(   
+/* It appears all of these are used for the pathway viewer. If pvjs won't render and we're just using the thumbnail, there's no need for them. -AR
+				"$wgScriptPath/wpi/extensions/PathwayViewer/pathwayviewer.js",
+				"$wgScriptPath/wpi/js/jquery/plugins/jquery.mousewheel.js",
+				"$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.3.0.js",
+//*/
+			);  
+		}
+		else {
+		    // if IE>8
+			$scripts = array(   
+				"$wgScriptPath/wpi/extensions/PathwayViewer/pathwayviewer.js",
+				"$wgScriptPath/wpi/js/jquery/plugins/jquery.mousewheel.js",
+				"$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.3.0.js",
+				// pvjs libs
+				"//cdnjs.cloudflare.com/ajax/libs/async/0.7.0/async.js",
+				"$wgScriptPath/wpi/lib/he/js/he.js", 
+				"$wgScriptPath/wpi/lib/d3/js/d3-with-aight.min.js", 
+			//        "$wgScriptPath/wpi/lib/js/jquery.min.js", //NOTE: careful, this can cause conflicts and break xrefinfo and edit functions
+				"//cdnjs.cloudflare.com/ajax/libs/modernizr/2.7.1/modernizr.min.js",   
+				"//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.9.3/typeahead.min.js",
+				// pvjs
+				"$wgScriptPath/wpi/lib/pathvisiojs/js/pathvisiojs.min.js",
+			);  
+		}
 
 		//Do not load svgweb when using HTML5 version of svg viewer (IE9)
 //		if(browser_detection('ie_version') != 'ie9x') {

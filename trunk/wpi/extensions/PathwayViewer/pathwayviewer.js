@@ -20,7 +20,6 @@ var viewer_max_width = '900px';
  *   4. Add final div for pvjs
  */
 $(window).ready(function() {
-
 	var img = $('#pwImage');
 	if (typeof img.get(0) != 'undefined'){ //i.e., skip for PathwayWidget cases
 	  if (img.get(0).nodeName.toLowerCase()!= 'img') {
@@ -45,42 +44,42 @@ $(window).ready(function() {
 	img.after(container);
 	img.remove();
 
-        //Make room for the login/edit/download buttons at the bottom
-        parent.css({
-                padding: '3px 6px 30px 3px' 
-        });     
+	//Make room for the login/edit/download buttons at the bottom
+	parent.css({
+		padding: '3px 6px 30px 3px' 
+	});     
 
-        if (ie) { //Animate gives problems in IE, just change style directly
-                parent.css({
-                	width: viewer_width,
-                	'min-width': viewer_min_width, 
-                        'max-width': viewer_max_width, 
-                        height: viewer_height
-                });
-                afterAnimate(container);
-        } else { //Animate for smooth transition
-                parent.animate({
-                        width: viewer_width,
+	if (ie) { //Animate gives problems in IE, just change style directly
+		parent.css({
+			width: viewer_width,
 			'min-width': viewer_min_width, 
-                        'max-width': viewer_max_width, 
-                        height: viewer_height
-                }, 300, afterAnimate(container));
-        }
-
+			'max-width': viewer_max_width, 
+			height: viewer_height
+		});
+		afterAnimate(container);
+	} else { //Animate for smooth transition
+		parent.animate({
+			width: viewer_width,
+			'min-width': viewer_min_width, 
+			'max-width': viewer_max_width, 
+			height: viewer_height
+		}, 300, afterAnimate(container));
+	}
 }); 
 
 /**
  * Adds the final div and the future home of the pvjs code.
  */
+
 var afterAnimate = function(c) {
-        var pvjs = $('<div/>')
-                .attr('id','pwImage_pvjs')
-                .css({	width: viewer_width,
+	var pvjs = $('<div/>')
+		.attr('id','pwImage_pvjs')
+		.css({	width: viewer_width,
 			'min-width': viewer_min_width, 
-                        'max-width': viewer_max_width, 
-                        height: viewer_height
+			'max-width': viewer_max_width, 
+			height: viewer_height
 		});
-        c.append(pvjs);
+	c.append(pvjs);
 };
 
 /** 
