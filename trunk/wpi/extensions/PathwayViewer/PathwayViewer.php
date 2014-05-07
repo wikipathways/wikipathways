@@ -50,7 +50,7 @@ function displayPathwayViewer(&$parser, $pwId, $imgId) {
 		// Option #2: do browser detection with JS
                 //$script = "<script type=\"{$wgJsMimeType}\">window.addEventListener('load', function() { var isIE = function() { var myNav = navigator.userAgent.toLowerCase(); return (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1], 10) : false; }; if (Modernizr.inlinesvg && (!pathvisiojs.utilities.isIE() || pathvisiojs.utilities.isIE() > 9)) { var pathvisiojsInstance = Object.create(pathvisiojs); pathvisiojsInstance.load({ container: '#pwImage_pvjs', sourceData: [{ uri: \"$gpml\", fileType: 'gpml' }, { uri: \"$png\", fileType: 'png' }], fitToContainer: 'true' }); } }, false);</script>";
 		$script = $script . "<link rel=\"stylesheet\" href=\"http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css\" media=\"screen\" type=\"text/css\">
-			<link rel=\"stylesheet\" href=\"$wpScriptPath/wpi/lib/pathvisiojs/css/pathvisiojs.css\" media=\"screen\" type=\"text/css\" />
+			<link rel=\"stylesheet\" href=\"$wgScriptPath/wpi/lib/pathvisiojs/css/pathvisiojs.css\" media=\"screen\" type=\"text/css\" />
 			\n";
 		return array($script, 'isHTML'=>1, 'noparse'=>1);
 	} catch(Exception $e) {
