@@ -330,7 +330,7 @@ $wgHooks['AbortNewAccount'][] = 'abortOnBadDomain';
 // Uncommenting the following will give you a separate debug log file
 // for each request.
 #if ( !defined( "STDIN" ) ) {
-#	$wgDebugLogFile .= "-" . $_SERVER['REQUEST_METHOD'] . "-" . urlencode( $_SERVER['REQUEST_URI'] );
+# 	$wgDebugLogFile .= "-" . $_SERVER['REQUEST_METHOD'] . "-" . urlencode( $_SERVER['REQUEST_URI'] );
 #}
 
 ##New Autoloads
@@ -429,3 +429,6 @@ $wgGroupPermissions[ 'curator'    ][ 'autocurate'     ] = true;
 // If a pathway has been editted within this number of days, it will
 // be highlighted on the browse page
 $wgPathwayRecentSinceDays = 30;
+
+// Do not display E_NOTICE PHP errors
+error_reporting(E_ALL ^ E_NOTICE);  
