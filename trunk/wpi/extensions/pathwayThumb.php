@@ -77,9 +77,12 @@ function createEditCaption($pathway) {
 		}
 	}
 	$helpUrl = Title::newFromText("Help:Known_problems")->getFullUrl();
-	$caption = "<a href='$hrefbtn' title='$label' id='edit' ".
-		"class='button'><span>$label</span></a>" .
-		"<div style='float:left;'><a href='$helpUrl'> not working?</a></div>";
+        $wpClientHelpUrl = Title::newFromText("Help:WPClientPluginCuration")->getFullUrl();
+        $caption = "<a href='$hrefbtn' title='$label' id='edit' ".
+                "class='button'><span>$label</span></a>" .
+                "<div style='float:left;'><a href='$helpUrl'> not working?</a>
+                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                 <a href=$wpClientHelpUrl><font color='red'>NEW!</font> Edit in PathVisio</a></div>";
 
 	//Create dropdown action menu
 	$pwTitle = $pathway->getTitleObject()->getFullText();
