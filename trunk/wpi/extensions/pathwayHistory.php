@@ -162,7 +162,7 @@ class GpmlHistoryPager extends PageHistoryPager {
 			$table = '';
 		} else {
 			$table = '<form action="' . SITE_URL . '/index.php" method="get">';
-			$table .= '<input type="hidden" name="title" value="Special:DiffAppletPage"/>';
+			$table .= '<input type="hidden" name="title" value="Special:DiffViewer"/>';
 			$table .= '<input type="hidden" name="pwTitle" value="' . $this->pathway->getTitleObject()->getFullText() . '"/>';
 			$table .= '<input type="submit" value="Compare selected versions"/>';
 			$table .= "<TABLE  id='historyTable' class='wikitable'><TR><TH>Compare<TH>Revision<TH>Action<TH>Time<TH>User<TH>Comment<TH id='historyHeaderTag' style='display:none'>";

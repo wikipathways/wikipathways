@@ -115,7 +115,7 @@ class Article {
 		$text = $this->getContent();
 		return self::followRedirectText( $text );
 	}
-	
+
 	/**
 	 * Get the Title object this text redirects to
 	 *
@@ -550,9 +550,9 @@ class Article {
 	 */
 	function isRedirect( $text = false ) {
 		if ( $text === false ) {
-			if ( $this->mDataLoaded ) 
+			if ( $this->mDataLoaded )
 				return $this->mIsRedirect;
-			
+
 			// Apparently loadPageData was never called
 			$this->loadContent();
 			$titleObj = Title::newFromRedirect( $this->fetchContent() );
@@ -657,7 +657,7 @@ class Article {
 
 		if ($limit > 0) { $sql .= ' LIMIT '.$limit; }
 		if ($offset > 0) { $sql .= ' OFFSET '.$offset; }
-		
+
 		$sql .= ' '. $this->getSelectOptions();
 
 		$res = $dbr->query($sql, __METHOD__);
@@ -840,7 +840,7 @@ class Article {
 					}
 				}
 			}
-			
+
 			$wgOut->setRevisionId( $this->getRevIdFetched() );
 
 			 // Pages containing custom CSS or JavaScript get special treatment
@@ -917,13 +917,13 @@ class Article {
 		$this->viewUpdates();
 		wfProfileOut( __METHOD__ );
 	}
-	
-	/* 
+
+	/*
 	* Should the parser cache be used?
 	*/
 	protected function useParserCache( $oldid ) {
 		global $wgUser, $wgEnableParserCache;
-		
+
 		return $wgEnableParserCache
 			&& intval( $wgUser->getOption( 'stubthreshold' ) ) == 0
 			&& $this->exists()
@@ -931,14 +931,14 @@ class Article {
 			&& !$this->mTitle->isCssOrJsPage()
 			&& !$this->mTitle->isCssJsSubpage();
 	}
-	
+
 	protected function viewRedirect( $target, $appendSubtitle = true, $forceKnown = false ) {
 		global $wgParser, $wgOut, $wgContLang, $wgStylePath, $wgUser;
-		
+
 		# Display redirect
 		$imageDir = $wgContLang->isRTL() ? 'rtl' : 'ltr';
 		$imageUrl = $wgStylePath.'/common/images/redirect' . $imageDir . '.png';
-		
+
 		if( $appendSubtitle ) {
 			$wgOut->appendSubtitle( wfMsgHtml( 'redirectpagesub' ) );
 		}
@@ -950,7 +950,7 @@ class Article {
 
 		$wgOut->addHTML( '<img src="'.$imageUrl.'" alt="#REDIRECT " />' .
 			'<span class="redirectText">'.$link.'</span>' );
-		
+
 	}
 
 	function addTrackbacks() {
@@ -1530,7 +1530,7 @@ class Article {
 
 			# Update the page record with revision data
 			$this->updateRevisionOn( $dbw, $revision, 0 );
-			
+
 			wfRunHooks( 'NewRevisionFromEditComplete', array($this, $revision, false) );
 
 			if( !( $flags & EDIT_SUPPRESS_RC ) ) {
@@ -1905,14 +1905,14 @@ class Article {
 						'page_id' => $id
 					), 'Article::protect'
 				);
-				
+
 				wfRunHooks( 'NewRevisionFromEditComplete', array($this, $nullRevision, false) );
 				wfRunHooks( 'ArticleProtectComplete', array( &$this, &$wgUser, $limit, $reason ) );
 
 				# Update the protection log
 				$log = new LogPage( 'protect' );
 				if( $protect ) {
-					$log->addEntry( $modified ? 'modify' : 'protect', $this->mTitle, 
+					$log->addEntry( $modified ? 'modify' : 'protect', $this->mTitle,
 						trim( $reason . " [$updated]$cascade_description$expiry_description" ) );
 				} else {
 					$log->addEntry( 'unprotect', $this->mTitle, $reason );
@@ -2266,9 +2266,9 @@ class Article {
 	function doDelete( $reason, $suppress = false ) {
 		global $wgOut, $wgUser;
 		wfDebug( __METHOD__."\n" );
-		
+
 		$id = $this->getId();
-		
+
 		$error = '';
 
 		if (wfRunHooks('ArticleDelete', array(&$this, &$wgUser, &$reason, &$error))) {
@@ -2543,14 +2543,14 @@ class Article {
 		if( empty( $summary ) ){
 			$summary = wfMsgForContent( 'revertpage' );
 		}
-		
+
 		# Allow the custom summary to use the same args as the default message
 		$args = array(
 			$target->getUserText(), $from, $s->rev_id,
 			$wgLang->timeanddate(wfTimestamp(TS_MW, $s->rev_timestamp), true),
 			$current->getId(), $wgLang->timeanddate($current->getTimestamp())
 		);
-		$summary = wfMsgReplaceArgs( $summary, $args ); 
+		$summary = wfMsgReplaceArgs( $summary, $args );
 
 		# Save
 		$flags = EDIT_UPDATE;
@@ -2638,7 +2638,7 @@ class Article {
 			. $wgUser->getSkin()->userToolLinks( $target->getUser(), $target->getUserText() );
 		$wgOut->addHtml( wfMsgExt( 'rollback-success', array( 'parse', 'replaceafter' ), $old, $new ) );
 		$wgOut->returnToMain( false, $this->mTitle );
-		
+
 		if( !$wgRequest->getBool( 'hidediff', false ) ) {
 			$de = new DifferenceEngine( $this->mTitle, $current->getId(), 'next', false, true );
 			$de->showDiff( '', '' );
@@ -2822,7 +2822,7 @@ class Article {
 			? wfMsg( 'currentrevisionlink' )
 			: $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'currentrevisionlink' ) );
                 $curdiff = "<a href='" . SITE_URL .
-                                "/index.php?title=Special:DiffAppletPage&old={$oldid}&new={$this->mLatest}" .
+                                "/index.php?title=Special:DiffViewer&old={$oldid}&new={$this->mLatest}" .
                                 "&pwTitle={$this->mTitle}'>diff</a>";
 		//$curdiff = $current
 		//	? wfMsg( 'diff' )
@@ -2832,7 +2832,7 @@ class Article {
 			? $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'previousrevision' ), 'direction=prev&oldid='.$oldid )
 			: wfMsg( 'previousrevision' );
                 $prevdiff = "<a href='" . SITE_URL .
-                                "/index.php?title=Special:DiffAppletPage&old={$oldid}&new={$prev}" .
+                                "/index.php?title=Special:DiffViewer&old={$oldid}&new={$prev}" .
                                 "&pwTitle={$this->mTitle}'>diff</a>";
 		//$prevdiff = $prev
 		//	? $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'diff' ), 'diff=prev&oldid='.$oldid )
@@ -2842,7 +2842,7 @@ class Article {
 			? wfMsg( 'nextrevision' )
 			: $sk->makeKnownLinkObj( $this->mTitle, wfMsg( 'nextrevision' ), 'direction=next&oldid='.$oldid );
                 $nextdiff = "<a href='" . SITE_URL .
-                                "/index.php?title=Special:DiffAppletPage&old={$oldid}&new={$next}" .
+                                "/index.php?title=Special:DiffViewer&old={$oldid}&new={$next}" .
                                 "&pwTitle={$this->mTitle}'>diff</a>";
 		//$nextdiff = $current
 		//	? wfMsg( 'diff' )
@@ -3020,7 +3020,7 @@ class Article {
 		$revision->insertOn( $dbw );
 		$this->updateRevisionOn( $dbw, $revision );
 		$dbw->commit();
-		
+
 		wfRunHooks( 'NewRevisionFromEditComplete', array($this, $revision, false) );
 
 		wfProfileOut( __METHOD__ );

@@ -28,6 +28,7 @@ require_once( "$IP/wpi/extensions/Pathways/PathwayPage.php" );
 require_once( "$IP/wpi/extensions/SpecialWishList/SpecialWishList.php" );
 require_once( "$IP/wpi/extensions/SpecialWishList/TopWishes.php" );
 require_once( "$IP/wpi/extensions/DiffAppletPage/DiffAppletPage.php" );
+require_once( "$IP/wpi/extensions/DiffViewer/DiffViewer.php" );
 require_once( "$IP/wpi/extensions/RecentPathwayChanges/RecentPathwayChanges.php" );
 require_once( "$IP/wpi/extensions/ParserFunctions/ParserFunctions.php" );
 require_once( "$IP/wpi/extensions/CheckGpmlOnSave.php" );

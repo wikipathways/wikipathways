@@ -162,7 +162,7 @@ class ChangesList {
 			$old = $rc->mAttribs['rc_last_oldid'];
 			$new = $rc->mAttribs['rc_this_oldid'];
 			$diffLink = "<a href='" . SITE_URL .
-				"/index.php?title=Special:DiffAppletPage&old={$old}&new={$new}" .
+				"/index.php?title=Special:DiffViewer&old={$old}&new={$new}" .
 				"&pwTitle={$rc->getTitle()}'>diff</a>";
 		} else {
 			return;
