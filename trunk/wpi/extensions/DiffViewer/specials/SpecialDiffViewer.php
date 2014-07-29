@@ -43,6 +43,7 @@ class SpecialDiffViewer extends SpecialPage {
 
 		$pwName = $pathway->name() . ' (' . $pathway->species() . ')';
 		$header = "
+			<div class='diffview-nav'><a href='" . SITE_URL . "index.php/Pathway:{$pathway->getIdentifier()}'>←Go back to pathway page</a></div>
 			<div class='pathvisiojs-diffviewer pathvisiojs-diffviewer-header'>
 				<div class='pane pane-left'><div class='pane-inner'>{$pwName}, revision {$revOld}</div></div>
 				<div class='pane pane-center'></div>

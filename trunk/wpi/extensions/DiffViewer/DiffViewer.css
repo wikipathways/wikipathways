@@ -4,6 +4,14 @@
 	text-align: center;
 }
 
+#contentSub {
+	display: none;
+}
+
+.diffview-nav {
+	padding: 10px 0;
+}
+
 .clearfix:after {
 	content: ".";
 	display: block;
