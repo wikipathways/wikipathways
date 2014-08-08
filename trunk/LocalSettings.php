@@ -320,6 +320,8 @@ $wgGroupPermissions[ 'sysop'      ][ 'usersnoop'             ] = true;
 $wgGroupPermissions[ 'bureaucrat' ][ 'usersnoop'             ] = true;
 $wgGroupPermissions[ 'sysop'      ][ 'list_private_pathways' ] = true;
 $wgGroupPermissions[ 'webservice' ][ 'webservice_write'      ] = true;
+$wgGroupPermissions[ 'portal'     ][ 'portal-edit'           ] = true;
+$wgGroupPermissions[ 'portal'     ][ 'portal-tlk-edt'        ] = true;
 
 $wgHooks['AbortNewAccount'][] = 'abortOnBadDomain';
 
