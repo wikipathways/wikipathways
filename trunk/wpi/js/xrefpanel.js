@@ -186,6 +186,7 @@ XrefPanel.registerTrigger = function(elm, id, datasource, species, symbol) {
  */
 XrefPanel.create = function(id, datasource, species, symbol){
     //Try to use cached version if exists.
+	symbol = symbol["0"];
     var $content = XrefPanel.getCachedContent(id, datasource, species, symbol);
     if ($content) {
         return $content;
