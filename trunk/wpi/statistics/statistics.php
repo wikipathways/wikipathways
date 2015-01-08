@@ -38,7 +38,7 @@ $times = WikiPathwaysStatistics::getTimeStampPerMonth($tsStart, $tsEnd);
 $allTasks = array();
 function registerTask($name, $functionName) {
 	global $allTasks;
-
+#	print $name . "\n";
 	$allTasks[$name] = $functionName;
 }
 
@@ -423,4 +423,7 @@ QUERY;
 
 function logger($msg, $newline = "\n") {
 	fwrite(STDOUT, $msg . $newline);
+#	$file = fopen('/var/www/test2.wikipathways.org/wpi/statistics/stats-log.txt', 'a');
+#	fwrite($file, $msg . $newline);
+#	fclose($file);
 }

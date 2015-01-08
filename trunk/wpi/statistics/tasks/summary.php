@@ -58,8 +58,7 @@ PATHWAYS;
 		}
 
 		$usr = <<<USERS
-<h3>Number of registered users</h3><ul>
-<li>Non-editing users:<b> $uInactive</b>
+<h3>Number of active users</h3><ul>
 <li>At least 1 edit:<b> $uOne</b>
 <li>At least 1 edit (excluding test/tutorial pathways):<b> $uOneNoTest</b>
 </ul>

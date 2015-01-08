@@ -8,7 +8,6 @@ class CollectionCounts {
 		$collections = array(
 			"Curation:FeaturedPathway",
 			"Curation:AnalysisCollection",
-			"Curation:GenMAPP_Approved",
 			"Curation:CIRM_Related",
 			"Curation:Wikipedia",
 			"Curation:Reactome_Approved"

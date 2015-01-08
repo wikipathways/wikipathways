@@ -60,8 +60,8 @@ EOD;
 	}
 	$table .= "\n|}";
 	$output .= $table;
-	$output .= "\n* There are '''{{NUMBEROFUSERS}}''' registered users";
-	//$output .= "\n* Active user [[Special:ContributionScores|statistics]]";
+	//$output .= "\n* There are '''{{NUMBEROFUSERS}}''' registered users";
+	$output .= "\n* [[WikiPathways:Statistics|Additional statistics... ]]";
 
 	$output = $parser->recursiveTagParse( $output );
 	return array( $output, 'isHTML' => true, 'noparse' => true, 'nowiki' => true );

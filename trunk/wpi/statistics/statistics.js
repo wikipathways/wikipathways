@@ -111,7 +111,7 @@ GraphBuilder.prototype.drawUserCounts = function() {
 			formatter.format(table, 0);
 	
 			var regView = new google.visualization.DataView(table);
-			regView.setColumns([0, 2, 1]);
+			regView.setColumns([0, 2]);
 			var actView = new google.visualization.DataView(table);
 			actView.setColumns([0, 3]);
 	
