@@ -185,7 +185,16 @@ function getOntologyId(type,tag_id)
 {
     var ontology_id;
 
-    if(type == "version")
+    if(type == "acronym")
+        for(var i=0;i<ontologies.length;i++)
+        {
+            if(tag_id.substring(0,2) == ontologies[i][1].substring(0,2))
+            {
+                ontology_id = ontologies[i][4];
+                break;
+            }
+        }
+    else if(type == "version")
         for(var i=0;i<ontologies.length;i++)
         {
             if(tag_id.substring(0,2) == ontologies[i][1].substring(0,2))
@@ -215,15 +224,9 @@ function removeTag(conceptId)
 
     var handleSuccess = function(o){
         enableSave();
-        if(o.responseText != "SUCCESS"){
-            alert("Sorry the tag cannot be deleted! Please try again!");
-        }
-        else
-        {
             document.getElementById(conceptId).style.display = "none";
             oTagsCount[ontology]--;
             toggleOntologyDisplay();
-        }
     };
 
     var handleFailure = function(o){
@@ -337,13 +340,15 @@ function displayTag(concept, conceptId, newTag)
 
     if(opentag_id != conceptId)
     {
-        var ontology_version_id = getOntologyId("version",conceptId);
+        var ontology_version_id = getOntologyId("acronym",conceptId);
         var output = " ";
 
 	output += "<div class='otag'><b>Term</b> : " + concept + "<br/><b>ID</b> : " + conceptId + "<br/>";
 
 	//Info link
-        var url = "http://bioportal.bioontology.org/visualize/" + ontology_version_id + "/" + conceptId;
+        //var url = "http://bioportal.bioontology.org/visualize/" + ontology_version_id + "/" + conceptId;
+        var conceptIdURI = "http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2F" + conceptId.replace(/:/g, '_');
+        var url = "http://bioportal.bioontology.org/ontologies/" + ontology_version_id + "?p=classes&conceptid=" + conceptIdURI;
 
         output += "<a href='" + url + "'  title='More info at BioPortal' target='_blank'><img src='" + stylepath + "/common/images/info_large.png'></a>&nbsp;";
 

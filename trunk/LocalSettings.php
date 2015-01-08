@@ -191,7 +191,7 @@ $wgAllowExternalImages = true;
 
 # Ontologies in JSON format for use in the Javascript
 # Format : ["<Ontology Name>", <Ontology Id>, <Version Id>]
-$wgOntologiesJSON = '[' . '["Pathway Ontology","PW:0000001",1035,46237]' . ',' . '["Disease","DOID:4",1009,46309]' . ',' . '["Cell Type","CL:0000000",1006,46163]]';
+$wgOntologiesJSON = '[' . '["Pathway Ontology","PW:0000001",1035,46237,"PW"]' . ',' . '["Disease","DOID:4",1009,46309,"DOID"]' . ',' . '["Cell Type","CL:0000000",1006,46163,"CL"]]';
 # Ontologies Array to be used in the PHP Code
 $wgOntologiesArray = json_decode($wgOntologiesJSON);
 # Email address for the User Identification parameter to be used while making REST calls to BioPortal

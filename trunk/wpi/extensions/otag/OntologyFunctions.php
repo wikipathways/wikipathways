@@ -26,7 +26,6 @@ class OntologyFunctions
 		$dbw->delete( 'ontology', array( 'pw_id' => $pwTitle,'term_id' => $tagId ), $fname );
 		$gpml = $xml->asXML();
 		$pathway->updatePathway($gpml,$comment);
-		echo "SUCCESS";
 	}
 
 	public static function addOntologyTag($tagId, $tag, $pwTitle)
@@ -140,17 +139,27 @@ class OntologyFunctions
 
 
 	public static function getBioPortalURL($functionName, $data) {
-		global $wgOntologiesBioPortalEmail, $wgOntologiesBioPortalSearchHits;
+		global $wgOntologiesBioPortalEmail, $wgOntologiesBioPortalSearchHits, $wpiBioPortalKey;
 		switch($functionName) {
 			case "path":
 				$url = "http://rest.bioontology.org/bioportal/virtual/rootpath/ontologyId/termId?email=$wgOntologiesBioPortalEmail";
+				// TODO: replace url 
+				// Note: conceptId below needs to be a URL-encoded URI, e.g., http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FPW_0000100 
+				//   and ontologyId needs to be an acronym, e.g., PW (added as [4] to $wgOntologiesArray in LocalSettings)
+				//$url = "http://data.bioontology.org/ontologies/ontologyId/classes/conceptId/tree?apikey=$wpiBioPortalKey";
 				break;
 			case "search":
-				//                $url = "http://rest.bioontology.org/bioportal/search/searchTerm/?ontologyids=ontologyId&maxnumhits=$wgOntologiesBioPortalSearchHits&email=$wgOntologiesBioPortalEmail" ;
+		                //$url = "http://rest.bioontology.org/bioportal/search/searchTerm/?ontologyids=ontologyId&maxnumhits=$wgOntologiesBioPortalSearchHits&email=$wgOntologiesBioPortalEmail" ;
 				$url = "http://rest.bioontology.org/bioportal/search/searchTerm/?ontologyids=ontologyId&maxnumhits=$wgOntologiesBioPortalSearchHits&email=$wgOntologiesBioPortalEmail" ;
+				//TODO: replace url
+				// Note: this returns an array of hits in the "collection" key
+				//$url = "http://data.bioontology.org/search?q=searchTerm&ontologies=ontologyId&pagesize=$wgOntologiesBioPortalSearchHits&apikey=$wpiBioPortalKey" ;
 				break;
 			case "tree":
 				$url = "http://rest.bioontology.org/bioportal/virtual/ontology/ontologyId/conceptId?email=$wgOntologiesBioPortalEmail" ;
+				//TODO: replace url
+				// Note: this returns an array of children of the given class
+				//$url = "http://data.bioontology.org/ontologies/ontologyId/classes/conceptId/children?apikey=$wpiBioPortalKey" ;
 				break;
 		}
 		foreach($data as $key=>$value)
