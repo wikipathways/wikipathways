@@ -735,6 +735,26 @@ class Pathway {
 		$dbr->freeResult( $res );
 
 		$lastidNum = substr($lastid, 2);
+		//Check deleted pathways from archive table
+		$query2 = "SELECT ar_title FROM archive " .
+                        "WHERE ar_namespace =$ns " .
+                        "AND ar_title LIKE '{$prefix}_%' " .
+                        "ORDER BY length(ar_title) DESC, ar_title DESC " .
+                        "LIMIT 0 , 1 ";
+                $res2 = $dbr->query($query2);
+                $row2 = $dbr->fetchObject( $res2 );
+                if($row2) {
+                        $lastid2 = $row2->page_title;
+                } else {
+                        $lastid2 = Pathway::$ID_PREFIX . "0";
+                }
+                $dbr->freeResult( $res2 );
+
+                $lastidNum2 = substr($lastid2, 2);
+		//Pick largest WPID
+		if ((int)$lastidNum2 > (int)$lastidNum){
+			$lastidNum = $lastidNum2;
+		}
 		$newidNum = $lastidNum + 1;
 		$newid = Pathway::$ID_PREFIX . $newidNum;
 		return $newid;
