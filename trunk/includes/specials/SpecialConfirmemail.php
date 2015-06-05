@@ -86,6 +86,7 @@ class EmailConfirmation extends UnlistedSpecialPage {
 		if( is_object( $user ) ) {
 			$user->confirmEmail();
 			$user->saveSettings();
+			$user->addGroup('webservice'); //to be replace with wpi/extension/EmailConfirmedUser.php from v1.16.0
 			$message = $wgUser->isLoggedIn() ? 'confirmemail_loggedin' : 'confirmemail_success';
 			$wgOut->addWikiMsg( $message );
 			if( !$wgUser->isLoggedIn() ) {
