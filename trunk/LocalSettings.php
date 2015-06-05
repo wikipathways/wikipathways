@@ -349,6 +349,7 @@ require_once('extensions/SocialRewarding/SocialRewarding.php');
 require_once('extensions/UserMerge/UserMerge.php');
 require_once('extensions/parseViewRedirect.php');
 require_once( "$IP/wpi/autoload-setup.php" );
+require_once('wpi/extensions/EmailConfirmedUser.php');
 
 $contribScoreIgnoreBots = true;  //Set to true if you want to exclude Bots from the reporting - Can be omitted.
 
