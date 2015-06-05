@@ -55,6 +55,7 @@ $wgPasswordSender = "webmaster@localhost";
 ## Turn of httponly cookies, otherwise the applet will not
 ## have access to the authentication cookies
 $wgCookieHttpOnly = false;
+$wgCookieExpiration = 604800;  #7 days
 
 ## For a detailed description of the following switches see
 ## http://meta.wikimedia.org/Enotif and http://meta.wikimedia.org/Eauthent
