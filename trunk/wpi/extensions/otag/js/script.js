@@ -415,16 +415,20 @@ function toggleOntologyControls()
     var controlsElement = document.getElementById('ontologyEdit');
     var labelElement = document.getElementById('ontologyEditLabel');
     var status = controlsElement.style.display;
-    if(status != 'none')
-    {
-        controlsElement.style.display = "none";
-        labelElement.innerHTML = "Add Ontology tags!";
-    }
-    else
-    {
-        controlsElement.style.display = "block";
-        labelElement.innerHTML = "Hide Ontology Options";
-    }
+//Turning off Ontology UI until fixed
+controlsElement.style.display = "none";
+labelElement.innerHTML = "";
+
+//    if(status != 'none')
+//    {
+//        controlsElement.style.display = "none";
+//        labelElement.innerHTML = "Add Ontology tags!";
+//    }
+//    else
+//    {
+//        controlsElement.style.display = "block";
+//        labelElement.innerHTML = "Hide Ontology Options";
+//    }
 }
 
 function toggleOntologyDisplay()
