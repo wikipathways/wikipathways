@@ -26,6 +26,7 @@ class ListPrivatePathways extends SpecialPage {
 			$pp = unserialize($ps->getText());
 			if($pp) {
 				$title = Title::newFromId($pp->getPageId());
+				if(!$title instanceof Title) { continue;}
 				if(!Pathway::parseIdentifier($title->getText())) {
 					continue;
 				}
