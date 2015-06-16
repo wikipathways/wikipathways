@@ -16,7 +16,7 @@ class SetPermissionsPage {
 	}
 
 	function execute() {
-		global $wgUser;
+		global $wgOut, $wgUser;
 
 		//Check if user is allowed to manage permissions
 		if(!$this->title->userCan(PermissionManager::$ACTION_MANAGE)) {
