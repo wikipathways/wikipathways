@@ -7,7 +7,7 @@ unless 'showPage' is specified in the GET header
 
 $wgHooks['OutputPageBeforeHTML'][] = 'redirectOnImagePage';
 
-function redirectOnImagePage($out, $text) {
+function redirectOnImagePage(&$out, &$text) {
 	global $wgTitle;
 	#Check if 'showPage' is specified in GET header
 	#if so, return
