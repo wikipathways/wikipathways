@@ -83,7 +83,7 @@ class PermissionManager {
 	/**
 	 * Hook function that checks for page restrictions for the given user.
 	 */
-	static function checkRestrictions($title, $user, $action, $result) {
+	static function checkRestrictions($title, $user, $action, &$result) {
 		//Only manage permissions on specified namespaces
 		if($title->exists() && in_array($title->getNamespace(), self::$permission_namespaces)) {
 			//Check if the user is in a group that's not affected by page permissions

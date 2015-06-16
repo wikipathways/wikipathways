@@ -7,7 +7,7 @@ require_once('wpi/wpi.php');
  */
 $wgHooks['userCan'][] = 'checkDeleted';
 
-function checkDeleted($title, $user, $action, $result) {
+function checkDeleted($title, $user, $action, &$result) {
 	if($action == 'edit' && $title->getNamespace() == NS_PATHWAY) {
 		$pathway = Pathway::newFromTitle($title);
 		if($pathway->isDeleted()) {
@@ -32,7 +32,7 @@ function checkDeleted($title, $user, $action, $result) {
  */
 $wgHooks['userCan'][] = 'checkSoleAuthor';
 
-function checkSoleAuthor($title, $user, $action, $result) {
+function checkSoleAuthor($title, $user, $action, &$result) {
 	//Users are allowed to delete their own pathway
 	if($action == 'delete' && $title->getNamespace() == NS_PATHWAY) {
 		if(MWUtils::isOnlyAuthor($user, $title->getArticleId()) && $title->userCan('edit')) {
