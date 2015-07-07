@@ -805,19 +805,16 @@ class Pathway {
 		} else {
 			throw new Exception("Unable to save GPML, are you logged in?");
 		}
-		
-
-		$gpmlLocation = realpath($this->getFileLocation(FILETYPE_GPML));
-		$pgex = "bin/TissueAnalyzer/tissues_27.pgex ";
-		$bridge =  "bin/TissueAnalyzer/Hs_Derby_20130701.bridge ";
-		$output =  "data/TissueAnalyzer/ ";
-		$path_name = $this->getName();
-		$path_name = str_replace ( " ", '_', $path_name);
-		
-		
-		$result = exec("java -jar bin/TissueAnalyzer/tissue_analyzer.jar ".$gpmlLocation." ".$pgex.$bridge.$output.$path_name." 2> log_TA_1.txt");
-		//$result = exec("echo ".$this->getSpecies()." > species.txt");
-		//$result = exec("pwd > log_pwd.txt 2>&1");
+			
+		if ($this->getSpecies()==="Homo sapiens"){
+			$gpmlLocation = realpath($this->getFileLocation(FILETYPE_GPML));
+			$pgex = "bin/TissueAnalyzer/tissues_27.pgex ";
+			$bridge =  "bin/TissueAnalyzer/Hs_Derby_20130701.bridge ";
+			$output =  "data/TissueAnalyzer/ ";
+			$path_name = $this->getName();
+			$path_name = str_replace ( " ", '_', $path_name);
+			$result = exec("java -jar bin/TissueAnalyzer/tissue_analyzer.jar ".$gpmlLocation." ".$pgex.$bridge.$output.$path_name." 2>> log_TA.txt");
+		}
 		return $succ;
 	}
 

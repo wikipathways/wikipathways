@@ -172,7 +172,7 @@ function makePvjsObj( $pathway, $latestRevision=0, $label = '', $href = '', $alt
 	global $wgStylePath, $wgContLang, $wgUser;
 
 	$editorState = 'disabled';
-	if ($wgUser->isLoggedIn() && $wgUser->isEmailConfirmed()){
+	if ($wgUser->isLoggedIn() && $wgUser->isEmailConfirmed() && in_array('sysop',$wgUser->getEffectiveGroups())){ //Temporary sysop screen on pvjs quick edit
 		$editorState = 'closed';
 	}
 

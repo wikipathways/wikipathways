@@ -57,7 +57,7 @@ AuthorInfo.loadAuthorsCallback = function(xhr) {
 			if(i==0){
 				title += " and is the original author";
 			}
-			if(nm.includes("Maintenance bot")){continue;} //skip listing bot, in any position
+			if(nm.indexOf("Maintenance bot") != -1){continue;} //skip listing bot, in any position
 			html += "<A href='" + elm.getAttribute("Url") + "' title='" + title + "'>" + nm + "</A>";
 			if(i != end - 1) {
 				html += ", ";
