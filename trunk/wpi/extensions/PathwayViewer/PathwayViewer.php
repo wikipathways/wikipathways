@@ -41,8 +41,8 @@ class PathwayViewer {
 				"$wgScriptPath/wpi/lib/pvjs/2.4.14/polyfills.bundle.min.js",
 				//"$wgScriptPath/wpi/lib/pvjs/dev/pvjs.core.js",
 				//"$wgScriptPath/wpi/lib/pvjs/dev/pvjs.custom-element.js",
-				"$wgScriptPath/wpi/lib/pvjs/2.4.32/pvjs.core.min.js",
-				"$wgScriptPath/wpi/lib/pvjs/2.4.32/pvjs.custom-element.min.js",
+				"$wgScriptPath/wpi/lib/pvjs/2.4.35/pvjs.core.min.js",
+				"$wgScriptPath/wpi/lib/pvjs/2.4.35/pvjs.custom-element.min.js",
 			);
 		}
 
