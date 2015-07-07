@@ -35,7 +35,7 @@ AuthorInfo.loadAuthors = function(limit) {
 	
 	sajax_do_call(
 		"jsGetAuthors",
-		[AuthorInfo.pageId, parseInt(limit) + 1, false],
+		[AuthorInfo.pageId, parseInt(limit) + 1, true], //true=includeBots
 		AuthorInfo.loadAuthorsCallback
 	);
 }
@@ -54,6 +54,10 @@ AuthorInfo.loadAuthorsCallback = function(xhr) {
 			var elm = elements[i];
 			var nm = elm.getAttribute("Name");
 			var title = nm + " edited this page " + elm.getAttribute("EditCount") + " times";
+			if(i==0){
+				title += " and is the original author";
+			}
+			if(nm.includes("Maintenance bot")){continue;} //skip listing bot, in any position
 			html += "<A href='" + elm.getAttribute("Url") + "' title='" + title + "'>" + nm + "</A>";
 			if(i != end - 1) {
 				html += ", ";

@@ -1,4 +1,5 @@
 <?php
+require_once('extensions/PathwayViewer/PathwayViewer.php');
 $wgExtensionFunctions[] = 'wfPathwayThumb';
 $wgHooks['LanguageGetMagic'][]  = 'wfPathwayThumb_Magic';
 
@@ -16,6 +17,7 @@ function renderPathwayImage( &$parser, $pwTitleEncoded, $width = 0, $align = '',
 	global $wgUser, $wgRequest;
 	$pwTitle = urldecode ($pwTitleEncoded);
 	$parser->disableCache();
+	$latestRevision = 0;
 	try {
 		$pathway = Pathway::newFromTitle($pwTitle);
 		$revision = $wgRequest->getVal('oldid');
@@ -46,8 +48,12 @@ function renderPathwayImage( &$parser, $pwTitleEncoded, $width = 0, $align = '',
 																//we would rather parse wikitext, let me know if
 																//you know a way to do that (TK)
 		}
-
-		$output = makeThumbLinkObj($pathway, $caption, $href, $tooltip, $align, $id, $width);
+		
+		if (preg_match("/Pathway\:WP\d+/", $href)){
+			$output = makeThumbLinkObj($pathway, $caption, $href, $tooltip, $align, $id, $width);
+		} else {
+			$output = makePvjsObj($pathway, '0', $caption, $href, $tooltip, $align, $id, $width);
+		}
 
 	} catch(Exception $e) {
 		return "invalid pathway title: $e";
@@ -77,12 +83,9 @@ function createEditCaption($pathway) {
 		}
 	}
 	$helpUrl = Title::newFromText("Help:Known_problems")->getFullUrl();
-        $wpClientHelpUrl = Title::newFromText("Help:WPClientPluginCuration")->getFullUrl();
-        $caption = "<a href='$hrefbtn' title='$label' id='edit' ".
-                "class='button'><span>$label</span></a>" .
-                "<div style='float:left;'><a href='$helpUrl'> not working?</a>
-                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                 <a href=$wpClientHelpUrl><font color='red'>NEW!</font> Edit in PathVisio</a></div>";
+	$caption = "<a href='$hrefbtn' title='$label' id='edit' ".
+		"class='button'><span>$label</span></a>" .
+		"<div style='float:left;'><a href='$helpUrl'> not working?</a></div>";
 
 	//Create dropdown action menu
 	$pwTitle = $pathway->getTitleObject()->getFullText();
@@ -98,67 +101,112 @@ function createEditCaption($pathway) {
  * $img is an Image object
  */
 function makeThumbLinkObj( $pathway, $label = '', $href = '', $alt, $align = 'right', $id = 'thumb', $boxwidth = 180, $boxheight=false, $framed=false ) {
-	global $wgStylePath, $wgContLang;
+        global $wgStylePath, $wgContLang;
 
+        $img = $pathway->getImage();
+        $imgURL = $img->getURL();
+
+        $thumbUrl = '';
+        $error = '';
+
+        $width = $height = 0;
+        if ( $img->exists() ) {
+                $width  = $img->getWidth();
+                $height = $img->getHeight();
+        }
+        if ( 0 == $width || 0 == $height ) {
+                $width = $height = 180;
+        }
+        if ( $boxwidth == 0 ) {
+                $boxwidth = 180;
+        }
+        if ( $framed ) {
+                // Use image dimensions, don't scale
+                $boxwidth  = $width;
+                $boxheight = $height;
+                $thumbUrl  = $img->getViewURL();
+        } else {
+                if ( $boxheight === false ) $boxheight = -1;
+                $thumb = $img->getThumbnail( $boxwidth, $boxheight );
+                if ( $thumb ) {
+                        $thumbUrl = $thumb->getUrl();
+                        $boxwidth = $thumb->width;
+                        $boxheight = $thumb->height;
+                } else {
+                        $error = $img->getLastError();
+                }
+        }
+        $oboxwidth = $boxwidth + 2;
+
+        $more = htmlspecialchars( wfMsg( 'thumbnail-more' ) );
+        $magnifyalign = $wgContLang->isRTL() ? 'left' : 'right';
+        $textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
+
+        $s = "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">";
+        if( $thumbUrl == '' ) {
+                // Couldn't generate thumbnail? Scale the image client-side.
+                $thumbUrl = $img->getViewURL();
+                if( $boxheight == -1 ) {
+                        // Approximate...
+                        $boxheight = intval( $height * $boxwidth / $width );
+                }
+        }
+        if ( $error ) {
+                $s .= htmlspecialchars( $error );
+        } elseif( !$img->exists() ) {
+                $s .= "Image does not exist";
+        } else {
+                $s .= '<a href="'.$href.'" class="internal" title="'.$alt.'">'.
+                        '<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
+                        'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
+                        'longdesc="'.$href.'" class="thumbimage" /></a>';
+        }
+        $s .= '  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
+        return str_replace("\n", ' ', $s);
+        //return $s;
+}
+
+
+/* Modified from makeThumbLinkObj() above to handle pathway rendering on Pathway Pages */
+function makePvjsObj( $pathway, $latestRevision=0, $label = '', $href = '', $alt, $align = 'right', $id = 'thumb', $boxwidth = 180, $boxheight=false, $framed=false ) {
+	global $wgStylePath, $wgContLang, $wgUser;
+
+	$editorState = 'disabled';
+	if ($wgUser->isLoggedIn() && $wgUser->isEmailConfirmed()){
+		$editorState = 'closed';
+	}
+
+	$gpml = $pathway->getFileURL(FILETYPE_GPML); 
 	$img = $pathway->getImage();
 	$imgURL = $img->getURL();
 
-	$thumbUrl = '';
-	$error = '';
+	$identifier = $pathway->getIdentifier();
+	$version = $pathway->getLatestRevision(); 
+	$resource = 'http://identifiers.org/wikipathways/WP4';
 
-	$width = $height = 0;
-	if ( $img->exists() ) {
-		$width  = $img->getWidth();
-		$height = $img->getHeight();
-	}
-	if ( 0 == $width || 0 == $height ) {
-		$width = $height = 180;
-	}
-	if ( $boxwidth == 0 ) {
-		$boxwidth = 180;
-	}
-	if ( $framed ) {
-		// Use image dimensions, don't scale
-		$boxwidth  = $width;
-		$boxheight = $height;
-		$thumbUrl  = $img->getViewURL();
-	} else {
-		if ( $boxheight === false ) $boxheight = -1;
-		$thumb = $img->getThumbnail( $boxwidth, $boxheight );
-		if ( $thumb ) {
-			$thumbUrl = $thumb->getUrl();
-			$boxwidth = $thumb->width;
-			$boxheight = $thumb->height;
-		} else {
-			$error = $img->getLastError();
-		}
-	}
-	$oboxwidth = $boxwidth + 2;
-
-	$more = htmlspecialchars( wfMsg( 'thumbnail-more' ) );
-	$magnifyalign = $wgContLang->isRTL() ? 'left' : 'right';
 	$textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
 
-	$s = "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width:{$oboxwidth}px;\">";
-	if( $thumbUrl == '' ) {
-		// Couldn't generate thumbnail? Scale the image client-side.
-		$thumbUrl = $img->getViewURL();
-		if( $boxheight == -1 ) {
-			// Approximate...
-			$boxheight = intval( $height * $boxwidth / $width );
-		}
-	}
-	if ( $error ) {
-		$s .= htmlspecialchars( $error );
-	} elseif( !$img->exists() ) {
-		$s .= "Image does not exist";
-	} else {
-		$s .= '<a href="'.$href.'" class="internal" title="'.$alt.'">'.
-			'<img src="'.$thumbUrl.'" alt="'.$alt.'" ' .
-			'width="'.$boxwidth.'" height="'.$boxheight.'" ' .
-			'longdesc="'.$href.'" class="thumbimage" /></a>';
-	}
+	$s = "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width: 900px; padding: 3px 6px 30px 3px; height: 635px; min-width: 700px; max-width: 100%;\">";
+	$thumbUrl = $img->getViewURL();
+//style="min-width:'.$boxwidth.'px; min-height:'.$boxheight.'px; height:'.$boxheight.'px; ">
+	$s .= '<div class="internal" style="width: 900px; min-width: 700px; max-width: 100%; height: 600px; margin: auto; align: center;">
+				<wikipathways-pvjs id="pvjs-container"
+				    class="wikipathways-pvjs"
+				    alt="'.$alt.'"
+				    resource="http://identifiers.org/wikipathways/'.$identifier.'"
+				    version='.$version.'"
+				    src="'.$gpml.'"                                                                                                                                               
+				    resource="'.$resource.'"                                                                                                                                               
+				    version="'.$latestRevision.'"                                                                                                                                               
+				    display-errors="true"
+				    display-warnings="true"
+				    manual-render="true"
+				    editor="'.$editorState.'"
+				    fit-to-container="true">
+					  <img alt="'.$alt.'"
+					    src="'.$thumbUrl.'">
+				</wikipathways-pvjs>
+			</div>';
 	$s .= '  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
 	return str_replace("\n", ' ', $s);
-	//return $s;
 }

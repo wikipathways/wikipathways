@@ -94,9 +94,32 @@ class AuthorInfoList {
 		//Sort the authors by editCount
 		usort($this->authors, "AuthorInfo::compareByEdits");
 		$dbr->freeResult( $res );
+
+		//Place original author in first position
+		$this->originalAuthorFirst();
+
 	}
 
 	/**
+	 * Place original author in first position
+	 * @return ordered author list
+	 */
+	public function originalAuthorFirst() {
+                $orderArray = array();
+                foreach($this->authors as $a){
+                        array_push($orderArray, $a->getFirstEdit());
+               	}
+               	$firstAuthor = $this->authors[array_search(min($orderArray), $orderArray)];		
+                
+		if(($key = array_search($firstAuthor, $this->authors)) !== false) {
+    			unset($this->authors[$key]);
+		}	
+		array_unshift($this->authors, $firstAuthor);
+	}
+
+	/**
+	 * NOT USED. RENDERING DONE IN JS.
+	 *
 	 * Render the author list.
 	 * @return A HTML snipped containing the author list
 	 */
@@ -127,6 +150,7 @@ class AuthorInfo {
 	private $title;
 	private $user;
 	private $editCount;
+	private $firstEdit;
 
 	public function __construct($user, $title) {
 		$this->title = $title;
@@ -138,14 +162,19 @@ class AuthorInfo {
 		return $this->editCount;
 	}
 
+	public function getFirstEdit() {
+		return $this->firstEdit;
+	}
+
 	private function load() {
 		$dbr = wfGetDB( DB_SLAVE );
-		$query = "SELECT COUNT(rev_user) AS editCount FROM revision " .
+		$query = "SELECT COUNT(rev_user) AS editCount, MIN(rev_timestamp) AS firstEdit FROM revision " .
 			"WHERE rev_user={$this->user->getId()} " .
 			"AND rev_page={$this->title->getArticleId()}";
 		$res = $dbr->query($query);
 		$row = $dbr->fetchObject( $res );
 		$this->editCount = $row->editCount;
+		$this->firstEdit = $row->firstEdit;
 		$dbr->freeResult( $res );
 	}
 

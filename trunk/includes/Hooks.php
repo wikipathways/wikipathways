@@ -96,7 +96,11 @@ function wfRunHooks($event, $args = array()) {
 		if ($have_data) {
 			$hook_args = array_merge(array($data), $args);
 		} else {
-			$hook_args = $args;
+			if(is_array($args)){
+				$hook_args = $args;
+			} else {
+				$hook_args = array($args);
+			}
 		}
 
 		if ( isset( $object ) ) {
@@ -113,17 +117,19 @@ function wfRunHooks($event, $args = array()) {
 
 		/* Call the hook. */
 /* Following is very useful for debugging hooks */
-/* error_reporting( -1 ); */
-/* ini_set( 'display_errors', 1 ); */
+/*
+ error_reporting( -1 ); 
+ ini_set( 'display_errors', 1 ); 
+*/
 		wfProfileIn( $func );
 		$retval = call_user_func_array( $callback, $hook_args );
 		wfProfileOut( $func );
-/* if($retval !== true && $retval !== false) { */
-/* 	var_dump($callback); */
-/* 	var_dump($hook_args); */
-/* 	var_dump($retval);exit; */
-/* } */
-
+/* if($retval !== true && $retval !== false) { 
+ 	var_dump($callback); 
+ 	var_dump($hook_args); 
+ 	var_dump($retval);exit; 
+ } 
+*/
 		/* String return is an error; false return means stop processing. */
 
 		if (is_string($retval)) {

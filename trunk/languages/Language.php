@@ -1515,9 +1515,14 @@ class Language {
 
 		wfProfileIn( __METHOD__ );
 		if( function_exists( 'mb_strtolower' ) ) {
-			$out = preg_replace(
-				"/([\\xc0-\\xff][\\x80-\\xbf]*)/e",
-				"'U8' . bin2hex( \"$1\" )",
+			// DEPRECATED
+			//$out = preg_replace(
+			//	"/([\\xc0-\\xff][\\x80-\\xbf]*)/e",
+			//	"'U8' . bin2hex( \"$1\" )",
+			//	mb_strtolower( $string ) );
+			$out = preg_replace_callback(
+				"/([\\xc0-\\xff][\\x80-\\xbf]*)/",
+				create_function('$matches','return "U8" . bin2hex($matches[1]);'),
 				mb_strtolower( $string ) );
 		} else {
 			list( , $wikiLowerChars ) = self::getCaseMaps();

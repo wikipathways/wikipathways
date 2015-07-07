@@ -3554,13 +3554,20 @@ class Parser
 			#     <!--LINK number-->
 			# turns into
 			#     link text with suffix
-			$safeHeadline = preg_replace( '/<!--LINK ([0-9]*)-->/e',
-								"\$this->mLinkHolders['texts'][\$1]",
-								$safeHeadline );
-			$safeHeadline = preg_replace( '/<!--IWLINK ([0-9]*)-->/e',
-								"\$this->mInterwikiLinkHolders['texts'][\$1]",
-								$safeHeadline );
+			//DEPRECATED//$safeHeadline = preg_replace( '/<!--LINK ([0-9]*)-->/e',
+			//					"\$this->mLinkHolders['texts'][\$1]",
+			//					$safeHeadline );
+			$mLH = "\$this->mLinkHolders";
+			$safeHeadline = preg_replace_callback('/<!--LINK ([0-9]*)-->/',
+				create_function('$matches','return $mLH[\'texts\'][$matches[1]];'), $safeHeadline);
 
+			//DEPRECATED//$safeHeadline = preg_replace( '/<!--IWLINK ([0-9]*)-->/e',
+			//					"\$this->mInterwikiLinkHolders['texts'][\$1]",
+			//					$safeHeadline );
+			$mILH = "\$this->mInterwikiLinkHolders";
+			$safeHeadline = preg_replace_callback('/<!--IWLINK ([0-9]*)-->/',
+				create_function('$matches','return $mILH[\'texts\'][$matches[1]];'), $safeHeadline);
+			
 			# Strip out HTML (other than plain <sup> and <sub>: bug 8393)
 			$tocline = preg_replace(
 				array( '#<(?!/?(sup|sub)).*?'.'>#', '#<(/?(sup|sub)).*?'.'>#' ),

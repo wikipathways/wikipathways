@@ -152,7 +152,7 @@ if (Modernizr.inlinesvg) {
     }
     var xrefHighlights = [];
     var xrefIndex = 0;
-    _.forEach(xrefs, function(xref) {
+    xrefs.forEach(function(xref) {
       var xrefHighlight = {};
       xrefHighlight.id = xref.split(',')[0];
       xrefHighlight.color = colors[xrefIndex] || colors[0];
@@ -166,7 +166,7 @@ if (Modernizr.inlinesvg) {
     }
     var labelIndex = 0;
     var labelHighlights = [];
-    _.forEach(labels, function(label) {
+    labels.forEach(function(label) {
       var labelHighlight = {};
       labelHighlight.id = label;
       labelHighlight.color = colors[labelIndex] || colors[0];

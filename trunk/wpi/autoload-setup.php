@@ -1,5 +1,7 @@
 <?php
 
+
+
 require_once( "$IP/wpi/extensions/PathwayOfTheDay/PathwayOfTheDay.php" );
 require_once( "$IP/wpi/extensions/siteStats.php" );
 require_once( "$IP/wpi/extensions/pathwayInfo.php" );
@@ -58,3 +60,5 @@ require_once( "$IP/wpi/extensions/PageEditor/PageEditor.php" );
 require_once( "$IP/wpi/extensions/ContributionScores/ContributionScores.php" );
 require_once( "$IP/wpi/extensions/PullPages/PullPages.php" );
 require_once( "$IP/wpi/search.php" );
+require_once( "$IP/wpi/extensions/TissueAnalyzer/TissueAnalyzer.php" );
+

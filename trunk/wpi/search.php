@@ -17,14 +17,40 @@ class IndexNotFoundException extends Exception {
  */
 class IndexClient {
 	private static function doQuery($url) {
-		$r = new HttpRequest($url, HttpRequest::METH_GET);
-		try {
-			$r->send();
-		} catch(Exception $e) {
-			throw new IndexNotFoundException( $e );
-		}
-		if($r->getResponseCode() == 200) {
-			$xml = new SimpleXMLElement($r->getResponseBody());
+                $ch = curl_init( $url );
+
+                //curl_setopt( $ch, CURLOPT_POSTFIELDS, $data_string );
+                //curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));   
+                curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+
+                $success = true;
+		$result = curl_exec($ch);
+		$info = curl_getinfo($ch);
+
+                if($info['http_code']!=200){
+                        $success = false;
+                        throw new IndexNotFoundException( $e );
+                }
+
+                curl_close($ch);    
+
+//		echo $url;
+//		echo $result;
+
+                /*$r = new HttpRequest($url, HttpRequest::METH_GET);
+                try {
+                        $r->send();
+                } catch(Exception $e) {
+                        throw new IndexNotFoundException( $e );
+                }
+
+                $result = $r->getResponseBody();
+                $success = $r->getResponseCode() == 200 ? true : false;
+                */
+
+
+                if($success) {
+			$xml = new SimpleXMLElement($result);
 			$results = array();
 			//Convert the response to SearchHit objects
 			foreach($xml->SearchResult as $resultNode) {
@@ -129,22 +155,39 @@ class IndexClient {
 			$source = preg_replace('/localhost/', 'www.wikipathways.org', $source);
 		}
 		$url = self::getServiceUrl() . "xrefs/" . urlencode($source) . "/" . urlencode($code);
-		$r = new HttpRequest($url, HttpRequest::METH_GET);
-		try {
-			$r->send();
-		} catch(Exception $e) {
+		
+		$ch = curl_init( $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+
+		$r = curl_exec($ch);
+		$info = curl_getinfo($ch);
+
+		if($info['http_code']!=200){
+			$success = false;
 			throw new IndexNotFoundException( $e );
 		}
-		if($r->getResponseCode() == 200) {
-			$txt = $r->getResponseBody();
-			if($txt) {
-				return explode("\n", $txt);
-			} else {
-				return array();
-			}
-		} else {
-			throw new Exception($r->getResponseBody());
-		}
+
+		curl_close($ch);
+
+		return explode("\n",$r);		
+
+		//$r = new HttpRequest($url, HttpRequest::METH_GET);
+		//try {
+		//	$r->send();
+		//} catch(Exception $e) {
+		//	throw new IndexNotFoundException( $e );
+		//}
+		
+		//if($r->getResponseCode() == 200) {
+			//$txt = $r->getResponseBody();
+			//if($txt) {
+			//	return explode("\n", $txt);
+			//} else {
+			//	return array();
+			//}
+		//} else {
+		//	throw new Exception($r->getResponseBody());
+		//}
 	}
 
 	static function getServiceUrl() {

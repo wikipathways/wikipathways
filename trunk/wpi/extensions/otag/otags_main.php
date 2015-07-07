@@ -15,12 +15,13 @@ function wfotag() {
 }
 
 function oheader(&$parser, &$text) {
-	$text = preg_replace(
-		'/<!-- ENCODED_CONTENT ([0-9a-zA-Z\\+]+=*) -->/e',
-		'base64_decode("$1")',
-		$text
+	//DEPRECATED//$text = preg_replace(
+	//	'/<!-- ENCODED_CONTENT ([0-9a-zA-Z\\+]+=*) -->/e',
+	//	'base64_decode("$1")',
+	//	$text);
+	$text = preg_replace_callback('/<!-- ENCODED_CONTENT ([0-9a-zA-Z\\+]+=*) -->/',
+		create_function('$matches', 'return base64_decode($matches[1]);'), $text);
 
-	);
 	return true;
 }
 

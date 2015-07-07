@@ -28,9 +28,10 @@ class PrivateContributions {
 			if($pp->userCan(PermissionManager::$ACTION_MANAGE, $uid)) {
 				$tr = "<TR>";
 				$title = Title::newFromId($pp->getPageId());
-				if(!Pathway::parseIdentifier($title->getText())) {
+				if (!is_object($title))
 					continue;
-				}
+				if(!Pathway::parseIdentifier($title->getText())) 
+					continue;
 				$pathway = Pathway::newFromTitle($title);
 				$tr .= "<TD><A href='{$title->getFullURL()}'>{$pathway->getName()} ({$pathway->getSpecies()})</A>";
 

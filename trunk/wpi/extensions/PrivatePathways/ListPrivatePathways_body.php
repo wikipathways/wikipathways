@@ -25,7 +25,8 @@ class ListPrivatePathways extends SpecialPage {
 			$tr = "<TR>";
 			$pp = unserialize($ps->getText());
 			if($pp) {
-				$title = Title::newFromId($pp->getPageId());
+				$title = Title::newFromID($pp->getPageId());
+				if(!$title instanceof Title) { continue;}
 				if(!$title instanceof Title) { continue;}
 				if(!Pathway::parseIdentifier($title->getText())) {
 					continue;
