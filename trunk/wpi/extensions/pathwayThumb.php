@@ -192,7 +192,6 @@ function makePvjsObj( $pathway, $latestRevision=0, $label = '', $href = '', $alt
 	$s .= '<div class="internal" style="width: 900px; min-width: 700px; max-width: 100%; height: 600px; margin: auto; align: center;">
 				<wikipathways-pvjs id="pvjs-container"
 				    class="wikipathways-pvjs"
-				    alt="'.$alt.'"
 				    resource="http://identifiers.org/wikipathways/'.$identifier.'"
 				    version='.$version.'"
 				    src="'.$gpml.'"                                                                                                                                               
@@ -203,8 +202,9 @@ function makePvjsObj( $pathway, $latestRevision=0, $label = '', $href = '', $alt
 				    manual-render="true"
 				    editor="'.$editorState.'"
 				    fit-to-container="true">
-					  <img alt="'.$alt.'"
-					    src="'.$thumbUrl.'">
+					  <img style="height:600px; max-width:100%"
+						alt="'.$alt.'"
+					    	src="'.$imgUrl.'">
 				</wikipathways-pvjs>
 			</div>';
 	$s .= '  <div class="thumbcaption"'.$textalign.'>'.$label."</div></div></div>";
