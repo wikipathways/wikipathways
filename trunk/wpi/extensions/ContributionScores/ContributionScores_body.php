@@ -194,7 +194,7 @@ class ContributionScores extends IncludableSpecialPage
 		if (!is_array($contribScoreReports)) {
 			$contribScoreReports = array(
 				array(7,50),
-				array(30,50),
+				array(365,50),
 				array(0,50));
 		}
 
