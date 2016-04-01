@@ -1,0 +1,8 @@
+Pentose_Phosphate_Pathway
+TCA_Cycle
+Oxidative_phosphorylation
+Membrane_Trafficking
+Electron_Transport_Chain
+TCA_Cycle_and_PDHc
+Proteasome_Degradation
+miR-517_relationship_with_ARCN1_and_USP1

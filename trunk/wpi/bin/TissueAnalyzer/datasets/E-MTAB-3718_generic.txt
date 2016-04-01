@@ -1,0 +1,6 @@
+Cytoplasmic_Ribosomal_Proteins
+Electron_Transport_Chain
+Arachidonate_Epoxygenase_Epoxide_Hydrolase
+TCA_Cycle
+Oxidative_phosphorylation
+Glycolysis_and_Gluconeogenesis

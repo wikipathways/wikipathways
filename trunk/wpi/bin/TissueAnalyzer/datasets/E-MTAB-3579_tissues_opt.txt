@@ -1,0 +1,35 @@
+<option>accessory axillary lymph node</option>
+<option>adrenal gland</option>
+<option>aorta</option>
+<option>bone (os femoris)</option>
+<option>cecum</option>
+<option>cerebellum</option>
+<option>cerebral cortex</option>
+<option>colon</option>
+<option>corpora quadrigemina</option>
+<option>corpus striatum</option>
+<option>diencephalon</option>
+<option>epididymis</option>
+<option>eyeball</option>
+<option>hippocampus</option>
+<option>intestinal mucosa</option>
+<option>intestine</option>
+<option>lung</option>
+<option>medulla oblongata</option>
+<option>olfactory brain</option>
+<option>ovary</option>
+<option>pancreas</option>
+<option>pituitary gland</option>
+<option>prostate</option>
+<option>skin</option>
+<option>spinal cord</option>
+<option>spleen</option>
+<option>stomach</option>
+<option>submandibular gland</option>
+<option>testis</option>
+<option>thymus</option>
+<option>tongue</option>
+<option>urinary bladder</option>
+<option>uterus</option>
+<option>vagina</option>
+<option>vesicular gland</option>

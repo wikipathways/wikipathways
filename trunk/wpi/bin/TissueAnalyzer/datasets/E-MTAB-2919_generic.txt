@@ -1,0 +1,10 @@
+Cytoplasmic_Ribosomal_Proteins
+TCA_Cycle
+Oxidative_phosphorylation
+Electron_Transport_Chain
+Proteasome_Degradation
+Cori_Cycle
+Translation_Factors
+TCA_Cycle_Nutrient_Utilization_and_Invasiveness_of_Ovarian_Cancer
+mRNA_Processing
+miR-517_relationship_with_ARCN1_and_USP1

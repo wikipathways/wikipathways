@@ -1,0 +1,53 @@
+<option>EBV-transformed lymphocyte</option>
+<option>adrenal gland</option>
+<option>amygdala</option>
+<option>animal ovary</option>
+<option>anterior cingulate cortex (BA24) of brain</option>
+<option>aorta</option>
+<option>atrial appendage of heart</option>
+<option>breast (mammary tissue)</option>
+<option>caudate (basal ganglia) of brain</option>
+<option>cerebellar hemisphere of brain</option>
+<option>cerebellum</option>
+<option>cerebral cortex</option>
+<option>coronary artery</option>
+<option>cortex of kidney</option>
+<option>ectocervix</option>
+<option>esophagus muscularis mucosa</option>
+<option>fallopian tube</option>
+<option>frontal cortex (BA9)</option>
+<option>gastroesophageal junction</option>
+<option>heart left ventricle</option>
+<option>hippocampus</option>
+<option>hypothalamus</option>
+<option>leukemia cell line</option>
+<option>liver</option>
+<option>lung</option>
+<option>minor salivary gland</option>
+<option>mucosa of esophagus</option>
+<option>nucleus accumbens (basal ganglia)</option>
+<option>pancreas</option>
+<option>pituitary gland</option>
+<option>prostate gland</option>
+<option>putamen (basal ganglia)</option>
+<option>sigmoid colon</option>
+<option>skeletal muscle</option>
+<option>skin of lower leg</option>
+<option>skin of suprapubic region</option>
+<option>spinal cord (cervical c-1)</option>
+<option>spleen</option>
+<option>stomach</option>
+<option>subcutaneous adipose tissue</option>
+<option>substantia nigra</option>
+<option>terminal ileum of small intestine</option>
+<option>testis</option>
+<option>thyroid</option>
+<option>tibial artery</option>
+<option>tibial nerve</option>
+<option>transformed fibroblast</option>
+<option>transverse colon</option>
+<option>urinary bladder</option>
+<option>uterus</option>
+<option>vagina</option>
+<option>visceral (omentum) adipose tissue</option>
+<option>whole blood</option>

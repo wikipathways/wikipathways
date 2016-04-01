@@ -1,0 +1,14 @@
+Arachidonate_Epoxygenase_Epoxide_Hydrolase
+TCA_Cycle
+Eukaryotic_Transcription_Initiation
+Electron_Transport_Chain
+Oxidative_phosphorylation
+Synthesis_and_Degradation_of_Ketone_Bodies
+Mismatch_repair
+mRNA_processing
+Cholesterol_Biosynthesis
+Histone_modifications
+Proteasome_Degradation
+Fatty_acid_oxidation
+Aflatoxin_B1_metabolism
+

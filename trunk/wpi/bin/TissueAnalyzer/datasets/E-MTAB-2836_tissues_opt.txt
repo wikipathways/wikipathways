@@ -1,0 +1,32 @@
+<option>adipose tissue</option>
+<option>adrenal gland</option>
+<option>animal ovary</option>
+<option>appendix</option>
+<option>bladder</option>
+<option>bone marrow</option>
+<option>cerebral cortex</option>
+<option>colon</option>
+<option>duodenum</option>
+<option>endometrium</option>
+<option>esophagus</option>
+<option>fallopian tube</option>
+<option>gall bladder</option>
+<option>heart</option>
+<option>kidney</option>
+<option>liver</option>
+<option>lung</option>
+<option>lymph node</option>
+<option>pancreas</option>
+<option>placenta</option>
+<option>prostate</option>
+<option>rectum</option>
+<option>salivary gland</option>
+<option>skeletal muscle</option>
+<option>skin</option>
+<option>small intestine</option>
+<option>smooth muscle</option>
+<option>spleen</option>
+<option>stomach</option>
+<option>testis</option>
+<option>thyroid</option>
+<option>tonsil</option>
