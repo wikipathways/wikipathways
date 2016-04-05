@@ -279,7 +279,7 @@ HTML;
 		$average = 0;
 		$date = '';
 		$collection = "Curated";
-		$tissue = fopen ( "wpi/data/NewTA/$collection/$dataset/$cutoff/Tissue/$select.txt", r );
+		$tissue = fopen ( "wpi/data/TissueAnalyzer/$collection/$dataset/$cutoff/Tissue/$select.txt", r );
 		while ( ! feof ( $tissue ) ) {
 			$line = fgets ( $tissue );
 			if (strpos($line, '#') !== false && strpos($line, 'CET') !== false   ) {
@@ -389,8 +389,8 @@ HTML;
 					<td class='table-blue-headercell' align='center'style='width:30%' >Average expression over all tissues</td>";	
 
 		for($i = 0; $i < count ( $mean ); ++ $i) {
-			$filename = "wpi/data/NewTA/$collection/$dataset/$cutoff/Hs_$nami[$i]_$path_id[$i]_$path_rev[$i].txt";
-			$filename2 = "wpi/data/NewTA/$collection/$dataset/$cutoff/$nami[$i]_$path_id[$i]_$path_rev[$i].txt";
+			$filename = "wpi/data/TissueAnalyzer/$collection/$dataset/$cutoff/Hs_$nami[$i]_$path_id[$i]_$path_rev[$i].txt";
+			$filename2 = "wpi/data/TissueAnalyzer/$collection/$dataset/$cutoff/$nami[$i]_$path_id[$i]_$path_rev[$i].txt";
 			$filename = (file_exists ( $filename )) ? $filename : $filename2;
 			$list_genes = "";
 			$active_index = 0;
