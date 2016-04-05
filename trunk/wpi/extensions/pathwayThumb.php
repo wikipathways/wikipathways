@@ -172,7 +172,7 @@ function makePvjsObj( $pathway, $latestRevision=0, $label = '', $href = '', $alt
 	global $wgStylePath, $wgContLang, $wgUser;
 
 	$editorState = 'disabled';
-	if ($wgUser->isLoggedIn() && $wgUser->isEmailConfirmed() && in_array('sysop',$wgUser->getEffectiveGroups())){ //Temporary sysop screen on pvjs quick edit
+	if ($wgUser->isLoggedIn() && $wgUser->isEmailConfirmed()){
 		$editorState = 'closed';
 	}
 
@@ -186,7 +186,11 @@ function makePvjsObj( $pathway, $latestRevision=0, $label = '', $href = '', $alt
 
 	$textalign = $wgContLang->isRTL() ? ' style="text-align:right"' : '';
 
-	$s = "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width: 900px; padding: 3px 6px 30px 3px; height: 635px; min-width: 700px; max-width: 100%;\">";
+	$s = '<script type="text/javascript">';
+	$s .= 'window.wikipathwaysUsername = "' . $wgUser->mName . '";';
+	$s .= '</script>';
+	
+	$s .= "<div id=\"{$id}\" class=\"thumb t{$align}\"><div class=\"thumbinner\" style=\"width: 900px; padding: 3px 6px 30px 3px; height: 635px; min-width: 700px; max-width: 100%;\">";
 	$thumbUrl = $img->getViewURL();
 //style="min-width:'.$boxwidth.'px; min-height:'.$boxheight.'px; height:'.$boxheight.'px; ">
 	$s .= '<div class="internal" style="width: 900px; min-width: 700px; max-width: 100%; height: 600px; margin: auto; align: center;">

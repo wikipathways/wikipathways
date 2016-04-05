@@ -36,6 +36,7 @@ class PathwayViewer {
 				"$wgScriptPath/wpi/js/jquery/plugins/jquery.layout.min-1.3.0.js",
 				// pvjs and dependencies
 				"//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js",
+				"//mithril.js.org/archive/v0.2.2-rc.1/mithril.min.js",
 				// TODO remove the polyfill bundle below once the autopolyfill
 				// work is complete. Until then, leave it as-is.
 				"$wgScriptPath/wpi/lib/pvjs/release/polyfills.bundle.min.js",
