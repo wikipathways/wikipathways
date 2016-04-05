@@ -58,7 +58,7 @@ function ofunction( $input, $argv, $parser ) {
 	<div id="ontologyMessage" style="display:none;">No Tags!</div>
 	<div id="ontologyTags" style="display:none;"></div>
 	<div id="ontologyTagDisplay">&nbsp;</div>
-	<!--<a href="javascript:toggleOntologyControls();" id="ontologyEditLabel">Add Ontology tags</a><br /><br />-->
+	<a href="javascript:toggleOntologyControls();" id="ontologyEditLabel">Add Ontology tags</a><br /><br />
 	<div id="ontologyEdit" style="display:none;">
 		<div id="myAutoComplete">
 			<input id="ontologyACInput" type="text" onfocus="clearBox();" value="Type Ontology term.."/>
