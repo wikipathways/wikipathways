@@ -114,6 +114,7 @@ class TissueAnalyzer extends SpecialPage {
 		$wgOut->addScript('<script language="JavaScript">
 					function tissue_viewer(id,genes,pathway_name){
 						genes = genes.replace(/\./g," ");
+						$("#pwyname").attr("style","");
 						document.getElementById("pwyname").innerHTML="<b>Selected pathway:</b> " + pathway_name;
 						$("#my-legend").attr("style","");
 						$("#path_viewer").attr("src",
