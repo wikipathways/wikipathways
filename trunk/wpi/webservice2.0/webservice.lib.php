@@ -98,7 +98,7 @@ function getSwaggerFunctionParameters($func){
 		"required" => false,
 		"in" => "query",
 		"type" => "string",
-		"default"=>"json",
+		"default"=>"xml",
 		"enum" => array("json","xml","html","dump","jpg","pdf"),
 	);
 
@@ -237,9 +237,9 @@ function getSwagger(){
 			"title" => "WikiPathways Webservices",
 			"version" => "1.0"
 		),
-		"host" => "pvjs.wikipathways.org",
+		"host" => "webservice.wikipathways.org",
 		"schemes" => array("http"),
-		"basePath" => "/wpi/webservicetest",
+		"basePath" => "/",
  		"paths" => $this->getSwaggerCalls()
 		);
 
@@ -289,9 +289,9 @@ function deliver_response($format, $api_response, $functionName = ''){
     // Set HTTP Response
     //header('HTTP/1.1 '.$api_response['status'].' '.$http_response_code[ $api_response['status'] ]);
  
-
+//    echo strcasecmp($format,"json") . "-" . $format."-";
     // Process different content types
-    if( strcasecmp($format,'json') == 0 ){
+    if( strcasecmp($format ,'json')==0 ){
  
         // Set HTTP Response Content Type
         header('Content-Type: application/json; charset=utf-8'); 
@@ -301,7 +301,7 @@ function deliver_response($format, $api_response, $functionName = ''){
         echo $json_response;
  
     }elseif( strcasecmp($format,'xml') == 0 ){
- 
+ 	
         // Set HTTP Response Content Type
         header('Content-Type: application/xml; charset=utf-8'); 
 

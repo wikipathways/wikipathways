@@ -4,7 +4,7 @@
 
 function getUserByOrcid($orcid){
 
-	$url = 'http://www.wikipathways.org/api.php?action=query&list=search&srwhat=text&srsearch=%22{{User+ORCID|'.$orcid.'}}%22&srnamespace=2&format=json';
+	  $url = 'http://www.wikipathways.org/api.php?action=query&list=search&srwhat=text&srsearch=%22{{User+ORCID|'.$orcid.'}}%22&srnamespace=2&format=json';
   	  
 	$ch = curl_init();
 

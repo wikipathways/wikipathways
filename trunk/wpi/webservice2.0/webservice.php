@@ -48,7 +48,7 @@ function getPathway($pwId, $revision = 0) {
 		$pathway = new Pathway($pwId);
 		if($revision) $pathway->setActiveRevision($revision);
 		$pwi = new WSPathway($pathway);
-		if(!isset($_REQUEST["format"]) | $_REQUEST["format"] === "XML" )
+		if(!isset($_REQUEST["format"]) || $_REQUEST["format"] === "XML" )
 			$pwi->gpml = base64_encode($pwi->gpml);
 		//return array("pathway" => base64_encode($pwi));
 		return array("pathway" => $pwi);
@@ -170,6 +170,49 @@ function updatePathway($pwId, $description, $gpml, $revision, $auth, $username) 
 }
 
 /**
+ * Update the GPML code of a pathway on the wiki
+ * @param string $pwId The pathway identifier
+ * @param string $description A description of the modifications
+ * @param string $gpml The updated GPML code
+ * @param int $revision The revision the GPML code is based on
+ * @param object WSAuth $auth The authentication info
+ * @return boolean $success Whether the update was successful
+ **/
+//function updatePathway($pwId, $description, $gpml, $revision, $auth = NULL) {
+//	global $wgUser;
+//
+//	try {
+//		//Authenticate first, if token is provided
+//		if($auth) {
+//			authenticate($auth['user'], $auth['key'], true);
+//		}
+//
+//		$pathway = new Pathway($pwId);
+//		//Only update if the given revision is the newest
+//		//Or if this is a new pathway
+//		if(!$pathway->exists() || $revision == $pathway->getLatestRevision()) {
+//			$pathway->updatePathway($gpml, $description);
+//			$resp = $pathway->getLatestRevision();
+//		} else {
+//			throw new WSFault("Sender",
+//				"Revision out of date: your GPML code originates from " .
+//				"an old revision. This means somebody else modified the pathway " .
+//				"since you downloaded it. Please apply your changes on the newest version"
+//			);
+//		}
+//	} catch(Exception $e) {
+//		if($e instanceof WSFault) {
+//			throw $e;
+//		} else {
+//			throw new WSFault("Receiver", $e);
+//			wfDebug("ERROR: $e");
+//		}
+//	}
+//	ob_clean();
+//	return array("success" => true);
+//}
+
+/**
  * Cteate a new pathway on the wiki
  * @param string $gpml The GPML code for the new pathway
  * @param string $auth The authentication info
@@ -210,7 +253,30 @@ function createPathway($gpml, $auth, $username) {
  * @param string $pass The password
  * @return string $auth The authentication code
  **/
-function login($name, $pass) {
+function login($name, $pass){
+	global $wgUser, $wgAuth;
+
+        if($wgUser->isLoggedIn()){
+                 return array("auth" => $wgUser->mToken);
+        }
+
+        $user = User::newFromName( $name );
+        if( is_null($user) || $user->getID() == 0) {
+                //throw new Exception("Invalid user name");
+                throw new WSFault("Sender", "Invalid user name");
+        }
+        $user->load();
+        if ($user->checkPassword( $pass )) {
+                $wgAuth->updateUser($user);
+                $wgUser = $user;
+                return array("auth" => $user->mToken);
+        } else {
+                //throw new Exception("Wrong password");
+                throw new WSFault("Sender", "Wrong password");
+        }
+}
+
+function loginold($name, $pass) {
 	global $wgUser, $wgAuth;
 
 	$user = User::newFromName( $name );
@@ -247,11 +313,15 @@ function getPathwayAs($fileType, $pwId, $revision = 0) {
 	}
 
 
-	if($fileType==="jpg" ||  $fileType==="pdf" ||  $fileType==="png")
-		return $data;
-	else
-		if(!isset($_REQUEST["format"])|| $_REQUEST["format"] === "XML" )
+	//if($fileType==="jpg" ||  $fileType==="pdf" ||  $fileType==="png")
+	//	return $data;
+	//else
+	//var_dump($_REQUEST);
+	if(!isset($_REQUEST["format"]) || strtolower($_REQUEST["format"]) === "xml"  || $_REQUEST["format"]==="json")
 			return array("data" => base64_encode($data));
+	else
+		return  array("data"=>$data);
+//			return array("data" => "aa".$p->getFileLocation($fileType));
 }
 
 
@@ -591,7 +661,7 @@ function getColoredPathway($pwId, $revision, $graphId, $color, $fileType) {
 	} catch(Exception $e) {
 		throw new WSFault("Receiver", "Unable to get pathway: " . $e);
 	}
-	return array("data" => $data);
+	return array("data" => base64_encode($data));
 }
 
 //Non ws functions
