@@ -283,13 +283,13 @@ HTML;
 		$tissue = fopen ( "wpi/data/TissueAnalyzer/$collection/$dataset/$cutoff/Tissue/$select.txt", r );
 		while ( ! feof ( $tissue ) ) {
 			$line = fgets ( $tissue );
-			if (strpos($line, '#') !== false && strpos($line, 'CET') !== false   ) {
+			if (strpos($line, '#') !== false && strpos($line, 'PDT') !== false   ) {
 				$dateTmp = explode ( "\t", $line );
-				$date = $dateTmp[1]." CET";
+				$date = $dateTmp[1]." PDT";
 			}
-			if (strpos($line, '#') !== false && strpos($line, 'CEST') !== false   ) {
+			if (strpos($line, '#') !== false && strpos($line, 'PST') !== false   ) {
 				$dateTmp = explode ( "\t", $line );
-				$date = $dateTmp[1]." CEST";
+				$date = $dateTmp[1]." PST";
 			}
 			$pieces = explode ( "\t", $line );
 			$name = $pieces [0];
