@@ -5,8 +5,7 @@ require_once("wpi/DataSources.php");
 
 /*
   Generates info text for pathway page
-  - datanode
-  > generate table of datanodes
+  Generate table of datanodes and interactions
 */
 
 #### DEFINE EXTENSION
@@ -63,7 +62,6 @@ class PathwayInfo extends PathwayData {
 		$table .= '<tbody><th>Name<th>Type<th>Database reference<th>Comment';
 		//style="border:1px #AAA solid;margin:1em 1em 0;background:#F9F9F9"
 		$all = $this->getElements('DataNode');
-
 		//Check for uniqueness, based on textlabel and xref
 		$nodes = array();
 		foreach($all as $elm) {
@@ -71,8 +69,7 @@ class PathwayInfo extends PathwayData {
 			$key .= $elm->Xref['ID'];
 			$key .= $elm->Xref['Database'];
 			$nodes[(string)$key] = $elm;
-		}
-
+		}		
 		//Create collapse button
 		$nrShow = 5;
 		$button = "";
@@ -86,7 +83,7 @@ class PathwayInfo extends PathwayData {
 		}
 		//Sort and iterate over all elements
 		$species = $this->getOrganism();
-		sort($nodes);
+		ksort($nodes);
 		$i = 0;
 		foreach($nodes as $datanode) {
 			$xref = $datanode->Xref;
@@ -133,8 +130,95 @@ class PathwayInfo extends PathwayData {
 			//$table .= self::displayItem( $biopaxRef );
 		}
 		$table .= '</tbody></table>';
+		if (count($nodes)==0)$table= "<cite>No datanodes</cite>";
 		return array($button . $table, 'isHTML'=>1, 'noparse'=>1);
 	}
+
+	/**
+	 * Creates a table of all interactions and their info
+	 */
+	function interactionAnnotations() {		
+		$table = '<table class="wikitable sortable" id="inTable">';
+		$table .= '<tbody><th>Source<th>Target<th>Type<th>Database reference<th>Comment';
+		$all = $this->getAllAnnotatedInteractions();
+		
+		//Check for uniqueness, based on Source-Target-Type-Xref
+		$nodes = array();
+		foreach($all as $elm) {
+			if ( $elm->getEdge()->Xref['ID']!="" && $elm->getEdge()->Xref['Database']!="" ){
+				$key = $elm->getSource()['TextLabel'];
+				$key .= $elm->getTarget()['TextLabel'];
+				$key .= $elm->getType();
+				$key .= $elm->getEdge()->Xref['ID'];
+				$key .= $elm->getEdge()->Xref['Database'];				
+				$nodes[(string)$key] = $elm;
+			}
+		}
+		//Create collapse button
+		$nrShow = 5;
+		$button = "";
+		$nrNodes = count($nodes);
+		if(count($nodes) > $nrShow) {
+			$expand = "<b>View all...</b>";
+			$collapse = "<b>View last " . ($nrShow) . "...</b>";
+			$button = "<table><td width='51%'> <div onClick='".
+				'doToggle("inTable", this, "'.$expand.'", "'.$collapse.'")'."' style='cursor:pointer;color:#0000FF'>".
+				"$expand<td width='45%'></table>";
+		}
+		//Sort and iterate over all elements		
+		ksort($nodes);
+		$i = 0;
+		foreach($nodes as $datanode) {
+			$int = $datanode->getEdge();
+			$xref = $int->Xref;
+			$xid = (string)$xref['ID'];
+			$xds = (string)$xref['Database'];
+			$link = DataSource::getLinkout($xid, $xds);
+			$id = trim( $xref['ID'] );
+			if($link) {
+				$l = new Linker();
+				$link = $l->makeExternalLink( $link, "$id ({$xref['Database']})" );
+			} elseif( $id != '' ) {
+				$link = $id;
+				if($xref['Database'] != '') {
+					$link .= ' (' . $xref['Database'] . ')';
+				}
+			}
+			//Add xref info button
+			$html = $link;
+			if($xid && $xds) {
+				$html = XrefPanel::getXrefHTML($xid, $xds, $xref['ID'], $link, $this->getOrganism());
+			}
+			//Comment Data
+			$comment = array();
+			$biopaxRef = array();
+			foreach( $int->Comment as $child ) {
+				if( $child->getName() == 'Comment' ) {
+					$comment[] = (string)$child;
+				}
+			}
+			$doShow = $i++ < $nrShow ? "" : " class='toggleMe'";
+			$table .= "<tr$doShow>";
+			$table .= '<td class="path-source">' .$datanode->getSource()['TextLabel'] ;
+			$table .= '<td class="path-target" align="center">'.$datanode->getTarget()['TextLabel'];
+			$table .= '<td class="path-type" align="center">' .$datanode->getType() ;
+			$table .= '<td class="path-dbref" align="center">' . $html;
+			$table .= "<td class='path-comment'>";
+			if( count( $comment ) > 1 ) {
+				$table .= "<ul>";
+				foreach( $comment as $c ) {
+					$table .= "<li>$c";
+				}
+				$table .= "</ul>";
+			} elseif( count( $comment ) == 1 ) {
+				$table .= $comment[0]."</br>";
+			}			
+		}
+		$table .= '</tbody></table>';
+		if (count($nodes)==0)$table= "<cite>No annotated interactions</cite>";
+		return array($button . $table, 'isHTML'=>1, 'noparse'=>1);
+	}
+
 
 	protected static function displayItem( $item ) {
 		$ret = "";
@@ -151,10 +235,10 @@ class PathwayInfo extends PathwayData {
 	}
 
 	function interactions() {
-		$interactions = $this->getInteractions();
+		$interactions = $this->getInteractionsSoft();
 		foreach($interactions as $ia) {
 			$table .= "\n|-\n";
-			$table .= "| {$ia->getName()}\n";
+			$table .= "| {$ia->getNameSoft()}\n";
 			$table .= "|";
 			$xrefs = $ia->getPublicationXRefs($this);
 			if(!$xrefs) $xrefs = array();

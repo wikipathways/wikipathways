@@ -50,17 +50,41 @@ class PathwayData {
 	function getInteractions() {
 		if(!$this->interactions) {
 			$this->interactions = array();
-			foreach($this->gpml->Line as $line) {
+			foreach($this->gpml->Interaction as $line) {
 				$startRef = (string)$line->Graphics->Point[0]['GraphRef'];
 				$endRef = (string)$line->Graphics->Point[1]['GraphRef'];
-				if($startRef && $endRef) {
+				$typeRef = (string)$line->Graphics->Point[1]['ArrowHead'];
+				if($startRef && $endRef && $typeRef) {
 					$source = $this->byGraphId[$startRef];
 					$target = $this->byGraphId[$endRef];
-					if($source && $target) {
-						$interaction =  new Interaction($source, $target, $line);
+					//$type = $this->byGraphId[$typeRef];
+					if($source && $target ) {
+						$interaction =  new Interaction($source, $target, $line, $typeRef);
 						$this->interactions[] = $interaction;
 					}
 				}
+			}
+		}
+		return $this->interactions;
+	}
+
+	/**
+	 * Gets the interactions
+	 * \return an array of instances of the Interaction class
+	 */
+	function getAllAnnotatedInteractions() {
+		if(!$this->interactions) {
+			$this->interactions = array();
+			foreach($this->gpml->Interaction as $line) {
+				$startRef = (string)$line->Graphics->Point[0]['GraphRef'];
+				$points = $line->Graphics->Point;
+				$nb = count($points)-1;
+				$endRef = (string)$line->Graphics->Point[1]['GraphRef'];
+				$typeRef = (string)$line->Graphics->Point[$nb]['ArrowHead'];
+				$source = $this->byGraphId[$startRef];
+				$target = $this->byGraphId[$endRef];
+				$interaction =  new Interaction($source, $target, $line, $typeRef);
+				$this->interactions[] = $interaction;
 			}
 		}
 		return $this->interactions;
@@ -191,7 +215,7 @@ class PathwayData {
 				$id = (string)$elm['GraphId'];
 				if($id) {
 					$this->byGraphId[$id] = $elm;
-				}
+				}				
 			}
 		}
 	}
@@ -202,25 +226,35 @@ class Interaction {
 	private $source;
 	private $target;
 	private $edge;
-
-	function __construct($source, $target, $edge) {
+	private $type;
+	
+	function __construct($source, $target, $edge, $type) {
 		$this->source = $source;
 		$this->target = $target;
 		$this->edge = $edge;
+		$this->type = $type;
 	}
-
 	function getSource() { return $this->source; }
 	function getTarget() { return $this->target; }
 	function getEdge() { return $this->edge; }
+	function getType() { return $this->type; }
 
 	function getName() {
 		$source = $this->source['TextLabel'];
 		if(!$source) $source = $this->source->getName() . $this->source['GraphId'];
 		$target = $this->target['TextLabel'];
 		if(!$target) $target = $this->target->getName() . $this->target['GraphId'];
-		return $source . " -> " . $target;
+		$type = $this->type;
+		return $source. " -> " . $type . " -> " . $target;
 	}
-
+	function getNameSoft() {
+		$source = $this->source['TextLabel'];
+		if(!$source) $source = "";
+		$target = $this->target['TextLabel'];
+		if(!$target) $target = "";
+		$type = $this->type;
+		return $source. " -> " . $type . " -> " . $target;
+	}
 	function getPublicationXRefs($pathwayData) {
 		$xrefs = $pathwayData->getPublicationXRefs();
 		foreach($this->edge->BiopaxRef as $bpref) {
