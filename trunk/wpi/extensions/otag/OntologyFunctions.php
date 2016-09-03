@@ -86,12 +86,14 @@ class OntologyFunctions
 		$title = $pwId;
 		$resultArray = array();
 		$dbr =& wfGetDB(DB_SLAVE);
-		$query = "SELECT * FROM `ontology` " . "WHERE `pw_id` = '$title' ORDER BY `ontology`";
-		$res = $dbr->query($query);
+		#$query = "SELECT * FROM `ontology` " . "WHERE `pw_id` = '$title' ORDER BY `ontology`";
+		#$res = $dbr->query($query);
+		## Replacing with parameterized SQL to resolve critical security issue
+		$res = $dbr->select('ontology', '*', array('pw_id' => $title), __METHOD__, array('ORDER BY' => 'ontology'));
 
 		$path = "";
 
-		while($row = $dbr->fetchObject($res)) {
+		while($row = $dbr->fetchObject($res)) e
 			$term['term_id'] = $row->term_id;
 			$term['term'] = $row->term;
 			$term['ontology'] = $row->ontology;
