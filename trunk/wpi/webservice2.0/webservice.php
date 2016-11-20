@@ -842,7 +842,8 @@ function getPathwaysByParentOntologyTerm($term) {
 	  try {
 			  $term = mysql_escape_string($term);
 			  $dbr = wfGetDB( DB_SLAVE );
-			  $query = "SELECT * FROM `ontology` " . "WHERE `term_path` LIKE '%$term%' ";
+			  //added OR statement as temporary fix while term_path method in otag is broken 
+			  $query = "SELECT * FROM `ontology` " . "WHERE `term_path` LIKE '%$term%' OR `term_id` = '$term'";
 			  $res = $dbr->query($query);
 			  $objects = array();
 			  while($row = $dbr->fetchObject( $res )) {

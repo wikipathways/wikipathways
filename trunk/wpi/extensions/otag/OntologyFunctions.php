@@ -113,6 +113,8 @@ class OntologyFunctions
 		$URL = self::getBioPortalURL('path', array("ontologyId"=>$ontologyId,"termId"=>$id)) ;
 		$xml = simplexml_load_string(OntologyCache::fetchCache("path",$URL));
 
+		//Once getBioPortalURL is updated above, then parsing below needs to also be updated.
+		//Note:  For now, this method is being skipped and 'term_path' field in ontology table is left empty!
 		if($xml->data->list->classBean->relations->entry) {
 			foreach($xml->data->list->classBean->relations->entry as $entry ) {
 				if($entry->string == "Path") {
