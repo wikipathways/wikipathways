@@ -34,9 +34,9 @@ class OntologyFunctions
 		$pathway = Pathway::newFromTitle($pwTitle);
 		$ontology = self::getOntologyName($tagId);
 		//$path = self::getOntologyTagPath($tagId);
+		$path = "";
 		$gpml = $pathway->getGpml();
 		$xml = simplexml_load_string($gpml);
-		$path = "";
 		if(!isset($xml->Biopax[0]))
 			$xml->addChild("Biopax");
 
