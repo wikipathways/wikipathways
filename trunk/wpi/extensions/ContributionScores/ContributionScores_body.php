@@ -176,7 +176,7 @@ class ContributionScores extends IncludableSpecialPage
 		if ( empty( $limit ) || $limit < 1 || $limit > CONTRIBUTIONSCORES_MAXINCLUDELIMIT )
 			$limit = 10;
 		if ( is_null( $days ) || $days < 0 )
-			$days = 7;
+			$days = 30;
 		
 		if ( $days > 0 ) {
 			$reportTitle = wfMsg( 'contributionscores-days', $days );
