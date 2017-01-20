@@ -93,7 +93,7 @@ class OntologyFunctions
 
 		$path = "";
 
-		while($row = $dbr->fetchObject($res)) e
+		while($row = $dbr->fetchObject($res)) {
 			$term['term_id'] = $row->term_id;
 			$term['term'] = $row->term;
 			$term['ontology'] = $row->ontology;

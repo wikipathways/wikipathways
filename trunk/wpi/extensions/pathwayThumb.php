@@ -67,32 +67,55 @@ function createEditCaption($pathway) {
 	//Create edit button
 	$pathwayURL = $pathway->getTitleObject()->getPrefixedURL();
 	//AP20070918
-	if (!$wgUser->isLoggedIn()){
-		$hrefbtn = SITE_URL . "/index.php?title=Special:Userlogin&returnto=$pathwayURL";
-		$label = "Log in to edit pathway";
+	$editButton = '';
+	if ($wgUser->isLoggedIn() && $pathway->getTitleObject()->userCan('edit')) {
+		$identifier = $pathway->getIdentifier();
+		$version = $pathway->getLatestRevision(); 
+		$editButton = '<div style="float:left;">' . 
+			  // see http://www.ericmmartin.com/projects/simplemodal/
+			  '<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/simplemodal/1.4.4/jquery.simplemodal.min.js"></script>' .
+			  // this should just be a button, but the button class only works for "a" elements with text inside.
+			  '<a id="download-from-page" href="#" onclick="return false;" class="button"><span>Launch Editor</span></a>' .
+			  '<script type="text/javascript">' .
+				" $('#download-from-page').click(function() { " .
+					" $.modal('<div id=\"jnlp-instructions\" style=\"width: 610px; height:616px; cursor:pointer;\" onClick=\"$.modal.close()\"><img id=\"jnlp-instructions-diagram\" src=\"/skins/wikipathways/jnlp-instructions.png\" alt=\"The JNLP will download to your default folder. Right-click the JNLP file and select Open.\"> </div>', {overlayClose:true, overlayCss: {backgroundColor: \"gray\"}, opacity: 50}); " .
+					// We need the kludge below, because the image doesn't display in FF otherwise.
+					" window.setTimeout(function() { " .
+						" $('#jnlp-instructions-diagram').attr('src', '/skins/wikipathways/jnlp-instructions.png'); " .
+					"}, 10);" .
+					// server must set Content-Disposition: attachment
+					// TODO why do the ampersand symbols below get parsed as HTML entities? Disabling this line and using the minimal line below for now, but we shouldn't have to do this..
+					//" window.location = '" . SITE_URL . "/wpi/extensions/PathwayViewer/pathway-jnlp.php?identifier=" . $identifier . "&version=" . $version . "&filename=WikiPathwaysEditor'; " .
+					" window.location = '" . SITE_URL . "/wpi/extensions/PathwayViewer/pathway-jnlp.php?identifier=" . $identifier . "'; " .
+				" }); " .
+			  '</script>' .
+		 '</div>';
 	} else {
-		if(wfReadOnly()) {
+		if(!$wgUser->isLoggedIn()) {
+			$hrefbtn = SITE_URL . "/index.php?title=Special:Userlogin&returnto=$pathwayURL";
+			$label = "Log in to edit pathway";
+		} else if(wfReadOnly()) {
 			$hrefbtn = "";
 			$label = "Database locked";
 		} else if(!$pathway->getTitleObject()->userCan('edit')) {
 			$hrefbtn = "";
 			$label = "Editing is disabled";
-		} else {
-			$hrefbtn = "javascript:;";
-			$label = "Edit pathway";
 		}
+
+		$editButton = "<a href='$hrefbtn' title='$label' id='edit' " .
+			"class='button'><span>$label</span></a>";
 	}
+
 	$helpUrl = Title::newFromText("Help:Known_problems")->getFullUrl();
-	$caption = "<a href='$hrefbtn' title='$label' id='edit' ".
-		"class='button'><span>$label</span></a>" .
-		"<div style='float:left;'><a href='$helpUrl'> not working?</a></div>";
+	$helpLink = "<div style='float:left;'><a href='$helpUrl'> not working?</a></div>";
 
 	//Create dropdown action menu
 	$pwTitle = $pathway->getTitleObject()->getFullText();
 	//disable dropdown for now
 	$drop = PathwayPage::editDropDown($pathway);
 	$drop = '<div style="float:right;">' . $drop . '</div>';
-	return $caption . $drop;
+
+	return $editButton . $helpLink . $drop;
 }
 
 
