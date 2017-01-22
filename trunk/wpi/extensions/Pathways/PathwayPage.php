@@ -107,7 +107,7 @@ return $text;
 	}
 
 	function curationTags() {
-		$tags = "== Curation Tags ==\n" .
+		$tags = "== Quality Tags ==\n" .
 			"<CurationTags></CurationTags>";
 		return $tags;
 	}
@@ -150,7 +150,7 @@ return $text;
 	function ontologyTags() {
 		global $wpiEnableOtag;
 		if($wpiEnableOtag) {
-			$otags = "== Ontology Tags ==\n" .
+			$otags = "== Ontology Terms ==\n" .
 				"<OntologyTags></OntologyTags>";
 			return $otags;
 		}
