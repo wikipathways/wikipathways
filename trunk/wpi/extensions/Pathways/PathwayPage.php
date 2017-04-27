@@ -75,8 +75,8 @@ class PathwayPage {
 {$this->titleEditor()}
 {$this->privateWarning()}
 {{Template:PathwayPage:Top}}
-{$this->curationTags()}
 {$this->descriptionText()}
+{$this->curationTags()}
 {$this->ontologyTags()}
 {$this->bibliographyText()}
 {{Template:PathwayPage:Bottom}}

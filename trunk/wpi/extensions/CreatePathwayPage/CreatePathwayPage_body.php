@@ -75,7 +75,7 @@ class CreatePathwayPage extends SpecialPage {
 				$wgOut->addWikiText("'''Please specify a name with less than 200 characters.'''\n----\n");
 				$this->showForm($pwName, $pwSpecies, false, $private);
 			} else {
-				$this->startEditor($pwName, $pwSpecies, $private);
+				$this->createPage($pwName, $pwSpecies, $private);
 			}
 		} elseif($uploading == '1') { //Upload button pressed
 			$this->doUpload($uploading, $private2);
@@ -126,14 +126,20 @@ class CreatePathwayPage extends SpecialPage {
 		}
 	}
 
-	function startEditor($pwName, $pwSpecies, $private) {
+	function createPage($pwName, $pwSpecies, $private) {
 		global $wgRequest, $wgOut, $wpiScriptURL;
 		$backlink = '<a href="javascript:history.back(-1)">Back</a>';
 		try {
-			$wgOut->addHTML("<div id='applet'></div>");
-			$pwTitle = "$pwName:$pwSpecies";
-			$new = $private ? 'private' : 'true';
-			$wgOut->addWikiText("{{#editApplet:direct|applet|$new|$pwTitle}}");
+                        $gpmlData='<?xml version="1.0" encoding="UTF-8"?>'."\n".
+                                '<Pathway xmlns="http://pathvisio.org/GPML/2013a" Name="'.$pwName.'" Organism="'.$pwSpecies.'">'."\n".
+                                '<Graphics BoardWidth="30.0" BoardHeight="30.0" />'."\n".
+                                '<InfoBox CenterX="0.0" CenterY="0.0" />'."\n".
+                                '</Pathway>';
+                        $pathway = Pathway::createNewPathway($gpmlData);
+                        $title = $pathway->getTitleObject();
+                        $name = $pathway->getName();
+                        if($private2) $pathway->makePrivate($wgUser);
+                        $wgOut->addWikiText("'''<font color='green'>Pathway successfully created!</font>'''\n'''Check it out:  [[$title|$name]]'''\n----\n");
 		} catch(Exception $e) {
 			$wgOut->addHTML("<B>Error:</B><P>{$e->getMessage()}</P><BR>$backlink</BR>");
 			return;
