@@ -142,9 +142,9 @@ $wgDefaultSkin = 'wikipathways';
 ## License and Creative Commons licenses are supported so far.
 # $wgEnableCreativeCommonsRdf = true;
 $wgRightsPage = "WikiPathways:License_Terms"; # Set to the title of a wiki page that describes your license/copyright
-$wgRightsUrl = "http://creativecommons.org/licenses/by/3.0/";
-$wgRightsText = "our license terms";
-$wgRightsIcon = "http://i.creativecommons.org/l/by/3.0/88x31.png";
+$wgRightsUrl = "https://creativecommons.org/publicdomain/zero/1.0/";
+$wgRightsText = "our terms of use";
+$wgRightsIcon = "https://licensebuttons.net/p/zero/1.0/88x31.png";
 # $wgRightsCode = ""; # Not yet used
 
 $wgDiff3 = "/usr/bin/diff3";
