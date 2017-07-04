@@ -57,8 +57,10 @@ class RecentChangesBox {
 		$html = "<TABLE class='{$this->cssClass}' $style>";
 
 		foreach(array_keys($this->rows) as $date) {
-			$html .= "<TR class='recentChangesBoxDate'><TD colspan='2'>$date";
-			$html .= $this->rows[$date];
+			if($this->rows[$date] != ''){ #skip blank returns from formatRow()
+				$html .= "<TR class='recentChangesBoxDate'><TD colspan='2'>$date";
+				$html .= $this->rows[$date];
+			}
 		}
 
 		$html .= "</TABLE>";
