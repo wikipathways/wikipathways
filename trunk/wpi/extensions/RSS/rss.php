@@ -174,8 +174,13 @@ function renderRss( $input ) {
 					$text = '';
 					$display = $d_title;
 				}
+                                $img = '';
+                                if ($item['url']){
+                                        $imgurl = htmlspecialchars( trim( iconv( $charset, $wgOutputEncoding, $item['url'] ) ) );
+                                        $img =  "<img src='$imgurl'/>";
+                                }
 				if ( $display ) {
-					$output.= "<dt><a href='$href'><b>$title</b></a></dt>";
+					$output.= "<dt>$img<a href='$href'><b>$title</b></a></dt>";
 					if ( $date ) $output.= " ($pubdate)";
 					if ( $text ) $output.= "<dd>$text <b>[<a href='$href'>?</a>]</b></dd>";
 				}
@@ -208,9 +213,14 @@ function renderRss( $input ) {
 					}
 					$pubdate = date( $date, strtotime( $pubdate ) );
 				}
+				$img = '';
+                                if ($item['url']){
+                                        $imgurl = htmlspecialchars( trim( iconv( $charset, $wgOutputEncoding, $item['url'] ) ) );
+                                        $img =  "<img src='$imgurl'/>";
+                                }
 				if ( $d_title && !in_array( $title, $displayed ) ) {
 					// Add date to ouput if specified
-					$output.= '<li><a href="'.$href.'" title="'.$title.'">'.$title.'</a>';
+					$output.= '<li>'.$img.'<a href="'.$href.'" title="'.$title.'">'.$title.'</a>';
 					if( $date ) {
 						$output.= " ($pubdate)";
 					}
