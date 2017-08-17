@@ -14,7 +14,7 @@ if(isset($argv[0]) && $argv[0] == "DataSourcesCache.php") {
 }
 
 class DataSourcesCache {
-	private static $url = "http://svn.bigcat.unimaas.nl/bridgedb/trunk/org.bridgedb.bio/resources/org/bridgedb/bio/datasources.txt";
+	private static $url = "https://github.com/bridgedb/BridgeDb/blob/master/org.bridgedb.bio/resources/org/bridgedb/bio/datasources.txt";
 	static $file = "datasources.txt";
 	static $content = null;
 
