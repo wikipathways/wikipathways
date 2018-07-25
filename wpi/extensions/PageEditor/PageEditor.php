@@ -75,7 +75,7 @@ class PageEditor {
 						$description->setAttribute("Source", COMMENT_WP_DESCRIPTION);
 						$root->insertBefore($description, $root->firstChild);
 					}
-					$description->nodeValue = $content;
+					$description->textcontent = $content;
 
 					//Save the new GPML
 					$gpml = $doc->saveXML();
